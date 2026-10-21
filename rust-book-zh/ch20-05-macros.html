@@ -1,0 +1,485 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>宏 - Rust 程序设计语言</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="ferris-d33b75bf.css">
+        <link rel="stylesheet" href="theme/2018-edition-4e126c62.css">
+        <link rel="stylesheet" href="theme/semantic-notes-9b5766c0.css">
+        <link rel="stylesheet" href="theme/listing-cab26221.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-b44a7f85.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-5e6eca28.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust 程序设计语言</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/book" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h2 id="macros"><a class="header" href="#macros">宏</a></h2>
+<p>我们在本书中一直在使用像 <code>println!</code> 这样的宏，但还没有完整地探讨过宏是什么以及它是如何工作的。<em>宏</em>（macro）这个术语指的是 Rust 中的一系列特性：使用 <code>macro_rules!</code> 的声明宏，以及三种过程宏：</p>
+<ul>
+<li>自定义 <code>#[derive]</code> 宏，用于指定在结构体和枚举上使用 <code>derive</code> 属性时所添加的代码</li>
+<li>类属性宏，用于定义可用于任意项的自定义属性</li>
+<li>类函数宏，看起来像函数调用，但操作的是作为其参数传入的标记（token）</li>
+</ul>
+<p>我们会依次讨论每一种宏，但首先，我们来看看既然已经有了函数，为什么还需要宏。</p>
+<h3 id="the-difference-between-macros-and-functions"><a class="header" href="#the-difference-between-macros-and-functions">宏与函数的区别</a></h3>
+<p>从根本上说，宏是一种编写“能编写其他代码的代码”的方式，这被称为<em>元编程</em>（metaprogramming）。在附录 C 中，我们讨论了 <code>derive</code> 属性，它会为你生成各种 trait 的实现。我们在整本书中也一直在使用 <code>println!</code> 和 <code>vec!</code> 宏。所有这些宏都会<em>展开</em>，生成比你手写的代码更多的代码。</p>
+<p>元编程有助于减少你需要编写和维护的代码量，这也是函数的作用之一。不过，宏还拥有一些函数所不具备的额外能力。</p>
+<p>函数签名必须声明函数参数的个数和类型。而宏则可以接受数量可变的参数：我们可以用一个参数调用 <code>println!("hello")</code>，也可以用两个参数调用 <code>println!("hello {}", name)</code>。此外，宏是在编译器解释代码的含义之前展开的，因此宏可以做到诸如在给定类型上实现 trait 这样的事情。函数就做不到这一点，因为函数是在运行时被调用的，而 trait 需要在编译时实现。</p>
+<p>实现宏而不是函数的缺点在于，宏定义比函数定义更加复杂，因为你是在编写“能编写 Rust 代码的 Rust 代码”。由于这种间接性，宏定义通常比函数定义更难阅读、理解和维护。</p>
+<p>宏与函数之间的另一个重要区别是：在文件中调用宏<em>之前</em>，你必须先定义宏或将其引入作用域；而函数则可以在任何地方定义、在任何地方调用。</p>
+<!-- Old headings. Do not remove or links may break. -->
+<p><a id="declarative-macros-with-macro_rules-for-general-metaprogramming"></a></p>
+<h3 id="declarative-macros-for-general-metaprogramming"><a class="header" href="#declarative-macros-for-general-metaprogramming">用于通用元编程的声明宏</a></h3>
+<p>Rust 中使用最广泛的宏形式是<em>声明宏</em>（declarative macro）。它们有时也被称为“示例宏”（macros by example）、“<code>macro_rules!</code> 宏”，或者干脆就叫“宏”。从核心上说，声明宏允许你编写一些类似于 Rust <code>match</code> 表达式的东西。正如第 6 章所讨论的，<code>match</code> 表达式是一种控制结构，它接受一个表达式，将该表达式的结果值与各个模式进行比较，然后运行与匹配的模式相关联的代码。宏也会将一个值与关联着特定代码的模式进行比较：在这种情况下，值是传给宏的 Rust 源代码字面量；模式会与这段源代码的结构进行比较；而当某个模式匹配时，与该模式相关联的代码会替换传给宏的代码。这一切都发生在编译期间。</p>
+<p>要定义宏，需要使用 <code>macro_rules!</code> 结构。我们通过观察 <code>vec!</code> 宏是如何定义的，来探索如何使用 <code>macro_rules!</code>。第 8 章介绍了如何使用 <code>vec!</code> 宏来创建一个包含特定值的新 vector。例如，下面的宏会创建一个包含三个整数的新 vector：</p>
+<pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let v: Vec&lt;u32&gt; = vec![1, 2, 3];
+<span class="boring">}</span></code></pre>
+<p>我们也可以使用 <code>vec!</code> 宏来创建一个包含两个整数的 vector，或者一个包含五个字符串切片的 vector。用函数是无法做到同样的事情的，因为我们无法预先知道值的个数和类型。</p>
+<p>示例 20-35 展示了 <code>vec!</code> 宏的一个略微简化的定义。</p>
+<figure class="listing" id="listing-20-35">
+<span class="file-name">文件名：src/lib.rs</span>
+<pre><code class="language-rust noplayground">#[macro_export]
+macro_rules! vec {
+    ( $( $x:expr ),* ) =&gt; {
+        {
+            let mut temp_vec = Vec::new();
+            $(
+                temp_vec.push($x);
+            )*
+            temp_vec
+        }
+    };
+}</code></pre>
+<figcaption><a href="#listing-20-35">示例 20-35</a>：<code>vec!</code> 宏定义的简化版本</figcaption>
+</figure>
+<section class="note" aria-role="note">
+<p>注意：标准库中 <code>vec!</code> 宏的实际定义包含了预先分配正确大小内存的代码。那段代码是一种优化，为了让示例更简单，我们没有在这里包含它。</p>
+</section>
+<p><code>#[macro_export]</code> 注解表明，只要定义该宏的 crate 被引入作用域，这个宏就应当可用。如果没有这个注解，该宏就无法被引入作用域。</p>
+<p>接着，我们以 <code>macro_rules!</code> 和所定义的宏的名称（<em>不带</em>感叹号）开始宏定义。在本例中，名称 <code>vec</code> 后面跟着一对花括号，表示宏定义的主体。</p>
+<p><code>vec!</code> 主体中的结构与 <code>match</code> 表达式的结构类似。这里有一个分支，其模式为 <code>( $( $x:expr ),* )</code>，后面跟着 <code>=&gt;</code> 以及与该模式相关联的代码块。如果模式匹配，就会生成相关联的代码块。鉴于这是该宏中唯一的模式，只有一种有效的匹配方式；任何其他模式都会导致错误。更复杂的宏会有不止一个分支。</p>
+<p>宏定义中有效的模式语法与第 19 章介绍的模式语法不同，因为宏模式匹配的是 Rust 代码的结构，而不是值。我们来逐一看看示例 20-35 中各个模式片段的含义；完整的宏模式语法请参阅 <a href="../reference/macros-by-example.html">Rust 参考手册</a>。</p>
+<p>首先，我们使用一对圆括号把整个模式括起来。我们使用美元符号（<code>$</code>）在宏系统中声明一个变量，它将包含与模式相匹配的 Rust 代码。美元符号清楚地表明这是一个宏变量，而不是普通的 Rust 变量。接下来是一对圆括号，它会捕获与括号内模式相匹配的值，以便在替换代码中使用。<code>$()</code> 中是 <code>$x:expr</code>，它会匹配任意 Rust 表达式，并将该表达式命名为 <code>$x</code>。</p>
+<p><code>$()</code> 后面的逗号表示，在每个与 <code>$()</code> 中的代码相匹配的代码实例之间，必须出现一个字面的逗号分隔符。<code>*</code> 表示该模式会匹配零个或多个 <code>*</code> 之前的内容。</p>
+<p>当我们以 <code>vec![1, 2, 3];</code> 调用这个宏时，<code>$x</code> 模式会匹配三次，分别匹配三个表达式 <code>1</code>、<code>2</code> 和 <code>3</code>。</p>
+<p>现在我们来看看与这个分支相关联的代码主体中的模式：对于模式中与 <code>$()</code> 匹配的每个部分，都会生成 <code>$()*</code> 中的 <code>temp_vec.push()</code>，根据模式匹配的次数生成零次或多次。<code>$x</code> 会被替换为每个匹配到的表达式。当我们以 <code>vec![1, 2, 3];</code> 调用这个宏时，生成的用来替换该宏调用的代码如下：</p>
+<pre><code class="language-rust ignore">{
+    let mut temp_vec = Vec::new();
+    temp_vec.push(1);
+    temp_vec.push(2);
+    temp_vec.push(3);
+    temp_vec
+}</code></pre>
+<p>我们定义了一个宏，它可以接受任意数量、任意类型的参数，并能生成创建一个包含指定元素的 vector 的代码。</p>
+<p>要进一步了解如何编写宏，请查阅在线文档或其他资源，比如由 Daniel Keep 发起、Lukas Wirth 接续编写的 <a href="https://veykril.github.io/tlborm/">“The Little Book of Rust Macros”</a>。</p>
+<h3 id="procedural-macros-for-generating-code-from-attributes"><a class="header" href="#procedural-macros-for-generating-code-from-attributes">用于从属性生成代码的过程宏</a></h3>
+<p>宏的第二种形式是过程宏，它的行为更像函数（并且也是一种过程）。<em>过程宏</em>（procedural macro）接受一些代码作为输入，对这些代码进行操作，然后产生一些代码作为输出，而不是像声明宏那样匹配模式并用其他代码替换原有代码。三种过程宏分别是自定义 <code>derive</code> 宏、类属性宏和类函数宏，它们的工作方式都很相似。</p>
+<p>在创建过程宏时，其定义必须位于一个具有特殊 crate 类型的独立 crate 中。这是出于一些复杂的技术原因，我们希望将来能消除这一限制。在示例 20-36 中，我们展示了如何定义一个过程宏，其中 <code>some_attribute</code> 是一个占位符，代表使用某种特定类型的宏。</p>
+<figure class="listing" id="listing-20-36">
+<span class="file-name">文件名：src/lib.rs</span>
+<pre><code class="language-rust ignore">use proc_macro::TokenStream;
+
+#[some_attribute]
+pub fn some_name(input: TokenStream) -&gt; TokenStream {
+}</code></pre>
+<figcaption><a href="#listing-20-36">示例 20-36</a>：定义过程宏的一个示例</figcaption>
+</figure>
+<p>定义过程宏的函数接受一个 <code>TokenStream</code> 作为输入，并产生一个 <code>TokenStream</code> 作为输出。<code>TokenStream</code> 类型由 Rust 自带的 <code>proc_macro</code> crate 定义，它表示一个标记序列。这就是宏的核心：宏所操作的源代码构成了输入的 <code>TokenStream</code>，而宏产生的代码就是输出的 <code>TokenStream</code>。这个函数上还附加了一个属性，用来指定我们正在创建的是哪种过程宏。同一个 crate 中可以包含多种过程宏。</p>
+<p>我们来看看不同种类的过程宏。我们先从自定义 <code>derive</code> 宏开始，然后再解释其他几种形式与它之间的细微差别。</p>
+<!-- Old headings. Do not remove or links may break. -->
+<p><a id="how-to-write-a-custom-derive-macro"></a></p>
+<h3 id="custom-derive-macros"><a class="header" href="#custom-derive-macros">自定义 <code>derive</code> 宏</a></h3>
+<p>我们来创建一个名为 <code>hello_macro</code> 的 crate，它定义了一个名为 <code>HelloMacro</code> 的 trait，该 trait 带有一个名为 <code>hello_macro</code> 的关联函数。我们不让用户为他们的每个类型都实现 <code>HelloMacro</code> trait，而是提供一个过程宏，这样用户只需用 <code>#[derive(HelloMacro)]</code> 标注他们的类型，就能得到 <code>hello_macro</code> 函数的默认实现。默认实现会打印 <code>Hello, Macro! My name is TypeName!</code>，其中 <code>TypeName</code> 是定义了该 trait 的类型的名称。换句话说，我们要编写一个 crate，让其他程序员能够借助我们的 crate 编写出像示例 20-37 这样的代码。</p>
+<figure class="listing" id="listing-20-37">
+<span class="file-name">文件名：src/main.rs</span>
+<pre><code class="language-rust ignore does_not_compile">use hello_macro::HelloMacro;
+use hello_macro_derive::HelloMacro;
+
+#[derive(HelloMacro)]
+struct Pancakes;
+
+fn main() {
+    Pancakes::hello_macro();
+}</code></pre>
+<figcaption><a href="#listing-20-37">示例 20-37</a>：我们 crate 的用户在使用我们的过程宏时能够编写的代码</figcaption>
+</figure>
+<p>完成之后，这段代码会打印出 <code>Hello, Macro! My name is Pancakes!</code>。第一步是创建一个新的库 crate，就像这样：</p>
+<pre><code class="language-console">$ cargo new hello_macro --lib
+</code></pre>
+<p>接下来，在示例 20-38 中，我们会定义 <code>HelloMacro</code> trait 及其关联函数。</p>
+<figure class="listing" id="listing-20-38">
+<span class="file-name">文件名：src/lib.rs</span>
+<pre><code class="language-rust noplayground">pub trait HelloMacro {
+    fn hello_macro();
+}</code></pre>
+<figcaption><a href="#listing-20-38">示例 20-38</a>：一个将与 <code>derive</code> 宏一起使用的简单 trait</figcaption>
+</figure>
+<p>现在我们有了一个 trait 及其函数。此时，我们 crate 的用户可以自己实现这个 trait 来获得所需的功能，如示例 20-39 所示。</p>
+<figure class="listing" id="listing-20-39">
+<span class="file-name">文件名：src/main.rs</span>
+<pre><code class="language-rust ignore">use hello_macro::HelloMacro;
+
+struct Pancakes;
+
+impl HelloMacro for Pancakes {
+    fn hello_macro() {
+        println!("Hello, Macro! My name is Pancakes!");
+    }
+}
+
+fn main() {
+    Pancakes::hello_macro();
+}</code></pre>
+<figcaption><a href="#listing-20-39">示例 20-39</a>：如果用户手动实现 <code>HelloMacro</code> trait，代码会是什么样子</figcaption>
+</figure>
+<p>然而，对于每个想与 <code>hello_macro</code> 一起使用的类型，用户都需要编写一个实现块；我们希望让他们免于做这些工作。</p>
+<p>此外，我们还无法为 <code>hello_macro</code> 函数提供一个能打印出实现该 trait 的类型名称的默认实现：Rust 没有反射能力，因此无法在运行时查找类型的名称。我们需要一个宏在编译时生成代码。</p>
+<p>下一步是定义过程宏。在撰写本书时，过程宏需要放在它们自己的 crate 中。将来这个限制可能会被取消。组织 crate 和宏 crate 的惯例如下：对于一个名为 <code>foo</code> 的 crate，其自定义 <code>derive</code> 过程宏 crate 命名为 <code>foo_derive</code>。我们在 <code>hello_macro</code> 项目中创建一个名为 <code>hello_macro_derive</code> 的新 crate：</p>
+<pre><code class="language-console">$ cargo new hello_macro_derive --lib
+</code></pre>
+<p>这两个 crate 紧密相关，因此我们在 <code>hello_macro</code> crate 的目录中创建这个过程宏 crate。如果我们修改了 <code>hello_macro</code> 中的 trait 定义，就必须同时修改 <code>hello_macro_derive</code> 中过程宏的实现。这两个 crate 需要分别发布，而使用这些 crate 的程序员需要把两者都添加为依赖，并将它们都引入作用域。我们也可以改为让 <code>hello_macro</code> crate 将 <code>hello_macro_derive</code> 作为依赖，并重导出过程宏的代码。不过，按照我们组织项目的方式，即使程序员不需要 <code>derive</code> 功能，也可以使用 <code>hello_macro</code>。</p>
+<p>我们需要将 <code>hello_macro_derive</code> crate 声明为过程宏 crate。稍后你会看到，我们还需要用到 <code>syn</code> 和 <code>quote</code> crate 中的功能，所以需要将它们添加为依赖。将以下内容添加到 <code>hello_macro_derive</code> 的 <em>Cargo.toml</em> 文件中：</p>
+<figure class="listing">
+<span class="file-name">文件名：hello_macro_derive/Cargo.toml</span>
+<pre><code class="language-toml">[lib]
+proc-macro = true
+
+[dependencies]
+syn = "2.0"
+quote = "1.0"
+</code></pre>
+</figure>
+<p>为了开始定义过程宏，请将示例 20-40 中的代码放入 <code>hello_macro_derive</code> crate 的 <em>src/lib.rs</em> 文件中。注意，在我们为 <code>impl_hello_macro</code> 函数添加定义之前，这段代码是无法编译的。</p>
+<figure class="listing" id="listing-20-40">
+<span class="file-name">文件名：hello_macro_derive/src/lib.rs</span>
+<pre><code class="language-rust ignore does_not_compile">use proc_macro::TokenStream;
+use quote::quote;
+
+#[proc_macro_derive(HelloMacro)]
+pub fn hello_macro_derive(input: TokenStream) -&gt; TokenStream {
+    // Construct a representation of Rust code as a syntax tree
+    // that we can manipulate.
+    let ast = syn::parse(input).unwrap();
+
+    // Build the trait implementation.
+    impl_hello_macro(&amp;ast)
+}</code></pre>
+<figcaption><a href="#listing-20-40">示例 20-40</a>：大多数过程宏 crate 为了处理 Rust 代码都需要的代码</figcaption>
+</figure>
+<p>注意，我们把代码拆分成了两个函数：负责解析 <code>TokenStream</code> 的 <code>hello_macro_derive</code> 函数，以及负责转换语法树的 <code>impl_hello_macro</code> 函数：这让编写过程宏更加方便。对于你所见到或创建的几乎每一个过程宏 crate，外层函数（在本例中是 <code>hello_macro_derive</code>）中的代码都是一样的。而你在内层函数（在本例中是 <code>impl_hello_macro</code>）的函数体中编写的代码，则会根据过程宏的用途而有所不同。</p>
+<p>我们引入了三个新的 crate：<code>proc_macro</code>、<a href="https://crates.io/crates/syn"><code>syn</code></a><!-- ignore --> 和 <a href="https://crates.io/crates/quote"><code>quote</code></a><!-- ignore -->。<code>proc_macro</code> crate 是 Rust 自带的，所以我们不需要把它添加到 <em>Cargo.toml</em> 的依赖中。<code>proc_macro</code> crate 是编译器的 API，它允许我们在自己的代码中读取和操作 Rust 代码。</p>
+<p><code>syn</code> crate 会把 Rust 代码从字符串解析为我们可以对其进行操作的数据结构。<code>quote</code> crate 则会把 <code>syn</code> 的数据结构转换回 Rust 代码。这些 crate 让解析我们可能想要处理的任何 Rust 代码都变得简单多了：为 Rust 代码编写一个完整的解析器可不是件简单的事。</p>
+<p>当我们库的用户在某个类型上指定 <code>#[derive(HelloMacro)]</code> 时，<code>hello_macro_derive</code> 函数就会被调用。之所以能这样，是因为我们在这里用 <code>proc_macro_derive</code> 标注了 <code>hello_macro_derive</code> 函数，并指定了名称 <code>HelloMacro</code>，它与我们的 trait 名称相匹配；这是大多数过程宏都遵循的惯例。</p>
+<p><code>hello_macro_derive</code> 函数首先将 <code>input</code> 从 <code>TokenStream</code> 转换为一个我们可以解释并对其进行操作的数据结构。这正是 <code>syn</code> 发挥作用的地方。<code>syn</code> 中的 <code>parse</code> 函数接受一个 <code>TokenStream</code>，并返回一个表示解析后的 Rust 代码的 <code>DeriveInput</code> 结构体。示例 20-41 展示了解析 <code>struct Pancakes;</code> 字符串所得到的 <code>DeriveInput</code> 结构体的相关部分。</p>
+<figure class="listing" id="listing-20-41">
+<pre><code class="language-rust ignore">DeriveInput {
+    // --snip--
+
+    ident: Ident {
+        ident: "Pancakes",
+        span: #0 bytes(95..103)
+    },
+    data: Struct(
+        DataStruct {
+            struct_token: Struct,
+            fields: Unit,
+            semi_token: Some(
+                Semi
+            )
+        }
+    )
+}</code></pre>
+<figcaption><a href="#listing-20-41">示例 20-41</a>：解析示例 20-37 中带有该宏属性的代码时得到的 <code>DeriveInput</code> 实例</figcaption>
+</figure>
+<p>这个结构体的字段表明，我们解析的 Rust 代码是一个类单元结构体，其 <code>ident</code>（<em>identifier</em>，即标识符，也就是名称）为 <code>Pancakes</code>。这个结构体上还有更多字段，用于描述各种各样的 Rust 代码；更多信息请查阅 <a href="https://docs.rs/syn/2.0/syn/struct.DeriveInput.html"><code>syn</code> 中关于 <code>DeriveInput</code> 的文档</a>。</p>
+<p>很快我们就会定义 <code>impl_hello_macro</code> 函数，我们将在其中构建想要包含进来的新 Rust 代码。但在此之前，请注意我们的 <code>derive</code> 宏的输出同样是一个 <code>TokenStream</code>。返回的 <code>TokenStream</code> 会被添加到我们 crate 的用户所编写的代码中，因此当他们编译自己的 crate 时，就会获得我们在修改后的 <code>TokenStream</code> 中提供的额外功能。</p>
+<p>你可能已经注意到，我们在这里调用了 <code>unwrap</code>，这样当对 <code>syn::parse</code> 函数的调用失败时，<code>hello_macro_derive</code> 函数就会 panic。我们的过程宏有必要在出错时 panic，因为为了符合过程宏 API，<code>proc_macro_derive</code> 函数必须返回 <code>TokenStream</code> 而不是 <code>Result</code>。我们通过使用 <code>unwrap</code> 简化了这个例子；在生产代码中，你应该使用 <code>panic!</code> 或 <code>expect</code> 来提供更具体的错误信息，说明哪里出了问题。</p>
+<p>现在我们已经有了将带注解的 Rust 代码从 <code>TokenStream</code> 转换为 <code>DeriveInput</code> 实例的代码，接下来就生成在带注解的类型上实现 <code>HelloMacro</code> trait 的代码，如示例 20-42 所示。</p>
+<figure class="listing" id="listing-20-42">
+<span class="file-name">文件名：hello_macro_derive/src/lib.rs</span>
+<pre><code class="language-rust ignore"><span class="boring">use proc_macro::TokenStream;
+</span><span class="boring">use quote::quote;
+</span><span class="boring">
+</span><span class="boring">#[proc_macro_derive(HelloMacro)]
+</span><span class="boring">pub fn hello_macro_derive(input: TokenStream) -&gt; TokenStream {
+</span><span class="boring">    // Construct a representation of Rust code as a syntax tree
+</span><span class="boring">    // that we can manipulate
+</span><span class="boring">    let ast = syn::parse(input).unwrap();
+</span><span class="boring">
+</span><span class="boring">    // Build the trait implementation
+</span><span class="boring">    impl_hello_macro(&amp;ast)
+</span><span class="boring">}
+</span><span class="boring">
+</span>fn impl_hello_macro(ast: &amp;syn::DeriveInput) -&gt; TokenStream {
+    let name = &amp;ast.ident;
+    let generated = quote! {
+        impl HelloMacro for #name {
+            fn hello_macro() {
+                println!("Hello, Macro! My name is {}!", stringify!(#name));
+            }
+        }
+    };
+    generated.into()
+}</code></pre>
+<figcaption><a href="#listing-20-42">示例 20-42</a>：使用解析后的 Rust 代码实现 <code>HelloMacro</code> trait</figcaption>
+</figure>
+<p>我们通过 <code>ast.ident</code> 得到一个 <code>Ident</code> 结构体实例，它包含了带注解的类型的名称（标识符）。示例 20-41 中的结构体表明，当我们对示例 20-37 中的代码运行 <code>impl_hello_macro</code> 函数时，得到的 <code>ident</code> 的 <code>ident</code> 字段的值为 <code>"Pancakes"</code>。因此，示例 20-42 中的 <code>name</code> 变量将包含一个 <code>Ident</code> 结构体实例，打印它时会得到字符串 <code>"Pancakes"</code>，也就是示例 20-37 中结构体的名称。</p>
+<p><code>quote!</code> 宏让我们能够定义想要返回的 Rust 代码。编译器所期望的东西与 <code>quote!</code> 宏执行的直接结果有所不同，因此我们需要将其转换为 <code>TokenStream</code>。我们通过调用 <code>into</code> 方法来做到这一点，它会消费这个中间表示，并返回所需的 <code>TokenStream</code> 类型的值。</p>
+<p><code>quote!</code> 宏还提供了一些非常酷的模板机制：我们可以输入 <code>#name</code>，<code>quote!</code> 会将其替换为变量 <code>name</code> 中的值。你甚至可以像常规宏那样进行一些重复操作。完整的介绍请查阅 <a href="https://docs.rs/quote"><code>quote</code> crate 的文档</a>。</p>
+<p>我们希望过程宏为用户所标注的类型生成 <code>HelloMacro</code> trait 的实现，而这个类型可以通过 <code>#name</code> 得到。该 trait 的实现中只有一个函数 <code>hello_macro</code>，其函数体包含了我们想要提供的功能：打印 <code>Hello, Macro! My name is</code>，然后再打印带注解的类型的名称。</p>
+<p>这里使用的 <code>stringify!</code> 宏是 Rust 内置的。它接受一个 Rust 表达式，比如 <code>1 + 2</code>，并在编译时将该表达式转换为一个字符串字面量，比如 <code>"1 + 2"</code>。这与 <code>format!</code> 或 <code>println!</code> 不同，后两者是会对表达式求值、然后将结果转换为 <code>String</code> 的宏。<code>#name</code> 输入有可能是一个需要按字面打印的表达式，所以我们使用 <code>stringify!</code>。使用 <code>stringify!</code> 还能在编译时将 <code>#name</code> 转换为字符串字面量，从而省去一次内存分配。</p>
+<p>此时，<code>cargo build</code> 应该能在 <code>hello_macro</code> 和 <code>hello_macro_derive</code> 中都成功完成。我们把这些 crate 与示例 20-37 中的代码连接起来，看看过程宏的实际效果吧！在你的 <em>projects</em> 目录中使用 <code>cargo new pancakes</code> 创建一个新的二进制项目。我们需要在 <code>pancakes</code> crate 的 <em>Cargo.toml</em> 中将 <code>hello_macro</code> 和 <code>hello_macro_derive</code> 添加为依赖。如果你把自己版本的 <code>hello_macro</code> 和 <code>hello_macro_derive</code> 发布到了 <a href="https://crates.io/">crates.io</a><!-- ignore --> 上，它们就是常规的依赖；如果没有发布，可以像下面这样将它们指定为 <code>path</code> 依赖：</p>
+<pre><code class="language-toml">[dependencies]
+hello_macro = { path = "../hello_macro" }
+hello_macro_derive = { path = "../hello_macro/hello_macro_derive" }
+</code></pre>
+<p>将示例 20-37 中的代码放入 <em>src/main.rs</em>，然后运行 <code>cargo run</code>：它应该会打印出 <code>Hello, Macro! My name is Pancakes!</code>。来自过程宏的 <code>HelloMacro</code> trait 实现被包含了进来，而 <code>pancakes</code> crate 并不需要自己实现它；是 <code>#[derive(HelloMacro)]</code> 添加了这个 trait 实现。</p>
+<p>接下来，我们来探讨其他几种过程宏与自定义 <code>derive</code> 宏有何不同。</p>
+<h3 id="attribute-like-macros"><a class="header" href="#attribute-like-macros">类属性宏</a></h3>
+<p>类属性宏与自定义 <code>derive</code> 宏类似，但它们不是为 <code>derive</code> 属性生成代码，而是允许你创建新的属性。它们也更加灵活：<code>derive</code> 只适用于结构体和枚举；而属性还可以应用于其他项，比如函数。下面是一个使用类属性宏的例子。假设你在使用某个 Web 应用框架时，有一个名为 <code>route</code> 的属性用于标注函数：</p>
+<pre><code class="language-rust ignore">#[route(GET, "/")]
+fn index() {</code></pre>
+<p>这个 <code>#[route]</code> 属性将由该框架定义为一个过程宏。宏定义函数的签名看起来像这样：</p>
+<pre><code class="language-rust ignore">#[proc_macro_attribute]
+pub fn route(attr: TokenStream, item: TokenStream) -&gt; TokenStream {</code></pre>
+<p>这里有两个 <code>TokenStream</code> 类型的参数。第一个用于属性的内容：即 <code>GET, "/"</code> 部分。第二个是该属性所附加到的项的主体：在本例中，就是 <code>fn index() {}</code> 以及函数体的其余部分。</p>
+<p>除此之外，类属性宏的工作方式与自定义 <code>derive</code> 宏相同：你创建一个 crate 类型为 <code>proc-macro</code> 的 crate，并实现一个生成你想要的代码的函数！</p>
+<h3 id="function-like-macros"><a class="header" href="#function-like-macros">类函数宏</a></h3>
+<p>类函数宏定义的是看起来像函数调用的宏。与 <code>macro_rules!</code> 宏类似，它们比函数更灵活；例如，它们可以接受数量未知的参数。然而，<code>macro_rules!</code> 宏只能使用我们在前面<a href="#declarative-macros-with-macro_rules-for-general-metaprogramming">“用于通用元编程的声明宏”</a><!-- ignore -->部分讨论过的类似 match 的语法来定义。类函数宏接受一个 <code>TokenStream</code> 参数，并且与另外两种过程宏一样，其定义会使用 Rust 代码来操作这个 <code>TokenStream</code>。类函数宏的一个例子是 <code>sql!</code> 宏，它的调用方式可能像这样：</p>
+<pre><code class="language-rust ignore">let sql = sql!(SELECT * FROM posts WHERE id=1);</code></pre>
+<p>这个宏会解析其中的 SQL 语句，并检查其语法是否正确，这比 <code>macro_rules!</code> 宏所能完成的处理要复杂得多。<code>sql!</code> 宏的定义会是这样的：</p>
+<pre><code class="language-rust ignore">#[proc_macro]
+pub fn sql(input: TokenStream) -&gt; TokenStream {</code></pre>
+<p>这个定义与自定义 <code>derive</code> 宏的签名类似：我们接收圆括号内的标记，并返回我们想要生成的代码。</p>
+<h2 id="summary"><a class="header" href="#summary">总结</a></h2>
+<p>呼！现在你的工具箱里已经有了一些 Rust 特性，你很可能不会经常用到它们，但你会知道在非常特定的情况下可以使用它们。我们介绍了几个复杂的主题，这样当你在错误信息的建议中或在别人的代码中遇到它们时，就能认出这些概念和语法。请把本章当作参考，引导你找到解决方案。</p>
+<p>接下来，我们将把在整本书中讨论过的所有内容付诸实践，再完成一个项目！</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch20-04-advanced-functions-and-closures.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch21-00-final-project-a-web-server.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch20-04-advanced-functions-and-closures.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch21-00-final-project-a-web-server.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="ferris-7c001469.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

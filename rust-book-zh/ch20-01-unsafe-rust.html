@@ -1,0 +1,572 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>unsafe Rust - Rust 程序设计语言</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="ferris-d33b75bf.css">
+        <link rel="stylesheet" href="theme/2018-edition-4e126c62.css">
+        <link rel="stylesheet" href="theme/semantic-notes-9b5766c0.css">
+        <link rel="stylesheet" href="theme/listing-cab26221.css">
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-b44a7f85.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-5e6eca28.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust 程序设计语言</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/book" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h2 id="unsafe-rust"><a class="header" href="#unsafe-rust">unsafe Rust</a></h2>
+<p>到目前为止，我们讨论过的所有代码都在编译时强制执行了 Rust 的内存安全保证。然而，Rust 内部还隐藏着另一种语言，它不会强制执行这些内存安全保证：它叫作 <em>unsafe Rust</em>（不安全的 Rust），用起来和常规 Rust 完全一样，但会赋予我们额外的超能力。</p>
+<p>unsafe Rust 之所以存在，是因为静态分析本质上是保守的。当编译器试图判断代码是否维护了这些保证时，拒绝一些有效的程序要好过接受一些无效的程序。尽管代码<em>可能</em>没有问题，但只要 Rust 编译器没有足够的信息来确定这一点，它就会拒绝这段代码。在这些情况下，你可以使用不安全代码告诉编译器：“相信我，我知道自己在做什么。”不过要注意，使用 unsafe Rust 的风险由你自己承担：如果不正确地使用不安全代码，就可能因内存不安全而出现问题，比如解引用空指针。</p>
+<p>Rust 之所以有一个不安全的“另一面”，另一个原因是底层的计算机硬件本质上就是不安全的。如果 Rust 不允许你执行不安全操作，有些任务你就无法完成。Rust 需要允许你进行底层系统编程，比如直接与操作系统交互，甚至编写你自己的操作系统。支持底层系统编程正是这门语言的目标之一。下面我们来探索可以用 unsafe Rust 做些什么，以及该怎么做。</p>
+<!-- Old headings. Do not remove or links may break. -->
+<p><a id="unsafe-superpowers"></a></p>
+<h3 id="performing-unsafe-superpowers"><a class="header" href="#performing-unsafe-superpowers">施展不安全超能力</a></h3>
+<p>要切换到 unsafe Rust，需要使用 <code>unsafe</code> 关键字，然后开启一个新的块来存放不安全代码。在 unsafe Rust 中，你可以执行五种在安全 Rust 中无法执行的操作，我们称之为<em>不安全超能力</em>（unsafe superpowers）。这些超能力包括：</p>
+<ol>
+<li>解引用裸指针。</li>
+<li>调用不安全的函数或方法。</li>
+<li>访问或修改可变静态变量。</li>
+<li>实现不安全 trait。</li>
+<li>访问 <code>union</code> 的字段。</li>
+</ol>
+<p>需要明白的重要一点是，<code>unsafe</code> 并不会关闭借用检查器，也不会禁用 Rust 的任何其他安全检查：如果你在不安全代码中使用引用，它仍然会被检查。<code>unsafe</code> 关键字只是让你能够使用这五种特性，编译器不会对它们进行内存安全检查。在 unsafe 块内部，你仍然能获得一定程度的安全性。</p>
+<p>此外，<code>unsafe</code> 并不意味着块中的代码一定是危险的，或者一定会有内存安全问题：其用意在于，由作为程序员的你来确保 <code>unsafe</code> 块中的代码会以有效的方式访问内存。</p>
+<p>人难免会犯错，错误总会发生，但由于这五种不安全操作必须位于标注了 <code>unsafe</code> 的块中，你就能知道任何与内存安全相关的错误一定出在某个 <code>unsafe</code> 块里。请让 <code>unsafe</code> 块保持短小；以后排查内存 bug 时，你会庆幸自己这么做了。</p>
+<p>为了尽可能地隔离不安全代码，最好将这类代码封装在一个安全抽象中，并提供安全的 API，本章稍后研究不安全函数和方法时会讨论这一点。标准库的一部分就是在经过审查的不安全代码之上实现的安全抽象。将不安全代码包装在安全抽象中，可以防止 <code>unsafe</code> 的使用蔓延到你或你的用户想要使用这些由 <code>unsafe</code> 代码实现的功能的每一个地方，因为使用安全抽象本身是安全的。</p>
+<p>接下来我们依次看看这五种不安全超能力。我们还会看到一些为不安全代码提供安全接口的抽象。</p>
+<h3 id="dereferencing-a-raw-pointer"><a class="header" href="#dereferencing-a-raw-pointer">解引用裸指针</a></h3>
+<p>在第 4 章<a href="ch04-02-references-and-borrowing.html#dangling-references">“悬垂引用”</a><!-- ignore -->部分中，我们提到编译器会确保引用总是有效的。unsafe Rust 有两种被称为<em>裸指针</em>（raw pointer）的新类型，它们与引用类似。和引用一样，裸指针也可以是不可变的或可变的，分别写作 <code>*const T</code> 和 <code>*mut T</code>。这里的星号不是解引用运算符，而是类型名称的一部分。在裸指针的语境下，<em>不可变</em>意味着指针在被解引用之后不能直接被赋值。</p>
+<p>与引用和智能指针不同，裸指针：</p>
+<ul>
+<li>允许忽略借用规则，可以同时存在指向同一位置的不可变指针和可变指针，或者多个可变指针</li>
+<li>不保证指向有效的内存</li>
+<li>允许为空</li>
+<li>不实现任何自动清理</li>
+</ul>
+<p>通过不让 Rust 强制执行这些保证，你可以放弃有保障的安全性，以换取更高的性能，或者换取与另一种语言或硬件交互的能力，因为在这些场合中 Rust 的保证并不适用。</p>
+<p>示例 20-1 展示了如何创建一个不可变裸指针和一个可变裸指针。</p>
+<figure class="listing" id="listing-20-1">
+<pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
+</span>    let mut num = 5;
+
+    let r1 = &amp;raw const num;
+    let r2 = &amp;raw mut num;
+<span class="boring">}</span></code></pre>
+<figcaption><a href="#listing-20-1">示例 20-1</a>：使用裸借用运算符创建裸指针</figcaption>
+</figure>
+<p>注意，这段代码中并没有使用 <code>unsafe</code> 关键字。我们可以在安全代码中创建裸指针，只是不能在 unsafe 块之外解引用裸指针，稍后你就会看到这一点。</p>
+<p>我们使用裸借用运算符创建了裸指针：<code>&amp;raw const num</code> 会创建一个 <code>*const i32</code> 不可变裸指针，而 <code>&amp;raw mut num</code> 会创建一个 <code>*mut i32</code> 可变裸指针。由于它们是直接从一个局部变量创建的，我们知道这两个裸指针是有效的，但并不能对任意一个裸指针都做出这样的假设。</p>
+<p>为了说明这一点，接下来我们将创建一个无法如此确定其有效性的裸指针：这次使用关键字 <code>as</code> 对一个值进行类型转换，而不是使用裸借用运算符。示例 20-2 展示了如何创建一个指向内存中任意位置的裸指针。尝试使用任意内存的行为是未定义的：该地址上可能有数据，也可能没有；编译器可能会把代码优化得根本不访问内存；程序也可能因段错误（segmentation fault）而终止。通常没有充分的理由编写这样的代码，尤其是在可以改用裸借用运算符的情况下，但这么做确实是可能的。</p>
+<figure class="listing" id="listing-20-2">
+<pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
+</span>    let address = 0x012345usize;
+    let r = address as *const i32;
+<span class="boring">}</span></code></pre>
+<figcaption><a href="#listing-20-2">示例 20-2</a>：创建一个指向任意内存地址的裸指针</figcaption>
+</figure>
+<p>回忆一下，我们可以在安全代码中创建裸指针，但不能解引用裸指针并读取其指向的数据。在示例 20-3 中，我们对裸指针使用了解引用运算符 <code>*</code>，这需要一个 <code>unsafe</code> 块。</p>
+<figure class="listing" id="listing-20-3">
+<pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
+</span>    let mut num = 5;
+
+    let r1 = &amp;raw const num;
+    let r2 = &amp;raw mut num;
+
+    unsafe {
+        println!("r1 is: {}", *r1);
+        println!("r2 is: {}", *r2);
+    }
+<span class="boring">}</span></code></pre>
+<figcaption><a href="#listing-20-3">示例 20-3</a>：在 <code>unsafe</code> 块中解引用裸指针</figcaption>
+</figure>
+<p>创建一个指针并不会造成任何危害；只有当我们试图访问它所指向的值时，才可能会遇到无效的值。</p>
+<p>还要注意，在示例 20-1 和示例 20-3 中，我们创建的 <code>*const i32</code> 和 <code>*mut i32</code> 两个裸指针都指向同一个内存位置，也就是存储 <code>num</code> 的地方。如果我们改为尝试创建 <code>num</code> 的一个不可变引用和一个可变引用，代码将无法编译，因为 Rust 的所有权规则不允许可变引用与任何不可变引用同时存在。而使用裸指针，我们可以创建指向同一位置的可变指针和不可变指针，并通过可变指针修改数据，这就可能造成数据竞争。务必小心！</p>
+<p>既然有这么多危险，为什么还要使用裸指针呢？一个主要的使用场景是与 C 代码交互，你将在下一节中看到。另一个场景是构建借用检查器无法理解的安全抽象。我们先介绍不安全函数，然后看一个使用了不安全代码的安全抽象的示例。</p>
+<h3 id="calling-an-unsafe-function-or-method"><a class="header" href="#calling-an-unsafe-function-or-method">调用不安全函数或方法</a></h3>
+<p>可以在 unsafe 块中执行的第二种操作是调用不安全函数。不安全函数和方法看起来与常规函数和方法完全一样，只是在定义的其余部分之前多了一个 <code>unsafe</code>。此处的 <code>unsafe</code> 关键字表示调用这个函数时有一些我们需要满足的要求，因为 Rust 无法保证我们已经满足了这些要求。在 <code>unsafe</code> 块中调用不安全函数，就表示我们已经阅读过这个函数的文档，并承担起遵守该函数契约的责任。</p>
+<p>下面是一个名为 <code>dangerous</code> 的不安全函数，它的函数体中什么也没做：</p>
+<pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
+</span>    unsafe fn dangerous() {}
+
+    unsafe {
+        dangerous();
+    }
+<span class="boring">}</span></code></pre>
+<p>我们必须在一个单独的 <code>unsafe</code> 块中调用 <code>dangerous</code> 函数。如果尝试在没有 <code>unsafe</code> 块的情况下调用 <code>dangerous</code>，就会得到一个错误：</p>
+<pre><code class="language-console">$ cargo run
+   Compiling unsafe-example v0.1.0 (file:///projects/unsafe-example)
+error[E0133]: call to unsafe function `dangerous` is unsafe and requires unsafe block
+ --&gt; src/main.rs:4:5
+  |
+4 |     dangerous();
+  |     ^^^^^^^^^^^ call to unsafe function
+  |
+  = note: consult the function's documentation for information on how to avoid undefined behavior
+
+For more information about this error, try `rustc --explain E0133`.
+error: could not compile `unsafe-example` (bin "unsafe-example") due to 1 previous error
+</code></pre>
+<p>通过 <code>unsafe</code> 块，我们是在向 Rust 断言：我们已经阅读了该函数的文档，理解如何正确地使用它，并且已经核实我们履行了该函数的契约。</p>
+<p>要在 <code>unsafe</code> 函数的函数体中执行不安全操作，你仍然需要使用 <code>unsafe</code> 块，就像在常规函数中一样；如果你忘记了，编译器会发出警告。这有助于我们让 <code>unsafe</code> 块尽可能小，因为可能并不是整个函数体都需要执行不安全操作。</p>
+<h4 id="creating-a-safe-abstraction-over-unsafe-code"><a class="header" href="#creating-a-safe-abstraction-over-unsafe-code">在不安全代码之上创建安全抽象</a></h4>
+<p>一个函数包含不安全代码，并不意味着我们需要将整个函数都标记为不安全的。事实上，将不安全代码包装在安全函数中是一种常见的抽象。作为例子，我们来研究一下标准库中的 <code>split_at_mut</code> 函数，它需要用到一些不安全代码。我们将探讨可以如何实现它。这个安全方法定义在可变切片上：它接受一个切片，并在作为参数传入的索引处将其拆分为两个切片。示例 20-4 展示了如何使用 <code>split_at_mut</code>。</p>
+<figure class="listing" id="listing-20-4">
+<pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
+</span>    let mut v = vec![1, 2, 3, 4, 5, 6];
+
+    let r = &amp;mut v[..];
+
+    let (a, b) = r.split_at_mut(3);
+
+    assert_eq!(a, &amp;mut [1, 2, 3]);
+    assert_eq!(b, &amp;mut [4, 5, 6]);
+<span class="boring">}</span></code></pre>
+<figcaption><a href="#listing-20-4">示例 20-4</a>：使用安全的 <code>split_at_mut</code> 函数</figcaption>
+</figure>
+<p>仅使用安全 Rust 是无法实现这个函数的。一种尝试可能类似示例 20-5，但它无法编译。为简单起见，我们将 <code>split_at_mut</code> 实现为函数而不是方法，并且只针对 <code>i32</code> 值的切片，而不是泛型类型 <code>T</code>。</p>
+<figure class="listing" id="listing-20-5">
+<pre><code class="language-rust ignore does_not_compile">fn split_at_mut(values: &amp;mut [i32], mid: usize) -&gt; (&amp;mut [i32], &amp;mut [i32]) {
+    let len = values.len();
+
+    assert!(mid &lt;= len);
+
+    (&amp;mut values[..mid], &amp;mut values[mid..])
+}
+<span class="boring">
+</span><span class="boring">fn main() {
+</span><span class="boring">    let mut vector = vec![1, 2, 3, 4, 5, 6];
+</span><span class="boring">    let (left, right) = split_at_mut(&amp;mut vector, 3);
+</span><span class="boring">}</span></code></pre>
+<figcaption><a href="#listing-20-5">示例 20-5</a>：尝试仅使用安全 Rust 实现 <code>split_at_mut</code></figcaption>
+</figure>
+<p>这个函数首先获取切片的总长度。然后，它通过检查作为参数传入的索引是否小于或等于长度，来断言该索引位于切片之内。这个断言意味着，如果我们传入一个大于长度的索引来拆分切片，函数会在尝试使用该索引之前 panic。</p>
+<p>接着，我们在一个元组中返回两个可变切片：一个从原始切片的开头到索引 <code>mid</code>，另一个从 <code>mid</code> 到切片的末尾。</p>
+<p>当我们尝试编译示例 20-5 中的代码时，会得到一个错误：</p>
+<pre><code class="language-console">$ cargo run
+   Compiling unsafe-example v0.1.0 (file:///projects/unsafe-example)
+error[E0499]: cannot borrow `*values` as mutable more than once at a time
+ --&gt; src/main.rs:6:31
+  |
+1 | fn split_at_mut(values: &amp;mut [i32], mid: usize) -&gt; (&amp;mut [i32], &amp;mut [i32]) {
+  |                         - let's call the lifetime of this reference `'1`
+...
+6 |     (&amp;mut values[..mid], &amp;mut values[mid..])
+  |     --------------------------^^^^^^--------
+  |     |     |                   |
+  |     |     |                   second mutable borrow occurs here
+  |     |     first mutable borrow occurs here
+  |     returning this value requires that `*values` is borrowed for `'1`
+  |
+  = help: use `.split_at_mut(position)` to obtain two mutable non-overlapping sub-slices
+
+For more information about this error, try `rustc --explain E0499`.
+error: could not compile `unsafe-example` (bin "unsafe-example") due to 1 previous error
+</code></pre>
+<p>Rust 的借用检查器无法理解我们借用的是切片的不同部分；它只知道我们从同一个切片借用了两次。借用切片的不同部分从根本上说是没问题的，因为这两个切片并不重叠，但 Rust 还没有聪明到能看出这一点。当我们知道代码没问题而 Rust 并不知道时，就该求助于不安全代码了。</p>
+<p>示例 20-6 展示了如何使用一个 <code>unsafe</code> 块、一个裸指针以及对不安全函数的一些调用，让 <code>split_at_mut</code> 的实现能够正常工作。</p>
+<figure class="listing" id="listing-20-6">
+<pre class="playground"><code class="language-rust edition2024">use std::slice;
+
+fn split_at_mut(values: &amp;mut [i32], mid: usize) -&gt; (&amp;mut [i32], &amp;mut [i32]) {
+    let len = values.len();
+    let ptr = values.as_mut_ptr();
+
+    assert!(mid &lt;= len);
+
+    unsafe {
+        (
+            slice::from_raw_parts_mut(ptr, mid),
+            slice::from_raw_parts_mut(ptr.add(mid), len - mid),
+        )
+    }
+}
+<span class="boring">
+</span><span class="boring">fn main() {
+</span><span class="boring">    let mut vector = vec![1, 2, 3, 4, 5, 6];
+</span><span class="boring">    let (left, right) = split_at_mut(&amp;mut vector, 3);
+</span><span class="boring">}</span></code></pre>
+<figcaption><a href="#listing-20-6">示例 20-6</a>：在 <code>split_at_mut</code> 函数的实现中使用不安全代码</figcaption>
+</figure>
+<p>回忆一下第 4 章<a href="ch04-03-slices.html#the-slice-type">“切片类型”</a><!-- ignore -->部分的内容：切片由一个指向某些数据的指针和切片的长度组成。我们使用 <code>len</code> 方法获取切片的长度，使用 <code>as_mut_ptr</code> 方法访问切片的裸指针。在本例中，由于我们有一个 <code>i32</code> 值的可变切片，<code>as_mut_ptr</code> 会返回一个类型为 <code>*mut i32</code> 的裸指针，我们将它存储在变量 <code>ptr</code> 中。</p>
+<p>我们保留了 <code>mid</code> 索引位于切片之内的断言。接下来就是不安全代码：<code>slice::from_raw_parts_mut</code> 函数接受一个裸指针和一个长度，并创建一个切片。我们用这个函数创建一个从 <code>ptr</code> 开始、包含 <code>mid</code> 个元素的切片。然后，我们以 <code>mid</code> 作为参数调用 <code>ptr</code> 上的 <code>add</code> 方法，得到一个从 <code>mid</code> 开始的裸指针，再使用这个指针、以 <code>mid</code> 之后剩余的元素个数作为长度创建另一个切片。</p>
+<p><code>slice::from_raw_parts_mut</code> 函数是不安全的，因为它接受一个裸指针，并且必须相信这个指针是有效的。裸指针上的 <code>add</code> 方法也是不安全的，因为它必须相信偏移之后的位置同样是一个有效的指针。因此，我们必须在对 <code>slice::from_raw_parts_mut</code> 和 <code>add</code> 的调用外面套上一个 <code>unsafe</code> 块，才能调用它们。通过检查代码，并加上 <code>mid</code> 必须小于或等于 <code>len</code> 的断言，我们可以断定 <code>unsafe</code> 块中用到的所有裸指针都是指向切片内数据的有效指针。这是对 <code>unsafe</code> 的一种可接受且恰当的使用。</p>
+<p>注意，我们不需要将最终得到的 <code>split_at_mut</code> 函数标记为 <code>unsafe</code>，并且可以在安全 Rust 中调用这个函数。我们为不安全代码创建了一个安全抽象，这个函数的实现以安全的方式使用了 <code>unsafe</code> 代码，因为它只会根据该函数有权访问的数据来创建有效的指针。</p>
+<p>相比之下，示例 20-7 中对 <code>slice::from_raw_parts_mut</code> 的使用很可能会在使用该切片时崩溃。这段代码获取一个任意的内存位置，并创建了一个包含 10,000 个元素的切片。</p>
+<figure class="listing" id="listing-20-7">
+<pre class="playground"><code class="language-rust edition2024"><span class="boring">fn main() {
+</span>    use std::slice;
+
+    let address = 0x01234usize;
+    let r = address as *mut i32;
+
+    let values: &amp;[i32] = unsafe { slice::from_raw_parts_mut(r, 10000) };
+<span class="boring">}</span></code></pre>
+<figcaption><a href="#listing-20-7">示例 20-7</a>：从任意内存位置创建切片</figcaption>
+</figure>
+<p>我们并不拥有这个任意位置上的内存，也无法保证这段代码创建的切片包含有效的 <code>i32</code> 值。试图把 <code>values</code> 当作有效的切片来使用，会导致未定义行为。</p>
+<h4 id="using-extern-functions-to-call-external-code"><a class="header" href="#using-extern-functions-to-call-external-code">使用 <code>extern</code> 函数调用外部代码</a></h4>
+<p>有时，你的 Rust 代码可能需要与用另一种语言编写的代码交互。为此，Rust 提供了 <code>extern</code> 关键字，用于创建和使用<em>外部函数接口</em>（Foreign Function Interface，FFI）。FFI 是一种让某种编程语言定义函数，并允许另一种（外部的）编程语言调用这些函数的方式。</p>
+<p>示例 20-8 演示了如何集成 C 标准库中的 <code>abs</code> 函数。从 Rust 代码中调用在 <code>extern</code> 块中声明的函数通常是不安全的，因此 <code>extern</code> 块也必须标记为 <code>unsafe</code>。原因在于，其他语言并不会强制执行 Rust 的规则和保证，而 Rust 也无法检查它们，所以确保安全的责任就落在了程序员身上。</p>
+<figure class="listing" id="listing-20-8">
+<span class="file-name">文件名：src/main.rs</span>
+<pre class="playground"><code class="language-rust edition2024">unsafe extern "C" {
+    fn abs(input: i32) -&gt; i32;
+}
+
+fn main() {
+    unsafe {
+        println!("Absolute value of -3 according to C: {}", abs(-3));
+    }
+}</code></pre>
+<figcaption><a href="#listing-20-8">示例 20-8</a>：声明并调用一个在另一种语言中定义的 <code>extern</code> 函数</figcaption>
+</figure>
+<p>在 <code>unsafe extern "C"</code> 块中，我们列出了想要调用的、来自另一种语言的外部函数的名称和签名。<code>"C"</code> 部分定义了外部函数所使用的<em>应用二进制接口</em>（application binary interface，ABI）：ABI 定义了如何在汇编层面调用函数。<code>"C"</code> ABI 是最常见的 ABI，它遵循 C 编程语言的 ABI。有关 Rust 支持的所有 ABI 的信息，请参阅 <a href="../reference/items/external-blocks.html#abi">Rust 参考手册</a>。</p>
+<p>在 <code>unsafe extern</code> 块中声明的每一项都隐式地是不安全的。不过，有些 FFI 函数调用起来<em>确实</em>是安全的。例如，C 标准库中的 <code>abs</code> 函数不涉及任何内存安全方面的问题，而且我们知道可以用任意 <code>i32</code> 来调用它。在这类情况下，我们可以使用 <code>safe</code> 关键字来表明：尽管这个特定的函数位于 <code>unsafe extern</code> 块中，调用它也是安全的。做出这一修改后，调用它就不再需要 <code>unsafe</code> 块了，如示例 20-9 所示。</p>
+<figure class="listing" id="listing-20-9">
+<span class="file-name">文件名：src/main.rs</span>
+<pre class="playground"><code class="language-rust edition2024">unsafe extern "C" {
+    safe fn abs(input: i32) -&gt; i32;
+}
+
+fn main() {
+    println!("Absolute value of -3 according to C: {}", abs(-3));
+}</code></pre>
+<figcaption><a href="#listing-20-9">示例 20-9</a>：在 <code>unsafe extern</code> 块中显式地将函数标记为 <code>safe</code> 并安全地调用它</figcaption>
+</figure>
+<p>将函数标记为 <code>safe</code> 并不会让它本身变得安全！这更像是你向 Rust 做出的一个承诺，保证它是安全的。确保这个承诺得到兑现，仍然是你的责任！</p>
+<h4 id="calling-rust-functions-from-other-languages"><a class="header" href="#calling-rust-functions-from-other-languages">从其他语言调用 Rust 函数</a></h4>
+<p>我们也可以使用 <code>extern</code> 来创建一个接口，让其他语言能够调用 Rust 函数。这时不需要创建整个 <code>extern</code> 块，而是在相关函数的 <code>fn</code> 关键字之前加上 <code>extern</code> 关键字并指定要使用的 ABI。我们还需要添加 <code>#[unsafe(no_mangle)]</code> 注解，告诉 Rust 编译器不要对这个函数的名称进行修饰。<em>名称修饰</em>（mangling）是指编译器将我们给函数起的名字改成另一个名字，新名字包含了更多供编译过程的其他环节使用的信息，但对人来说更难读懂。每种编程语言的编译器修饰名称的方式都略有不同，因此为了让其他语言能够通过名字引用 Rust 函数，我们必须禁用 Rust 编译器的名称修饰。这样做是不安全的，因为缺少内置的名称修饰，不同的库之间可能会发生名称冲突，所以我们有责任确保所选的名称在不经修饰的情况下导出是安全的。</p>
+<p>在下面的例子中，我们让 <code>call_from_c</code> 函数在被编译为共享库并从 C 链接之后，能够被 C 代码访问：</p>
+<pre><code>#[unsafe(no_mangle)]
+pub extern "C" fn call_from_c() {
+    println!("Just called a Rust function from C!");
+}
+</code></pre>
+<p><code>extern</code> 的这种用法只需要在属性中使用 <code>unsafe</code>，而不需要在 <code>extern</code> 块上使用。</p>
+<h3 id="accessing-or-modifying-a-mutable-static-variable"><a class="header" href="#accessing-or-modifying-a-mutable-static-variable">访问或修改可变静态变量</a></h3>
+<p>在本书中，我们还没有讨论过全局变量。Rust 确实支持全局变量，但它们可能会与 Rust 的所有权规则产生冲突。如果两个线程访问同一个可变全局变量，就可能导致数据竞争。</p>
+<p>在 Rust 中，全局变量被称为<em>静态</em>（static）变量。示例 20-10 展示了一个以字符串切片为值的静态变量的声明和使用示例。</p>
+<figure class="listing" id="listing-20-10">
+<span class="file-name">文件名：src/main.rs</span>
+<pre class="playground"><code class="language-rust edition2024">static HELLO_WORLD: &amp;str = "Hello, world!";
+
+fn main() {
+    println!("value is: {HELLO_WORLD}");
+}</code></pre>
+<figcaption><a href="#listing-20-10">示例 20-10</a>：定义和使用不可变静态变量</figcaption>
+</figure>
+<p>静态变量与常量类似，我们在第 3 章<a href="ch03-01-variables-and-mutability.html#declaring-constants">“声明常量”</a><!-- ignore -->部分讨论过常量。按照惯例，静态变量的名称采用 <code>SCREAMING_SNAKE_CASE</code> 形式。静态变量只能存储具有 <code>'static</code> 生命周期的引用，这意味着 Rust 编译器能够自行推断出生命周期，我们不需要显式地标注它。访问不可变静态变量是安全的。</p>
+<p>常量与不可变静态变量之间有一个细微的区别：静态变量中的值在内存中拥有固定的地址，使用这个值时总是会访问同一份数据。而常量则允许在每次被使用时复制其数据。另一个区别是静态变量可以是可变的。访问和修改可变静态变量是<em>不安全</em>的。示例 20-11 展示了如何声明、访问和修改一个名为 <code>COUNTER</code> 的可变静态变量。</p>
+<figure class="listing" id="listing-20-11">
+<span class="file-name">文件名：src/main.rs</span>
+<pre class="playground"><code class="language-rust edition2024">static mut COUNTER: u32 = 0;
+
+/// SAFETY: Calling this from more than a single thread at a time is undefined
+/// behavior, so you *must* guarantee you only call it from a single thread at
+/// a time.
+unsafe fn add_to_count(inc: u32) {
+    unsafe {
+        COUNTER += inc;
+    }
+}
+
+fn main() {
+    unsafe {
+        // SAFETY: This is only called from a single thread in `main`.
+        add_to_count(3);
+        println!("COUNTER: {}", *(&amp;raw const COUNTER));
+    }
+}</code></pre>
+<figcaption><a href="#listing-20-11">示例 20-11</a>：读取或写入可变静态变量是不安全的。</figcaption>
+</figure>
+<p>与常规变量一样，我们使用 <code>mut</code> 关键字来指定可变性。任何读写 <code>COUNTER</code> 的代码都必须位于 <code>unsafe</code> 块中。示例 20-11 中的代码可以编译，并如我们所料打印出 <code>COUNTER: 3</code>，因为它是单线程的。如果有多个线程访问 <code>COUNTER</code>，很可能会导致数据竞争，因此这属于未定义行为。所以，我们需要将整个函数标记为 <code>unsafe</code>，并在文档中说明其安全限制，让任何调用该函数的人都知道哪些事情可以安全地做、哪些不可以。</p>
+<p>每当我们编写一个不安全函数时，惯用的做法是写一条以 <code>SAFETY</code> 开头的注释，说明调用者需要做些什么才能安全地调用该函数。同样，每当我们执行一个不安全操作时，惯用的做法是写一条以 <code>SAFETY</code> 开头的注释，解释安全规则是如何得到维护的。</p>
+<p>此外，编译器默认会通过一个编译器 lint 拒绝任何创建指向可变静态变量的引用的尝试。你要么通过添加 <code>#[allow(static_mut_refs)]</code> 注解显式地放弃该 lint 的保护，要么通过某个裸借用运算符创建的裸指针来访问可变静态变量。这也包括引用被隐式创建的情况，比如在这个代码示例的 <code>println!</code> 中使用它时。要求通过裸指针来创建指向可变静态变量的引用，有助于让使用它们时的安全要求更加显而易见。</p>
+<p>对于可以全局访问的可变数据，很难确保不存在数据竞争，这就是 Rust 认为可变静态变量不安全的原因。在可能的情况下，最好使用我们在第 16 章讨论过的并发技术和线程安全的智能指针，这样编译器就能检查来自不同线程的数据访问是否安全。</p>
+<h3 id="implementing-an-unsafe-trait"><a class="header" href="#implementing-an-unsafe-trait">实现不安全 trait</a></h3>
+<p>我们可以使用 <code>unsafe</code> 来实现一个不安全 trait。当一个 trait 中至少有一个方法带有编译器无法验证的某种不变量（invariant）时，这个 trait 就是不安全的。要声明一个 trait 是 <code>unsafe</code> 的，我们需要在 <code>trait</code> 之前加上 <code>unsafe</code> 关键字，并且同样将该 trait 的实现标记为 <code>unsafe</code>，如示例 20-12 所示。</p>
+<figure class="listing" id="listing-20-12">
+<pre class="playground"><code class="language-rust edition2024">unsafe trait Foo {
+    // methods go here
+}
+
+unsafe impl Foo for i32 {
+    // method implementations go here
+}
+<span class="boring">
+</span><span class="boring">fn main() {}</span></code></pre>
+<figcaption><a href="#listing-20-12">示例 20-12</a>：定义并实现不安全 trait</figcaption>
+</figure>
+<p>通过使用 <code>unsafe impl</code>，我们承诺会维护那些编译器无法验证的不变量。</p>
+<p>举个例子，回忆一下我们在第 16 章<a href="ch16-04-extensible-concurrency-sync-and-send.html">“使用 <code>Send</code> 和 <code>Sync</code> 实现可扩展的并发”</a><!-- ignore -->部分讨论过的 <code>Send</code> 和 <code>Sync</code> 标记 trait：如果我们的类型完全由其他实现了 <code>Send</code> 和 <code>Sync</code> 的类型组成，编译器就会自动为它实现这两个 trait。如果我们实现的类型包含了某个没有实现 <code>Send</code> 或 <code>Sync</code> 的类型（比如裸指针），而我们又想把该类型标记为 <code>Send</code> 或 <code>Sync</code>，就必须使用 <code>unsafe</code>。Rust 无法验证我们的类型是否满足“可以安全地跨线程发送或从多个线程访问”的保证；因此，我们需要手动进行这些检查，并通过 <code>unsafe</code> 表明这一点。</p>
+<h3 id="accessing-fields-of-a-union"><a class="header" href="#accessing-fields-of-a-union">访问联合体的字段</a></h3>
+<p>最后一种只能在 <code>unsafe</code> 中进行的操作是访问联合体的字段。<em>联合体</em>（union）类似于 <code>struct</code>，但在某个特定的实例中，同一时刻只会使用其中一个已声明的字段。联合体主要用于与 C 代码中的联合体交互。访问联合体的字段是不安全的，因为 Rust 无法保证当前存储在联合体实例中的数据是什么类型。你可以在 <a href="../reference/items/unions.html">Rust 参考手册</a>中进一步了解联合体。</p>
+<h3 id="using-miri-to-check-unsafe-code"><a class="header" href="#using-miri-to-check-unsafe-code">使用 Miri 检查不安全代码</a></h3>
+<p>在编写不安全代码时，你可能想要检查自己写的代码是否真的安全且正确。最好的方法之一是使用 Miri，这是一个用于检测未定义行为的 Rust 官方工具。借用检查器是在编译时工作的<em>静态</em>工具，而 Miri 则是在运行时工作的<em>动态</em>工具。它通过运行你的程序或测试套件来检查代码，并检测你何时违反了它所理解的 Rust 应当如何运作的规则。</p>
+<p>使用 Miri 需要 Rust 的 nightly 构建版本（我们会在<a href="appendix-07-nightly-rust.html">附录 G：Rust 是如何开发的与“Nightly Rust”</a><!-- ignore -->中进一步讨论）。你可以通过输入 <code>rustup +nightly component add miri</code> 来同时安装 nightly 版本的 Rust 和 Miri 工具。这不会改变你的项目所使用的 Rust 版本；它只是把这个工具添加到你的系统中，以便你在需要时使用。你可以通过输入 <code>cargo +nightly miri run</code> 或 <code>cargo +nightly miri test</code> 在项目上运行 Miri。</p>
+<p>为了说明它能提供多大帮助，我们来看看针对示例 20-7 运行它时会发生什么。</p>
+<pre><code class="language-console">$ cargo +nightly miri run
+   Compiling unsafe-example v0.1.0 (file:///projects/unsafe-example)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running `file:///home/.rustup/toolchains/nightly/bin/cargo-miri runner target/miri/debug/unsafe-example`
+warning: integer-to-pointer cast
+ --&gt; src/main.rs:5:13
+  |
+5 |     let r = address as *mut i32;
+  |             ^^^^^^^^^^^^^^^^^^^ integer-to-pointer cast
+  |
+  = help: this program is using integer-to-pointer casts or (equivalently) `ptr::with_exposed_provenance`, which means that Miri might miss pointer bugs in this program
+  = help: see https://doc.rust-lang.org/nightly/std/ptr/fn.with_exposed_provenance.html for more details on that operation
+  = help: to ensure that Miri does not miss bugs in your program, use Strict Provenance APIs (https://doc.rust-lang.org/nightly/std/ptr/index.html#strict-provenance, https://crates.io/crates/sptr) instead
+  = help: you can then set `MIRIFLAGS=-Zmiri-strict-provenance` to ensure you are not relying on `with_exposed_provenance` semantics
+  = help: alternatively, `MIRIFLAGS=-Zmiri-permissive-provenance` disables this warning
+
+error: Undefined Behavior: constructing invalid value of type &amp;mut [i32]: encountered a dangling reference (0x1234[noalloc] has no provenance)
+ --&gt; src/main.rs:7:35
+  |
+7 |     let values: &amp;[i32] = unsafe { slice::from_raw_parts_mut(r, 10000) };
+  |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Undefined Behavior occurred here
+  |
+  = help: this indicates a bug in the program: it performed an invalid operation, and caused Undefined Behavior
+  = help: see https://doc.rust-lang.org/nightly/reference/behavior-considered-undefined.html for further information
+
+note: some details are omitted, run with `MIRIFLAGS=-Zmiri-backtrace=full` for a verbose backtrace
+
+error: aborting due to 1 previous error; 1 warning emitted
+
+</code></pre>
+<p>Miri 正确地警告我们正在将整数转换为指针，这可能是个问题，但 Miri 无法确定是否真的存在问题，因为它不知道这个指针是从哪里来的。接着，Miri 在示例 20-7 存在未定义行为的地方返回了一个错误，因为我们有一个悬垂指针。多亏了 Miri，我们现在知道存在未定义行为的风险，并可以思考如何让代码变得安全。在某些情况下，Miri 甚至能就如何修复错误给出建议。</p>
+<p>Miri 并不能捕获你在编写不安全代码时可能犯下的所有错误。Miri 是一个动态分析工具，所以它只能捕获实际运行到的代码中的问题。这意味着你需要将它与良好的测试技术结合使用，才能增强你对所编写的不安全代码的信心。Miri 也无法覆盖代码可能不健全（unsound）的所有情形。</p>
+<p>换句话说：如果 Miri <em>确实</em>发现了问题，你就知道存在 bug；但 Miri <em>没有</em>发现 bug，并不意味着就没有问题。不过，它能发现的问题已经很多了。试着在本章其他的不安全代码示例上运行它，看看它会说些什么吧！</p>
+<p>你可以在 <a href="https://github.com/rust-lang/miri">Miri 的 GitHub 仓库</a>中进一步了解 Miri。</p>
+<!-- Old headings. Do not remove or links may break. -->
+<p><a id="when-to-use-unsafe-code"></a></p>
+<h3 id="using-unsafe-code-correctly"><a class="header" href="#using-unsafe-code-correctly">正确使用不安全代码</a></h3>
+<p>使用 <code>unsafe</code> 来施展刚才讨论的五种超能力之一并没有错，甚至也不会招人反感，但要写出正确的 <code>unsafe</code> 代码会更加棘手，因为编译器无法帮你维护内存安全。当你有理由使用 <code>unsafe</code> 代码时，就可以使用它，而显式的 <code>unsafe</code> 标注能让你在问题发生时更容易追踪到问题的根源。每当你编写不安全代码时，都可以借助 Miri 来更有把握地确认你编写的代码遵守了 Rust 的规则。</p>
+<p>要更深入地了解如何高效地使用 unsafe Rust，请阅读 Rust 关于 <code>unsafe</code> 的官方指南<a href="https://doc.rust-lang.org/nomicon/">《The Rustonomicon》</a>。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch20-00-advanced-features.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch20-02-advanced-traits.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch20-00-advanced-features.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch20-02-advanced-traits.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="ferris-7c001469.js"></script>
+
+
+
+    </div>
+    </body>
+</html>
