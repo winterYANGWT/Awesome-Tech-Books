@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Awesome Tech Books</title>
+<meta name="description" content="精选技术书籍的中文译本，在线阅读。">
+<style>
+  :root {
+    --bg: #f6f5f2;
+    --surface: #ffffff;
+    --text: #1d1d1f;
+    --muted: #6b6b70;
+    --border: #e4e2dc;
+    --tag-bg: #f0eee8;
+    --primary: #1d1d1f;
+    --primary-text: #ffffff;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 8px 24px rgba(0, 0, 0, .06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141416;
+      --surface: #1e1e21;
+      --text: #ececee;
+      --muted: #9a9aa2;
+      --border: #2e2e33;
+      --tag-bg: #2a2a2f;
+      --primary: #ececee;
+      --primary-text: #141416;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+  header { padding: 72px 0 40px; }
+  header h1 {
+    margin: 0;
+    font-size: clamp(32px, 6vw, 48px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  header p { margin: 12px 0 0; color: var(--muted); font-size: 18px; }
+
+  .books {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+    gap: 20px;
+    padding-bottom: 56px;
+  }
+  .book {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 28px 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .book::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: var(--accent);
+  }
+  .book .lang {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: .02em;
+  }
+  .book h2 { margin: 16px 0 0; font-size: 22px; line-height: 1.35; }
+  .book .original { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+  .book .desc { margin: 14px 0 0; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+  .tags li {
+    background: var(--tag-bg);
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1;
+    padding: 7px 10px;
+    border-radius: 999px;
+  }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; padding-top: 24px; }
+  .btn {
+    display: inline-block;
+    padding: 9px 16px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    font-size: 15px;
+    text-decoration: none;
+    transition: border-color .15s, opacity .15s;
+  }
+  .btn:hover { border-color: var(--muted); }
+  .btn.primary { background: var(--primary); color: var(--primary-text); border-color: var(--primary); }
+  .btn.primary:hover { opacity: .85; }
+  .btn:focus-visible { outline: 2px solid var(--accent, var(--text)); outline-offset: 2px; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 0 40px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  footer p { margin: 0 0 6px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Awesome Tech Books</h1>
+      <p>精选技术书籍的中文译本，在线阅读。</p>
+    </header>
+
+    <main class="books">
+      <!-- 新增一本书：复制下面整个 <article>，修改 --accent 颜色、文字和链接。 -->
+      <article class="book" style="--accent: #c2410c">
+        <span class="lang" aria-hidden="true">Rust</span>
+        <h2>Rust 程序设计语言</h2>
+        <p class="original">The Rust Programming Language · 简体中文译本</p>
+        <p class="desc">Rust 官方教程。从安装和第一个程序讲起，覆盖所有权、trait 与生命周期、错误处理、测试、并发与 async、宏等内容，最后带你从零构建一个多线程 Web 服务器。</p>
+        <ul class="tags">
+          <li>21 章 + 7 个附录</li>
+          <li>译自 2026-09 上游版本</li>
+          <li>MIT / Apache-2.0</li>
+          <li>AI 翻译</li>
+        </ul>
+        <div class="actions">
+          <a class="btn primary" href="rust-book-zh/">开始阅读</a>
+          <a class="btn" href="https://doc.rust-lang.org/book/">英文原版</a>
+          <a class="btn" href="https://github.com/winterYANGWT/Awesome-Tech-Books/tree/main/rust-book-zh">许可证与说明</a>
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <p>各书沿用其原作的许可证，详见对应目录中的 LICENSE 文件；仓库根目录的 LICENSE 仅适用于本站点自身。</p>
+      <p><a href="https://github.com/winterYANGWT/Awesome-Tech-Books">GitHub 仓库</a></p>
+    </footer>
+  </div>
+</body>
+</html>
