@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="380" viewBox="0 0 360 380" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="14">
+<rect width="360" height="380" fill="#fff"/>
+<rect x="30.0" y="20.0" width="300.0" height="44.0" rx="6" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="180.0" y="46.9" font-size="14" fill="#222" text-anchor="middle">host：更新位置和速度</text>
+<polyline points="180.0,64.0 180.0,94.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="180.0,94.0 175.5,85.0 184.5,85.0" fill="#555"/>
+<rect x="30.0" y="94.0" width="300.0" height="44.0" rx="6" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="180.0" y="120.9" font-size="14" fill="#222" text-anchor="middle">host：更新或读取邻居表</text>
+<polyline points="180.0,138.0 180.0,168.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="180.0,168.0 175.5,159.0 184.5,159.0" fill="#555"/>
+<rect x="30.0" y="168.0" width="300.0" height="44.0" rx="6" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="180.0" y="194.9" font-size="14" fill="#222" text-anchor="middle">host：compute_forces_cpu</text>
+<polyline points="180.0,212.0 180.0,242.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="180.0,242.0 175.5,233.0 184.5,233.0" fill="#555"/>
+<rect x="30.0" y="242.0" width="300.0" height="44.0" rx="6" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="180.0" y="268.9" font-size="14" fill="#222" text-anchor="middle">host：能量与温度统计</text>
+<polyline points="180.0,286.0 180.0,316.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="180.0,316.0 175.5,307.0 184.5,307.0" fill="#555"/>
+<rect x="30.0" y="316.0" width="300.0" height="44.0" rx="6" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="180.0" y="342.9" font-size="14" fill="#222" text-anchor="middle">host：输出，或进入下一步</text>
+</svg>

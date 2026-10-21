@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="862" height="334" viewBox="0 0 862 334" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="14">
+<rect width="862" height="334" fill="#fff"/>
+<text x="16.0" y="26.0" font-size="14" fill="#222" text-anchor="start" font-weight="bold">不用 PDL</text>
+<text x="110.0" y="56.5" font-size="12.5" fill="#555" text-anchor="end">primary</text>
+<rect x="120.0" y="38.0" width="270.0" height="28.0" rx="4" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="255.0" y="56.5" font-size="12" fill="#222" text-anchor="middle">主体工作</text>
+<rect x="390.0" y="38.0" width="81.0" height="28.0" rx="4" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="430.5" y="56.5" font-size="12" fill="#222" text-anchor="middle">收尾</text>
+<text x="110.0" y="94.5" font-size="12.5" fill="#555" text-anchor="end">secondary</text>
+<rect x="471.0" y="76.0" width="40.5" height="28.0" rx="4" fill="#F1F1F1" stroke="#9E9E9E" stroke-width="1.5"/>
+<text x="491.2" y="94.5" font-size="12" fill="#222" text-anchor="middle">启动</text>
+<rect x="511.5" y="76.0" width="67.5" height="28.0" rx="4" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="545.2" y="94.5" font-size="12" fill="#222" text-anchor="middle">准备工作</text>
+<rect x="579.0" y="76.0" width="216.0" height="28.0" rx="4" fill="#B2DFDB" stroke="#00796B" stroke-width="1.5"/>
+<text x="687.0" y="94.5" font-size="12" fill="#222" text-anchor="middle">读取 primary 结果并计算</text>
+<polyline points="471.0,34.0 471.0,108.0" fill="none" stroke="#C62828" stroke-width="1.5" stroke-dasharray="5,4"/>
+<text x="471.0" y="123.0" font-size="11.5" fill="#C62828" text-anchor="middle">primary 完成</text>
+<text x="16.0" y="158.0" font-size="14" fill="#222" text-anchor="start" font-weight="bold">使用 PDL</text>
+<text x="110.0" y="188.5" font-size="12.5" fill="#555" text-anchor="end">primary</text>
+<rect x="120.0" y="170.0" width="270.0" height="28.0" rx="4" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="255.0" y="188.5" font-size="12" fill="#222" text-anchor="middle">主体工作</text>
+<rect x="390.0" y="170.0" width="81.0" height="28.0" rx="4" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="430.5" y="188.5" font-size="12" fill="#222" text-anchor="middle">收尾</text>
+<text x="110.0" y="226.5" font-size="12.5" fill="#555" text-anchor="end">secondary</text>
+<rect x="398.1" y="208.0" width="54.0" height="28.0" rx="4" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="425.1" y="226.5" font-size="12" fill="#222" text-anchor="middle">准备工作</text>
+<rect x="452.1" y="208.0" width="18.9" height="28.0" rx="4" fill="#F1F1F1" stroke="#9E9E9E" stroke-width="1.5" stroke-dasharray="3,3"/>
+<text x="461.6" y="226.5" font-size="12" fill="#222" text-anchor="middle"></text>
+<rect x="471.0" y="208.0" width="216.0" height="28.0" rx="4" fill="#B2DFDB" stroke="#00796B" stroke-width="1.5"/>
+<text x="579.0" y="226.5" font-size="12" fill="#222" text-anchor="middle">读取 primary 结果并计算</text>
+<polyline points="390.0,166.0 390.0,242.0" fill="none" stroke="#6A1B9A" stroke-width="1.5" stroke-dasharray="5,4"/>
+<text x="390.0" y="160.0" font-size="11.5" fill="#6A1B9A" text-anchor="middle">trigger</text>
+<polyline points="471.0,166.0 471.0,242.0" fill="none" stroke="#C62828" stroke-width="1.5" stroke-dasharray="5,4"/>
+<text x="477.0" y="256.0" font-size="11.5" fill="#C62828" text-anchor="start">primary 完成，写入可见</text>
+<polyline points="431.6,272.0 461.6,238.0" fill="none" stroke="#00796B" stroke-width="1.5"/>
+<polygon points="461.6,238.0 459.0,247.7 452.2,241.8" fill="#00796B"/>
+<text x="427.6" y="278.0" font-size="11.5" fill="#00796B" text-anchor="end">cudaGridDependencySynchronize()：在此等待</text>
+<polyline points="691.0,222.0 795.0,222.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polyline points="795.0,216.0 795.0,228.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<text x="741.0" y="214.0" font-size="12" fill="#555" text-anchor="middle">省下的时间</text>
+<polyline points="120.0,304.0 822.0,304.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="822.0,304.0 813.0,308.5 813.0,299.5" fill="#555"/>
+<text x="822.0" y="322.0" font-size="12" fill="#555" text-anchor="end">时间</text>
+</svg>

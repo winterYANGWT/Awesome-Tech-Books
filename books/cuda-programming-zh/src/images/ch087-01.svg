@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="410" viewBox="0 0 820 410" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="14">
+<rect width="820" height="410" fill="#fff"/>
+<rect x="20.0" y="20.0" width="290.0" height="370.0" rx="10" fill="#F8F7FF" stroke="#C9C2EA" stroke-width="1.5"/>
+<text x="165.0" y="44.0" font-size="15" fill="#444" text-anchor="middle" font-weight="bold">host：MdSystem</text>
+<rect x="470.0" y="20.0" width="330.0" height="370.0" rx="10" fill="#F3FAF9" stroke="#9FD3CC" stroke-width="1.5"/>
+<text x="635.0" y="44.0" font-size="15" fill="#444" text-anchor="middle" font-weight="bold">device 端</text>
+<rect x="45.0" y="66.0" width="240.0" height="38.0" rx="6" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="165.0" y="89.9" font-size="14" fill="#222" text-anchor="middle">x / y / z</text>
+<rect x="45.0" y="118.0" width="240.0" height="38.0" rx="6" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="165.0" y="141.9" font-size="14" fill="#222" text-anchor="middle">nbr_count / nbr_list</text>
+<rect x="45.0" y="170.0" width="240.0" height="38.0" rx="6" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="165.0" y="193.9" font-size="14" fill="#222" text-anchor="middle">box_len</text>
+<rect x="45.0" y="222.0" width="240.0" height="38.0" rx="6" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="165.0" y="245.9" font-size="14" fill="#222" text-anchor="middle">fx / fy / fz</text>
+<rect x="45.0" y="274.0" width="240.0" height="38.0" rx="6" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="165.0" y="297.9" font-size="14" fill="#222" text-anchor="middle">epot</text>
+<rect x="45.0" y="326.0" width="240.0" height="38.0" rx="6" fill="#ECECFF" stroke="#9370DB" stroke-width="1.5"/>
+<text x="165.0" y="349.9" font-size="14" fill="#222" text-anchor="middle">vx / vy / vz（只在 host 上）</text>
+<rect x="490.0" y="66.0" width="170.0" height="38.0" rx="6" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="575.0" y="89.9" font-size="14" fill="#222" text-anchor="middle">x / y / z</text>
+<rect x="490.0" y="118.0" width="170.0" height="38.0" rx="6" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="575.0" y="141.9" font-size="14" fill="#222" text-anchor="middle">nbr_count / nbr_list</text>
+<rect x="490.0" y="222.0" width="170.0" height="38.0" rx="6" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="575.0" y="245.9" font-size="14" fill="#222" text-anchor="middle">fx / fy / fz</text>
+<rect x="490.0" y="274.0" width="170.0" height="38.0" rx="6" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="575.0" y="297.9" font-size="14" fill="#222" text-anchor="middle">epot</text>
+<rect x="678.0" y="160.0" width="112.0" height="60.0" rx="6" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="734.0" y="194.6" font-size="13" fill="#222" text-anchor="middle">forces_kernel</text>
+<polyline points="285.0,85.0 488.0,85.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="488.0,85.0 479.0,89.5 479.0,80.5" fill="#555"/>
+<text x="387.0" y="78.0" font-size="13" fill="#555" text-anchor="middle">每步 H2D</text>
+<polyline points="285.0,137.0 488.0,137.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="488.0,137.0 479.0,141.5 479.0,132.5" fill="#555"/>
+<text x="387.0" y="130.0" font-size="13" fill="#555" text-anchor="middle">建表或重建后拷贝</text>
+<polyline points="285.0,189.0 676.0,189.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="676.0,189.0 667.0,193.5 667.0,184.5" fill="#555"/>
+<text x="387.0" y="182.0" font-size="13" fill="#555" text-anchor="middle">按值传给 kernel</text>
+<polyline points="490.0,241.0 287.0,241.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="287.0,241.0 296.0,236.5 296.0,245.5" fill="#555"/>
+<text x="387.0" y="234.0" font-size="13" fill="#555" text-anchor="middle">每步 D2H</text>
+<polyline points="490.0,293.0 287.0,293.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="287.0,293.0 296.0,288.5 296.0,297.5" fill="#555"/>
+<text x="387.0" y="286.0" font-size="13" fill="#555" text-anchor="middle">每步 D2H</text>
+<polyline points="660.0,85.0 760.0,85.0 760.0,158.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="760.0,158.0 755.5,149.0 764.5,149.0" fill="#555"/>
+<polyline points="660.0,137.0 712.0,137.0 712.0,158.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="712.0,158.0 707.5,149.0 716.5,149.0" fill="#555"/>
+<polyline points="712.0,220.0 712.0,241.0 662.0,241.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="662.0,241.0 671.0,236.5 671.0,245.5" fill="#555"/>
+<polyline points="760.0,220.0 760.0,293.0 662.0,293.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="662.0,293.0 671.0,288.5 671.0,297.5" fill="#555"/>
+</svg>

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="830" height="310" viewBox="0 0 830 310" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="14">
+<rect width="830" height="310" fill="#fff"/>
+<text x="26.0" y="150.0" font-size="12" fill="#555" text-anchor="middle" transform="rotate(-90 26 150.0)">访问该 bank 的 lane 数</text>
+<text x="235.0" y="28.0" font-size="14" fill="#222" text-anchor="middle" font-weight="bold">float tile[32][32]，按列读取第 5 列</text>
+<text x="235.0" y="50.0" font-size="13" fill="#555" text-anchor="middle">lane i 读 tile[i][5]，所在 bank 都是 5</text>
+<polyline points="70.0,230.0 400.0,230.0" fill="none" stroke="#E3E3E3" stroke-width="1.5"/>
+<text x="64.0" y="234.0" font-size="11" fill="#555" text-anchor="end">0</text>
+<polyline points="70.0,190.0 400.0,190.0" fill="none" stroke="#E3E3E3" stroke-width="1.5"/>
+<text x="64.0" y="194.0" font-size="11" fill="#555" text-anchor="end">8</text>
+<polyline points="70.0,150.0 400.0,150.0" fill="none" stroke="#E3E3E3" stroke-width="1.5"/>
+<text x="64.0" y="154.0" font-size="11" fill="#555" text-anchor="end">16</text>
+<polyline points="70.0,110.0 400.0,110.0" fill="none" stroke="#E3E3E3" stroke-width="1.5"/>
+<text x="64.0" y="114.0" font-size="11" fill="#555" text-anchor="end">24</text>
+<polyline points="70.0,70.0 400.0,70.0" fill="none" stroke="#E3E3E3" stroke-width="1.5"/>
+<text x="64.0" y="74.0" font-size="11" fill="#555" text-anchor="end">32</text>
+<rect x="123.1" y="70.0" width="7.3" height="160.0" rx="0" fill="#E08A00" stroke="none" stroke-width="1.5"/>
+<text x="75.2" y="246.0" font-size="11" fill="#555" text-anchor="middle">0</text>
+<text x="157.7" y="246.0" font-size="11" fill="#555" text-anchor="middle">8</text>
+<text x="240.2" y="246.0" font-size="11" fill="#555" text-anchor="middle">16</text>
+<text x="322.7" y="246.0" font-size="11" fill="#555" text-anchor="middle">24</text>
+<text x="394.8" y="246.0" font-size="11" fill="#555" text-anchor="middle">31</text>
+<text x="235.0" y="264.0" font-size="12" fill="#555" text-anchor="middle">bank 编号</text>
+<text x="235.0" y="290.0" font-size="13" fill="#222" text-anchor="middle">32 个 lane 挤在同一个 bank：32 路冲突</text>
+<text x="635.0" y="28.0" font-size="14" fill="#222" text-anchor="middle" font-weight="bold">float tile[32][33]，同样按列读取</text>
+<text x="635.0" y="50.0" font-size="13" fill="#555" text-anchor="middle">lane i 读 tile[i][5]，所在 bank 是 (i + 5) mod 32</text>
+<polyline points="470.0,230.0 800.0,230.0" fill="none" stroke="#E3E3E3" stroke-width="1.5"/>
+<text x="464.0" y="234.0" font-size="11" fill="#555" text-anchor="end">0</text>
+<polyline points="470.0,190.0 800.0,190.0" fill="none" stroke="#E3E3E3" stroke-width="1.5"/>
+<text x="464.0" y="194.0" font-size="11" fill="#555" text-anchor="end">8</text>
+<polyline points="470.0,150.0 800.0,150.0" fill="none" stroke="#E3E3E3" stroke-width="1.5"/>
+<text x="464.0" y="154.0" font-size="11" fill="#555" text-anchor="end">16</text>
+<polyline points="470.0,110.0 800.0,110.0" fill="none" stroke="#E3E3E3" stroke-width="1.5"/>
+<text x="464.0" y="114.0" font-size="11" fill="#555" text-anchor="end">24</text>
+<polyline points="470.0,70.0 800.0,70.0" fill="none" stroke="#E3E3E3" stroke-width="1.5"/>
+<text x="464.0" y="74.0" font-size="11" fill="#555" text-anchor="end">32</text>
+<rect x="471.5" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="481.8" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="492.1" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="502.4" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="512.8" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="523.1" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="533.4" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="543.7" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="554.0" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="564.3" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="574.6" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="584.9" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="595.2" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="605.6" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="615.9" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="626.2" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="636.5" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="646.8" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="657.1" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="667.4" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="677.8" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="688.1" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="698.4" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="708.7" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="719.0" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="729.3" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="739.6" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="749.9" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="760.2" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="770.6" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="780.9" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<rect x="791.2" y="225.0" width="7.3" height="5.0" rx="0" fill="#00796B" stroke="none" stroke-width="1.5"/>
+<text x="475.2" y="246.0" font-size="11" fill="#555" text-anchor="middle">0</text>
+<text x="557.7" y="246.0" font-size="11" fill="#555" text-anchor="middle">8</text>
+<text x="640.2" y="246.0" font-size="11" fill="#555" text-anchor="middle">16</text>
+<text x="722.7" y="246.0" font-size="11" fill="#555" text-anchor="middle">24</text>
+<text x="794.8" y="246.0" font-size="11" fill="#555" text-anchor="middle">31</text>
+<text x="635.0" y="264.0" font-size="12" fill="#555" text-anchor="middle">bank 编号</text>
+<text x="635.0" y="290.0" font-size="13" fill="#222" text-anchor="middle">32 个 lane 各占一个 bank：没有冲突</text>
+</svg>

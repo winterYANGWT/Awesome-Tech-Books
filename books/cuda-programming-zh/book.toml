@@ -1,0 +1,14 @@
+[book]
+title = "CUDA 编程：从并行模型到工程实践"
+description = "一本以工程问题为线索的中文 CUDA 教程：执行模型、异步与数据放置、性能、CUDA Graph、现代协作机制、系统级内存与互操作。"
+authors = ["winterYANGWT"]
+language = "zh-CN"
+src = "src"
+
+[output.html]
+additional-css = ["theme/custom.css"]
+git-repository-url = "https://github.com/winterYANGWT/Awesome-Tech-Books/tree/main/books/cuda-programming-zh"
+no-section-label = true
+
+[output.html.search]
+use-boolean-and = true

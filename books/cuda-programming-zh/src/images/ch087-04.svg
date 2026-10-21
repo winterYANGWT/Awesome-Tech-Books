@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="494" viewBox="0 0 440 494" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="14">
+<rect width="440" height="494" fill="#fff"/>
+<rect x="40.0" y="20.0" width="300.0" height="44.0" rx="6" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="190.0" y="46.9" font-size="14" fill="#222" text-anchor="middle">device：位置和速度常驻</text>
+<polyline points="190.0,64.0 190.0,94.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="190.0,94.0 185.5,85.0 194.5,85.0" fill="#555"/>
+<rect x="40.0" y="94.0" width="300.0" height="44.0" rx="6" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="190.0" y="120.9" font-size="14" fill="#222" text-anchor="middle">device：更新或使用邻居表</text>
+<polyline points="190.0,138.0 190.0,168.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="190.0,168.0 185.5,159.0 194.5,159.0" fill="#555"/>
+<rect x="40.0" y="168.0" width="300.0" height="44.0" rx="6" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="190.0" y="194.9" font-size="14" fill="#222" text-anchor="middle">device：forces_kernel</text>
+<polyline points="190.0,212.0 190.0,242.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="190.0,242.0 185.5,233.0 194.5,233.0" fill="#555"/>
+<rect x="40.0" y="242.0" width="300.0" height="44.0" rx="6" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="190.0" y="268.9" font-size="14" fill="#222" text-anchor="middle">device：积分、归约、速度缩放</text>
+<polyline points="190.0,286.0 190.0,316.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="190.0,316.0 185.5,307.0 194.5,307.0" fill="#555"/>
+<polygon points="190,316 280,356 190,396 100,356" fill="#E0F2F1" stroke="#00796B" stroke-width="1.5"/>
+<text x="190.0" y="361.0" font-size="14" fill="#222" text-anchor="middle">需要输出？</text>
+<polyline points="190.0,396.0 190.0,430.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="190.0,430.0 185.5,421.0 194.5,421.0" fill="#555"/>
+<text x="204.0" y="418.0" font-size="13" fill="#555" text-anchor="middle">是</text>
+<rect x="40.0" y="430.0" width="300.0" height="44.0" rx="6" fill="#FFF4E5" stroke="#E08A00" stroke-width="1.5"/>
+<text x="190.0" y="456.9" font-size="14" fill="#222" text-anchor="middle">低频 D2H：输出或检查</text>
+<polyline points="280.0,356.0 400.0,356.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<text x="340.0" y="348.0" font-size="13" fill="#555" text-anchor="middle">否</text>
+<polyline points="340.0,452.0 400.0,452.0 400.0,42.0 342.0,42.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="342.0,42.0 351.0,37.5 351.0,46.5" fill="#555"/>
+</svg>

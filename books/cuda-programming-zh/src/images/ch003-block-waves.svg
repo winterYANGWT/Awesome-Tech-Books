@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="726" height="692" viewBox="0 0 726 692" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="14">
+<rect width="726" height="692" fill="#fff"/>
+<text x="92.0" y="28.0" font-size="14" fill="#222" text-anchor="start" font-weight="bold">4 个 SM，每个 SM 同时容纳 2 个 block</text>
+<rect x="92.0" y="42.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="64.0" font-size="12" fill="#555" text-anchor="end">SM 0</text>
+<rect x="92.0" y="86.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="108.0" font-size="12" fill="#555" text-anchor="end">SM 1</text>
+<rect x="92.0" y="130.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="152.0" font-size="12" fill="#555" text-anchor="end">SM 2</text>
+<rect x="92.0" y="174.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="196.0" font-size="12" fill="#555" text-anchor="end">SM 3</text>
+<rect x="93.0" y="43.0" width="130.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="158.0" y="55.0" font-size="11" fill="#222" text-anchor="middle">B0</text>
+<rect x="93.0" y="61.0" width="86.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="136.0" y="73.0" font-size="11" fill="#222" text-anchor="middle">B1</text>
+<rect x="93.0" y="87.0" width="108.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="147.0" y="99.0" font-size="11" fill="#222" text-anchor="middle">B2</text>
+<rect x="93.0" y="105.0" width="152.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="169.0" y="117.0" font-size="11" fill="#222" text-anchor="middle">B3</text>
+<rect x="93.0" y="131.0" width="108.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="147.0" y="143.0" font-size="11" fill="#222" text-anchor="middle">B4</text>
+<rect x="93.0" y="149.0" width="130.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="158.0" y="161.0" font-size="11" fill="#222" text-anchor="middle">B5</text>
+<rect x="93.0" y="175.0" width="86.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="136.0" y="187.0" font-size="11" fill="#222" text-anchor="middle">B6</text>
+<rect x="93.0" y="193.0" width="108.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="147.0" y="205.0" font-size="11" fill="#222" text-anchor="middle">B7</text>
+<rect x="181.0" y="61.0" width="152.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="257.0" y="73.0" font-size="11" fill="#222" text-anchor="middle">B8</text>
+<rect x="181.0" y="175.0" width="108.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="235.0" y="187.0" font-size="11" fill="#222" text-anchor="middle">B9</text>
+<rect x="203.0" y="87.0" width="86.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="246.0" y="99.0" font-size="11" fill="#222" text-anchor="middle">B10</text>
+<rect x="203.0" y="131.0" width="130.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="268.0" y="143.0" font-size="11" fill="#222" text-anchor="middle">B11</text>
+<rect x="203.0" y="193.0" width="108.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="257.0" y="205.0" font-size="11" fill="#222" text-anchor="middle">B12</text>
+<rect x="225.0" y="43.0" width="86.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="268.0" y="55.0" font-size="11" fill="#222" text-anchor="middle">B13</text>
+<rect x="225.0" y="149.0" width="130.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="290.0" y="161.0" font-size="11" fill="#222" text-anchor="middle">B14</text>
+<rect x="247.0" y="105.0" width="108.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="301.0" y="117.0" font-size="11" fill="#222" text-anchor="middle">B15</text>
+<rect x="291.0" y="87.0" width="86.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="334.0" y="99.0" font-size="11" fill="#222" text-anchor="middle">B16</text>
+<rect x="291.0" y="175.0" width="130.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="356.0" y="187.0" font-size="11" fill="#222" text-anchor="middle">B17</text>
+<rect x="313.0" y="43.0" width="108.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="367.0" y="55.0" font-size="11" fill="#222" text-anchor="middle">B18</text>
+<rect x="313.0" y="193.0" width="108.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="367.0" y="205.0" font-size="11" fill="#222" text-anchor="middle">B19</text>
+<rect x="335.0" y="61.0" width="130.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="400.0" y="73.0" font-size="11" fill="#222" text-anchor="middle">B20</text>
+<rect x="335.0" y="131.0" width="86.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="378.0" y="143.0" font-size="11" fill="#222" text-anchor="middle">B21</text>
+<rect x="357.0" y="105.0" width="108.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="411.0" y="117.0" font-size="11" fill="#222" text-anchor="middle">B22</text>
+<rect x="357.0" y="149.0" width="130.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="422.0" y="161.0" font-size="11" fill="#222" text-anchor="middle">B23</text>
+<polyline points="488.0,36.0 488.0,216.0" fill="none" stroke="#C62828" stroke-width="1.5" stroke-dasharray="5,4"/>
+<text x="494.0" y="214.0" font-size="12" fill="#C62828" text-anchor="start">grid 完成</text>
+<text x="92.0" y="256.0" font-size="14" fill="#222" text-anchor="start" font-weight="bold">同一个 grid 放到 8 个 SM 上</text>
+<rect x="92.0" y="270.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="292.0" font-size="12" fill="#555" text-anchor="end">SM 0</text>
+<rect x="92.0" y="314.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="336.0" font-size="12" fill="#555" text-anchor="end">SM 1</text>
+<rect x="92.0" y="358.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="380.0" font-size="12" fill="#555" text-anchor="end">SM 2</text>
+<rect x="92.0" y="402.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="424.0" font-size="12" fill="#555" text-anchor="end">SM 3</text>
+<rect x="92.0" y="446.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="468.0" font-size="12" fill="#555" text-anchor="end">SM 4</text>
+<rect x="92.0" y="490.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="512.0" font-size="12" fill="#555" text-anchor="end">SM 5</text>
+<rect x="92.0" y="534.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="556.0" font-size="12" fill="#555" text-anchor="end">SM 6</text>
+<rect x="92.0" y="578.0" width="594.0" height="36.0" rx="0" fill="#FAFAFA" stroke="#E3E3E3" stroke-width="1"/>
+<text x="82.0" y="600.0" font-size="12" fill="#555" text-anchor="end">SM 7</text>
+<rect x="93.0" y="271.0" width="130.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="158.0" y="283.0" font-size="11" fill="#222" text-anchor="middle">B0</text>
+<rect x="93.0" y="289.0" width="86.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="136.0" y="301.0" font-size="11" fill="#222" text-anchor="middle">B1</text>
+<rect x="93.0" y="315.0" width="108.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="147.0" y="327.0" font-size="11" fill="#222" text-anchor="middle">B2</text>
+<rect x="93.0" y="333.0" width="152.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="169.0" y="345.0" font-size="11" fill="#222" text-anchor="middle">B3</text>
+<rect x="93.0" y="359.0" width="108.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="147.0" y="371.0" font-size="11" fill="#222" text-anchor="middle">B4</text>
+<rect x="93.0" y="377.0" width="130.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="158.0" y="389.0" font-size="11" fill="#222" text-anchor="middle">B5</text>
+<rect x="93.0" y="403.0" width="86.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="136.0" y="415.0" font-size="11" fill="#222" text-anchor="middle">B6</text>
+<rect x="93.0" y="421.0" width="108.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="147.0" y="433.0" font-size="11" fill="#222" text-anchor="middle">B7</text>
+<rect x="93.0" y="447.0" width="152.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="169.0" y="459.0" font-size="11" fill="#222" text-anchor="middle">B8</text>
+<rect x="93.0" y="465.0" width="108.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="147.0" y="477.0" font-size="11" fill="#222" text-anchor="middle">B9</text>
+<rect x="93.0" y="491.0" width="86.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="136.0" y="503.0" font-size="11" fill="#222" text-anchor="middle">B10</text>
+<rect x="93.0" y="509.0" width="130.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="158.0" y="521.0" font-size="11" fill="#222" text-anchor="middle">B11</text>
+<rect x="93.0" y="535.0" width="108.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="147.0" y="547.0" font-size="11" fill="#222" text-anchor="middle">B12</text>
+<rect x="93.0" y="553.0" width="86.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="136.0" y="565.0" font-size="11" fill="#222" text-anchor="middle">B13</text>
+<rect x="93.0" y="579.0" width="130.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="158.0" y="591.0" font-size="11" fill="#222" text-anchor="middle">B14</text>
+<rect x="93.0" y="597.0" width="108.0" height="16.0" rx="3" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="147.0" y="609.0" font-size="11" fill="#222" text-anchor="middle">B15</text>
+<rect x="181.0" y="289.0" width="86.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="224.0" y="301.0" font-size="11" fill="#222" text-anchor="middle">B16</text>
+<rect x="181.0" y="403.0" width="130.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="246.0" y="415.0" font-size="11" fill="#222" text-anchor="middle">B17</text>
+<rect x="181.0" y="491.0" width="108.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="235.0" y="503.0" font-size="11" fill="#222" text-anchor="middle">B18</text>
+<rect x="181.0" y="553.0" width="108.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="235.0" y="565.0" font-size="11" fill="#222" text-anchor="middle">B19</text>
+<rect x="203.0" y="315.0" width="130.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="268.0" y="327.0" font-size="11" fill="#222" text-anchor="middle">B20</text>
+<rect x="203.0" y="359.0" width="86.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="246.0" y="371.0" font-size="11" fill="#222" text-anchor="middle">B21</text>
+<rect x="203.0" y="421.0" width="108.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="257.0" y="433.0" font-size="11" fill="#222" text-anchor="middle">B22</text>
+<rect x="203.0" y="465.0" width="130.0" height="16.0" rx="3" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="268.0" y="477.0" font-size="11" fill="#222" text-anchor="middle">B23</text>
+<polyline points="334.0,264.0 334.0,620.0" fill="none" stroke="#C62828" stroke-width="1.5" stroke-dasharray="5,4"/>
+<text x="340.0" y="618.0" font-size="12" fill="#C62828" text-anchor="start">grid 完成</text>
+<polyline points="92.0,640.0 686.0,640.0" fill="none" stroke="#555" stroke-width="1.5"/>
+<polygon points="686.0,640.0 677.0,644.5 677.0,635.5" fill="#555"/>
+<text x="686.0" y="658.0" font-size="12" fill="#555" text-anchor="end">时间</text>
+<rect x="92.0" y="665.0" width="14.0" height="12.0" rx="2" fill="#B2DFDB" stroke="#00796B" stroke-width="1"/>
+<text x="112.0" y="676.0" font-size="12" fill="#555" text-anchor="start">启动时直接分到槽位的 block</text>
+<rect x="322.0" y="665.0" width="14.0" height="12.0" rx="2" fill="#E0F2F1" stroke="#00796B" stroke-width="1"/>
+<text x="342.0" y="676.0" font-size="12" fill="#555" text-anchor="start">等前面的 block 结束、槽位空出来后才开始的 block</text>
+</svg>
