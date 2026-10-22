@@ -1,0 +1,5 @@
+$ ./ipc_limits
+对 a + 1000 取句柄：cudaSuccess，和 a 的句柄完全相同
+在分配它的进程里打开：cudaErrorDeviceUninitialized
+托管内存取句柄：cudaErrorInvalidValue
+cudaMallocAsync 的内存取句柄：cudaErrorInvalidValue

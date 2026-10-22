@@ -1,0 +1,12 @@
+2048×2048
+copy (参照)          0.026 ms   1313 GB/s
+transpose_naive        0.134 ms    251 GB/s
+transpose_tiled<0>     0.079 ms    423 GB/s
+transpose_tiled<1>     0.027 ms   1225 GB/s
+
+8192×8192
+copy (参照)          1.587 ms    338 GB/s
+transpose_naive        2.021 ms    266 GB/s
+transpose_tiled<0>     1.660 ms    323 GB/s
+transpose_tiled<1>     1.679 ms    320 GB/s
+

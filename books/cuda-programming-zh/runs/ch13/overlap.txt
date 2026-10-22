@@ -1,0 +1,32 @@
+NVIDIA GeForce RTX 5060 Laptop GPU，copy engine 2 个
+cudaMallocHost 分配 256 MiB 用了 42.1 ms
+
+pageable   H2D   22.5 ms (11.9 GB/s)   kernel   15.5 ms   D2H   26.4 ms (10.2 GB/s)
+pinned     H2D   18.7 ms (14.4 GB/s)   kernel   15.7 ms   D2H   18.9 ms (14.2 GB/s)
+
+   64.3 ms  1. 同步，pageable
+   53.1 ms  2. 同步，pinned
+   63.4 ms  3. 4 条 stream、16 块，pageable
+           其中 host 花在提交上 63.4 ms
+   27.1 ms  4. 4 条 stream、16 块，pinned
+           其中 host 花在提交上 0.1 ms
+   53.8 ms  5. 同 4，每块后加一次默认 stream 上的 memset
+   27.1 ms  6. 同 5，stream 改用 cudaStreamNonBlocking 创建
+
+  块数  4 条 stream，pinned
+     1     53.1 ms
+     2     36.7 ms
+     4     31.4 ms
+     8     28.5 ms
+    16     27.1 ms
+    32     26.7 ms
+    64     26.9 ms
+   256     29.9 ms
+  1024     32.7 ms
+
+stream 数  16 块，pinned
+     1       53.5 ms
+     2       31.1 ms
+     3       27.1 ms
+     4       27.1 ms
+     8       27.1 ms

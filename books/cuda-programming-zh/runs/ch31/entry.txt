@@ -1,0 +1,12 @@
+$ ./entry
+驱动支持到 CUDA 13.3，程序用的运行时是 CUDA 13.3
+  cuCtxCreate        按 11.0 取：cuCtxCreate_v2
+  cuCtxCreate        按 12.0 取：cuCtxCreate_v3
+  cuCtxCreate        按 12.5 取：cuCtxCreate_v4
+  cuCtxCreate        按 13.0 取：cuCtxCreate_v4
+  cuMemcpyAsync      按 13.0 取：cuMemcpyAsync
+  cuMemcpyAsync      按 13.0 取（每线程默认 stream）：cuMemcpyAsync_ptsz
+  cuLibraryLoadData  按 11.8 取：这个版本还没有这个函数
+  cuLibraryLoadData  按 12.0 取：cuLibraryLoadData
+
+通过函数指针调用 cuDeviceGetName：0，NVIDIA GeForce RTX 5060 Laptop GPU

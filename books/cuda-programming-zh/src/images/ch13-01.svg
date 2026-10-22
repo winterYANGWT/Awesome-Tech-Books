@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="434" viewBox="0 0 780 434" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif">
+<rect width="780" height="434" fill="#fff"/>
+<line x1="96.0" y1="16" x2="96.0" y2="406" stroke="#E3E3E3" stroke-width="1"/>
+<text x="96.0" y="422" font-size="12" fill="#555" text-anchor="middle">0 ms</text>
+<line x1="206.0" y1="16" x2="206.0" y2="406" stroke="#E3E3E3" stroke-width="1"/>
+<text x="206.0" y="422" font-size="12" fill="#555" text-anchor="middle">10 ms</text>
+<line x1="316.0" y1="16" x2="316.0" y2="406" stroke="#E3E3E3" stroke-width="1"/>
+<text x="316.0" y="422" font-size="12" fill="#555" text-anchor="middle">20 ms</text>
+<line x1="426.0" y1="16" x2="426.0" y2="406" stroke="#E3E3E3" stroke-width="1"/>
+<text x="426.0" y="422" font-size="12" fill="#555" text-anchor="middle">30 ms</text>
+<line x1="536.0" y1="16" x2="536.0" y2="406" stroke="#E3E3E3" stroke-width="1"/>
+<text x="536.0" y="422" font-size="12" fill="#555" text-anchor="middle">40 ms</text>
+<line x1="646.0" y1="16" x2="646.0" y2="406" stroke="#E3E3E3" stroke-width="1"/>
+<text x="646.0" y="422" font-size="12" fill="#555" text-anchor="middle">50 ms</text>
+<line x1="756.0" y1="16" x2="756.0" y2="406" stroke="#E3E3E3" stroke-width="1"/>
+<text x="756.0" y="422" font-size="12" fill="#555" text-anchor="middle">60 ms</text>
+<text x="96" y="34" font-size="14" font-weight="bold" fill="#222">① 同步版本<tspan font-weight="normal" fill="#555">　53.2 ms</tspan></text>
+<text x="86" y="61.4" font-size="12" fill="#555" text-anchor="end">H2D 拷贝</text>
+<rect x="96" y="46" width="660" height="22" fill="#F7F7F7"/>
+<rect x="96.0" y="47" width="208.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<text x="86" y="89.4" font-size="12" fill="#555" text-anchor="end">kernel</text>
+<rect x="96" y="74" width="660" height="22" fill="#F7F7F7"/>
+<rect x="305.4" y="75" width="170.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<text x="86" y="117.4" font-size="12" fill="#555" text-anchor="end">D2H 拷贝</text>
+<rect x="96" y="102" width="660" height="22" fill="#F7F7F7"/>
+<rect x="476.3" y="103" width="204.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<text x="96" y="164" font-size="14" font-weight="bold" fill="#222">② 4 条 stream，16 块<tspan font-weight="normal" fill="#555">　27.4 ms</tspan></text>
+<text x="86" y="191.4" font-size="12" fill="#555" text-anchor="end">H2D 拷贝</text>
+<rect x="96" y="176" width="660" height="22" fill="#F7F7F7"/>
+<rect x="96.0" y="177" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="108.9" y="177" width="14.0" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="123.1" y="177" width="21.3" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="144.7" y="177" width="16.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="161.8" y="177" width="20.8" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="182.8" y="177" width="16.0" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="199.0" y="177" width="17.8" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="217.0" y="177" width="16.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="234.2" y="177" width="17.4" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="251.8" y="177" width="17.0" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="269.1" y="177" width="17.4" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="286.7" y="177" width="16.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="303.8" y="177" width="17.4" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="321.4" y="177" width="17.3" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="338.9" y="177" width="17.0" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="356.1" y="177" width="17.2" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<text x="86" y="219.4" font-size="12" fill="#555" text-anchor="end">kernel</text>
+<rect x="96" y="204" width="660" height="22" fill="#F7F7F7"/>
+<rect x="109.0" y="205" width="11.1" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="123.2" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="144.7" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="161.8" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="182.9" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="199.1" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="217.1" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="234.2" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="251.9" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="269.1" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="286.8" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="303.8" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="321.5" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="338.9" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="356.2" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="373.6" y="205" width="10.8" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<text x="86" y="247.4" font-size="12" fill="#555" text-anchor="end">D2H 拷贝</text>
+<rect x="96" y="232" width="660" height="22" fill="#F7F7F7"/>
+<rect x="120.2" y="233" width="13.4" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="134.1" y="233" width="13.4" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="155.6" y="233" width="13.3" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="172.8" y="233" width="14.5" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="193.8" y="233" width="13.5" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="210.0" y="233" width="13.5" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="228.0" y="233" width="13.5" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="245.1" y="233" width="13.5" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="262.7" y="233" width="13.5" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="280.0" y="233" width="13.5" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="297.7" y="233" width="13.5" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="314.7" y="233" width="13.5" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="332.4" y="233" width="13.5" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="349.9" y="233" width="13.5" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="367.1" y="233" width="13.1" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="384.4" y="233" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<text x="96" y="294" font-size="14" font-weight="bold" fill="#222">③ 同 ②，每块后在默认 stream 上 memset<tspan font-weight="normal" fill="#555">　53.8 ms</tspan></text>
+<text x="86" y="321.4" font-size="12" fill="#555" text-anchor="end">H2D 拷贝</text>
+<rect x="96" y="306" width="660" height="22" fill="#F7F7F7"/>
+<rect x="96.0" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="133.0" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="169.9" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="207.0" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="244.0" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="281.0" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="317.9" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="354.8" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="391.7" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="428.6" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="465.7" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="502.6" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="539.5" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="576.6" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="613.5" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="650.5" y="307" width="12.9" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<text x="86" y="349.4" font-size="12" fill="#555" text-anchor="end">kernel</text>
+<rect x="96" y="334" width="660" height="22" fill="#F7F7F7"/>
+<rect x="108.9" y="335" width="11.1" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="146.0" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="182.9" y="335" width="11.1" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="220.0" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="257.0" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="294.0" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="330.9" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="367.8" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="404.7" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="441.5" y="335" width="11.1" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="478.7" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="515.6" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="552.5" y="335" width="11.1" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="589.6" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="626.5" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<rect x="663.5" y="335" width="11.0" height="20" fill="#B2DFDB" stroke="#00796B" stroke-width="0.8"/>
+<text x="86" y="377.4" font-size="12" fill="#555" text-anchor="end">D2H 拷贝</text>
+<rect x="96" y="362" width="660" height="22" fill="#F7F7F7"/>
+<rect x="120.1" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="157.1" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="194.2" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="231.1" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="268.1" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="305.0" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="341.9" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="378.9" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="415.8" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="452.7" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="489.8" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="526.7" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="563.6" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="600.7" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="637.6" y="363" width="12.7" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+<rect x="674.6" y="363" width="12.8" height="20" fill="#FFE2B8" stroke="#E08A00" stroke-width="0.8"/>
+</svg>

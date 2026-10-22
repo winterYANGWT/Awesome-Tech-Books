@@ -1,0 +1,2 @@
+$ ncu --metrics smsp__thread_inst_executed_per_inst_executed.ratio -k process ./sorting
+随机排列 8.02  按类型排序 32.00

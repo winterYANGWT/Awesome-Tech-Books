@@ -1,0 +1,3 @@
+                 同一个系数   各读各的
+constant memory     0.15 ms     4.41 ms
+global memory       0.17 ms     0.16 ms

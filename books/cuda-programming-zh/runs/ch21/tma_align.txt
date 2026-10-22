@@ -1,0 +1,14 @@
+$ ./tma_align 0 0
+块的左上角 (0, 0)：描述符 正常，运行 cudaSuccess
+$ ./tma_align 4 0
+块的左上角 (4, 0)：描述符 正常，运行 cudaSuccess
+$ ./tma_align 1 0
+块的左上角 (1, 0)：描述符 正常，运行 cudaErrorIllegalInstruction
+$ ./tma_align 3 5
+块的左上角 (3, 5)：描述符 正常，运行 cudaErrorIllegalInstruction
+$ ./tma_align -4 -1
+块的左上角 (-4, -1)：描述符 正常，运行 cudaSuccess
+$ ./tma_align -1 0
+块的左上角 (-1, 0)：描述符 正常，运行 cudaErrorIllegalInstruction
+$ ./tma_align 1000 1000
+块的左上角 (1000, 1000)：描述符 正常，运行 cudaSuccess

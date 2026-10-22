@@ -1,0 +1,13 @@
+$ nvcc -O2 -arch=native lazy.cu lazy_late.cu -lcuda -o lazy && cuobjdump --list-elf --list-ptx lazy
+ELF file    1: lazy.1.sm_120.cubin
+ELF file    2: lazy.2.sm_120.cubin
+ELF file    3: lazy.3.sm_120.cubin
+$ nvcc -O2 -arch=sm_120 lazy.cu lazy_late.cu -lcuda -o lazy_both && cuobjdump --list-elf --list-ptx lazy_both
+ELF file    1: lazy_both.1.sm_120.cubin
+ELF file    2: lazy_both.2.sm_120.cubin
+PTX file    1: lazy_both.1.sm_120.ptx
+ELF file    3: lazy_both.3.sm_120.cubin
+PTX file    2: lazy_both.2.sm_120.ptx
+$ nvcc -O2 -gencode arch=compute_120,code=compute_120 lazy.cu lazy_late.cu -lcuda -o lazy_ptx && cuobjdump --list-elf --list-ptx lazy_ptx
+PTX file    1: lazy_ptx.1.sm_120.ptx
+PTX file    2: lazy_ptx.2.sm_120.ptx

@@ -1,0 +1,11 @@
+ 行  停顿采样   占比   源码
+ 45      375    0.3%  __global__ void sync_bound(const float* in, int n, float* out) {
+ 47     4401    3.6%  int t = threadIdx.x, i = blockIdx.x * blockDim.x + t;
+ 48    36326   29.5%  s[t] = i < n ? in[i] : 0.0f;
+ 49       52    0.0%  __syncthreads();
+ 50    24839   20.2%  for (int stride = 1; stride < blockDim.x; stride *= 2) {
+ 51    52038   42.2%  if (t % (2 * stride) == 0) s[t] += s[t + stride];
+ 52      469    0.4%  __syncthreads();
+ 54     3946    3.2%  if (t == 0) atomicAdd(out, s[0]);
+ 55      365    0.3%  }
+ 84      435    0.4%  return __fAtomicAdd(address, val);

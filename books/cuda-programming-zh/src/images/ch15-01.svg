@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="340" viewBox="0 0 720 340" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif">
+<rect width="720" height="340" fill="#fff"/>
+<line x1="72" y1="284.0" x2="696" y2="284.0" stroke="#E3E3E3"/>
+<text x="64" y="288.0" font-size="12" fill="#555" text-anchor="end">0</text>
+<line x1="72" y1="210.2" x2="696" y2="210.2" stroke="#E3E3E3"/>
+<text x="64" y="214.2" font-size="12" fill="#555" text-anchor="end">5</text>
+<line x1="72" y1="136.5" x2="696" y2="136.5" stroke="#E3E3E3"/>
+<text x="64" y="140.5" font-size="12" fill="#555" text-anchor="end">10</text>
+<line x1="72" y1="62.8" x2="696" y2="62.8" stroke="#E3E3E3"/>
+<text x="64" y="66.8" font-size="12" fill="#555" text-anchor="end">15</text>
+<line x1="72.0" y1="48" x2="72.0" y2="284" stroke="#E3E3E3"/>
+<text x="72.0" y="302" font-size="12" fill="#555" text-anchor="middle">4 KB</text>
+<line x1="150.0" y1="48" x2="150.0" y2="284" stroke="#E3E3E3"/>
+<text x="150.0" y="302" font-size="12" fill="#555" text-anchor="middle">16 KB</text>
+<line x1="228.0" y1="48" x2="228.0" y2="284" stroke="#E3E3E3"/>
+<text x="228.0" y="302" font-size="12" fill="#555" text-anchor="middle">64 KB</text>
+<line x1="306.0" y1="48" x2="306.0" y2="284" stroke="#E3E3E3"/>
+<text x="306.0" y="302" font-size="12" fill="#555" text-anchor="middle">256 KB</text>
+<line x1="384.0" y1="48" x2="384.0" y2="284" stroke="#E3E3E3"/>
+<text x="384.0" y="302" font-size="12" fill="#555" text-anchor="middle">1 MB</text>
+<line x1="462.0" y1="48" x2="462.0" y2="284" stroke="#E3E3E3"/>
+<text x="462.0" y="302" font-size="12" fill="#555" text-anchor="middle">4 MB</text>
+<line x1="540.0" y1="48" x2="540.0" y2="284" stroke="#E3E3E3"/>
+<text x="540.0" y="302" font-size="12" fill="#555" text-anchor="middle">16 MB</text>
+<line x1="618.0" y1="48" x2="618.0" y2="284" stroke="#E3E3E3"/>
+<text x="618.0" y="302" font-size="12" fill="#555" text-anchor="middle">64 MB</text>
+<line x1="696.0" y1="48" x2="696.0" y2="284" stroke="#E3E3E3"/>
+<text x="696.0" y="302" font-size="12" fill="#555" text-anchor="middle">256 MB</text>
+<line x1="72" y1="284" x2="696" y2="284" stroke="#555"/>
+<line x1="72" y1="48" x2="72" y2="284" stroke="#555"/>
+<text x="384.0" y="326" font-size="13" fill="#222" text-anchor="middle">每次拷贝的大小（对数刻度）</text>
+<text x="18" y="166.0" font-size="13" fill="#222" text-anchor="middle" transform="rotate(-90 18 166.0)">带宽 (GB/s)</text>
+<polyline points="72.0,272.2 150.0,248.6 228.0,226.5 306.0,171.9 384.0,157.2 462.0,112.9 540.0,90.8 618.0,90.8 696.0,104.1" fill="none" stroke="#E08A00" stroke-width="2"/>
+<circle cx="72.0" cy="272.2" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="150.0" cy="248.6" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="228.0" cy="226.5" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="306.0" cy="171.9" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="384.0" cy="157.2" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="462.0" cy="112.9" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="540.0" cy="90.8" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="618.0" cy="90.8" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="696.0" cy="104.1" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<line x1="72" y1="28" x2="94" y2="28" stroke="#E08A00" stroke-width="2"/>
+<text x="100" y="32" font-size="12" fill="#222">pageable H2D</text>
+<polyline points="72.0,273.7 150.0,250.1 228.0,183.7 306.0,118.8 384.0,107.0 462.0,81.9 540.0,74.6 618.0,73.1 696.0,71.6" fill="none" stroke="#00796B" stroke-width="2"/>
+<circle cx="72.0" cy="273.7" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="150.0" cy="250.1" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="228.0" cy="183.7" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="306.0" cy="118.8" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="384.0" cy="107.0" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="462.0" cy="81.9" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="540.0" cy="74.6" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="618.0" cy="73.1" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="696.0" cy="71.6" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<line x1="200" y1="28" x2="222" y2="28" stroke="#00796B" stroke-width="2"/>
+<text x="228" y="32" font-size="12" fill="#222">pinned H2D</text>
+<polyline points="72.0,273.7 150.0,251.6 228.0,223.5 306.0,183.7 384.0,176.3 462.0,136.5 540.0,123.2 618.0,118.8 696.0,115.8" fill="none" stroke="#E08A00" stroke-width="2" stroke-dasharray="5 4"/>
+<circle cx="72.0" cy="273.7" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="150.0" cy="251.6" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="228.0" cy="223.5" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="306.0" cy="183.7" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="384.0" cy="176.3" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="462.0" cy="136.5" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="540.0" cy="123.2" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="618.0" cy="118.8" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<circle cx="696.0" cy="115.8" r="3.2" fill="#fff" stroke="#E08A00" stroke-width="1.8"/>
+<line x1="314" y1="28" x2="336" y2="28" stroke="#E08A00" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="342" y="32" font-size="12" fill="#222">pageable D2H</text>
+<polyline points="72.0,272.2 150.0,245.7 228.0,185.2 306.0,118.8 384.0,108.5 462.0,83.4 540.0,76.0 618.0,73.1 696.0,73.1" fill="none" stroke="#00796B" stroke-width="2" stroke-dasharray="5 4"/>
+<circle cx="72.0" cy="272.2" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="150.0" cy="245.7" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="228.0" cy="185.2" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="306.0" cy="118.8" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="384.0" cy="108.5" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="462.0" cy="83.4" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="540.0" cy="76.0" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="618.0" cy="73.1" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="696.0" cy="73.1" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<line x1="442" y1="28" x2="464" y2="28" stroke="#00796B" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="470" y="32" font-size="12" fill="#222">pinned D2H</text>
+</svg>

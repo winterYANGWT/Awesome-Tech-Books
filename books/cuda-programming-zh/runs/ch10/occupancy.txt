@@ -1,0 +1,7 @@
+驻留 warp   copy      copy4      chain1         chain4
+   8/48   141 GB/s   308 GB/s   7.64 TFLOPS  15.81 TFLOPS
+  16/48   238 GB/s   325 GB/s  15.86 TFLOPS  18.15 TFLOPS
+  24/48   304 GB/s   325 GB/s  17.32 TFLOPS  18.36 TFLOPS
+  32/48   321 GB/s   325 GB/s  17.62 TFLOPS  18.40 TFLOPS
+  40/48   323 GB/s   318 GB/s  17.77 TFLOPS  18.37 TFLOPS
+  48/48   322 GB/s   312 GB/s  17.77 TFLOPS  18.44 TFLOPS

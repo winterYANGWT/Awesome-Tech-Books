@@ -1,0 +1,12 @@
+
+CUDA Exception: Warp MMU Fault
+The exception was triggered at PC 0x1000571da90  scale_wrong(float*, int, int)  (bugs.cu:32)
+
+Thread 1 "bugs_g" received signal CUDA_EXCEPTION_30, Warp MMU Fault.
+[Switching focus to CUDA kernel 0, grid 1, block (0,0,0), thread (192,0,0), device 0, sm 0, warp 6, lane 0]
+0x000001000571daa0 in scale_wrong<<<(4,1,1),(256,1,1)>>> (p=0x1000b600000, n=1000, stride=1000000) at bugs.cu:32
+32	    if (i < n) p[i * stride] *= 2.0f;
+$1 = 192
+$2 = 1000000
+$3 = (@generic float * @parameter) 0x1000b600000
+block (0,0,0), thread (192,0,0)

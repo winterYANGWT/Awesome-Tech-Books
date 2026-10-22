@@ -1,0 +1,18 @@
+256 线程的 block：
+ 18 个寄存器  每 SM 6 个 block  48/48 个 warp
+ 38 个寄存器  每 SM 6 个 block  48/48 个 warp
+ 54 个寄存器  每 SM 4 个 block  32/48 个 warp
+ 70 个寄存器  每 SM 3 个 block  24/48 个 warp
+106 个寄存器  每 SM 2 个 block  16/48 个 warp
+
+256 线程的 block，一轮最多同时运行 26 × 6 = 156 个
+  156 个 block     3.44 ms
+  157 个 block     4.00 ms
+  312 个 block     6.85 ms
+  313 个 block     7.41 ms
+
+1024 线程的 block，一轮最多同时运行 26 × 1 = 26 个
+   26 个 block     2.28 ms
+   27 个 block     4.55 ms
+   52 个 block     4.57 ms
+   53 个 block     6.83 ms

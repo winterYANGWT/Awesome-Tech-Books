@@ -1,0 +1,16 @@
+$ nvcc -O2 -arch=native -Xptxas -v spill.cu -o spill
+ptxas info    : Compiling entry function '_Z9histogramPKiPii' for 'sm_120'
+ptxas info    : Function properties for _Z9histogramPKiPii
+    128 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 18 registers, used 0 barriers, 128 bytes cumulative stack size
+ptxas info    : Compiling entry function '_Z9mix_tightPKfPf' for 'sm_120'
+ptxas info    : Function properties for _Z9mix_tightPKfPf
+    96 bytes stack frame, 180 bytes spill stores, 180 bytes spill loads
+ptxas info    : Used 40 registers, used 0 barriers, 96 bytes cumulative stack size
+ptxas info    : Compiling entry function '_Z8mix_freePKfPf' for 'sm_120'
+ptxas info    : Function properties for _Z8mix_freePKfPf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 0 barriers
+$ ./spill
+mix_free     0.78 ms
+mix_tight    5.05 ms

@@ -1,0 +1,24 @@
+$ CUDA_CACHE_PATH=./jitcache ./rtc      # 缓存目录是空的
+16777216 个点，512 次多项式；生成的专用源码 15949 字节
+版本  格式               NVRTC        装载      kernel
+通用  compute_120     20.0 ms     7.84 ms    7.953 ms
+通用  sm_120          12.6 ms     0.07 ms    7.332 ms
+专用  compute_120     23.3 ms    10.72 ms    1.074 ms
+专用  sm_120          21.3 ms     0.07 ms    1.082 ms
+两个版本结果的最大差 0
+$ CUDA_CACHE_PATH=./jitcache ./rtc      # 再运行一次
+16777216 个点，512 次多项式；生成的专用源码 15949 字节
+版本  格式               NVRTC        装载      kernel
+通用  compute_120      7.5 ms     0.09 ms    7.326 ms
+通用  sm_120           5.3 ms     0.05 ms    7.348 ms
+专用  compute_120      7.4 ms     0.10 ms    1.074 ms
+专用  sm_120           7.2 ms     0.05 ms    1.086 ms
+两个版本结果的最大差 0
+$ CUDA_CACHE_DISABLE=1 ./rtc
+16777216 个点，512 次多项式；生成的专用源码 15949 字节
+版本  格式               NVRTC        装载      kernel
+通用  compute_120     19.7 ms     7.47 ms    7.325 ms
+通用  sm_120          24.3 ms     0.08 ms    7.349 ms
+专用  compute_120     23.1 ms    10.57 ms    1.073 ms
+专用  sm_120          33.7 ms     0.09 ms    1.069 ms
+两个版本结果的最大差 0

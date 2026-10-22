@@ -1,0 +1,22 @@
+范围          global 延迟
+     4 KB      15.6 ns
+     8 KB      15.6 ns
+    16 KB      15.7 ns
+    32 KB      15.8 ns
+    64 KB      16.2 ns
+   128 KB      90.4 ns
+   256 KB     113.1 ns
+   512 KB     113.1 ns
+     1 MB     113.1 ns
+     2 MB     113.1 ns
+     4 MB     113.1 ns
+     8 MB     113.1 ns
+    16 MB     113.1 ns
+    32 MB     162.3 ns
+    64 MB     331.5 ns
+   128 MB     331.5 ns
+   256 MB     331.5 ns
+   512 MB     334.0 ns
+
+shared memory      11.9 ns
+constant memory    42.3 ns

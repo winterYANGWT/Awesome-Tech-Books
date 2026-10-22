@@ -1,0 +1,12 @@
+$ ./jit_sass
+初始化   235.9 ms   第一轮 64 个 kernel     1.0 ms   第二轮   0.2 ms
+$ CUDA_CACHE_DISABLE=1 ./jit_ptx
+初始化   157.1 ms   第一轮 64 个 kernel   260.1 ms   第二轮   0.2 ms
+$ CUDA_CACHE_DISABLE=1 ./jit_ptx
+初始化   156.8 ms   第一轮 64 个 kernel   261.1 ms   第二轮   0.2 ms
+$ ./jit_ptx      # 打开缓存，第一次
+初始化   164.2 ms   第一轮 64 个 kernel   265.3 ms   第二轮   0.2 ms
+$ ./jit_ptx      # 第二次
+初始化   157.4 ms   第一轮 64 个 kernel     2.3 ms   第二轮   0.2 ms
+$ CUDA_MODULE_LOADING=EAGER CUDA_CACHE_DISABLE=1 ./jit_ptx
+初始化   431.0 ms   第一轮 64 个 kernel     0.2 ms   第二轮   0.2 ms

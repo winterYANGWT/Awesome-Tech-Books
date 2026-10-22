@@ -1,0 +1,16 @@
+$ ./lazy busy
+加载方式 LAZY：建立上下文 235.3 ms，显存已用 122 MB
+work<7> 第一次启动到完成 8.493 ms，第二次 0.034 ms
+s1 上的 kernel 还要跑 300 ms时，第一次启动另一个模块里的 kernel：启动这一行花了 280.0 ms
+$ ./lazy host
+加载方式 LAZY：建立上下文 166.4 ms，显存已用 122 MB
+work<7> 第一次启动到完成 9.129 ms，第二次 0.034 ms
+s1 在等主机放行时，第一次启动另一个模块里的 kernel：启动这一行花了 1980.1 ms
+$ CUDA_MODULE_LOADING=EAGER ./lazy busy
+加载方式 EAGER：建立上下文 179.8 ms，显存已用 138 MB
+work<7> 第一次启动到完成 0.049 ms，第二次 0.034 ms
+s1 上的 kernel 还要跑 300 ms时，第一次启动另一个模块里的 kernel：启动这一行花了 0.1 ms
+$ CUDA_MODULE_LOADING=EAGER ./lazy host
+加载方式 EAGER：建立上下文 185.0 ms，显存已用 138 MB
+work<7> 第一次启动到完成 0.052 ms，第二次 0.034 ms
+s1 在等主机放行时，第一次启动另一个模块里的 kernel：启动这一行花了 0.1 ms

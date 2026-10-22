@@ -1,0 +1,18 @@
+$ ./mathfn
+函数            和 CPU 不同   GPU 最大误差（绝对误差）    CPU 最大误差      GPU 吞吐
+sinf(x)            18.32%          1.4 ulp（8.2e-08）       0.6 ulp     2654 亿次/秒
+expf(x)            30.32%          1.9 ulp（6.3e+27）       0.5 ulp     7454 亿次/秒
+logf(x)             3.62%          0.8 ulp（2.8e-07）       0.7 ulp     3221 亿次/秒
+powf(x, 2.5f)       6.33%          0.9 ulp（6.8e-03）       0.5 ulp     1153 亿次/秒
+sqrtf(x)            0.00%          0.5 ulp（3.1e-05）       0.5 ulp     5625 亿次/秒
+1.0f / x            0.00%          0.5 ulp（4.7e-07）       0.5 ulp     5625 亿次/秒
+次正规数：sqrtf(1e-39f) 在 GPU 上 = 3.16228e-20，CPU 上 = 3.16228e-20
+$ nvcc -O2 -arch=native -use_fast_math mathfn.cu -o mathfn_fast && ./mathfn_fast
+函数            和 CPU 不同   GPU 最大误差（绝对误差）    CPU 最大误差      GPU 吞吐
+sinf(x)            88.61%  329682477.8 ulp（1.3e-06）       0.6 ulp    10114 亿次/秒
+expf(x)            93.70%         61.5 ulp（2.0e+29）       0.5 ulp    10816 亿次/秒
+logf(x)            48.92%      25959.2 ulp（9.0e-07）       0.7 ulp    10794 亿次/秒
+powf(x, 2.5f)      91.25%         19.8 ulp（1.5e-01）       0.5 ulp     5705 亿次/秒
+sqrtf(x)           17.04%          0.9 ulp（5.7e-05）       0.5 ulp    10794 亿次/秒
+1.0f / x           13.22%          1.0 ulp（6.1e-07）       0.5 ulp    10794 亿次/秒
+次正规数：sqrtf(1e-39f) 在 GPU 上 = 0，CPU 上 = 3.16228e-20

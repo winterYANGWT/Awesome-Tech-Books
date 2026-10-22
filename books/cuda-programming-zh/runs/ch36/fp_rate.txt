@@ -1,0 +1,6 @@
+$ ./fp_rate
+FP32        17.90 TFLOPS
+FP64         0.25 TFLOPS
+FP16x2      18.92 TFLOPS
+BF16x2      18.83 TFLOPS
+FP64 / FP32 = 1 / 72

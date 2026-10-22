@@ -1,0 +1,2 @@
+启动：cudaErrorIllegalAddress，同步：cudaErrorIllegalAddress
+之后的 cudaMalloc：cudaErrorIllegalAddress

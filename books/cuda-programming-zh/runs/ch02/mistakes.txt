@@ -1,0 +1,8 @@
+$ ./mistakes deref
+d = 0x1000ac00000
+                Segmentation fault         (core dumped) ./build-code/ch02/mistakes $w 2>&1
+$ ./mistakes config
+不检查：h[0] = 0.000000
+mistakes.cu:47: cudaErrorInvalidValue (invalid argument)
+$ ./mistakes kind
+拷贝返回成功，d[0] = 2.000000

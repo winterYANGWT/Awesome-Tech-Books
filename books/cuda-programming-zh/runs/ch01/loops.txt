@@ -1,0 +1,7 @@
+32 个 CPU 线程
+
+                       saxpy        heavy
+CPU 单线程             23.5 ms    1203.1 ms
+CPU 全部线程           27.8 ms      80.0 ms
+GPU，只算 kernel        2.3 ms       4.3 ms
+GPU，算上拷贝          70.5 ms      50.4 ms

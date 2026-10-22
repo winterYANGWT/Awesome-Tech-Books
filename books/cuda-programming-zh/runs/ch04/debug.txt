@@ -1,0 +1,10 @@
+== nvcc -O2
+GPU 0.49 ms，CPU 单线程 574.0 ms，9115 个像素和 CPU 结果不同
+== nvcc -O2 -lineinfo
+GPU 0.49 ms，CPU 单线程 575.4 ms，9115 个像素和 CPU 结果不同
+== nvcc -G
+GPU 5.92 ms，CPU 单线程 1654.6 ms，0 个像素和 CPU 结果不同
+== threads -O2
+   1048576    335.8 GB/s
+== threads -G
+   1048576    308.5 GB/s

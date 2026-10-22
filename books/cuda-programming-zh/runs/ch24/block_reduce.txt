@@ -1,0 +1,2 @@
+ 0.772 ms  和 = 3.352087e+07  手写 shuffle
+ 0.770 ms  和 = 3.352087e+07  cub::BlockReduce

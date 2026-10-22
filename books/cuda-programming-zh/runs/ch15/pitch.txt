@@ -1,0 +1,2 @@
+每行 1200 字节的数据，cudaMallocPitch 给出的 pitch 是 1536 字节
+0 个像素不对

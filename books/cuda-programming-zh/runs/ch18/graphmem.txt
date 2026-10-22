@@ -1,0 +1,8 @@
+带内存节点的 graph 有 3 个节点
+实例化之后，为 graph 保留的显存 0 MB
+第一次启动之后，为 graph 保留的显存 64 MB
+
+  193.7 us  graph 用预先分配好的缓冲区
+  193.7 us  graph 里分配和释放临时缓冲区
+
+销毁 graph 并 trim 之后，为 graph 保留的显存 0 MB

@@ -1,0 +1,7 @@
+kernel            执行的 warp 指令数   每条指令的线程数   shared bank conflict
+reduce_atomic           31,457,280        32.00                0
+reduce_tree            251,396,096        31.77          210,094
+reduce_tree_seq        217,841,664        31.74           90,975
+reduce_stride           12,718,788        32.00               68
+reduce_shuffle          12,633,612        32.00               24
+reduce_vec4              4,769,292        32.00               24

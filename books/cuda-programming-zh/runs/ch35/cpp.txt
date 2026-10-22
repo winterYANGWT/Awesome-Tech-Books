@@ -1,0 +1,15 @@
+$ ./cpp
+lambda：y[n/2] = 2，主机上算 2
+concept + span：horner = 4；tuple：min 0，max 0.000952721；complex：(0.999999, 0)
+设备上构造的对象调用虚函数：圆 3.14159，正方形 4
+$ nvcc -O2 -arch=native -std=c++20 --extended-lambda -DSHOW_ERROR=1 cpp.cu -o cpp
+cpp.cu(86): error: device code does not support exception handling
+      if (*p < 0) throw 1;
+                  ^
+
+1 error detected in the compilation of "cpp.cu".
+$ nvcc -O2 -arch=native -std=c++20 --extended-lambda -DSHOW_ERROR=2 cpp.cu -o cpp 2>&1 | head -4
+/usr/include/c++/15/bits/allocator.h(172): error: calling a constexpr __host__ function("__new_allocator") from a __global__ function("bad") is not allowed. The experimental flag '--expt-relaxed-constexpr' can be used to allow this (note: for a __tile__/__tile_global__ caller, the flag guarantees support only for calls that are required by language rules to be evaluated at compile time).
+        allocator(const allocator& __a) noexcept
+        ^
+

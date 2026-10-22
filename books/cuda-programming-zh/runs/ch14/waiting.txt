@@ -1,0 +1,4 @@
+spin   等 270 ms 的 kernel：CPU 用掉 271 ms；短 kernel 每次启动加等待   5.7 us
+yield  等 270 ms 的 kernel：CPU 用掉 271 ms；短 kernel 每次启动加等待   5.8 us
+block  等 270 ms 的 kernel：CPU 用掉   0 ms；短 kernel 每次启动加等待   7.9 us
+event  等 270 ms 的 kernel：CPU 用掉   1 ms；短 kernel 每次启动加等待  10.1 us

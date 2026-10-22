@@ -1,0 +1,2 @@
+$ ncu --metrics smsp__thread_inst_executed_per_inst_executed.ratio -k mandelbrot -c 1 ./mandelbrot
+smsp__thread_inst_executed_per_inst_executed.ratio 29.84

@@ -1,0 +1,17 @@
+争用程度：
+    0.82 ms    813.2 亿次/秒  所有线程加同一个地址
+    5.04 ms    131.8 亿次/秒  每个 warp 一个地址
+    0.34 ms   1972.5 亿次/秒  每个线程一个地址
+    0.82 ms    811.2 亿次/秒  warp 内先合并，再加同一个地址
+
+作用域（每个 block 一个计数器）：
+    0.47 ms   1420.0 亿次/秒  atomicAdd_block（block 作用域）
+    0.47 ms   1405.0 亿次/秒  atomicAdd（device 作用域）
+    0.47 ms   1423.2 亿次/秒  atomicAdd_system（system 作用域）
+
+GPU 对主机内存的原生原子操作：不支持
+CPU 和 GPU 同时给一个计数器各加 100 万次：
+  pinned 内存 GPU 用 atomicAdd         结果 1000000
+  pinned 内存 GPU 用 atomicAdd_system  结果 1000000
+  managed 内存 GPU 用 atomicAdd         结果 1537396
+  managed 内存 GPU 用 atomicAdd_system  结果 2000000

@@ -1,0 +1,9 @@
+cublasCreate 用了 2.2 ms
+
+  140.22 ms    0.98 TFLOPS  最大相对误差 5.7e-05  朴素 kernel
+  149.73 ms    0.92 TFLOPS  最大相对误差 5.7e-05  分块 kernel（shared memory）
+   24.15 ms    5.69 TFLOPS  最大相对误差 5.7e-05  寄存器分块 kernel（每线程 4×4）
+   12.25 ms   11.22 TFLOPS  最大相对误差 5.7e-05  cuBLAS SGEMM（FP32）
+    7.88 ms   17.45 TFLOPS  最大相对误差 1.7e-02  cuBLAS SGEMM（TF32 张量核）
+    3.85 ms   35.73 TFLOPS  最大相对误差 1.5e-01  cuBLAS GemmEx（BF16 输入，FP32 累加）
+   11.80 ms   11.65 TFLOPS  最大相对误差 6.5e+01  cuBLAS SGEMM，参数顺序没有调换（错误）

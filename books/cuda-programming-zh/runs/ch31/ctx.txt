@@ -1,0 +1,9 @@
+$ ./ctx
+主上下文 0x63ea398982a0，当前上下文 0x63ea398982a0，a 属于 0x63ea398982a0
+cuLaunchKernel 启动 Runtime 的 kernel 以后 a[12345] = 1
+
+自建上下文 0x63ea3a8333c0，之后 cudaMalloc 的 b 属于 0x63ea3a8333c0
+
+销毁自建上下文以后 cudaMemset(b)：cudaErrorIllegalAddress
+接着在主上下文里读 a：cudaErrorIllegalAddress
+cudaDeviceReset 以后重新分配：cudaErrorDevicesUnavailable

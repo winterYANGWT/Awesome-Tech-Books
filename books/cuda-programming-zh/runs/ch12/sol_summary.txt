@@ -1,0 +1,5 @@
+kernel            Memory   DRAM   L1/TEX    L2   Compute(SM)
+bandwidth_bound    83.3%  83.3%   31.6%  26.4%    12.8%
+latency_bound      28.7%  28.7%   10.9%   9.1%     4.4%
+compute_bound       0.2%   0.0%    0.2%   0.2%    98.9%
+sync_bound         90.8%  22.6%   90.9%  11.2%    90.8%

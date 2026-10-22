@@ -1,0 +1,3 @@
+   7905 GB/s  自己的 shared memory
+    282 GB/s  cluster 里另一个 block 的 shared memory
+   1768 GB/s  global memory（在 L2 里）

@@ -1,0 +1,10 @@
+$ ./log
+启动 2048 个线程的 block：cudaErrorInvalidValue
+申请 200 KB 动态 shared memory：cudaErrorInvalidValue
+$ CUDA_LOG_FILE=stdout ./log
+[15:47:15.158][123908492591104][CUDA][E] One or more of block dimensions of (2048,1,1) exceeds corresponding maximum value of (1024,1024,64)
+[15:47:15.158][123908492591104][CUDA][E] Returning 1 (CUDA_ERROR_INVALID_VALUE) from cuLaunchKernel
+启动 2048 个线程的 block：cudaErrorInvalidValue
+[15:47:15.158][123908492591104][CUDA][E] Requested dynamic shared memory size of 204800 bytes exceeds maximum dynamic shared memory size of 49152 bytes
+[15:47:15.158][123908492591104][CUDA][E] Returning 1 (CUDA_ERROR_INVALID_VALUE) from cuLaunchKernel
+申请 200 KB 动态 shared memory：cudaErrorInvalidValue

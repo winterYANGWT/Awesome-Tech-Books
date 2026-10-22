@@ -1,0 +1,10 @@
+每个数组      带宽
+   1 MB     1183 GB/s
+   2 MB     1494 GB/s
+   4 MB     1708 GB/s
+   8 MB     1841 GB/s
+  16 MB     1402 GB/s
+  32 MB      338 GB/s
+  64 MB      336 GB/s
+ 128 MB      337 GB/s
+ 256 MB      336 GB/s

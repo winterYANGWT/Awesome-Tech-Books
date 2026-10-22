@@ -1,0 +1,18 @@
+$ ./gridsync 1048576
+1048576 个元素，grid = 156 个 block（每个 SM 6 个）
+每步一个 kernel       10.32 ms，每步 10.32 us
+常驻 kernel + 网格同步  10.51 ms，每步 10.51 us
+两种做法的结果有 0 个元素不同；中心值 15.4481
+用 157 个 block 协作启动：cudaErrorCooperativeLaunchTooLarge
+$ ./gridsync 65536
+65536 个元素，grid = 156 个 block（每个 SM 6 个）
+每步一个 kernel        1.47 ms，每步  1.47 us
+常驻 kernel + 网格同步   1.45 ms，每步  1.45 us
+两种做法的结果有 0 个元素不同；中心值 15.4481
+用 157 个 block 协作启动：cudaErrorCooperativeLaunchTooLarge
+$ ./gridsync 8192
+8192 个元素，grid = 156 个 block（每个 SM 6 个）
+每步一个 kernel        1.43 ms，每步  1.43 us
+常驻 kernel + 网格同步   1.11 ms，每步  1.11 us
+两种做法的结果有 0 个元素不同；中心值 15.4481
+用 157 个 block 协作启动：cudaErrorCooperativeLaunchTooLarge

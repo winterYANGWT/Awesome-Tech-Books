@@ -1,0 +1,182 @@
+==PROF== Connected to process 1053804 (./cases)
+==PROF== Profiling "bandwidth_bound" - 0: 0%....50%....100% - 16 passes
+==PROF== Profiling "latency_bound" - 1: 0%....50%....100% - 16 passes
+==PROF== Profiling "compute_bound(float *)" - 2: 0%....50%....100% - 16 passes
+==PROF== Profiling "sync_bound" - 3: 0%....50%....100% - 16 passes
+done
+==PROF== Disconnected from process 1053804
+[1053804] cases@127.0.0.1
+  bandwidth_bound(const float *, float *, unsigned long) (156, 1, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: GPU Speed Of Light Throughput
+    ----------------------- ----------- ------------
+    Metric Name             Metric Unit Metric Value
+    ----------------------- ----------- ------------
+    DRAM Frequency                  Ghz        11.99
+    SM Frequency                    Ghz         1.54
+    Elapsed Cycles                cycle      2536287
+    Memory Throughput                 %        83.35
+    DRAM Throughput                   %        83.35
+    Duration                         ms         1.64
+    L1/TEX Cache Throughput           %        31.59
+    L2 Cache Throughput               %        26.44
+    SM Active Cycles              cycle   2480793.92
+    Compute (SM) Throughput           %        12.77
+    ----------------------- ----------- ------------
+
+    INF   This workload is utilizing greater than 80.0% of the available compute or memory performance of this device.  
+          To further improve performance, work will likely need to be shifted from the most utilized to another unit.   
+          Start by analyzing DRAM in the Memory Workload Analysis section.                                              
+
+    Section: Warp State Statistics
+    ---------------------------------------- ----------- ------------
+    Metric Name                              Metric Unit Metric Value
+    ---------------------------------------- ----------- ------------
+    Warp Cycles Per Issued Instruction             cycle       160.79
+    Warp Cycles Per Executed Instruction           cycle       160.79
+    Avg. Active Threads Per Warp                                   32
+    Avg. Not Predicated Off Threads Per Warp                    32.00
+    ---------------------------------------- ----------- ------------
+
+    WRN   The optional metric smsp__pcsamp_sample_count could not be found. Collecting it as an additional metric could 
+          enable the rule to provide more guidance.                                                                     
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 96.74%                                                                                    
+          On average, each warp of this workload spends 155.6 cycles being stalled waiting for a scoreboard dependency  
+          on a L1TEX (local, global, surface, texture) operation. Find the instruction producing the data being waited  
+          upon to identify the culprit. To reduce the number of cycles waiting on L1TEX data accesses verify the        
+          memory access patterns are optimal for the target architecture, attempt to increase cache hit rates by        
+          increasing data locality (coalescing), or by changing the cache configuration. Consider moving frequently     
+          used data to shared memory. This stall type represents about 96.7% of the total average of 160.8 cycles       
+          between issuing two instructions.                                                                             
+    ----- --------------------------------------------------------------------------------------------------------------
+    INF   Check the Warp Stall Sampling (All Samples) table for the top stall locations in your source based on         
+          sampling data. The Profiling Guide                                                                            
+          (https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#metrics-reference) provides more details    
+          on each stall reason.                                                                                         
+
+  latency_bound(const float *, float *, unsigned long) (26, 1, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: GPU Speed Of Light Throughput
+    ----------------------- ----------- ------------
+    Metric Name             Metric Unit Metric Value
+    ----------------------- ----------- ------------
+    DRAM Frequency                  Ghz        11.99
+    SM Frequency                    Ghz         1.55
+    Elapsed Cycles                cycle      7397895
+    Memory Throughput                 %        28.74
+    DRAM Throughput                   %        28.74
+    Duration                         ms         4.76
+    L1/TEX Cache Throughput           %        10.91
+    L2 Cache Throughput               %         9.14
+    SM Active Cycles              cycle   7120040.42
+    Compute (SM) Throughput           %         4.37
+    ----------------------- ----------- ------------
+
+    OPT   This workload exhibits low compute throughput and memory bandwidth utilization relative to the peak           
+          performance of this device. Achieved compute throughput and/or memory bandwidth below 60.0% of peak           
+          typically indicate latency issues. Look at Scheduler Statistics and Warp State Statistics for potential       
+          reasons.                                                                                                      
+
+    Section: Warp State Statistics
+    ---------------------------------------- ----------- ------------
+    Metric Name                              Metric Unit Metric Value
+    ---------------------------------------- ----------- ------------
+    Warp Cycles Per Issued Instruction             cycle        78.28
+    Warp Cycles Per Executed Instruction           cycle        78.28
+    Avg. Active Threads Per Warp                                   32
+    Avg. Not Predicated Off Threads Per Warp                    32.00
+    ---------------------------------------- ----------- ------------
+
+    WRN   The optional metric smsp__pcsamp_sample_count could not be found. Collecting it as an additional metric could 
+          enable the rule to provide more guidance.                                                                     
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 93.41%                                                                                    
+          On average, each warp of this workload spends 73.1 cycles being stalled waiting for a scoreboard dependency   
+          on a L1TEX (local, global, surface, texture) operation. Find the instruction producing the data being waited  
+          upon to identify the culprit. To reduce the number of cycles waiting on L1TEX data accesses verify the        
+          memory access patterns are optimal for the target architecture, attempt to increase cache hit rates by        
+          increasing data locality (coalescing), or by changing the cache configuration. Consider moving frequently     
+          used data to shared memory. This stall type represents about 93.4% of the total average of 78.3 cycles        
+          between issuing two instructions.                                                                             
+    ----- --------------------------------------------------------------------------------------------------------------
+    INF   Check the Warp Stall Sampling (All Samples) table for the top stall locations in your source based on         
+          sampling data. The Profiling Guide                                                                            
+          (https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#metrics-reference) provides more details    
+          on each stall reason.                                                                                         
+
+  compute_bound(float *) (1248, 1, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: GPU Speed Of Light Throughput
+    ----------------------- ----------- ------------
+    Metric Name             Metric Unit Metric Value
+    ----------------------- ----------- ------------
+    DRAM Frequency                  Ghz        11.99
+    SM Frequency                    Ghz         1.55
+    Elapsed Cycles                cycle      1622493
+    Memory Throughput                 %         0.20
+    DRAM Throughput                   %         0.00
+    Duration                         ms         1.04
+    L1/TEX Cache Throughput           %         0.19
+    L2 Cache Throughput               %         0.20
+    SM Active Cycles              cycle   1606677.62
+    Compute (SM) Throughput           %        98.87
+    ----------------------- ----------- ------------
+
+    INF   This workload is utilizing greater than 80.0% of the available compute or memory performance of this device.  
+          To further improve performance, work will likely need to be shifted from the most utilized to another unit.   
+          Start by analyzing workloads in the Compute Workload Analysis section.                                        
+
+    Section: Warp State Statistics
+    ---------------------------------------- ----------- ------------
+    Metric Name                              Metric Unit Metric Value
+    ---------------------------------------- ----------- ------------
+    Warp Cycles Per Issued Instruction             cycle        11.40
+    Warp Cycles Per Executed Instruction           cycle        11.40
+    Avg. Active Threads Per Warp                                   32
+    Avg. Not Predicated Off Threads Per Warp                       32
+    ---------------------------------------- ----------- ------------
+
+    WRN   The optional metric smsp__pcsamp_sample_count could not be found. Collecting it as an additional metric could 
+          enable the rule to provide more guidance.                                                                     
+
+  sync_bound(const float *, int, float *) (262144, 1, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: GPU Speed Of Light Throughput
+    ----------------------- ----------- ------------
+    Metric Name             Metric Unit Metric Value
+    ----------------------- ----------- ------------
+    DRAM Frequency                  Ghz        11.99
+    SM Frequency                    Ghz         1.55
+    Elapsed Cycles                cycle      4857733
+    Memory Throughput                 %        90.78
+    DRAM Throughput                   %        22.61
+    Duration                         ms         3.12
+    L1/TEX Cache Throughput           %        90.87
+    L2 Cache Throughput               %        11.15
+    SM Active Cycles              cycle   4837530.92
+    Compute (SM) Throughput           %        90.78
+    ----------------------- ----------- ------------
+
+    INF   This workload is utilizing greater than 80.0% of the available compute or memory performance of this device.  
+          To further improve performance, work will likely need to be shifted from the most utilized to another unit.   
+          Start by analyzing workloads in the Compute Workload Analysis section.                                        
+
+    Section: Warp State Statistics
+    ---------------------------------------- ----------- ------------
+    Metric Name                              Metric Unit Metric Value
+    ---------------------------------------- ----------- ------------
+    Warp Cycles Per Issued Instruction             cycle        20.41
+    Warp Cycles Per Executed Instruction           cycle        20.41
+    Avg. Active Threads Per Warp                                31.77
+    Avg. Not Predicated Off Threads Per Warp                    21.89
+    ---------------------------------------- ----------- ------------
+
+    WRN   The optional metric smsp__pcsamp_sample_count could not be found. Collecting it as an additional metric could 
+          enable the rule to provide more guidance.                                                                     
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Speedup: 28.68%                                                                                          
+          Instructions are executed in warps, which are groups of 32 threads. Optimal instruction throughput is         
+          achieved if all 32 threads of a warp execute the same instruction. The chosen launch configuration, early     
+          thread completion, and divergent flow control can significantly lower the number of active threads in a warp  
+          per cycle. This workload achieves an average of 31.8 threads being active per cycle. This is further reduced  
+          to 21.9 threads per warp due to predication. The compiler may use predication to avoid an actual branch.      
+          Instead, all instructions are scheduled, but a per-thread condition code or predicate controls which threads  
+          execute the instructions. Try to avoid different execution paths within a warp when possible.                 
+

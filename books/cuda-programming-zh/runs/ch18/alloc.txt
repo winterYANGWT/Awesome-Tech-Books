@@ -1,0 +1,8 @@
+  188.8 us  参照：只分配一次
+  404.7 us  cudaMalloc + cudaFree
+  190.0 us  cudaMallocAsync + cudaFreeAsync
+  403.9 us  同上，每轮同步，阈值为 0（默认）
+  194.6 us  同上，每轮同步，阈值为无限大
+
+内存池：当前保留 64 MB，正在使用 0 MB，最多时保留 64 MB
+cudaMemPoolTrimTo(pool, 0) 之后保留 0 MB

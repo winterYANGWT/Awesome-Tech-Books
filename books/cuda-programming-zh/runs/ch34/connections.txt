@@ -1,0 +1,6 @@
+$ for c in "" 1 2 8 32; do CUDA_DEVICE_MAX_CONNECTIONS=$c ./connections; done
+CUDA_DEVICE_MAX_CONNECTIONS=未设置 按 stream 依次发：  10.1 ms   交错着发：  10.0 ms
+CUDA_DEVICE_MAX_CONNECTIONS=1      按 stream 依次发：  10.1 ms   交错着发：  10.0 ms
+CUDA_DEVICE_MAX_CONNECTIONS=2      按 stream 依次发：  10.1 ms   交错着发：  10.0 ms
+CUDA_DEVICE_MAX_CONNECTIONS=8      按 stream 依次发：  10.1 ms   交错着发：  10.0 ms
+CUDA_DEVICE_MAX_CONNECTIONS=32     按 stream 依次发：  10.1 ms   交错着发：  10.0 ms

@@ -1,0 +1,16 @@
+参照：CPU 读一遍普通内存   26.5 ms
+
+managed 内存，CPU 初始化之后：
+  GPU 第一次读写        34.7 ms
+  GPU 第二次读写         1.7 ms
+  CPU 读一遍            62.2 ms
+  CPU 再读一遍          26.3 ms
+  prefetch 到 GPU       19.3 ms，之后 GPU 读写   1.6 ms
+
+交替读 5 轮            ：GPU 共  134.8 ms，CPU 共  311.9 ms
+交替读 5 轮（ReadMostly）：GPU 共   34.8 ms，CPU 共  131.4 ms
+
+malloc 内存（HMM），CPU 初始化之后：
+  GPU 第一次读写       211.2 ms
+  GPU 第二次读写         2.0 ms
+  CPU 读一遍           150.0 ms

@@ -1,0 +1,5 @@
+GPU 忙时，cudaFree 让 host 等了  14.51 ms，cudaFreeAsync 只用了  0.003 ms
+
+同一条 stream 上再分配：       复用了刚释放的那块
+另一条 stream，没有依赖：      拿到另一块
+另一条 stream，等待释放的 event：复用了刚释放的那块

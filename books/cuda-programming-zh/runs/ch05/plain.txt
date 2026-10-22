@@ -1,0 +1,20 @@
+$ ./bugs edge
+启动：cudaSuccess，同步：cudaSuccess
+之后的 cudaMalloc：cudaSuccess
+$ ./bugs near
+启动：cudaSuccess，同步：cudaSuccess
+之后的 cudaMalloc：cudaSuccess
+$ ./bugs far
+启动：cudaSuccess，同步：cudaErrorIllegalAddress
+之后的 cudaMalloc：cudaErrorIllegalAddress
+$ ./bugs race
+479 个元素反转错了
+启动：cudaSuccess，同步：cudaSuccess
+之后的 cudaMalloc：cudaSuccess
+$ ./bugs uninit
+启动：cudaSuccess，同步：cudaSuccess
+之后的 cudaMalloc：cudaSuccess
+$ ./bugs assert
+bugs.cu:61: void take_sqrt(float *, int): block: [1,0,0], thread: [244,0,0] Assertion `p[i] >= 0.0f` failed.
+启动：cudaSuccess，同步：cudaErrorAssert
+之后的 cudaMalloc：cudaErrorAssert

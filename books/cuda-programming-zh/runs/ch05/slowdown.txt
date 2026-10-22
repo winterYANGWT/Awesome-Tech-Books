@@ -1,0 +1,8 @@
+$ ./mandelbrot
+GPU 0.55 ms，CPU 单线程 574.0 ms，9115 个像素和 CPU 结果不同
+$ compute-sanitizer ./mandelbrot
+GPU 1.84 ms，CPU 单线程 577.2 ms，9115 个像素和 CPU 结果不同
+$ ./shapes | sed -n 3p
+  256 × 1       1.59 ms    338 GB/s
+$ compute-sanitizer ./shapes | sed -n 4p
+  256 × 1      40.52 ms     13 GB/s

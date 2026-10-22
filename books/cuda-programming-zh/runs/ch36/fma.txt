@@ -1,0 +1,5 @@
+$ ./fma
+4194304 组 [-1,1) 之间的 a、b、c：
+  CPU 先乘后加 vs GPU 默认（FMA）       不同  19.97%
+  CPU 先乘后加 vs GPU __fmul_rn/__fadd_rn 不同   0.00%
+  CPU fmaf     vs GPU 默认（FMA）       不同   0.00%

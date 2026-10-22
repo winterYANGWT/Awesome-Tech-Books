@@ -1,0 +1,5 @@
+kernel                   写 global：每请求 sector 数   读 shared 的 bank conflict   读 shared 的 wavefront
+copy                            4.0                0                0
+transpose_naive                32.0                0                0
+void transpose_tiled<0>         4.0        4,073,591        4,205,444
+void transpose_tiled<1>         4.0              182          131,282

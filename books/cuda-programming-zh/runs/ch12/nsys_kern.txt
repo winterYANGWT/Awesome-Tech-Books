@@ -1,0 +1,8 @@
+Generating SQLite file cases_nsys.sqlite from cases_nsys.nsys-rep
+ ** CUDA GPU Kernel Summary (cuda_gpu_kern_sum):
+ Time (%)  Total Time (ns)  Instances  Avg (ns)   Med (ns)   Min (ns)  Max (ns)  StdDev (ns)                           Name                         
+ --------  ---------------  ---------  ---------  ---------  --------  --------  -----------  ------------------------------------------------------
+     47.1          3824624          1  3824624.0  3824624.0   3824624   3824624          0.0  latency_bound(const float *, float *, unsigned long)  
+     24.4          1978184          1  1978184.0  1978184.0   1978184   1978184          0.0  sync_bound(const float *, int, float *)               
+     20.6          1673862          1  1673862.0  1673862.0   1673862   1673862          0.0  bandwidth_bound(const float *, float *, unsigned long)
+      7.8           636771          1   636771.0   636771.0    636771    636771          0.0  compute_bound(float *)                                

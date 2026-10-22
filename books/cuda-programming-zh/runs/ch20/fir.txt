@@ -1,0 +1,18 @@
+每个 SM 最多 6 个 block：
+  1.357 ms    3166 GFLOPS  直接读 global
+  0.805 ms    5334 GFLOPS  同步：先读后算
+  0.806 ms    5326 GFLOPS  memcpy_async 两级流水线
+  0.801 ms    5361 GFLOPS  memcpy_async + barrier
+
+每个 SM 最多 2 个 block：
+  1.327 ms    3238 GFLOPS  直接读 global
+  0.886 ms    4846 GFLOPS  同步：先读后算
+  0.803 ms    5347 GFLOPS  memcpy_async 两级流水线
+  0.798 ms    5384 GFLOPS  memcpy_async + barrier
+
+每个 SM 最多 1 个 block：
+  1.579 ms    2720 GFLOPS  直接读 global
+  1.400 ms    3068 GFLOPS  同步：先读后算
+  0.832 ms    5162 GFLOPS  memcpy_async 两级流水线
+  0.829 ms    5183 GFLOPS  memcpy_async + barrier
+

@@ -1,0 +1,6 @@
+捕获 176 us，实例化 478 us
+
+                        总时间     平均每个 kernel   其中 host 提交
+逐个启动                 30.9 ms     1.55 us           30.9 ms
+graph（1 步）            14.4 ms     0.72 us            2.5 ms
+graph（10 步）           12.9 ms     0.65 us            0.2 ms

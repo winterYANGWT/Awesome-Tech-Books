@@ -1,0 +1,29 @@
+$ compute-sanitizer --tool racecheck ./bugs race
+========= COMPUTE-SANITIZER
+========= Error: Race reported between Write access at reverse_block(float *)+0x100 in bugs.cu:43
+=========     and Read access at reverse_block(float *)+0x110 in bugs.cu:45 [4096 hazards]
+========= 
+224 个元素反转错了
+启动：cudaSuccess，同步：cudaSuccess
+之后的 cudaMalloc：cudaSuccess
+========= RACECHECK SUMMARY: 1 hazard displayed (1 error, 0 warnings)
+
+$ compute-sanitizer --tool initcheck ./bugs uninit
+========= COMPUTE-SANITIZER
+========= Uninitialized __global__ memory read of size 4 bytes
+=========     at sum_first(const float *, float *)+0x30 in bugs.cu:52
+=========     by thread (0,0,0) in block (0,0,0)
+=========     Address 0x1000dc03000
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x9141] in bugs
+========= 
+========= Uninitialized __global__ memory read of size 4 bytes
+=========     at sum_first(const float *, float *)+0x40 in bugs.cu:52
+=========     by thread (0,0,0) in block (0,0,0)
+=========     Address 0x1000dc03004
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x9141] in bugs
+========= 
+启动：cudaSuccess，同步：cudaSuccess
+之后的 cudaMalloc：cudaSuccess
+========= ERROR SUMMARY: 2 errors

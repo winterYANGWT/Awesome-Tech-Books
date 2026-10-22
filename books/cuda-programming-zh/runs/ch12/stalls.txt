@@ -1,0 +1,4 @@
+bandwidth_bound  每发射一条指令平均等  161.4 个周期；最多的三项：long_scoreboard 156.1，wait 3.6，selected 1.0
+latency_bound    每发射一条指令平均等   78.4 个周期；最多的三项：long_scoreboard 73.3，wait 3.6，selected 1.0
+compute_bound    每发射一条指令平均等   11.4 个周期；最多的三项：not_selected 10.1，selected 1.0，math_pipe_throttle 0.3
+sync_bound       每发射一条指令平均等   20.4 个周期；最多的三项：long_scoreboard 4.8，short_scoreboard 4.6，barrier 3.5

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="340" viewBox="0 0 720 340" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif">
+<rect width="720" height="340" fill="#fff"/>
+<line x1="72" y1="284.0" x2="696" y2="284.0" stroke="#E3E3E3"/>
+<text x="64" y="288.0" font-size="12" fill="#555" text-anchor="end">0</text>
+<line x1="72" y1="211.8" x2="696" y2="211.8" stroke="#E3E3E3"/>
+<text x="64" y="215.8" font-size="12" fill="#555" text-anchor="end">100</text>
+<line x1="72" y1="139.6" x2="696" y2="139.6" stroke="#E3E3E3"/>
+<text x="64" y="143.6" font-size="12" fill="#555" text-anchor="end">200</text>
+<line x1="72" y1="67.3" x2="696" y2="67.3" stroke="#E3E3E3"/>
+<text x="64" y="71.3" font-size="12" fill="#555" text-anchor="end">300</text>
+<line x1="72.0" y1="24" x2="72.0" y2="284" stroke="#E3E3E3"/>
+<text x="72.0" y="302" font-size="12" fill="#555" text-anchor="middle">4 KB</text>
+<line x1="145.4" y1="24" x2="145.4" y2="284" stroke="#E3E3E3"/>
+<text x="145.4" y="302" font-size="12" fill="#555" text-anchor="middle">16 KB</text>
+<line x1="218.8" y1="24" x2="218.8" y2="284" stroke="#E3E3E3"/>
+<text x="218.8" y="302" font-size="12" fill="#555" text-anchor="middle">64 KB</text>
+<line x1="292.2" y1="24" x2="292.2" y2="284" stroke="#E3E3E3"/>
+<text x="292.2" y="302" font-size="12" fill="#555" text-anchor="middle">256 KB</text>
+<line x1="365.6" y1="24" x2="365.6" y2="284" stroke="#E3E3E3"/>
+<text x="365.6" y="302" font-size="12" fill="#555" text-anchor="middle">1 MB</text>
+<line x1="439.1" y1="24" x2="439.1" y2="284" stroke="#E3E3E3"/>
+<text x="439.1" y="302" font-size="12" fill="#555" text-anchor="middle">4 MB</text>
+<line x1="512.5" y1="24" x2="512.5" y2="284" stroke="#E3E3E3"/>
+<text x="512.5" y="302" font-size="12" fill="#555" text-anchor="middle">16 MB</text>
+<line x1="585.9" y1="24" x2="585.9" y2="284" stroke="#E3E3E3"/>
+<text x="585.9" y="302" font-size="12" fill="#555" text-anchor="middle">64 MB</text>
+<line x1="659.3" y1="24" x2="659.3" y2="284" stroke="#E3E3E3"/>
+<text x="659.3" y="302" font-size="12" fill="#555" text-anchor="middle">256 MB</text>
+<line x1="72" y1="284" x2="696" y2="284" stroke="#555"/>
+<line x1="72" y1="24" x2="72" y2="284" stroke="#555"/>
+<text x="384.0" y="326" font-size="13" fill="#222" text-anchor="middle">链覆盖的内存范围（对数刻度）</text>
+<text x="18" y="154.0" font-size="13" fill="#222" text-anchor="middle" transform="rotate(-90 18 154.0)">每次访问的延迟 (ns)</text>
+<line x1="72" y1="275.4" x2="696" y2="275.4" stroke="#9E9E9E" stroke-dasharray="5 4"/>
+<polyline points="72.0,272.7 108.7,272.7 145.4,272.7 182.1,272.6 218.8,272.3 255.5,218.7 292.2,202.3 328.9,202.3 365.6,202.3 402.4,202.3 439.1,202.3 475.8,202.3 512.5,202.3 549.2,166.8 585.9,44.6 622.6,44.6 659.3,44.6 696.0,42.8" fill="none" stroke="#00796B" stroke-width="2"/>
+<circle cx="72.0" cy="272.7" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="108.7" cy="272.7" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="145.4" cy="272.7" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="182.1" cy="272.6" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="218.8" cy="272.3" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="255.5" cy="218.7" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="292.2" cy="202.3" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="328.9" cy="202.3" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="365.6" cy="202.3" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="402.4" cy="202.3" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="439.1" cy="202.3" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="475.8" cy="202.3" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="512.5" cy="202.3" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="549.2" cy="166.8" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="585.9" cy="44.6" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="622.6" cy="44.6" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="659.3" cy="44.6" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="696.0" cy="42.8" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<text x="135.4" y="258.7" font-size="12" fill="#222" text-anchor="start">L1：约 16 ns</text>
+<text x="372.4" y="190.3" font-size="12" fill="#222" text-anchor="start">L2：约 113 ns</text>
+<text x="562.6" y="32.6" font-size="12" fill="#222" text-anchor="start">显存：约 331 ns</text>
+<text x="696.0" y="267.4" font-size="12" fill="#222" text-anchor="end">shared memory：约 12 ns</text>
+</svg>

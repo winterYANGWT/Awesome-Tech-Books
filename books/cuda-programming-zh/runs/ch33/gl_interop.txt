@@ -1,0 +1,5 @@
+$ ./gl_interop
+EGL 1.5，OpenGL 4.6.0 NVIDIA 610.57.04，NVIDIA GeForce RTX 5060 Laptop GPU/PCIe/SSE2
+注册 64 MB 的 buffer：5333 us
+每帧：映射 + kernel + 解除映射 298 us，只有 kernel 185 us
+OpenGL 读回第 200 帧，错误 0 个

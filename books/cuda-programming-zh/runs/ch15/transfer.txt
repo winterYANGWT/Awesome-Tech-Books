@@ -1,0 +1,16 @@
+   大小    pageable H2D       pinned H2D        pageable D2H       pinned D2H
+    4 KB       5.4 us   0.8       6.1 us   0.7       6.0 us   0.7       5.4 us   0.8
+   16 KB       7.0 us   2.4       7.0 us   2.3       7.5 us   2.2       6.2 us   2.6
+   64 KB      16.7 us   3.9       9.6 us   6.8      15.9 us   4.1       9.7 us   6.7
+  256 KB      34.6 us   7.6      23.4 us  11.2      38.3 us   6.8      23.4 us  11.2
+    1 MB     122.1 us   8.6      87.0 us  12.0     142.8 us   7.3      88.2 us  11.9
+    4 MB     361.9 us  11.6     306.5 us  13.7     419.4 us  10.0     308.2 us  13.6
+   16 MB    1284.6 us  13.1    1182.3 us  14.2    1544.0 us  10.9    1187.7 us  14.1
+   64 MB    5123.9 us  13.1    4684.7 us  14.3    5984.8 us  11.2    4705.6 us  14.3
+  256 MB   21977.0 us  12.2   18689.4 us  14.4   23631.5 us  11.4   18777.1 us  14.3
+
+分配并锁定        cudaMallocHost   cudaHostRegister
+     1 MB           0.5 ms             0.1 ms
+    16 MB           2.4 ms             0.4 ms
+   256 MB          36.4 ms             5.2 ms
+  1024 MB         149.7 ms            60.9 ms

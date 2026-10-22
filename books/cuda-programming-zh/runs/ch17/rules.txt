@@ -1,0 +1,13 @@
+这个调用返回                         结束捕获时返回                       捕获期间做的事
+cudaSuccess                          cudaSuccess                          cudaMemsetAsync（同一条 stream）
+cudaSuccess                          cudaSuccess                          cudaMallocAsync（同一条 stream）
+cudaErrorStreamCaptureUnsupported    cudaErrorStreamCaptureInvalidated    cudaMalloc
+cudaSuccess                          cudaSuccess                          cudaMemcpy（同步拷贝）
+cudaErrorStreamCaptureUnsupported    cudaErrorStreamCaptureInvalidated    cudaStreamSynchronize
+cudaSuccess                          cudaSuccess                          在默认 stream 上启动 kernel
+cudaSuccess                          cudaSuccess                          在另一条 stream 上启动 kernel
+cudaErrorStreamCaptureImplicit       cudaErrorStreamCaptureInvalidated    默认 stream 启动（捕获普通 stream）
+
+捕获结束、graph 还没启动时，d[0] = 1
+
+fork-join 捕获得到的 graph：4 个节点，4 条边

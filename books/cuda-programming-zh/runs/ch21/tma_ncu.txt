@@ -1,0 +1,4 @@
+kernel          执行的 warp 指令数   SM 吞吐（占峰值）
+blur_global         199,229,440     55.5%
+blur_manual         215,154,688     74.0%
+blur_tma            148,789,945     71.6%

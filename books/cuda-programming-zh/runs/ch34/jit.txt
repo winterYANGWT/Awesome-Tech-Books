@@ -1,0 +1,15 @@
+$ nvcc -O2 -gencode arch=compute_120,code=compute_120 lazy.cu lazy_late.cu -lcuda -o lazy_ptx
+$ CUDA_CACHE_PATH=./cache ./lazy_ptx busy          # 缓存目录是空的
+加载方式 LAZY：建立上下文 164.3 ms，显存已用 122 MB
+work<7> 第一次启动到完成 13718.623 ms，第二次 0.034 ms
+$ CUDA_CACHE_PATH=./cache ./lazy_ptx busy          # 再运行一次
+加载方式 LAZY：建立上下文 158.6 ms，显存已用 122 MB
+work<7> 第一次启动到完成 46.523 ms，第二次 0.034 ms
+$ du -sh cache
+32M	cache
+$ rm -rf cache; CUDA_CACHE_PATH=./cache CUDA_MODULE_LOADING=EAGER ./lazy_ptx busy
+加载方式 EAGER：建立上下文 13978.2 ms，显存已用 138 MB
+work<7> 第一次启动到完成 0.054 ms，第二次 0.034 ms
+$ CUDA_DISABLE_PTX_JIT=1 ./lazy_ptx busy
+加载方式 LAZY：建立上下文 2723.8 ms，显存已用 122 MB
+lazy.cu:82: cudaErrorJitCompilationDisabled (PTX JIT compilation was disabled)

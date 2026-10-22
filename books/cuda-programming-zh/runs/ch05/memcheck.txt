@@ -1,0 +1,29 @@
+$ compute-sanitizer --print-limit 1 ./bugs edge
+========= COMPUTE-SANITIZER
+========= Invalid __global__ read of size 4 bytes
+=========     at add_no_check(const float *, const float *, float *)+0xa0 in bugs.cu:24
+=========     by thread (232,0,0) in block (3,0,0)
+=========     Access to 0x1000ea00fa0 is out of bounds
+=========     and is 1 bytes after the nearest allocation at 0x1000ea00000 of size 4000 bytes
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x8e8d] in bugs
+========= 
+启动：cudaSuccess，同步：cudaErrorLaunchFailure
+之后的 cudaMalloc：cudaErrorLaunchFailure
+========= ERROR SUMMARY: 27 errors
+========= ERROR SUMMARY: 26 errors were not printed. Use --print-limit option to adjust the number of printed errors
+
+$ compute-sanitizer --print-limit 1 ./bugs near
+========= COMPUTE-SANITIZER
+========= Invalid __global__ read of size 4 bytes
+=========     at scale_wrong(float *, int, int)+0xd0 in bugs.cu:32
+=========     by thread (32,0,0) in block (0,0,0)
+=========     Access to 0x1000ea20000 is out of bounds
+=========     and is 118881 bytes after the nearest allocation at 0x1000ea02000 of size 4000 bytes
+=========     Saved host backtrace up to driver entry point at kernel launch time
+=========         Host Frame: main [0x8e17] in bugs
+========= 
+启动：cudaSuccess，同步：cudaErrorLaunchFailure
+之后的 cudaMalloc：cudaErrorLaunchFailure
+========= ERROR SUMMARY: 970 errors
+========= ERROR SUMMARY: 969 errors were not printed. Use --print-limit option to adjust the number of printed errors

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="340" viewBox="0 0 720 340" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif">
+<rect width="720" height="340" fill="#fff"/>
+<line x1="72" y1="284.0" x2="696" y2="284.0" stroke="#E3E3E3"/>
+<text x="64" y="288.0" font-size="12" fill="#555" text-anchor="end">0</text>
+<line x1="72" y1="219.0" x2="696" y2="219.0" stroke="#E3E3E3"/>
+<text x="64" y="223.0" font-size="12" fill="#555" text-anchor="end">100</text>
+<line x1="72" y1="154.0" x2="696" y2="154.0" stroke="#E3E3E3"/>
+<text x="64" y="158.0" font-size="12" fill="#555" text-anchor="end">200</text>
+<line x1="72" y1="89.0" x2="696" y2="89.0" stroke="#E3E3E3"/>
+<text x="64" y="93.0" font-size="12" fill="#555" text-anchor="end">300</text>
+<line x1="72" y1="24.0" x2="696" y2="24.0" stroke="#E3E3E3"/>
+<text x="64" y="28.0" font-size="12" fill="#555" text-anchor="end">400</text>
+<line x1="72.0" y1="24" x2="72.0" y2="284" stroke="#E3E3E3"/>
+<text x="72.0" y="302" font-size="12" fill="#555" text-anchor="middle">32</text>
+<line x1="155.2" y1="24" x2="155.2" y2="284" stroke="#E3E3E3"/>
+<text x="155.2" y="302" font-size="12" fill="#555" text-anchor="middle">128</text>
+<line x1="238.4" y1="24" x2="238.4" y2="284" stroke="#E3E3E3"/>
+<text x="238.4" y="302" font-size="12" fill="#555" text-anchor="middle">512</text>
+<line x1="321.6" y1="24" x2="321.6" y2="284" stroke="#E3E3E3"/>
+<text x="321.6" y="302" font-size="12" fill="#555" text-anchor="middle">2K</text>
+<line x1="404.8" y1="24" x2="404.8" y2="284" stroke="#E3E3E3"/>
+<text x="404.8" y="302" font-size="12" fill="#555" text-anchor="middle">8K</text>
+<line x1="488.0" y1="24" x2="488.0" y2="284" stroke="#E3E3E3"/>
+<text x="488.0" y="302" font-size="12" fill="#555" text-anchor="middle">32K</text>
+<line x1="571.2" y1="24" x2="571.2" y2="284" stroke="#E3E3E3"/>
+<text x="571.2" y="302" font-size="12" fill="#555" text-anchor="middle">128K</text>
+<line x1="654.4" y1="24" x2="654.4" y2="284" stroke="#E3E3E3"/>
+<text x="654.4" y="302" font-size="12" fill="#555" text-anchor="middle">512K</text>
+<line x1="72" y1="284" x2="696" y2="284" stroke="#555"/>
+<line x1="72" y1="24" x2="72" y2="284" stroke="#555"/>
+<text x="384.0" y="326" font-size="13" fill="#222" text-anchor="middle">同时在跑的线程总数（对数刻度）</text>
+<text x="18" y="154.0" font-size="13" fill="#222" text-anchor="middle" transform="rotate(-90 18 154.0)">拷贝带宽 (GB/s)</text>
+<line x1="72" y1="34.4" x2="696" y2="34.4" stroke="#9E9E9E" stroke-dasharray="5 4"/>
+<text x="80" y="28.4" font-size="12" fill="#555">显存理论带宽 384 GB/s</text>
+<line x1="72" y1="261.9" x2="696" y2="261.9" stroke="#9E9E9E" stroke-dasharray="5 4"/>
+<text x="80" y="255.9" font-size="12" fill="#555">CPU 单线程读写内存约 34 GB/s</text>
+<polyline points="72.0,283.5 113.6,283.1 155.2,282.2 196.8,280.4 238.4,276.7 280.0,266.2 321.6,250.0 363.2,221.1 404.8,173.8 446.4,105.0 488.0,71.4 529.6,71.8 571.2,77.7 612.8,68.8 654.4,68.2 696.0,65.5" fill="none" stroke="#00796B" stroke-width="2"/>
+<circle cx="72.0" cy="283.5" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="113.6" cy="283.1" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="155.2" cy="282.2" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="196.8" cy="280.4" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="238.4" cy="276.7" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="280.0" cy="266.2" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="321.6" cy="250.0" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="363.2" cy="221.1" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="404.8" cy="173.8" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="446.4" cy="105.0" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="488.0" cy="71.4" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="529.6" cy="71.8" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="571.2" cy="77.7" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="612.8" cy="68.8" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="654.4" cy="68.2" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<circle cx="696.0" cy="65.5" r="3.2" fill="#fff" stroke="#00796B" stroke-width="1.8"/>
+<text x="494.0" y="93.4" font-size="12" fill="#222" text-anchor="start">约 3.3 万个线程后不再上升</text>
+</svg>

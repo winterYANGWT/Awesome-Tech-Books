@@ -1,0 +1,12 @@
+$ ./dpx
+159744 个线程，每个 4096 步：DPX 内建函数 0.849 ms，手写 max 0.881 ms，结果不同的线程 0 个
+$ nvcc -cubin -arch=sm_120 dpx.cu -o dpx_sm_120.cubin && cuobjdump -sass dpx_sm_120.cubin  # 按 kernel 统计 min/max 类指令
+  29 _Z12dp_intrinsicPKiPii VIMNMX.S32
+  29 _Z12dp_intrinsicPKiPii VIMNMX.S32.RELU
+  15 _Z8dp_plainPKiPii VIMNMX.S32
+  15 _Z8dp_plainPKiPii VIMNMX.S32.RELU
+$ nvcc -cubin -arch=sm_90 dpx.cu -o dpx_sm_90.cubin && cuobjdump -sass dpx_sm_90.cubin  # 按 kernel 统计 min/max 类指令
+  5 _Z12dp_intrinsicPKiPii VIADDMNMX
+  5 _Z12dp_intrinsicPKiPii VIADDMNMX.RELU
+  29 _Z8dp_plainPKiPii VIADDMNMX
+  29 _Z8dp_plainPKiPii VIADDMNMX.RELU

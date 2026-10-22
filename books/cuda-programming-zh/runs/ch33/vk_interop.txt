@@ -1,0 +1,10 @@
+$ ./vk_interop
+Vulkan 设备：NVIDIA GeForce RTX 5060 Laptop GPU（和 CUDA 设备 0 是同一张卡）
+导出 64 MB：内存类型 2，在主机内存里，主机可见
+导出 64 MB：内存类型 1，在显存里
+任务已经排进 stream，100 ms 后 stream 的状态：cudaErrorNotReady
+Vulkan 发信号以后 CUDA 才开始算；在 Vulkan 这边检查结果，错误 0 个
+
+读写一遍 64 MB    导入的主机内存   导入的显存   cudaMalloc 的显存
+随机数据              5.965 ms        0.435 ms        0.435 ms
+全零                  5.970 ms        0.100 ms        0.435 ms

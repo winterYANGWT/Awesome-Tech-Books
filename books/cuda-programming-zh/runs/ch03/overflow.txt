@@ -1,0 +1,4 @@
+$ ./overflow int
+int 下标：最后一个字节 = 0
+$ ./overflow size_t
+size_t 下标：最后一个字节 = 1

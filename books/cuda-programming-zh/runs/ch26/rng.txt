@@ -1,0 +1,14 @@
+生成 268435456 个均匀分布的 float：
+  XORWOW（默认）   3.11 ms    345 GB/s   π ≈ 3.141511
+  Philox4x32-10      2.99 ms    360 GB/s   π ≈ 3.141616
+  MRG32k3a           6.38 ms    168 GB/s   π ≈ 3.141499
+  MT19937            6.63 ms    162 GB/s   π ≈ 3.141611
+  CPU std::mt19937     35 ms（只生成了十分之一，折合全部 352 ms）
+
+在 kernel 里生成（159744 个线程，每个 4096 对）：
+  XORWOW             只做 curand_init：   2.23 ms
+  XORWOW             初始化并生成：     3.11 ms   π ≈ 3.141662
+  Philox             只做 curand_init：   0.51 ms
+  Philox             初始化并生成：     5.51 ms   π ≈ 3.141630
+  Philox，uniform4  只做 curand_init：   0.33 ms
+  Philox，uniform4  初始化并生成：     4.11 ms   π ≈ 3.141630

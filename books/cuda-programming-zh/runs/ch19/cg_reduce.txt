@@ -1,0 +1,2 @@
+手写 shuffle    0.768 ms  和 = 3.352087e+07
+Cooperative Groups  0.766 ms  和 = 3.352087e+07

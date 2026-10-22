@@ -1,0 +1,4 @@
+优先级范围：0（最低）到 -5（最高）
+小 kernel 单独运行：   0.02 ms
+小 kernel 放在普通 stream：从提交到完成   59.34 ms
+小 kernel 放在高优先级 stream：从提交到完成    0.36 ms

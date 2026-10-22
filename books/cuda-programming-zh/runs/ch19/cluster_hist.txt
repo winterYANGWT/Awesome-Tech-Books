@@ -1,0 +1,16 @@
+65536 个桶，均匀分布
+   2.35 ms  global memory 原子加
+  10.58 ms  cluster：4 个 block 一组，每个 block 64 KB，共 6 组
+  12.99 ms  cluster：8 个 block 一组，每个 block 32 KB，共 3 组
+
+65536 个桶，倾斜分布
+   2.03 ms  global memory 原子加
+  10.34 ms  cluster：4 个 block 一组，每个 block 64 KB，共 6 组
+  12.68 ms  cluster：8 个 block 一组，每个 block 32 KB，共 3 组
+
+16384 个桶，均匀分布
+   2.23 ms  global memory 原子加
+   0.98 ms  cluster：1 个 block 一组，每个 block 64 KB，共 26 组
+   6.79 ms  cluster：2 个 block 一组，每个 block 32 KB，共 13 组
+  11.33 ms  cluster：4 个 block 一组，每个 block 16 KB，共 6 组
+

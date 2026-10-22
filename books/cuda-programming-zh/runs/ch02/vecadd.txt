@@ -1,0 +1,10 @@
+   79.291 ms  准备主机数据
+  157.595 ms  cudaMalloc d_a（程序里第一个 CUDA 调用）
+    0.049 ms  cudaMalloc d_b、d_c
+   14.844 ms  cudaMemcpy 两个输入，主机 -> 显存
+    0.121 ms  启动 kernel（第一次）
+    0.524 ms  cudaDeviceSynchronize，等 kernel 跑完
+    0.003 ms  再启动一次 kernel
+    0.577 ms  cudaDeviceSynchronize
+   13.808 ms  cudaMemcpy 结果，显存 -> 主机
+0 个元素不等于 1

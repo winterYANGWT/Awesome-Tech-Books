@@ -1,0 +1,7 @@
+0 atomicAdd              79.016 ms      3 GB/s  相对误差 5.0e-01
+1 树形，取模         1.774 ms    151 GB/s  相对误差 3.2e-05
+2 树形，前一半干活    1.734 ms    155 GB/s  相对误差 3.1e-05
+3 先在寄存器里累加    0.766 ms    350 GB/s  相对误差 8.7e-08
+4 warp shuffle            0.765 ms    351 GB/s  相对误差 3.3e-07
+5 float4                  0.729 ms    368 GB/s  相对误差 1.5e-07
+CUB DeviceReduce::Sum     0.728 ms    369 GB/s  相对误差 3.3e-08

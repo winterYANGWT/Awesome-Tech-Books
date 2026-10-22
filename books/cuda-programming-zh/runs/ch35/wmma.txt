@@ -1,0 +1,5 @@
+$ ./wmma
+4096×4096×4096，half 输入、float 累加
+WMMA 每个 warp 一块，直接读显存   16.66 ms    8.2 TFLOPS  和 cuBLAS 的最大差 0.0e+00
+WMMA 经 shared memory 分块         4.23 ms   32.5 TFLOPS  和 cuBLAS 的最大差 0.0e+00
+cuBLAS（cublasGemmEx）             3.84 ms   35.8 TFLOPS  （结果最大绝对值 32.7）

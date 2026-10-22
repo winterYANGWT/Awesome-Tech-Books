@@ -1,0 +1,10 @@
+显存 8.1 GB，其中可用 8.0 GB
+
+数据量    第一遍读写       第二遍读写
+   2 GB        14 ms 299.2 GB/s        14 ms 300.3 GB/s
+   4 GB        29 ms 294.9 GB/s        29 ms 295.1 GB/s
+   6 GB        44 ms 291.7 GB/s        44 ms 292.1 GB/s
+   7 GB        52 ms 291.9 GB/s        52 ms 291.6 GB/s
+   8 GB      3994 ms   4.3 GB/s      1780 ms   9.7 GB/s
+   9 GB      3991 ms   4.8 GB/s      1913 ms  10.1 GB/s
+exit=0

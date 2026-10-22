@@ -1,0 +1,2 @@
+普通 pinned    CPU 写   4.2 ms   CPU 读    6.6 ms   H2D 拷贝  4.7 ms
+write-combined   CPU 写   3.9 ms   CPU 读  443.4 ms   H2D 拷贝  4.8 ms
