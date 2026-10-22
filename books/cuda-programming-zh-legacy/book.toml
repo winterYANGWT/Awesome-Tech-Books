@@ -1,0 +1,14 @@
+[book]
+title = "CUDA 编程：从并行模型到工程实践（旧版）"
+description = "本书的旧版，已不再更新：14 部分 87 章，按主题逐项讲解，每章附 API 速查，适合按主题查阅。新版见 https://winteryangwt.github.io/Awesome-Tech-Books/cuda-programming-zh/"
+authors = ["winterYANGWT"]
+language = "zh-CN"
+src = "src"
+
+[output.html]
+additional-css = ["theme/custom.css"]
+git-repository-url = "https://github.com/winterYANGWT/Awesome-Tech-Books/tree/main/books/cuda-programming-zh-legacy"
+no-section-label = true
+
+[output.html.search]
+use-boolean-and = true
