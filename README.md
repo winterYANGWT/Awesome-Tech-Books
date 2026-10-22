@@ -9,16 +9,17 @@
 | 书名 | 说明 | 许可证 | 目录 |
 | --- | --- | --- | --- |
 | [Rust 程序设计语言](https://winteryangwt.github.io/Awesome-Tech-Books/rust-book-zh/) | [The Rust Programming Language](https://doc.rust-lang.org/book/) 的简体中文译本，译自 2026-09 上游版本（`1500248d`），21 章 + 7 个附录 | MIT / Apache-2.0 | [`rust-book-zh/`](rust-book-zh/) |
-| [CUDA 编程：从并行模型到工程实践](https://winteryangwt.github.io/Awesome-Tech-Books/cuda-programming-zh/) | 原创中文教程，主题参照 NVIDIA《CUDA C++ Programming Guide》，14 部分 87 章；不是 NVIDIA 官方文档 | 文字 CC BY 4.0，代码 MIT | [`books/cuda-programming-zh/`](books/cuda-programming-zh/) |
+| [CUDA 编程：从并行模型到工程实践](https://winteryangwt.github.io/Awesome-Tech-Books/cuda-programming-zh/) | 原创中文教程，每章围绕可运行的程序和实测数据，7 部分 36 章；不是 NVIDIA 官方文档 | 文字 CC BY 4.0，代码 MIT | [`books/cuda-programming-zh/`](books/cuda-programming-zh/) |
+| [CUDA 编程：从并行模型到工程实践（旧版）](https://winteryangwt.github.io/Awesome-Tech-Books/cuda-programming-zh-legacy/) | 新版的前身，14 部分 87 章，按主题逐项讲解，每章附 API 速查；已不再更新，留作参考 | 文字 CC BY 4.0，代码 MIT | [`books/cuda-programming-zh-legacy/`](books/cuda-programming-zh-legacy/) |
 
-两本书都借助 AI 翻译或编写，难免有错，欢迎通过 issue 指正。
+这些书都借助 AI 翻译或编写，难免有错，欢迎通过 issue 指正。
 
 ## 仓库结构
 
 ```
 index.html                   站点首页，每本书一张卡片
 rust-book-zh/                Rust 书：已构建好的 HTML，原样发布
-books/<name>/                mdBook 源码（book.toml、src/、LICENSE*），构建到站点的 <name>/
+books/<name>/                mdBook 源码（book.toml、src/、LICENSE* 等），构建到站点的 <name>/
 scripts/build-site.sh        把首页和各书组装成完整站点
 .github/workflows/pages.yml  推送到 main 时构建站点并发布到 GitHub Pages
 ```
