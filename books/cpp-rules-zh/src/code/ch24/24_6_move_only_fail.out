@@ -1,0 +1,4 @@
+bits/alloc_traits.h:676:4: error: no matching function for call to 'construct_at'
+bits/stl_vector.h:1421:21: note: in instantiation of function template specialization 'std::allocator_traits<std::allocator<std::unique_ptr<int>>>::construct<std::unique_ptr<int>, const std::unique_ptr<int> &>' requested here
+24_6_move_only_fail.cpp:11:12: note: in instantiation of member function 'std::vector<std::unique_ptr<int>>::push_back' requested here
+bits/stl_construct.h:96:5: note: candidate template ignored: constraints not satisfied [with _Tp = std::unique_ptr<int>, _Args = <const std::unique_ptr<int> &>]

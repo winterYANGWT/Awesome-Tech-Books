@@ -1,0 +1,7 @@
+ci.sh on a fresh tree:
+  [ 50%] Built target freight
+  [100%] Built target freight_test
+  100% tests passed, 0 tests failed out of 1
+second incremental build: no object file rewritten
+after touching src/freight.cpp: one object file rebuilt
+all 4 checks passed

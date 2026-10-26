@@ -1,0 +1,2 @@
+14_3_private_overload.cpp:18:20: error: 'twice' is a private member of 'Calc'
+14_3_private_overload.cpp:12:9: note: declared private here

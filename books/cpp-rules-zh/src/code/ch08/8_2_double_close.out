@@ -1,0 +1,4 @@
+拷贝后两个 Socket 都指向 fd 7
+关闭 fd 7
+second 已析构，first 现在再关闭一次
+检测到重复关闭

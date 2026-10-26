@@ -1,0 +1,12 @@
+main: created, done=0
+body: before the first co_await
+  await_ready(not-ready) -> false
+  await_suspend(not-ready)
+main: back from resume 1, done=0
+  await_resume(not-ready)
+body: first = 42
+body: before the second co_await
+  await_ready(ready) -> true
+  await_resume(ready)
+body: second = 42
+main: back from resume 2, done=1

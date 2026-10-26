@@ -1,0 +1,10 @@
+entering scope
+  promise_type::operator new
+  promise_type::operator new
+created two coroutines: allocations=2, frees=0
+job 1 starts
+job 2 starts
+both resumed: frees=0
+  promise_type::operator delete
+  promise_type::operator delete
+after scope: allocations=2, frees=2

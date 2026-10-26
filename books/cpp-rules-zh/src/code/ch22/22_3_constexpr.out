@@ -1,0 +1,5 @@
+square(3) 作数组长度：9
+scaled 编译期 = 20，运行期 = 30
+global_capacity = 9
+constexpr lambda：0 1 4 9
+literal type：10

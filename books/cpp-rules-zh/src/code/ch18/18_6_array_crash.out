@@ -1,0 +1,4 @@
+array[0].payloadFirst()=10
+AddressSanitizer:DEADLYSIGNAL
+ERROR: AddressSanitizer: SEGV on unknown address 0x… (pc 0x… bp 0x… sp 0x… T0)
+SUMMARY: AddressSanitizer: SEGV 18_6_array_crash.cpp:26:45 in main

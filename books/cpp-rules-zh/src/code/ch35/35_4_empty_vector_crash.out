@@ -1,0 +1,2 @@
+size=0
+bits/stl_vector.h:1263: reference std::vector<int>::operator[](size_type) [_Tp = int, _Alloc = std::allocator<int>]: Assertion '__n < this->size()' failed.

@@ -1,0 +1,5 @@
+Customer 拷贝: name=Ada id=0（原对象 id=7）
+Customer 赋值: name=Ada id=9（原对象 id=7）
+Contract 拷贝: title="" pages=12
+Contract 赋值: title="Old" pages=12
+FixedContract: copy="Lease" assign="Lease"

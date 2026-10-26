@@ -1,0 +1,4 @@
+5_3_td_fail.cpp:13:25: error: implicit instantiation of undefined template 'TD<int>'
+5_3_td_fail.cpp:7:7: note: template is declared here
+5_3_td_fail.cpp:14:24: error: implicit instantiation of undefined template 'TD<const std::basic_string<char> &>'
+5_3_td_fail.cpp:7:7: note: template is declared here

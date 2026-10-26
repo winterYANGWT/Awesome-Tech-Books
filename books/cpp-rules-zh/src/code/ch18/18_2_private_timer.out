@@ -1,0 +1,4 @@
+私有继承：runFor(10) 后 ticks=10
+UsageWidget is_base_of<Timer>=true，可转换为 Timer*=false
+组合 + 嵌套类：runFor(7) 后 ticks=7
+ComposedWidget is_base_of<Timer>=false

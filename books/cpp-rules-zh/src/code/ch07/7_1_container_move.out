@@ -1,0 +1,6 @@
+std::array 移动：拷贝 0 次，移动 4 次
+std::vector 移动：拷贝 0 次，移动 0 次
+左值初始化拷贝 1 次，std::move 后移动 1 次
+扩容时 noexcept 移动：拷贝 0 次，移动 1 次
+扩容时移动未标 noexcept：拷贝 1 次，移动 0 次
+两批货物：4 + 4 件，copied = hinge

@@ -1,0 +1,7 @@
+调用 async(launch::deferred)
+async 已返回，任务还没运行
+wait_for(0) 的状态是 deferred: 1
+调用 get()
+compute() 开始运行
+get() 返回 42
+deferred future 已析构，任务没有运行

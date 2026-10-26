@@ -1,0 +1,3 @@
+2_4_conversion_fanout.cpp:17:5: error: call to 'eat' is ambiguous
+2_4_conversion_fanout.cpp:12:6: note: candidate function
+2_4_conversion_fanout.cpp:13:6: note: candidate function

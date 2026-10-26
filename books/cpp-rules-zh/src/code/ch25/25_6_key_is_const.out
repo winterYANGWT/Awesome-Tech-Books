@@ -1,0 +1,6 @@
+25_6_key_is_const.cpp:21:26: error: cannot assign to non-static data member 'first' with const-qualified type 'const int'
+bits/stl_pair.h:308:11: note: non-static data member 'first' declared const here
+25_6_key_is_const.cpp:24:26: error: no viable overloaded '='
+bits/basic_string.h:904:7: note: candidate function not viable: 'this' argument has type 'const std::string' (aka 'const basic_string<char>'), but method is not marked const
+bits/basic_string.h:915:7: note: candidate function not viable: 'this' argument has type 'const std::string' (aka 'const basic_string<char>'), but method is not marked const
+bits/basic_string.h:927:7: note: candidate function not viable: 'this' argument has type 'const std::string' (aka 'const basic_string<char>'), but method is not marked const

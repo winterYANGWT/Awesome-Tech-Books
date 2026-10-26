@@ -1,0 +1,2 @@
+13_3_what_no_noexcept.cpp:8:17: error: exception specification of overriding function is more lax than base version
+bits/exception.h:76:5: note: overridden virtual function is here

@@ -1,0 +1,6 @@
+10_6_heap_only_fail.cpp:23:16: error: variable of type 'Connection' has private destructor
+10_6_heap_only_fail.cpp:12:5: note: declared private here
+10_6_heap_only_fail.cpp:25:12: error: calling a private destructor of class 'Connection'
+10_6_heap_only_fail.cpp:12:5: note: declared private here
+10_6_heap_only_fail.cpp:26:20: error: call to deleted function 'operator new'
+10_6_heap_only_fail.cpp:18:18: note: candidate function has been explicitly deleted

@@ -1,0 +1,2 @@
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free 27_3_loop_invalidation.cpp:10:13 in main

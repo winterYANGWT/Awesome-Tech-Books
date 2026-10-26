@@ -1,0 +1,12 @@
+1) vector 自己分配原始内存，用 construct_at 构造元素
+  构造 Cell(7)
+  构造 Cell(8)
+  拷贝 Cell
+  析构 Cell(7)
+  cells[1].value()=8
+2) 直接调用 construct_at 也一样，不需要类级 placement new
+  构造 Cell(9)
+  p->value()=9
+  析构 Cell(9)
+  析构 Cell(7)
+  析构 Cell(8)

@@ -1,0 +1,8 @@
+27_6_not1_warn.cpp:16:40: warning: 'ptr_fun<int, bool>' is deprecated: use 'std::function' instead [-Wdeprecated-declarations]
+bits/stl_function.h:1160:5: note: 'ptr_fun<int, bool>' has been explicitly marked deprecated here
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/x86_64-linux-gnu/c++/15/bits/c++config.h:120:45: note: expanded from macro '_GLIBCXX11_DEPRECATED_SUGGEST'
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/x86_64-linux-gnu/c++/15/bits/c++config.h:112:19: note: expanded from macro '_GLIBCXX_DEPRECATED_SUGGEST'
+27_6_not1_warn.cpp:16:30: warning: 'not1<std::pointer_to_unary_function<int, bool>>' is deprecated: use 'std::not_fn' instead [-Wdeprecated-declarations]
+bits/stl_function.h:1079:5: note: 'not1<std::pointer_to_unary_function<int, bool>>' has been explicitly marked deprecated here
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/x86_64-linux-gnu/c++/15/bits/c++config.h:136:45: note: expanded from macro '_GLIBCXX17_DEPRECATED_SUGGEST'
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/x86_64-linux-gnu/c++/15/bits/c++config.h:112:19: note: expanded from macro '_GLIBCXX_DEPRECATED_SUGGEST'

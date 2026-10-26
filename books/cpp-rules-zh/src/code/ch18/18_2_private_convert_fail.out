@@ -1,0 +1,2 @@
+18_2_private_convert_fail.cpp:15:9: error: cannot cast 'const Student' to its private base class 'const Person'
+18_2_private_convert_fail.cpp:9:17: note: declared private here

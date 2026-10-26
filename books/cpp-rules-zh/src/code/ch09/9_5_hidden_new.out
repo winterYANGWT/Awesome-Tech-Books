@@ -1,0 +1,2 @@
+9_5_hidden_new.cpp:17:17: error: no matching function for call to 'operator new'
+9_5_hidden_new.cpp:9:18: note: candidate function not viable: requires 2 arguments, but 1 was provided

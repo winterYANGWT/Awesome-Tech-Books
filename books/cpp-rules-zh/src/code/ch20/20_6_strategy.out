@@ -1,0 +1,5 @@
+15 in [10,20]: true
+25 in [10,20]: false
+'bbb' in length range: true
+'eeeee' in length range: false
+15 in inverted range: true

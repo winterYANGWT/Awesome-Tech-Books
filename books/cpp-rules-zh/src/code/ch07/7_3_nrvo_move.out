@@ -1,0 +1,4 @@
+纯右值返回：拷贝 0，移动 0
+具名局部变量：拷贝 0，移动 1
+return std::move(局部)：拷贝 0，移动 1
+内容：prvalue / named / named-move

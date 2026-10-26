@@ -1,0 +1,4 @@
+Buffer（五件套）: copies=0 moves=7
+LegacyBuffer（只有析构）: copies=7 moves=0
+MoveOnly: copyable=0 movable=1
+RuleOfZero: copyable=1 movable=1

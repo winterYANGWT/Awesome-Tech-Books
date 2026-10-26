@@ -1,0 +1,8 @@
+Hiding::send(string hi)
+Base::send(int 7)
+Hiding::send(string hi)
+Narrow::send(char A)
+Base::send(int 65)
+Base::send(int 7)
+Exposing::send(string hi)
+Base::send(double 2.5)

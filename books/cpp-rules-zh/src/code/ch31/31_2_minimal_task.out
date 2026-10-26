@@ -1,0 +1,8 @@
+main: create load_order
+main: resume it
+load_order: before co_await
+load_order: after co_await, id=42
+main: result=420
+main: create a failing load_order
+load_order: before co_await
+main: caught empty order id

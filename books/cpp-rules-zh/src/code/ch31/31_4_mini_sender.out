@@ -1,0 +1,9 @@
+pipeline described; nothing has run
+connected; still nothing has run
+  operation starts
+receiver: value 42
+start returned
+  operation starts
+receiver: error division by zero
+  operation starts
+receiver: stopped

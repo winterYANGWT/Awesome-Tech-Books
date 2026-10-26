@@ -1,0 +1,2 @@
+2_3_explicit_fix.cpp:20:20: error: invalid operands to binary expression ('Buffer' and 'int')
+2_3_explicit_fix.cpp:12:10: note: candidate function not viable: no known conversion from 'int' to 'const Buffer' for 1st argument

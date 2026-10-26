@@ -1,0 +1,3 @@
+used=6 capacity=4
+14_1_protected_breaks.cpp:11:9: runtime error: index 6 out of bounds for type 'int[4]'
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior 14_1_protected_breaks.cpp:11:9

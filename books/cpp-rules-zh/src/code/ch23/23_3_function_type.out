@@ -1,0 +1,10 @@
+bits/stl_tree.h:142:21: error: data member instantiated with function type 'bool (const std::basic_string<char> &, const std::basic_string<char> &)'
+bits/stl_tree.h:1305:11: note: in instantiation of template class 'std::_Rb_tree_key_compare<bool (const std::basic_string<char> &, const std::basic_string<char> &)>' requested here
+bits/stl_tree.h:1349:31: note: in instantiation of template class 'std::_Rb_tree<std::basic_string<char>, std::basic_string<char>, std::_Identity<std::basic_string<char>>, bool (const std::basic_string<char> &, const std::basic_string<char> &)>::_Rb_tree_impl<bool (const std::basic_string<char> &, const std::basic_string<char> &)>' requested here
+bits/stl_set.h:138:17: note: in instantiation of template class 'std::_Rb_tree<std::basic_string<char>, std::basic_string<char>, std::_Identity<std::basic_string<char>>, bool (const std::basic_string<char> &, const std::basic_string<char> &)>' requested here
+bits/stl_tree.h:1615:7: error: function cannot return function type 'bool (const std::basic_string<char> &, const std::basic_string<char> &)'
+bits/stl_set.h:138:17: note: in instantiation of template class 'std::_Rb_tree<std::basic_string<char>, std::basic_string<char>, std::_Identity<std::basic_string<char>>, bool (const std::basic_string<char> &, const std::basic_string<char> &)>' requested here
+23_3_function_type.cpp:11:36: note: in instantiation of template class 'std::set<std::basic_string<char>, bool (const std::basic_string<char> &, const std::basic_string<char> &)>' requested here
+bits/stl_set.h:350:7: error: function cannot return function type 'key_compare' (aka 'bool (const std::basic_string<char> &, const std::basic_string<char> &)')
+23_3_function_type.cpp:11:36: note: in instantiation of template class 'std::set<std::basic_string<char>, bool (const std::basic_string<char> &, const std::basic_string<char> &)>' requested here
+bits/stl_set.h:354:7: error: function cannot return function type 'value_compare' (aka 'bool (const std::basic_string<char> &, const std::basic_string<char> &)')

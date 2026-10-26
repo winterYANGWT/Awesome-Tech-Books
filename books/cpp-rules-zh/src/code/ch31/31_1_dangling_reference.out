@@ -1,0 +1,4 @@
+creating a task that borrows a temporary
+the temporary is gone, now resuming
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free 31_1_dangling_reference.cpp:40:18 in print_first_word(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>> const&) (.resume)

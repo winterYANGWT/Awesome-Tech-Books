@@ -1,0 +1,5 @@
+Ada 住在 12 Signal St，London
+BadUniqueNames::add 去重后 size=1
+再调用继承来的 push_back 后 size=2，内容： ada ada
+UniqueNames add(ada)=1 add(ada)=0 size=1
+BadUniqueNames is-a list: true；UniqueNames is-a list: false

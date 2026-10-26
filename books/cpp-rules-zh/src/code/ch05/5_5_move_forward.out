@@ -1,0 +1,12 @@
+--- 左值走 forward ---
+  sink(const Item&)：local
+local.moved_from = 0
+--- 右值走 forward ---
+  sink(Item&&)：temporary
+--- 左值走 move ---
+  sink(Item&&)：victim
+victim.moved_from = 1
+--- const 对象上的 move ---
+frozen.moved_from = 0，thawed.name = frozen
+只做 move 之后 untouched.moved_from = 0
+拷贝 1 次，移动 2 次

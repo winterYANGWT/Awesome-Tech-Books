@@ -1,0 +1,5 @@
+3_3_reinterpret_misalign.cpp:18:32: runtime error: load of misaligned address 0x… for type 'const std::uint32_t' (aka 'const unsigned int'), which requires 4 byte alignment
+0x…: note: pointer points here
+ 7f 00 00  00 44 33 22 11 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 80 4f 65 b6
+              ^ 
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior 3_3_reinterpret_misalign.cpp:18:32

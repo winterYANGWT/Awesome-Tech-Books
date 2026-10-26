@@ -1,0 +1,5 @@
+改键后 inserted=true，新键=42，值=Alice
+撞键后 inserted=false，句柄里的键=7
+放回后 map 内容：7=Bob 42=Alice 
+改 title 后：1:Carol:Manager 2:Dave:Analyst 
+erase + insert 后：1:Manager 2:Lead

@@ -1,0 +1,4 @@
+1250 -> ok receipt=receipt-1250
+0 -> declined receipt=-
+15000 -> network receipt=-
+-1 -> internal receipt=-

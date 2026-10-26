@@ -1,0 +1,4 @@
+async future 离开作用域前，任务完成: 0
+async future 析构返回时，任务完成: 1
+promise future 析构返回，工作线程仍阻塞: 1
+放行后工作线程完成: 1

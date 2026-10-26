@@ -1,0 +1,6 @@
+sizeof(Plain)=4
+sizeof(Poly)=16
+sizeof(Both)=32
+通过 Poly& 调用: Named
+Left 与 Right 子对象地址相同? 0
+sizeof(Left)=16 sizeof(Right)=16

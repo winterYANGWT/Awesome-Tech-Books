@@ -1,0 +1,3 @@
+11_1_sealed_fail.cpp:24:13: error: call to implicitly-deleted copy constructor of 'Account'
+11_1_sealed_fail.cpp:17:17: note: copy constructor of 'Account' is implicitly deleted because base class 'Identity' has a deleted copy constructor
+11_1_sealed_fail.cpp:9:5: note: 'Identity' has been explicitly marked deleted here

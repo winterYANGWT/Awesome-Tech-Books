@@ -1,0 +1,4 @@
+sizeof(Base)=16，sizeof(Derived)=24
+指针容器： Derived Derived
+第一个元素经基类指针调用：Derived（baseValue=1，derivedValue=2，extra=3）
+但 base[1] 的地址不是 array[1]，步长是 sizeof(Base)=16 而不是 sizeof(Derived)=24

@@ -1,0 +1,2 @@
+36_1_hidden_virtual.cpp:11:29: error: non-virtual member function marked 'override' hides virtual member function
+36_1_hidden_virtual.cpp:6:18: note: hidden overloaded virtual function 'Notifier::send' declared here: different qualifiers ('const' vs unqualified)

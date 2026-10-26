@@ -1,0 +1,31 @@
+== unique_ptr<T[]> ==
+  构造 Sample 0
+  构造 Sample 1
+  构造 Sample 2
+  元素个数由分配时决定，可以下标访问：samples[1].id = 1
+  离开作用域前存活 3 个
+  析构 Sample 2
+  析构 Sample 1
+  析构 Sample 0
+  离开作用域后存活 0 个
+== shared_ptr<T[]>（C++17）==
+  构造 Sample 3
+  构造 Sample 4
+  samples[0].id = 3，引用计数 1
+  析构 Sample 4
+  析构 Sample 3
+  离开作用域后存活 0 个
+== make_shared<T[]>（C++20）==
+  构造 Sample 5
+  构造 Sample 6
+  samples[1].id = 6
+  析构 Sample 6
+  析构 Sample 5
+  离开作用域后存活 0 个
+== vector 仍然是首选 ==
+  构造 Sample 7
+  构造 Sample 8
+  vector 大小 2，存活 2 个
+  析构 Sample 7
+  析构 Sample 8
+  最终存活 0 个

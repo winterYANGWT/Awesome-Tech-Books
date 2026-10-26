@@ -1,0 +1,9 @@
+3kg 基础运费: 9
+120 分 clamp 后: 120
+80 分 clamp 后: 100
+quote.o 里 clamp_charge<int> 的符号数：1
+quote.o 里 clamp_charge<double> 的符号数：0
+main.o 对 int 版的引用：
+                   U int shipping::clamp_charge<int>(int)
+换用未显式实例化的 double：
+  链接失败：undefined reference to shipping::clamp_charge<double>(double)

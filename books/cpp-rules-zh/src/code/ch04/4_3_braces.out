@@ -1,0 +1,16 @@
+--- 没有 initializer_list：两种括号等价 ---
+Config(int, bool): retries=10, verbose=1
+Config(int, bool): retries=10, verbose=1
+Config(int, double): retries=10, ratio=2.5
+Config(int, double): retries=10, ratio=2.5
+--- 有 initializer_list：花括号优先选它 ---
+Reading(int, bool): count=10, valid=1
+Reading(initializer_list<long double>): 2 个值
+--- 空花括号表示“没有实参” ---
+Reading() 默认构造
+Reading(initializer_list<long double>): 0 个值
+--- vector 的两种含义 ---
+sized: 4 个元素，sized[0]=9
+listed: 2 个元素，listed[0]=4，listed[1]=9
+--- C++20：聚合体也能用圆括号 ---
+p = (1,2)，q = (3,4)

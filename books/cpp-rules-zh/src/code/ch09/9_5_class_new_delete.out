@@ -1,0 +1,13 @@
+== 普通 new ==
+  普通 new/delete 累计：1/1
+== nothrow new ==
+  nothrow new 累计：1；正常 delete 仍走普通版本，累计：2
+== placement new ==
+  placement new 累计：1；构造未抛，配对 delete 累计：0
+== 自定义 Arena 分配，构造函数抛异常 ==
+  捕获：Gadget 构造失败
+普通 new/delete 调用：1/2
+nothrow new/delete 调用：1/0
+placement new/delete 调用：1/0
+Arena new/delete 调用：1/1
+Arena 分配/释放：1/1

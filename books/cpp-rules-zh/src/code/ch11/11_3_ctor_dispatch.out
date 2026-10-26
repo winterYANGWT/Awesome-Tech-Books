@@ -1,0 +1,12 @@
+--- 构造 BuyTransaction ---
+  [Transaction ctor] typeid 是 Transaction：1
+    audit(构造): buy 100 shares
+    identify -> Transaction
+  [BuyTransaction ctor]
+--- 构造完成之后 ---
+  typeid 是 BuyTransaction：1
+    identify -> BuyTransaction
+--- 析构 ---
+  [~BuyTransaction]
+  [~Transaction]
+    identify -> Transaction

@@ -1,0 +1,5 @@
+按值传参：Employee 拷贝 3 次，Label 拷贝 7 次，end() 调用 4 次，后置自增 3 次
+const& 传参：Employee 拷贝 0 次，Label 拷贝 0 次，end() 调用 1 次，后置自增 0 次
+隐式转换：same(name, "Ada") 构造临时 Label 1 次，结果 1
+直接比较成员：构造临时 Label 0 次，结果 1
+查到 Grace 的地址：B-204，查 Nobody 的结果：未找到

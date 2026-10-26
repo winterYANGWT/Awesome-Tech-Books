@@ -1,0 +1,4 @@
+T      = PK5Gauge
+param  = PK5Gauge
+typeid(param) == typeid(const Gauge*): true
+typeid(param) == typeid(T):            true

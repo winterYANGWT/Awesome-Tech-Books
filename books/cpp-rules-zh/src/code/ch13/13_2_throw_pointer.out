@@ -1,0 +1,3 @@
+捕获到指针，准备读取它指向的对象
+ERROR: AddressSanitizer: stack-use-after-scope
+SUMMARY: AddressSanitizer: stack-use-after-scope 13_2_throw_pointer.cpp:21:29 in main

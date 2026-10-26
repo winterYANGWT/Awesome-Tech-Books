@@ -1,0 +1,6 @@
+ci_compare(Hello, hello)=0
+ci_compare(apple, Apricot)=-1
+ci_compare(Banana, apple)=1
+ci_compare(prefix, prefix-long)=-1
+set 大小=3，第二次插入 Apple 成功？0，第一次插入成功？1
+set 顺序：Apple apricot Banana

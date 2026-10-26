@@ -1,0 +1,11 @@
+derived.describe(): Derived::describe
+constBase.describe(): Base::describe
+base.describe(): Base::describe
+derived.name(): Derived
+base.name(): Derived
+base.Base::name(): Base
+extendedName(): Base+Derived
+Base::log
+Derived::log
+Base::log
+Derived::log

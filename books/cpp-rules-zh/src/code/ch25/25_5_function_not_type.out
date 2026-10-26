@@ -1,0 +1,2 @@
+25_5_function_not_type.cpp:12:28: error: template argument for template type parameter must be a type
+bits/stl_multiset.h:72:36: note: template parameter is declared here

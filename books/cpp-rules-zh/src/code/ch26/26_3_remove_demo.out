@@ -1,0 +1,10 @@
+删除前 size=6
+remove 后 size=6，逻辑尾之前有 3 个元素
+逻辑区间内: 102 103 104
+erase 后 size=3
+剩余: 102 103 104
+std::erase 删除 1 个 103
+std::erase_if 删除 2 个偶数
+最终: <空>
+list::remove 删除 3 个，size=2
+set::erase(6) 返回 1，size=2

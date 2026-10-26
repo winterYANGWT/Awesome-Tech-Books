@@ -1,0 +1,2 @@
+&buffer == buffer.data(): true
+addressof(buffer) == real_address(buffer): true

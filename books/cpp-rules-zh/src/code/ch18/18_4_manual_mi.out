@@ -1,0 +1,4 @@
+D& -> B2& 可用：D
+D* -> B2* 需要 asB2()：D
+castToB2(&d) 是 nullptr：true
+复制后修正回指：copy

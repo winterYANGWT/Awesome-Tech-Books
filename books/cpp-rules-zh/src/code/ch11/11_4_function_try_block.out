@@ -1,0 +1,9 @@
+--- 翻译成另一种异常 ---
+  handler 捕获：socket 打开失败
+  调用方捕获 ConnectionError：连接失败：socket 打开失败
+--- handler 不抛，也不能吞掉 ---
+  FallThrough handler 记录：socket 打开失败，然后走到 catch 末尾
+  调用方仍捕获 runtime_error：socket 打开失败
+--- 构造成功时 ---
+  Connection 构造函数体
+  is_open = 1

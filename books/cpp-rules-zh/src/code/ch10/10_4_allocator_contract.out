@@ -1,0 +1,9 @@
+1) vector::reserve 只调用 allocate，不构造元素
+  allocate 调用 1 次，n=3，sizeof(Tracker)=1，总字节 3
+  reserve 后已构造：0
+  emplace 两次后已构造：2
+  pop_back 后已析构：1
+  离开作用域后已析构：2
+2) list<int> 的 allocator<int> 被 rebind 成节点分配器
+  allocate 调用 3 次，每次 n=1，单块 24 字节，总字节 72
+  （3 个元素 3 个节点；本机 libstdc++ 把哨兵嵌在 list 对象里，不单独分配）

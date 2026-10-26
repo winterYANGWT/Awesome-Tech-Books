@@ -1,0 +1,4 @@
+2_2_null_template.cpp:10:26: error: no viable conversion from 'int' to 'std::unique_ptr<int>'
+2_2_null_template.cpp:15:5: note: in instantiation of function template specialization 'take<int>' requested here
+bits/unique_ptr.h:352:12: note: candidate constructor template not viable: no known conversion from 'int' to 'nullptr_t' (aka 'std::nullptr_t') for 1st argument
+bits/unique_ptr.h:359:7: note: candidate constructor not viable: no known conversion from 'int' to 'unique_ptr<int> &&' for 1st argument

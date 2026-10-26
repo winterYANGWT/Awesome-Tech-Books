@@ -1,0 +1,2 @@
+WARNING: ThreadSanitizer: data race
+SUMMARY: ThreadSanitizer: data race 29_5_cow_race.cpp:23:9 in CowText::CowText(CowText const&)

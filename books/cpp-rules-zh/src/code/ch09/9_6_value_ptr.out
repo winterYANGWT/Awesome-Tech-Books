@@ -1,0 +1,9 @@
+== 多态值语义 ==
+初始面积：first=12.5664，second=12.5664，third=9
+second 放大后：first=12.5664，second=50.2655
+third 赋值为 first 后面积：12.5664
+移动后 fourth 面积：12.5664
+多态对象剩余：0 个
+== 普通值类型 ==
+production: prod/3，staging: prod/5
+多态对象剩余：0 个

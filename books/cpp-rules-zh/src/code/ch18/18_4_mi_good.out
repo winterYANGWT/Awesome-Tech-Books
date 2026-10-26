@@ -1,0 +1,3 @@
+PersonInfo 默认格式：[Ada Lovelace]
+通过 IPerson* / IPerson&：Ada Lovelace（1815-12-10）
+CPerson -> IPerson*=true，CPerson -> PersonInfo*=false

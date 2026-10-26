@@ -1,0 +1,5 @@
+36_1_warnings.cpp:11:13: warning: enumeration value 'Drone' not handled in switch [-Wswitch]
+36_1_warnings.cpp:17:1: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+36_1_warnings.cpp:20:59: warning: unused parameter 'insured' [-Wunused-parameter]
+36_1_warnings.cpp:35:9: warning: unused variable 'warehouse_code' [-Wunused-variable]
+36_1_warnings.cpp:36:23: warning: comparison of integers of different signs: 'int' and 'size_type' (aka 'unsigned long') [-Wsign-compare]

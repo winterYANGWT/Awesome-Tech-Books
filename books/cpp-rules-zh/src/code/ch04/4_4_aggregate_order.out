@@ -1,0 +1,4 @@
+4_4_aggregate_order.cpp:10:46: warning: ISO C++ requires field designators to be specified in declaration order; field 'height' will be initialized after field 'width' [-Wreorder-init-list]
+4_4_aggregate_order.cpp:10:32: note: previous initialization for field 'height' is here
+4_4_aggregate_order.cpp:11:18: warning: mixture of designated and non-designated initializers in the same initializer list is a C99 extension [-Wc99-designator]
+4_4_aggregate_order.cpp:11:32: note: first non-designated initializer is here

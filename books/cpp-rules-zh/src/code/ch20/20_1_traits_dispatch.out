@@ -1,0 +1,9 @@
+Invoice:
+  clone_traits: 调用 Clone()
+  Invoice
+Report:
+  clone_traits: 调用 Clone()
+  Report
+Snapshot:
+  clone_traits: 退回拷贝构造
+  Snapshot

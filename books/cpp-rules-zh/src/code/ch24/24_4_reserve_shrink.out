@@ -1,0 +1,9 @@
+不 reserve: 扩容 11 次，拷贝 0 次，搬移 1023 次，容量变化 1 2 4 8 16 32 64 128 256 512 1024，最终 capacity 1024
+先 reserve(1000): 扩容 0 次，拷贝 0 次，搬移 0 次，容量变化（无），最终 capacity 1000
+reserve 之后 size 仍是 1000
+erase 到 10 条后: size 10，capacity 1000
+再 reserve(10) 后 capacity 1000
+shrink_to_fit 后: size 10，capacity 10
+交换前: size 10，capacity 500
+交换后: size 10，capacity 10
+clear 后: size 0，容量未变 1

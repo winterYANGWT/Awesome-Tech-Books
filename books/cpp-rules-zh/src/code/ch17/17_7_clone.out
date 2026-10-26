@@ -1,0 +1,3 @@
+通过 Shape* clone：Circle
+直接通过 Circle clone：Circle
+static_assert：Circle::clone 返回 Circle*，Shape::clone 返回 Shape*

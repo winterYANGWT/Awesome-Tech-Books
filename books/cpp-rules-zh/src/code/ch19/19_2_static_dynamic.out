@@ -1,0 +1,4 @@
+静态 Circle: 3.14159
+静态 Rect: 6
+动态 shapes: 9.14159
+std::function 任务: 9.14159

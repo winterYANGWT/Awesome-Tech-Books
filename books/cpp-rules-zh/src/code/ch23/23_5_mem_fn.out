@@ -1,0 +1,4 @@
+Ann = 5000，Bartholomew = 6000，Cy = 8000
+名字不短的人数：1
+工资不高于 5000 的人数：1
+ranges::for_each 直接收成员指针：Dee = 2000

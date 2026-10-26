@@ -1,0 +1,11 @@
+--- 通过 Sensor* 删除派生对象 ---
+  构造 Sensor 子对象
+  构造 Thermometer
+  name = thermometer
+  析构 Thermometer
+  析构 Sensor 子对象
+--- shared_ptr 从派生类构造时保存了删除器 ---
+  析构 Detailed
+  析构 Plain
+--- 栈上的策略类对象正常析构 ---
+  value = 42

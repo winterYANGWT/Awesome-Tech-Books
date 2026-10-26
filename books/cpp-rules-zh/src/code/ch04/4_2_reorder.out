@@ -1,0 +1,1 @@
+4_2_reorder.cpp:10:15: warning: field 'y_' will be initialized after field 'x_' [-Wreorder-ctor]

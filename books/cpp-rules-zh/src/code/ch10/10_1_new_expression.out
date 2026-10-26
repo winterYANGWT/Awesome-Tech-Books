@@ -1,0 +1,18 @@
+1) new Account：先分配，再构造
+    Account::operator new(40)
+    构造 alice，余额 100
+2) delete a：先析构，再释放
+    析构 alice
+    Account::operator delete
+3) 直接调用 operator new：只有内存，没有对象
+    raw = 非空
+4) placement new：在栈上的缓冲区里构造，不分配内存
+    placement operator new(40) -> 给定地址
+    构造 bob，余额 50
+    析构 bob
+5) 派生类的 new 会调用基类的 operator new，但尺寸是派生类的
+    sizeof(Base)=4，sizeof(Derived)=40
+    Base::operator new 收到 40 字节
+6) 请求 0 字节也必须拿到合法指针
+    zero = 非空
+Account 的分配/释放次数：1/1

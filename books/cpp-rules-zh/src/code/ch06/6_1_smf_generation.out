@@ -1,0 +1,6 @@
+Plain（都交给编译器）: copies=0 moves=1
+WithDtor（有析构，move 退化成 copy）: copies=1 moves=0
+WithCopy（有拷贝构造，move 退化成 copy）: copies=1 moves=0
+WithMove（只声明移动构造）: copies=0 moves=1
+WithTemplate（成员模板不抑制拷贝构造）: copies=1 moves=0
+ExplicitFive（= default 五件套）: copies=0 moves=1

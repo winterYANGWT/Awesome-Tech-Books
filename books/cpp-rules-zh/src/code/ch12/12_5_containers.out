@@ -1,0 +1,8 @@
+push_back failed: copy failed
+push_back size=3: a b c
+single insert failed: assignment failed
+single insert size=5: a b c c d
+vector range failed: copy failed
+vector range size=3: a b X
+list range failed: copy failed
+list range size=2: a b

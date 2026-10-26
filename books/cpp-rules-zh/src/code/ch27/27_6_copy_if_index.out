@@ -1,0 +1,4 @@
+std::copy_if：Barbara Deborah 
+自己写的 copy_if：Barbara Deborah 
+索引表（分数降序，同分按原下标）：1:95 3:95 0:88 5:88 2:70 4:60 
+原数组未改：88 95 70 95 60 88

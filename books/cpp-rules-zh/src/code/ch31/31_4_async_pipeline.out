@@ -1,0 +1,4 @@
+load_config on main thread? false
+load_quote on main thread? false
+total=2189
+caught from future: inventory service down

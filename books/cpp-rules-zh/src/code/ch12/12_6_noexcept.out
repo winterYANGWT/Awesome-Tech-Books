@@ -1,0 +1,3 @@
+noexcept move: moves=31 copies=0
+throwing move: moves=0 copies=31
+vector<int> swap is noexcept: 1

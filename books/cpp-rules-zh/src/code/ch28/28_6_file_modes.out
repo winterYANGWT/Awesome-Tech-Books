@@ -1,0 +1,11 @@
+默认 ofstream 两次打开后的内容:
+second
+append 之后的内容:
+second
+third
+in|out|app 打开后读到的第一行: second
+app 写入后从头重读:
+second
+third
+fourth
+打开不存在的文件: 失败

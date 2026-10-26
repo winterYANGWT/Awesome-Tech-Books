@@ -1,0 +1,12 @@
+type_traits:3297:5: error: no type named 'type' in 'std::invoke_result<Draw, Triangle &>'
+variant:1130:2: note: in instantiation of template type alias 'invoke_result_t' requested here
+variant:1944:6: note: in instantiation of function template specialization 'std::__detail::__variant::__check_visitor_results<Draw, std::variant<Circle, Rect, Triangle> &, 0UL, 1UL, 2UL>' requested here
+19_3_variant_missing.cpp:30:10: note: in instantiation of function template specialization 'std::visit<Draw, std::variant<Circle, Rect, Triangle> &>' requested here
+variant:1943:44: error: constexpr variable '__visit_rettypes_match' must be initialized by a constant expression
+19_3_variant_missing.cpp:30:10: note: in instantiation of function template specialization 'std::visit<Draw, std::variant<Circle, Rect, Triangle> &>' requested here
+variant:1946:18: error: constexpr if condition is not a constant expression
+variant:1946:19: note: initializer of '__visit_rettypes_match' is not a constant expression
+variant:1943:19: note: declared here
+variant:1948:22: error: static assertion expression is not an integral constant expression
+variant:1948:22: note: initializer of '__visit_rettypes_match' is not a constant expression
+variant:1943:19: note: declared here

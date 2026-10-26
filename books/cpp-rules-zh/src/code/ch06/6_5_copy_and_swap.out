@@ -1,0 +1,4 @@
+ADL: first=second(1), second=first(3), custom_swaps=1
+std::swap 之后 custom_swaps=1, first=first
+捕获: payload copy failed
+强保证: stable=stable version=1

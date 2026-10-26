@@ -1,0 +1,7 @@
+成员函数定制：Invoice(1200 cents)
+ADL 定制 swap，交换前：1200 / 800
+  [customer::swap 被调用]
+交换后：800 / 1200
+traits 定制：800
+意外 ADL：1000800
+限定调用：900

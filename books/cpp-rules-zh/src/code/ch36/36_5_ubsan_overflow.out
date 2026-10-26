@@ -1,0 +1,2 @@
+36_5_ubsan_overflow.cpp:13:13: runtime error: signed integer overflow: 2000000000 + 500000000 cannot be represented in type 'int'
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior 36_5_ubsan_overflow.cpp:13:13

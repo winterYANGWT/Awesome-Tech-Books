@@ -1,0 +1,8 @@
+10_3_hiding_fail.cpp:29:17: error: no matching function for call to 'operator new'
+10_3_hiding_fail.cpp:10:18: note: candidate function not viable: requires 2 arguments, but 1 was provided
+10_3_hiding_fail.cpp:30:17: error: no matching function for call to 'operator new'
+10_3_hiding_fail.cpp:10:18: note: candidate function not viable: no known conversion from 'const nothrow_t' to 'void *' for 2nd argument
+10_3_hiding_fail.cpp:31:18: error: no matching function for call to 'operator new'
+10_3_hiding_fail.cpp:15:18: note: candidate function not viable: requires 2 arguments, but 1 was provided
+10_3_hiding_fail.cpp:32:16: error: no matching function for call to 'operator new[]'
+10_3_hiding_fail.cpp:25:18: note: candidate function not viable: requires 2 arguments, but 1 was provided

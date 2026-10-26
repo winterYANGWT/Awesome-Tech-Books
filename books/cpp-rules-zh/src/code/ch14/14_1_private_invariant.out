@@ -1,0 +1,5 @@
+reading 80 km/h lane 2
+running: n=4 max=90 avg=83.0
+replay: n=4 max=90 avg=83.0
+rejected: negative speed
+after rejected: n=4 invariant=1

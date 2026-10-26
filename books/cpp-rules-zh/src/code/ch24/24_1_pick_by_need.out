@@ -1,0 +1,14 @@
+vector 的迭代器是随机访问: true
+deque 的迭代器是随机访问: true
+list 的迭代器是随机访问: false
+vector 连续存放: true
+deque 连续存放: false
+list 连续存放: false
+vector 扩容后原元素地址变了: true
+list 追加后原元素地址变了: false
+vector 中部插入: 拷贝构造 0，移动构造 1，赋值 3
+list 中部插入: 拷贝构造 0，移动构造 1，赋值 0
+空表 empty(): true
+加入一条后 empty(): false，size(): 1
+std::empty(内置数组): false，std::size(内置数组): 3
+找到 1 号，目的地 Hangzhou

@@ -1,0 +1,5 @@
+vector<Document> 里的类型: document，document
+vector<unique_ptr<Document>> 里的类型: invoice，invoice
+vector<Blob> 插入 100 次: 拷贝 100 次，共 409600 字节
+vector<shared_ptr<Blob>> 插入 100 次: 拷贝 0 次，引用计数 101
+容器内仍是 alpha，副本是 Alpha

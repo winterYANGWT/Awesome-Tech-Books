@@ -1,0 +1,2 @@
+17_6_protected_dtor_fail.cpp:25:12: error: calling a protected destructor of class 'Task'
+17_6_protected_dtor_fail.cpp:12:5: note: declared protected here

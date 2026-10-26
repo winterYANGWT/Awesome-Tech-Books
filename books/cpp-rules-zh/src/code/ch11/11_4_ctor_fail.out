@@ -1,0 +1,7 @@
+  构造 Base
+  构造 first
+  构造 second
+  析构 first
+  析构 Base
+main 捕获：second 构造失败
+try 块结束，report 从来没有成为一个对象

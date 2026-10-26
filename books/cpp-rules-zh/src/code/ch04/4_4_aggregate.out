@@ -1,0 +1,8 @@
+--- 位置初始化按声明顺序 ---
+LegacySample: id=7, value=3
+NewSample: id=7, quality=3, value=0
+--- 没写出的成员被值初始化 ---
+partial: day=1, hour=0, value=0
+scores: 1 2 3 0 0
+--- C++20 指定初始化器把名字写出来 ---
+named: 1/2/3.5

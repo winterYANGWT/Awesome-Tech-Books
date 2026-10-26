@@ -1,0 +1,7 @@
+按值传参：Ada -> employee
+按值调用后 Employee 拷贝 1 次
+const& 传参：Ada -> manager of 3
+const& 调用后 Employee 拷贝 0 次
+Matrix 对象 24 字节，元素 10000 个
+按值求和 10000：拷贝 1 次，复制 10000 个 double
+const& 求和 10000：拷贝 0 次，复制 0 个 double

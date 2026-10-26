@@ -1,0 +1,5 @@
+grid[1][2]=42
+row.cols()=4
+grid[2][0]=7
+const grid[1][2]=42
+vector<bool>: size=4 flags[1]=true

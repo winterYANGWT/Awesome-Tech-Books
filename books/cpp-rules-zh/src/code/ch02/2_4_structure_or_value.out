@@ -1,0 +1,4 @@
+logo.png (0 rows)
+size_t -> Image: false
+const char* -> Image: true
+Tagged<string> = v1.2

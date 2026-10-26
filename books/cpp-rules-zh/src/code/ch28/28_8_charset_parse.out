@@ -1,0 +1,10 @@
+istreambuf_iterator 读到 9 个字符，原样保留=是
+istream_iterator 读到 2 个单词，空白被跳过
+atoi("0")=0，atoi("abc")=0，atoi("")=0
+from_chars("0"): 值=0，消费完整=是
+from_chars("abc"): 没有数字
+from_chars("12x"): 值=12，消费完整=否
+from_chars("999999999999999999999"): 超出 int 范围
+'7': isdigit=1 isalpha=0 upper=7
+'a': isdigit=0 isalpha=1 upper=A
+'A': isdigit=0 isalpha=1 upper=A

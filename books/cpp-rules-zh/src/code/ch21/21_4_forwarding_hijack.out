@@ -1,0 +1,21 @@
+自由函数：
+int 重载: 7
+转发重载: 7
+转发重载: Patty
+转发重载: draft
+const string& 重载: invoice
+Person 构造：
+Person 转发构造
+Person 转发构造
+Person 转发构造
+Person 拷贝构造
+Person 移动构造
+Person 转发构造
+Person int 构造
+派生类：
+Person 转发构造
+Person 转发构造
+Employee 拷贝构造
+Person 转发构造
+Employee 移动构造
+p=forwarded r=forwarded s=forwarded t=forwarded u=idx-3

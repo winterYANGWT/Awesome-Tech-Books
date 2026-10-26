@@ -1,0 +1,5 @@
+33_3_char_buffer_crash.cpp:12:42: runtime error: constructor call on misaligned address 0x… for type 'Payload', which requires 32 byte alignment
+0x…: note: pointer points here
+ 7f 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00
+              ^ 
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior 33_3_char_buffer_crash.cpp:12:42

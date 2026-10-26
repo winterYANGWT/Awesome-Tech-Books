@@ -1,0 +1,9 @@
+append/+=/push_back: hello world!?
+erase(5,1):          helloworld!?
+assign:              helloworld!?
+compare(copy,greet): 0
+substr(5,5):         world
+find("world"):        5
+at(1):               e
+empty(greeting):     false
+operator+:           helloworld!?!

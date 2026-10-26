@@ -1,0 +1,21 @@
+Alpha 对象：
+  name(): Alpha
+  typeid(p) == typeid(Base*): 1
+  typeid(*p) == typeid(Alpha): 1
+  typeid(*p) == typeid(Beta): 0
+  dynamic_cast<Alpha*>: ok
+Beta 对象：
+  name(): Beta
+  typeid(p) == typeid(Base*): 1
+  typeid(*p) == typeid(Alpha): 0
+  typeid(*p) == typeid(Beta): 1
+  dynamic_cast<Alpha*>: null
+Gamma 对象（进一步派生自 Alpha）：
+  name(): Gamma
+  typeid(p) == typeid(Base*): 1
+  typeid(*p) == typeid(Alpha): 0
+  typeid(*p) == typeid(Beta): 0
+  dynamic_cast<Alpha*>: ok
+多态空指针: 捕获 bad_typeid
+非多态: typeid(*plain_ptr) == typeid(Plain): 1
+非多态空指针: typeid(*plain_null) == typeid(Plain): 1

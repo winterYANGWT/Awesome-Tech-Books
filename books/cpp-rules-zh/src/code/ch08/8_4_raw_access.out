@@ -1,0 +1,5 @@
+初始大小 = 12
+C API 修改后 = 18
+通过 operator-> 后 = 20
+borrowed 与 title.get() 相同 = true
+Font 仍拥有这块内存，borrowed 不能 delete

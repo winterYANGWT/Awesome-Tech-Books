@@ -1,0 +1,4 @@
+22_4_less.cpp:9:18: error: invalid operands to binary expression ('std::_List_iterator<int>' and 'std::_List_iterator<int>')
+22_4_less.cpp:15:12: note: in instantiation of function template specialization 'count_steps<std::_List_iterator<int>>' requested here
+bits/stl_pair.h:1049:5: note: candidate template ignored: could not match 'pair' against 'std::_List_iterator'
+bits/stl_pair.h:1049:5: note: candidate template ignored: could not match 'pair' against 'std::_List_iterator'

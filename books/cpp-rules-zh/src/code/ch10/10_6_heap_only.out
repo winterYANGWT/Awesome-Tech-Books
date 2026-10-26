@@ -1,0 +1,7 @@
+1) 只能通过 Connection::open() 在堆上创建
+  存活：2
+2) 只能通过 destroy() 销毁，delete 在类外不可见
+  Connection 关闭
+  关闭一个后存活：1
+  Connection 关闭
+  全部关闭后存活：0

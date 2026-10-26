@@ -1,0 +1,3 @@
+pointer is non-null
+ERROR: AddressSanitizer: stack-buffer-overflow
+SUMMARY: AddressSanitizer: stack-buffer-overflow 3_4_wrong_downcast.cpp:26:18 in main

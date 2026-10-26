@@ -1,0 +1,5 @@
+初始 size=1000 capacity=1000
+erase 后 size=10 capacity=1000
+shrink_to_fit 后 size=10 capacity=10（本机 libstdc++）
+重新填满再 clear 后 size=0 capacity=1000
+swap 惯用法后 size=0 capacity=0

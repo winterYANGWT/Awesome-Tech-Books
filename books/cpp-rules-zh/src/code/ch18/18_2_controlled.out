@@ -1,0 +1,4 @@
+成员函数 encrypt(hello)=k:olleh
+友元函数 send(hello)=k:olleh
+Session is_base_of<Codec>=true
+外部可把 Session& 转成 Codec&=false

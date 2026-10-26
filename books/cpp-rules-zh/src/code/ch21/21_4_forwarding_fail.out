@@ -1,0 +1,4 @@
+21_4_forwarding_fail.cpp:10:33: error: no matching constructor for initialization of 'std::string' (aka 'basic_string<char>')
+21_4_forwarding_fail.cpp:18:12: note: in instantiation of function template specialization 'Person::Person<Person &>' requested here
+bits/basic_string.h:601:7: note: candidate constructor not viable: no known conversion from 'Person' to 'const std::allocator<char>' for 1st argument
+bits/basic_string.h:613:7: note: candidate constructor not viable: no known conversion from 'Person' to 'const basic_string<char>' for 1st argument

@@ -1,0 +1,2 @@
+4_3_narrowing.cpp:6:17: error: type 'double' cannot be narrowed to 'int' in initializer list [-Wc++11-narrowing]
+4_3_narrowing.cpp:6:17: note: insert an explicit cast to silence this issue

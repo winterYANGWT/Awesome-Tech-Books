@@ -1,0 +1,2 @@
+24_3_sizeof_decay.cpp:9:73: warning: 'sizeof (p)' will return the size of the pointer, not the array itself [-Wsizeof-pointer-div]
+24_3_sizeof_decay.cpp:8:33: note: pointer 'p' declared here

@@ -1,0 +1,8 @@
+共享所有权：
+  两个 Pass 的 use_count = 3
+  Pass 作用域结束后 depth = 1（外部 shared_ptr 还持有）
+  reset 后 depth = 0
+深拷贝：
+  original[0] = 1，copy[0] = 99
+独占所有权：
+  转移后 name = ledger

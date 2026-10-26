@@ -1,0 +1,6 @@
+name == "abcde": true
+name == "ABCDE": true
+name <  "abCdf": true
+name.find("cd") = 2
+原样保存的 c_str(): AbCdE
+拼接后: user:AbCdE

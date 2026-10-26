@@ -1,0 +1,2 @@
+6_2_slice_protected.cpp:28:11: error: calling a protected constructor of class 'Account'
+6_2_slice_protected.cpp:13:5: note: declared protected here

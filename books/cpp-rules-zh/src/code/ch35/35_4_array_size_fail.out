@@ -1,0 +1,3 @@
+35_4_array_size_fail.cpp:7:29: error: no matching function for call to 'size'
+bits/range_access.h:274:5: note: candidate template ignored: substitution failure [with _Container = int *]: member reference base type 'int *const' is not a structure or union
+bits/range_access.h:284:5: note: candidate template ignored: could not match '_Tp[_Nm]' against 'int *'

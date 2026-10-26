@@ -1,0 +1,4 @@
+legacy failed: bad record, still open=1
+raii failed: bad record, still open=0
+port 8080 -> 8080
+fallback to 80: port is not a number: http

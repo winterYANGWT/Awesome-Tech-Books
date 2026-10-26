@@ -1,0 +1,6 @@
+sizeof(std::string)      = 32
+sizeof(std::string_view) = 16
+空串: size=0 capacity=15 缓冲区在对象内=是
+短串: size=5 capacity=15 缓冲区在对象内=是
+长串: size=40 capacity=40 缓冲区在对象内=否
+本机 string 逐字符追加时的容量变化: 15 -> 30 -> 60 -> 120

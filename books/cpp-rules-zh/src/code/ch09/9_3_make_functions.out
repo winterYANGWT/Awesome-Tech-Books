@@ -1,0 +1,8 @@
+== 分配次数 ==
+make_shared 分配 1 次
+shared_ptr(new Widget) 分配 2 次
+make_unique 分配 1 次
+两个 shared_ptr 的引用计数：1、1；unique_ptr 是否为空：false
+== 异常路径 ==
+  捕获：优先级服务不可用
+  优先级失败后存活 Job 0 个

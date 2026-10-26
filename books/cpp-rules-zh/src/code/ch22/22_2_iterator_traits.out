@@ -1,0 +1,19 @@
+vector：
+  [随机访问] it += d
+  结果 = 40
+list：
+  [双向] 循环 ++/--
+  结果 = 40
+forward_list（forward_iterator_tag 派生自 input_iterator_tag）：
+  [单向] 只往前循环
+  结果 = 40
+const int*：
+  [随机访问] it += d
+  结果 = 30
+C++20 if constexpr：
+  [C++20 随机访问] it += d
+  结果 = 50
+  [C++20 双向] 循环 ++/--
+  结果 = 20
+traits 的 value_type：vector 和 list 都能传给 sum_all：150 / 150
+裸指针 sum_all：24

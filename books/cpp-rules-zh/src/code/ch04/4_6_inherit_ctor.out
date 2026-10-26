@@ -1,0 +1,7 @@
+Device(int)
+sensor id=42，label=unset
+copy id=42，label=copy
+Device()
+default id=0
+Device(int)
+legacy id=7

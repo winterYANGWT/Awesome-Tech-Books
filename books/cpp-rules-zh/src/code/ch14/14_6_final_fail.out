@@ -1,0 +1,2 @@
+14_6_final_fail.cpp:9:29: error: base 'Session' is marked 'final'
+14_6_final_fail.cpp:4:7: note: 'Session' declared here

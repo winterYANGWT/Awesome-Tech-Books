@@ -1,0 +1,6 @@
+payment 1250 cents
+message: call back
+done
+holds Message: 0
+get<Message> failed
+get_if<Message> returned null

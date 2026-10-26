@@ -1,0 +1,2 @@
+23_4_const_predicate.cpp:10:41: error: cannot assign to non-static data member within const member function 'operator()'
+23_4_const_predicate.cpp:10:10: note: member function 'FlagNth::operator()' is declared const here

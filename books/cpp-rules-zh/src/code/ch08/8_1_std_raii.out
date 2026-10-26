@@ -1,0 +1,8 @@
+  持锁修改共享状态
+捕获：修改失败
+异常之后 try_lock 成功：true
+  同时持有两个锁
+提前 return 的路径：
+  使用 panel
+  析构 Widget(panel)
+函数返回后对象已经不在

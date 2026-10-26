@@ -1,0 +1,6 @@
+money.h: 单独编译通过
+account.h: 单独编译通过
+report.h: 单独编译通过
+missing_include.h: 缺少 <string>，单独编译失败（符合预期）
+ada:1250 CNY
+shared_counter.h 被两个翻译单元包含：链接时重复定义（符合预期）

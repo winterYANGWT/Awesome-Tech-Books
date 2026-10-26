@@ -1,0 +1,4 @@
+28_3_format_fail.cpp:8:30: error: call to consteval function 'std::basic_format_string<char, const char (&)[13]>::basic_format_string<char[5]>' is not a constant expression
+format:1322:2: note: non-constexpr function '__failed_to_parse_format_spec' cannot be used in a constant expression
+format:2532:16: note: in call to 'this->_M_f.parse(__scanner._Scanner::_M_pc)'
+format:4662:31: note: in call to '__f.parse(__scanner._Scanner::_M_pc)'

@@ -1,0 +1,2 @@
+21_1_sfinae_fail.cpp:20:5: error: no matching function for call to 'add'
+21_1_sfinae_fail.cpp:11:3: note: candidate template ignored: substitution failure [with T = Order]: invalid operands to binary expression ('Order' and 'Order')

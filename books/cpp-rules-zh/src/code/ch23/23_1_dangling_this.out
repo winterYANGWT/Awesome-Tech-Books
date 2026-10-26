@@ -1,0 +1,3 @@
+Sensor 已销毁，现在调用它安装的过滤器：
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free 23_1_dangling_this.cpp:21:65 in Sensor::installFilter()::'lambda'(int)::operator()(int) const

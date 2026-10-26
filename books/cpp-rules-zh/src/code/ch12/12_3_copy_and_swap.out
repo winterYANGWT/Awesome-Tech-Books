@@ -1,0 +1,6 @@
+unsafe failed: address book is full
+unsafe: count=3 consistent=0 order=[ada, bob]
+strong failed: address book is full
+strong: count=2 consistent=1 order=[ada, bob]
+after self-assignment: count=2 consistent=1
+after retry: count=3 consistent=1 order=[ada, bob, carol]

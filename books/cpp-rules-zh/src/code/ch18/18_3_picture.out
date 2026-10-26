@@ -1,0 +1,7 @@
+structure: hcat(frame(text(hi)), text(hi))
+size: 6x3
++--+hi
+|hi|  
++--+  
+StringPic objects: 1
+characters stored in leaves: 2

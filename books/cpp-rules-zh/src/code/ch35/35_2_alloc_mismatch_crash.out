@@ -1,0 +1,3 @@
+reading=42
+ERROR: AddressSanitizer: alloc-dealloc-mismatch (operator new vs free) on 0x…
+SUMMARY: AddressSanitizer: alloc-dealloc-mismatch (/root/data/mediaflow/Learn/CppRulesBook/build/examples/ch35/35_2_alloc_mismatch_crash+0xd269a) (BuildId: 686496cd93b537428a3d5267f95c1103a99b4fe3) in free

@@ -1,0 +1,5 @@
+strong failed: cannot copy a poison letter
+after strong failure: size=1
+basic failed: cannot copy a poison letter
+after basic failure: size=3
+nothrow: size()=3, destructor and swap are noexcept

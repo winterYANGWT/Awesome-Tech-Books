@@ -1,0 +1,7 @@
+初始 size = 2
+stock["P999"] 之后 size = 3，值 = 0
+find("P102") 命中，size 仍为 3
+contains("P102") = true
+at("P404") 抛出 std::out_of_range，size 仍为 3
+const map 上 at("P101") = 3
+透明比较器 find("apple"sv)：命中

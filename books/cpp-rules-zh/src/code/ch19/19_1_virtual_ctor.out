@@ -1,0 +1,11 @@
+  clone report
+  clone invoice
+  clone report
+原对象：
+  report: quarterly numbers
+  invoice: amount=42
+  report: quarterly numbers
+克隆对象：
+  report: quarterly numbers
+  invoice: amount=42
+  report: quarterly numbers

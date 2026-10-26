@@ -1,0 +1,6 @@
+3_5_union_constexpr.cpp:17:17: error: constexpr variable 'one' must be initialized by a constant expression
+3_5_union_constexpr.cpp:14:12: note: read of member 'real' of union with active member 'integer' is not allowed in a constant expression
+3_5_union_constexpr.cpp:17:23: note: in call to 'reinterpret_bits(1065353216)'
+3_5_union_constexpr.cpp:18:15: error: static assertion expression is not an integral constant expression
+3_5_union_constexpr.cpp:18:15: note: initializer of 'one' is not a constant expression
+3_5_union_constexpr.cpp:17:17: note: declared here

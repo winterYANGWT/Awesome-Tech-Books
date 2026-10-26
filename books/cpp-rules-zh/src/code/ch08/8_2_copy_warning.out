@@ -1,0 +1,2 @@
+8_2_copy_warning.cpp:10:5: warning: definition of implicit copy constructor for 'Ticket' is deprecated because it has a user-provided destructor [-Wdeprecated-copy-with-user-provided-dtor]
+8_2_copy_warning.cpp:22:21: note: in implicit copy constructor for 'Ticket' first required here

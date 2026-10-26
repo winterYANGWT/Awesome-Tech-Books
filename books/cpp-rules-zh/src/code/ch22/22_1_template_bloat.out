@@ -1,0 +1,6 @@
+GridN<int, 4>  sizeof = 64  total = 32
+GridN<int, 64> sizeof = 16384  total = 8192
+两个尺寸的 total() 实例各调用一次，各自的计数：1 / 1（每个尺寸一份代码）
+GridShared<int, 4>  sizeof = 80  total = 32
+GridShared<int, 64> sizeof = 16400  total = 8192
+共享实现被两个尺寸调用后的计数：2 / 2（同一个 GridBase<int>::total_impl）

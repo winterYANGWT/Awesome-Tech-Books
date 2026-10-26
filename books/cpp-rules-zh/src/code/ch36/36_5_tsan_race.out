@@ -1,0 +1,2 @@
+WARNING: ThreadSanitizer: data race
+SUMMARY: ThreadSanitizer: data race 36_5_tsan_race.cpp:12:9 in record_accept()

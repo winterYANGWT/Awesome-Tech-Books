@@ -1,0 +1,7 @@
+--- throw; ---
+  内层捕获：主库连接断开
+  外层捕获 DbError：主库连接断开
+--- throw e; ---
+  外层捕获 AppError（已切片）：从库连接断开
+--- exception_ptr 延迟重抛 ---
+  仍然捕获 DbError：审计写入失败

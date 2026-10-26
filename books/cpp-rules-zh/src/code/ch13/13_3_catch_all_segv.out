@@ -1,0 +1,5 @@
+catch(...) 接住了 throw 42
+准备解引用空指针
+AddressSanitizer:DEADLYSIGNAL
+ERROR: AddressSanitizer: SEGV on unknown address 0x… (pc 0x… bp 0x… sp 0x… T0)
+SUMMARY: AddressSanitizer: SEGV 13_3_catch_all_segv.cpp:17:22 in main

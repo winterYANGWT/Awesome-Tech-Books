@@ -1,0 +1,11 @@
+import("data.csv")
+  [CsvImporter] 读取 data.csv
+  [外壳] 成功，累计尝试 1 次
+  -> true
+import("data.txt")
+  [CsvImporter] 读取 data.txt
+  [外壳] 失败，累计尝试 2 次
+  -> false
+import("")
+  [外壳] 拒绝空路径
+  -> false

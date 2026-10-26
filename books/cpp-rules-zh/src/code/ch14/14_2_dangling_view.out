@@ -1,0 +1,3 @@
+size=34
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free 14_2_dangling_view.cpp:27:17 in main

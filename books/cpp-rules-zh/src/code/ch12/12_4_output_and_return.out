@@ -1,0 +1,6 @@
+by value failed: name assignment failed
+by value: printed=[Ada Lovelace is overpaid
+] stored=[nobody]
+by pointer: printed=[Ada Lovelace is overpaid
+] delivered=1 value=[Ada Lovelace]
+failure before output: employee record missing, printed=[]

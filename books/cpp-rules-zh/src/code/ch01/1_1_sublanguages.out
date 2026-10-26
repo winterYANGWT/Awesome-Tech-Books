@@ -1,0 +1,6 @@
+C long by value: 42, Record copies=0
+OO by value: copies=1 moves=0
+OO by const&: copies=0 moves=0
+OO by value from rvalue: copies=0 moves=1
+STL returned functor calls=3
+STL std::ref calls=3

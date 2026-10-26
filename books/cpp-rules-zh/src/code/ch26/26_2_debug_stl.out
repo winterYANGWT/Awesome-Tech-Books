@@ -1,0 +1,21 @@
+把 end() 当 first、begin() 当 last 传给算法：
+bits/stl_algo.h:3796:
+In function:
+    _Function std::for_each(_InputIterator, _InputIterator, _Function) 
+    [_InputIterator = gnu_debug::_Safe_iterator<gnu_cxx::normal_iterator<int 
+    *, std::vector<int>>, std::vector<int>>, _Function = (lambda at 
+    26_2_debug_stl.cpp:13:39)]
+
+Error: function requires a valid iterator range [first, last).
+
+Objects involved in the operation:
+    iterator "first" @ 0x… {
+      type = gnu_cxx::normal_iterator<int*, std::vector<int, std::allocator<int> > > (mutable iterator);
+      state = past-the-end;
+      references sequence with type 'std::debug::vector<int, std::allocator<int> >' @ 0x…
+    }
+    iterator "last" @ 0x… {
+      type = gnu_cxx::normal_iterator<int*, std::vector<int, std::allocator<int> > > (mutable iterator);
+      state = dereferenceable (start-of-sequence);
+      references sequence with type 'std::debug::vector<int, std::allocator<int> >' @ 0x…
+    }

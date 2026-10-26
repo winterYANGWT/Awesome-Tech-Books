@@ -1,0 +1,4 @@
+LoggingSender::send(hello)
+Sender::log
+Sender::send(hello)
+message_type = T

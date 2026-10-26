@@ -1,0 +1,6 @@
+析构后: constructions=1 destructions=1
+重建后: t=new/2 rt=new/2
+重建后: constructions=2 destructions=1
+离开作用域: constructions=2 destructions=2
+optional: has_value=1 name=second constructions=4 destructions=3
+optional reset: has_value=0 destructions=4

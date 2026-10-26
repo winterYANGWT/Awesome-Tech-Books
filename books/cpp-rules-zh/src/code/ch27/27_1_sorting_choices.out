@@ -1,0 +1,7 @@
+partition(>=80)：5 人通过，5 人未通过
+  通过： Gus(95) Ada(91) Cyd(91) Eve(84) Ivy(84)
+  未通过： Bob(78) Fay(78) Hal(70) Dee(65) Jon(59)
+nth_element 前 3（集合对，内部无序）： Gus(95) Ada(91) Cyd(91)
+partial_sort 前 3（按序）： Gus(95) Ada(91) Cyd(91)
+sort 全序： Gus(95) Ada(91) Cyd(91) Eve(84) Ivy(84) Bob(78) Fay(78) Hal(70) Dee(65) Jon(59)
+stable_sort 前 4（同分保持原序）： Gus(95) Ada(91) Cyd(91) Eve(84)

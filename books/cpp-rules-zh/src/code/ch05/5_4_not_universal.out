@@ -1,0 +1,6 @@
+5_4_not_universal.cpp:19:5: error: no matching function for call to 'const_rref'
+5_4_not_universal.cpp:7:6: note: candidate function [with T = std::basic_string<char>] not viable: expects an rvalue for 1st argument
+5_4_not_universal.cpp:22:5: error: no matching function for call to 'vector_rref'
+5_4_not_universal.cpp:10:6: note: candidate function [with T = int] not viable: expects an rvalue for 1st argument
+5_4_not_universal.cpp:25:15: error: rvalue reference to type 'basic_string<...>' cannot bind to lvalue of type 'basic_string<...>'
+5_4_not_universal.cpp:14:19: note: passing argument to parameter here

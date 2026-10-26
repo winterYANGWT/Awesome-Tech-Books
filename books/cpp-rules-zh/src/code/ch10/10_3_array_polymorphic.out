@@ -1,0 +1,3 @@
+通过 Base* delete[] Derived[3]
+ERROR: AddressSanitizer: new-delete-type-mismatch on 0x… in thread T0:
+SUMMARY: AddressSanitizer: new-delete-type-mismatch

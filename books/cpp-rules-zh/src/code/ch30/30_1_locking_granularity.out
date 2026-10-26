@@ -1,0 +1,4 @@
+A: size() 报告 1 单
+B: 取走 10
+A: pop 抛异常: queue is empty
+最终剩余 0 单

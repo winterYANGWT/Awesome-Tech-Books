@@ -1,0 +1,4 @@
+4_5_goto_switch.cpp:8:9: error: cannot jump from this goto statement to its label
+4_5_goto_switch.cpp:10:17: note: jump bypasses variable initialization
+4_5_goto_switch.cpp:21:5: error: cannot jump from switch statement to this case label
+4_5_goto_switch.cpp:18:21: note: jump bypasses variable initialization

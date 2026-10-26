@@ -1,0 +1,8 @@
+9_1_unique_ptr_copy_fail.cpp:13:33: error: call to deleted constructor of 'std::unique_ptr<Connection>'
+bits/unique_ptr.h:524:7: note: 'unique_ptr' has been explicitly marked deleted here
+bits/stl_construct.h:129:4: error: no matching function for call to 'construct_at'
+bits/stl_uninitialized.h:145:7: note: in instantiation of function template specialization 'std::_Construct<std::unique_ptr<Connection>, const std::unique_ptr<Connection> &>' requested here
+bits/stl_uninitialized.h:618:14: note: in instantiation of function template specialization 'std::__do_uninit_copy<__gnu_cxx::__normal_iterator<const std::unique_ptr<Connection> *, std::vector<std::unique_ptr<Connection>>>, __gnu_cxx::__normal_iterator<const std::unique_ptr<Connection> *, std::vector<std::unique_ptr<Connection>>>, std::unique_ptr<Connection> *>' requested here
+bits/stl_vector.h:636:9: note: in instantiation of function template specialization 'std::__uninitialized_copy_a<__gnu_cxx::__normal_iterator<const std::unique_ptr<Connection> *, std::vector<std::unique_ptr<Connection>>>, __gnu_cxx::__normal_iterator<const std::unique_ptr<Connection> *, std::vector<std::unique_ptr<Connection>>>, std::unique_ptr<Connection> *, std::unique_ptr<Connection>>' requested here
+bits/stl_construct.h:133:38: error: call to deleted constructor of 'std::unique_ptr<Connection>'
+bits/unique_ptr.h:524:7: note: 'unique_ptr' has been explicitly marked deleted here

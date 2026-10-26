@@ -1,0 +1,3 @@
+copying a label into 8 bytes
+ERROR: AddressSanitizer: stack-buffer-overflow
+SUMMARY: AddressSanitizer: stack-buffer-overflow (/root/data/mediaflow/Learn/CppRulesBook/build/examples/ch35/35_3_strcpy_overflow_crash+0xb8e1d) (BuildId: c277783012801820724d47fb9eff7e29cf849597) in strcpy

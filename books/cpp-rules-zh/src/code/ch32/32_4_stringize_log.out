@@ -1,0 +1,7 @@
+a + b = 3
+next() = 1
+LIMIT = 10
+a + b = 3
+STRINGIZE(LIMIT) = 10
+int main():38 a + b = 3
+next 调用 1 次

@@ -1,0 +1,2 @@
+ERROR: AddressSanitizer: heap-buffer-overflow
+SUMMARY: AddressSanitizer: heap-buffer-overflow 36_5_asan_bounds.cpp:13:18 in main

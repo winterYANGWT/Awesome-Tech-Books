@@ -1,0 +1,24 @@
+eager city: city-0
+eager city: city-1
+eager city: city-2
+eager city: city-3
+eager city: city-4
+eager city: city-5
+eager city: city-6
+eager city: city-7
+eager city: city-8
+eager city: city-9
+eager 只读 10 个 city，字段查询次数: 300
+lazy  city: city-0
+lazy  city: city-1
+lazy  city: city-2
+lazy  city: city-3
+lazy  city: city-4
+lazy  city: city-5
+lazy  city: city-6
+lazy  city: city-7
+lazy  city: city-8
+lazy  city: city-9
+lazy  只读 10 个 city，字段查询次数: 10
+eager 全读，字段查询次数: 300
+lazy  全读，字段查询次数: 300

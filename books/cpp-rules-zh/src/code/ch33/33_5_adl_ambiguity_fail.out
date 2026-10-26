@@ -1,0 +1,3 @@
+33_5_adl_ambiguity_fail.cpp:16:5: error: call to 'draw' is ambiguous
+33_5_adl_ambiguity_fail.cpp:9:6: note: candidate function
+33_5_adl_ambiguity_fail.cpp:13:6: note: candidate function

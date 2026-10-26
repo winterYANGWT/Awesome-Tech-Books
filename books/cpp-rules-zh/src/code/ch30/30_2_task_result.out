@@ -1,0 +1,4 @@
+task 与调用线程不同: true
+price(7): 70
+get 重新抛出: order 3 is invalid
+8 个任务求和: 280

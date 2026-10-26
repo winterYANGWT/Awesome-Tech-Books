@@ -1,0 +1,10 @@
+create the generator
+created; the body has not run yet
+  body: start
+  body: about to yield 3
+main got 3
+  body: about to yield 2
+main got 2
+stop early
+after the loop
+  body: cleanup

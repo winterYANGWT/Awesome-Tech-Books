@@ -1,0 +1,5 @@
+C API 写入 5 个，和=515
+只读传入 3 个，和=24
+空 vector 的和=0
+string::size=10，strlen(c_str())=3
+改写已有字符后: Abc，size=3

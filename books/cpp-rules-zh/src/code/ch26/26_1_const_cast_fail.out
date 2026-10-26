@@ -1,0 +1,1 @@
+26_1_const_cast_fail.cpp:9:14: error: const_cast to 'std::vector<int>::iterator' (aka '__normal_iterator<int *, std::vector<int, std::allocator<int>>>'), which is not a reference, pointer-to-object, or pointer-to-data-member

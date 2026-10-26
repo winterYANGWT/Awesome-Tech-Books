@@ -1,0 +1,7 @@
+sizeof(Empty)=1 alignof(Empty)=1
+sizeof(WithMember)=8 (空成员占 1 字节加对齐)
+sizeof(WithBase)=4 (空基类优化后通常只剩 int)
+sizeof(NoUniqueMember)=4 ([[no_unique_address]] 空成员)
+sizeof(TwoEmptyMembers)=4 (同类型空成员仍需不同地址，但可和 int 共用字节)
+sizeof(TwoEmptyBases)=4 (两个不同类型的空基类)
+sizeof(Polymorphic)=8 is_empty=false

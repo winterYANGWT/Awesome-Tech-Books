@@ -1,0 +1,5 @@
+5_6_forward_bitfield_fail.cpp:30:5: error: no matching function for call to 'fwd'
+5_6_forward_bitfield_fail.cpp:11:6: note: candidate template ignored: couldn't infer template argument 'T'
+5_6_forward_bitfield_fail.cpp:31:9: error: non-const reference cannot bind to bit-field 'total_length'
+5_6_forward_bitfield_fail.cpp:20:19: note: bit-field is declared here
+5_6_forward_bitfield_fail.cpp:11:14: note: passing argument to parameter 'value' here

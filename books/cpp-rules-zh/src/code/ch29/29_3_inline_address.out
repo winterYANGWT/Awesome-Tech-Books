@@ -1,0 +1,6 @@
+square(7)=49 fp(7)=49
+&square == fp: true
+factorial(5)=120
+virtual inline: 42
+inline 函数内的 static: 2
+再次取同一个 static 的地址: true

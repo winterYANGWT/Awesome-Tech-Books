@@ -1,0 +1,8 @@
+Auditor 构造
+Registry 构造
+  记录: auditor ready
+main 开始，max_sessions = 64
+  记录: main
+Auditor 析构
+  记录: auditor done
+Registry 析构，共 3 条记录

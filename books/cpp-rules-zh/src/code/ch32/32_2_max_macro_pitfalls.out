@@ -1,0 +1,6 @@
+BAD_MAX(i, j) + 42 = 5
+PAREN_MAX(i, j) + 42 = 47
+HALF(2 + 2) = 3
+PAREN_MAX(measured(), 0) = 7，调用 2 次
+PAREN_MAX(measured(), 100) = 100，调用 1 次
+std::max(measured(), 0) = 7，调用 1 次

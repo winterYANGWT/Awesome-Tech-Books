@@ -1,0 +1,6 @@
+a_bump=3 b_bump=6
+calls()=2
+a/b calls 地址相同: true
+a/b shared_value 地址相同: true
+a/b square 地址相同: true
+shared_value=7 twice(21)=42

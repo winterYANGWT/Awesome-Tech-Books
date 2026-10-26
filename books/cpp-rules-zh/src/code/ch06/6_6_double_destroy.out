@@ -1,0 +1,2 @@
+ERROR: AddressSanitizer: attempting double-free on 0x… in thread T0:
+SUMMARY: AddressSanitizer: double-free

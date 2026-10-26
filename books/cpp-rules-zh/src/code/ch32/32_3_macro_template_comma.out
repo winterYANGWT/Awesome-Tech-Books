@@ -1,0 +1,4 @@
+32_3_macro_template_comma.cpp:10:39: error: too many arguments provided to function-like macro invocation
+32_3_macro_template_comma.cpp:6:9: note: macro 'DECLARE_PAIR' defined here
+32_3_macro_template_comma.cpp:10:5: error: use of undeclared identifier 'DECLARE_PAIR'
+32_3_macro_template_comma.cpp:11:12: error: use of undeclared identifier 'p'

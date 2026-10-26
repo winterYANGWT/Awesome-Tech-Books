@@ -1,0 +1,3 @@
+和: 9
+ERROR: AddressSanitizer: alloc-dealloc-mismatch (operator new [] vs operator delete) on 0x…
+SUMMARY: AddressSanitizer: alloc-dealloc-mismatch

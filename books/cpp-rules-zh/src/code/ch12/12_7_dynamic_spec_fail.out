@@ -1,0 +1,2 @@
+12_7_dynamic_spec_fail.cpp:4:14: error: ISO C++17 does not allow dynamic exception specifications [-Wdynamic-exception-spec]
+12_7_dynamic_spec_fail.cpp:4:14: note: use 'noexcept(false)' instead

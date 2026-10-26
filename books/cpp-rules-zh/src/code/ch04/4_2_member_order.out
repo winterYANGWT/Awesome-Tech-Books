@@ -1,0 +1,10 @@
+--- Channel ---
+  基类 Sink
+  基类 Clock
+  成员 first_
+  成员 second_
+  Channel 的构造函数体
+  析构成员 second_
+  析构成员 first_
+--- NamePlate ---
+  full_name_ = Ada Lovelace

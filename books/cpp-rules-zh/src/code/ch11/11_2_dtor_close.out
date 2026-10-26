@@ -1,0 +1,5 @@
+--- 调用方显式 close 并处理失败 ---
+  调用方捕获：连接关闭失败，重试一次
+--- 调用方忘了 close ---
+  ~Conn(audit) 兜底关闭失败：连接关闭失败
+user_closes=1 swallowed=1

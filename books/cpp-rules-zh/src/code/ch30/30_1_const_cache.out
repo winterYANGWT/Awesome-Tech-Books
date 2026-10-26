@@ -1,0 +1,4 @@
+roots: 1 2
+const 调用次数: 1
+4 个线程结果一致: true
+可复制: false

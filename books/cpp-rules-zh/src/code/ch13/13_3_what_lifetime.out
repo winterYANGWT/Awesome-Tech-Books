@@ -1,0 +1,4 @@
+原始异常：config error for 'db.port': not a number
+副本：config error for 'db.port': not a number (retry with a numeric value)
+原对象仍然有效：config error for 'db.port': not a number
+runtime_error：cannot open /etc/app.conf: permission denied

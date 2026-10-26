@@ -1,0 +1,4 @@
+kMaxRetries: 3 3 same address: no
+kBufferSize: 4096 4096 same address: yes
+kTimeoutMs: 250 250 same address: yes
+main has its own kMaxRetries: yes

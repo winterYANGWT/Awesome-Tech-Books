@@ -1,0 +1,5 @@
+copy 500k short strings : 1.41224 ms
+sort 500k ints          : 23.6945 ms
+sum  500k ints          : 0.052008 ms
+sort/copy ratio         : 16.778
+(sink=18446739251382389467，防止优化器删掉被测代码)

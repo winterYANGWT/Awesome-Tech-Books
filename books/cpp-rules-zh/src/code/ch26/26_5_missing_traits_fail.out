@@ -1,0 +1,2 @@
+26_5_missing_traits_fail.cpp:23:29: error: no matching function for call to 'distance'
+bits/stl_iterator_base_funcs.h:150:5: note: candidate template ignored: substitution failure [with _InputIterator = Countdown]: no type named 'difference_type' in 'std::iterator_traits<Countdown>'

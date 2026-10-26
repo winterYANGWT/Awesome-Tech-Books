@@ -1,0 +1,6 @@
+first 的引用计数：1
+second 的引用计数：1
+两个计数各自归零时，*raw 会被销毁两次
+  析构 Session 42
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free 9_2_double_control_block.cpp:9:54 in Session::~Session()

@@ -1,0 +1,4 @@
+按值: kind=Account owner=Ada
+按引用: kind=Savings owner=Ada
+clone: kind=Savings owner=Ada
+clone 的利率: 0.032

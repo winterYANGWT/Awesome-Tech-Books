@@ -1,0 +1,22 @@
+--- 太短的口令，encrypt_early ---
+  Payload() 默认构造
+  ~Payload((空))
+  抛出: 口令太短
+提前定义: 默认构造 1，直接构造 0，赋值 0，析构 1
+--- 太短的口令，encrypt_late ---
+  抛出: 口令太短
+推迟定义: 默认构造 0，直接构造 0，赋值 0，析构 0
+--- 足够长的口令，encrypt_late ---
+  Payload(string) 直接构造: cipher:secret42
+  加密结果: cipher:secret42
+  ~Payload(cipher:secret42)
+推迟定义成功: 默认构造 0，直接构造 1，赋值 0，析构 1
+--- 足够长的口令，encrypt_early ---
+  Payload() 默认构造
+  Payload(string) 直接构造: cipher:secret42
+  operator=(Payload&&)
+  ~Payload((moved))
+  加密结果: cipher:secret42
+  ~Payload(cipher:secret42)
+提前定义成功: 默认构造 1，直接构造 1，赋值 1，析构 2
+attempts = 0，counters = 000

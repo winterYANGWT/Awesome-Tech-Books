@@ -1,0 +1,2 @@
+17_4_hiding_fail.cpp:20:12: error: reference to type 'const std::string' (aka 'const basic_string<char>') could not bind to an rvalue of type 'int'
+17_4_hiding_fail.cpp:15:34: note: passing argument to parameter 'text' here

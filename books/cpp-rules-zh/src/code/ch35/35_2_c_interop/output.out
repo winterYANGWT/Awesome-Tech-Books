@@ -1,0 +1,6 @@
+small="sensor#" need=14
+full="sensor#7=21.5C" need=14
+sensor_api.o exports unmangled sensor_format
+bad_link.o exports mangled _Z5probei
+link failed as expected:
+undefined reference to `probe'

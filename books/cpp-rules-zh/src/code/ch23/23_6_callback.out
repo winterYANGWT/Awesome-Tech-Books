@@ -1,0 +1,3 @@
+多态调用后：router start 1 次，pump stop 1 次
+重新绑定后：router start 1 次，stop 1 次
+make_callback 之后：pump start 1 次

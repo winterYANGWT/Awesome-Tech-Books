@@ -1,0 +1,4 @@
+bits/stl_algobase.h:2126:16: error: overload resolution selected deleted operator '='
+bits/stl_algo.h:816:19: note: in instantiation of function template specialization 'std::__remove_if<std::_Rb_tree_iterator<std::pair<const int, int>>, __gnu_cxx::__ops::_Iter_pred<(lambda at 26_3_remove_map_fail.cpp:10:20)>>' requested here
+26_3_remove_map_fail.cpp:9:10: note: in instantiation of function template specialization 'std::remove_if<std::_Rb_tree_iterator<std::pair<const int, int>>, (lambda at 26_3_remove_map_fail.cpp:10:20)>' requested here
+bits/stl_pair.h:607:13: note: candidate function has been explicitly deleted

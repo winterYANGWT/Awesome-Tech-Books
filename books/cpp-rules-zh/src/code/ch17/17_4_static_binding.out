@@ -1,0 +1,5 @@
+Store::describe（非虚）
+FileStore::describe（非虚）
+FileStore::open(1)
+FileStore::open(2)
+Store::open(1)

@@ -1,0 +1,4 @@
+Device&:      Camera(cam-1)
+Camera:       Camera(cam-1)
+Report&:      Report
+audit.label(): AuditReport

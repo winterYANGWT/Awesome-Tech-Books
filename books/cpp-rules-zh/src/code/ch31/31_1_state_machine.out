@@ -1,0 +1,8 @@
+before creating the task
+after creating the task: done=0
+body starts: step=0
+after resume 1: done=0
+body after pause 1: step=1
+after resume 2: done=0
+body after pause 2: step=2
+after resume 3: done=1

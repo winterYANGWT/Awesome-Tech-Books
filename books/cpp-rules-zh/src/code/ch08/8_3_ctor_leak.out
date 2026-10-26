@@ -1,0 +1,15 @@
+原始指针成员：
+  获取槽位 1（image）
+  创建 audio 失败
+RawBook 构造失败：audio 初始化失败，仍占用 1 个槽位
+  释放槽位 1
+构造函数体内 catch：
+  获取槽位 2（image）
+  创建 audio 失败
+  释放槽位 2
+CatchBook 构造失败：audio 初始化失败，仍占用 0 个槽位
+成员对象：
+  获取槽位 3（image）
+  创建 audio 失败
+  释放槽位 3
+SafeBook 构造失败：audio 初始化失败，仍占用 0 个槽位

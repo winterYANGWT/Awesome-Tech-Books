@@ -1,0 +1,16 @@
+手写 release：
+  获取租约 1（manual/early-return）
+提前 return 后仍打开 1 个
+  获取租约 2（manual/throw）
+捕获：演示异常
+异常之后仍打开 2 个
+  释放租约 1
+  释放租约 2
+RAII：
+  获取租约 3（raii/early-return）
+  释放租约 3
+提前 return 后仍打开 0 个
+  获取租约 4（raii/throw）
+  释放租约 4
+捕获：演示异常
+异常之后仍打开 0 个

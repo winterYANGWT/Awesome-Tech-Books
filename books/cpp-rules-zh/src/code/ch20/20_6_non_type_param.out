@@ -1,0 +1,4 @@
+sizeof four = 16, sizeof eight = 32
+live<4> = 2, live<8> = 1
+sum_first(four) = 10
+start<4,10> = 10

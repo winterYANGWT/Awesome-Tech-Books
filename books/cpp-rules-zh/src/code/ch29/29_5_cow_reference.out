@@ -1,0 +1,6 @@
+--- 天真 COW：没有 unshareable 标记 ---
+x=wOrld y=wOrld allocations=1
+--- 补上 unshareable 标记 ---
+a=hEllo b=hello allocations=2
+--- 只读拷贝不克隆 ---
+c1=shared c2=shared allocations=1

@@ -1,0 +1,6 @@
+左值实参：T 是引用 = 1，T 去掉引用后是 const = 0，param 是左值表达式 = 1
+左值实参：T 是引用 = 1，T 去掉引用后是 const = 1，param 是左值表达式 = 1
+右值实参：T 是引用 = 0，T 去掉引用后是 const = 0，param 是左值表达式 = 1
+store 之后：右值进入 store
+store_any 之后：左值进入 store_any，local = 左值进入 store_any
+再次 store_any 之后：右值进入 store_any

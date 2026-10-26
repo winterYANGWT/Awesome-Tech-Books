@@ -1,0 +1,3 @@
+21_1_requires_fail.cpp:17:5: error: no matching function for call to 'add'
+21_1_requires_fail.cpp:8:3: note: candidate template ignored: constraints not satisfied [with T = Order]
+21_1_requires_fail.cpp:7:57: note: because 'lhs + rhs' would be invalid: invalid operands to binary expression ('const Order' and 'const Order')

@@ -1,0 +1,4 @@
+update failed: canvas unavailable
+revision=1
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free 12_1_raw_update.cpp:9:8 in Artwork::~Artwork()

@@ -1,0 +1,6 @@
+boiler-1: 4 个读数
+average(log)       = 72.4
+peak(log)          = 75.1
+count_above(log,70)= 3
+average_of(vector) = 3.0
+average_of(log)    = 72.4

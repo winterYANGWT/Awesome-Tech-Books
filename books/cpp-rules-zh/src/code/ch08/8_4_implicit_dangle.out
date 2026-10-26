@@ -1,0 +1,3 @@
+拿到隐式转换的指针，临时 Font 已经析构
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free 8_4_implicit_dangle.cpp:31:48 in main

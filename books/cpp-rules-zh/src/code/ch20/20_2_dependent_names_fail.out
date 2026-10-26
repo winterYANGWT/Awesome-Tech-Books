@@ -1,0 +1,2 @@
+20_2_dependent_names_fail.cpp:8:5: error: missing 'typename' prior to dependent type name 'C::const_iterator'
+20_2_dependent_names_fail.cpp:20:19: error: use of undeclared identifier 'base_op'

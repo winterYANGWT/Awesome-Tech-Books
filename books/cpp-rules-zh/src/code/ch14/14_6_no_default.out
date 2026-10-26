@@ -1,0 +1,3 @@
+A-100 A-200 pending=A-300 map=A-400
+unset=<unset> checks=1
+set=A-500 checks=2

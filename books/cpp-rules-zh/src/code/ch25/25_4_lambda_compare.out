@@ -1,0 +1,3 @@
+lambda 比较器按内容排序： Apple Orange Pear
+捕获 lambda 可默认构造：false
+捕获版本比较 Apple 和 Pear：false

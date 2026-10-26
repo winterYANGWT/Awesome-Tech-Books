@@ -1,0 +1,2 @@
+22_3_constexpr_ub.cpp:6:58: runtime error: division by zero
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior 22_3_constexpr_ub.cpp:6:58

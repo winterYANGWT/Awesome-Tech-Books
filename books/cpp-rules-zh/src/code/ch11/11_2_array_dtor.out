@@ -1,0 +1,4 @@
+  ~Element 2
+  ~Element 1
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  元素 1 清理失败

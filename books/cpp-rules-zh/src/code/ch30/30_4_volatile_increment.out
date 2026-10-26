@@ -1,0 +1,1 @@
+30_4_volatile_increment.cpp:9:5: warning: increment of object of volatile-qualified type 'volatile int' is deprecated [-Wdeprecated-volatile]

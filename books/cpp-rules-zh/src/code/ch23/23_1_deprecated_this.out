@@ -1,0 +1,2 @@
+23_1_deprecated_this.cpp:18:62: warning: implicit capture of 'this' with a capture default of '=' is deprecated [-Wdeprecated-this-capture]
+23_1_deprecated_this.cpp:18:31: note: add an explicit capture of 'this' to capture '*this' by reference

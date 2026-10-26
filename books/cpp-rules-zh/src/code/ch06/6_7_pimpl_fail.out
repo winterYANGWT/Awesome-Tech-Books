@@ -1,0 +1,4 @@
+bits/unique_ptr.h:90:16: error: invalid application of 'sizeof' to an incomplete type 'Widget::Impl'
+bits/unique_ptr.h:398:4: note: in instantiation of member function 'std::default_delete<Widget::Impl>::operator()' requested here
+6_7_pimpl_fail.cpp:8:5: note: in instantiation of member function 'std::unique_ptr<Widget::Impl>::~unique_ptr' requested here
+6_7_pimpl_fail.cpp:12:12: note: forward declaration of 'Widget::Impl'

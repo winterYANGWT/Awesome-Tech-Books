@@ -1,0 +1,11 @@
+默认 set<string*>（地址升序，也就是数组下标顺序）：
+  Wombat
+  Anteater
+  Penguin
+  Lemur
+DereferenceLess 之后（字符串内容升序）：
+  Anteater
+  Lemur
+  Penguin
+  Wombat
+shared_ptr 容器按内容排序： Aardvark Zebra

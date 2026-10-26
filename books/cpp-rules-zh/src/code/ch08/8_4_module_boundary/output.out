@@ -1,0 +1,7 @@
+plugin: 打开设备 1
+main: 读取设备 1
+plugin: 关闭设备 1
+plugin: 打开设备 2
+main: 引用计数 2
+plugin: 关闭设备 2
+main: 两个对象都由 plugin 的 device_close 释放

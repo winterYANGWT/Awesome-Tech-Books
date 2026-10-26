@@ -1,0 +1,5 @@
+push_back(Label("alpha")): 直接构造 1，拷贝构造 0，移动构造 1，移动赋值 0
+emplace_back("alpha"): 直接构造 1，拷贝构造 0，移动构造 0，移动赋值 0
+insert(begin(), Label("front")): 直接构造 1，拷贝构造 0，移动构造 1，移动赋值 3
+emplace(begin(), "front"): 直接构造 1，拷贝构造 0，移动构造 4，移动赋值 0
+最终顺序: front front a b c

@@ -1,0 +1,6 @@
+先只把 main.cpp 交给编译器（还没有 BMI）：
+  main.cpp:1:8: fatal error: module 'shop' not found
+先构建分区，再构建主接口，最后编译导入方：
+小计: 50
+含税: 56.5
+包装费: 5

@@ -1,0 +1,5 @@
+bits/basic_string.h:706:7: runtime error: constructor call on misaligned address 0x… for type 'std::basic_string<char> *', which requires 8 byte alignment
+0x…: note: pointer points here
+ 7f 00 00  73 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00
+              ^ 
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior bits/basic_string.h:706:7

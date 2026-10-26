@@ -1,0 +1,2 @@
+14_3_protected_other_object.cpp:14:54: error: 'secret_' is a protected member of 'Base'
+14_3_protected_other_object.cpp:6:9: note: can only access this member on an object of type 'Derived'

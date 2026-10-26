@@ -1,0 +1,3 @@
+7_4_temporary_ref_fail.cpp:17:5: error: no matching function for call to 'take'
+7_4_temporary_ref_fail.cpp:12:6: note: candidate function not viable: expects an lvalue for 1st argument
+7_4_temporary_ref_fail.cpp:18:14: error: non-const lvalue reference to type 'Reading' cannot bind to a temporary of type 'Reading'

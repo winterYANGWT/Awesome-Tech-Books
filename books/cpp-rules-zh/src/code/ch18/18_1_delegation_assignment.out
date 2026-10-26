@@ -1,0 +1,4 @@
+继承版捕获：copy failed at element 1
+继承版赋值后： 7 20 30
+委托版捕获：copy failed at element 1
+委托版赋值后： 10 20 30

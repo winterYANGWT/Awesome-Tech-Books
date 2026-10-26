@@ -1,0 +1,2 @@
+33_5_hijack_fail.cpp:33:49: error: indirection requires pointer operand ('int' invalid)
+33_5_hijack_fail.cpp:40:15: note: in instantiation of member function 'lib::Box<shop::Money>::operator[]' requested here

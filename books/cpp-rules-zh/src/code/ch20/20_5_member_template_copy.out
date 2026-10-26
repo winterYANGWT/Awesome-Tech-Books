@@ -1,0 +1,6 @@
+same-type template copies = 0
+narrow = 1,2,3,4, template copies = 1
+cross-type template assigns = 1
+after same-type assign = 1
+exception: cannot store 13
+dst = 1,2,9,9

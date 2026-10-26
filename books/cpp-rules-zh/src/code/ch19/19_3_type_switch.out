@@ -1,0 +1,4 @@
+card: fee=250, card slip: 10000
+cash: fee=0, cash slip: 10000
+crypto: fee=100, crypto slip: 10000
+parse crypto: ok

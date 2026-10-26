@@ -1,0 +1,2 @@
+16_3_no_short_circuit.cpp:29:21: runtime error: member access within null pointer of type 'Node'
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior 16_3_no_short_circuit.cpp:29:21

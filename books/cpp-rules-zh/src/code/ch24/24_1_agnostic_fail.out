@@ -1,0 +1,4 @@
+24_1_agnostic_fail.cpp:12:7: error: no member named 'push_front' in 'std::vector<int>'
+24_1_agnostic_fail.cpp:18:5: note: in instantiation of function template specialization 'fill<std::vector<int>>' requested here
+24_1_agnostic_fail.cpp:11:7: error: no member named 'reserve' in 'std::list<int>'
+24_1_agnostic_fail.cpp:20:5: note: in instantiation of function template specialization 'fill<std::list<int>>' requested here

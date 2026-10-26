@@ -1,0 +1,7 @@
+r=2 面积: 12.5664
+Circle r=3 面积: 28.2743
+max_sides: 64
+模块内部函数 square 在导入方：
+  hidden.cpp:5:34: error: no member named 'square' in namespace 'geo'
+模块接口里的宏 GEOMETRY_INTERNAL_LIMIT 在导入方：
+  不可见

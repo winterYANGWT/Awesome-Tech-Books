@@ -1,0 +1,5 @@
+左值 bump -> 1
+右值 bump -> 11
+右值 bump -> 2
+左值 bump -> 21
+gauge.value = 2

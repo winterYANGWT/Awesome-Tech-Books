@@ -1,0 +1,3 @@
+临时 vector 已经销毁，代理还在
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free 24_5_dangling_proxy.cpp:17:54 in main

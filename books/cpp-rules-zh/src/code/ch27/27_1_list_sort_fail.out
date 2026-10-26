@@ -1,0 +1,8 @@
+bits/stl_algo.h:1907:22: error: invalid operands to binary expression ('std::_List_iterator<int>' and 'std::_List_iterator<int>')
+bits/stl_algo.h:4841:12: note: in instantiation of function template specialization 'std::__sort<std::_List_iterator<int>, __gnu_cxx::__ops::_Iter_less_iter>' requested here
+27_1_list_sort_fail.cpp:9:10: note: in instantiation of function template specialization 'std::sort<std::_List_iterator<int>>' requested here
+bits/stl_iterator.h:620:5: note: candidate template ignored: could not match 'reverse_iterator' against 'std::_List_iterator'
+bits/stl_algo.h:1816:18: error: invalid operands to binary expression ('std::_List_iterator<int>' and 'std::_List_iterator<int>')
+bits/stl_algo.h:1909:9: note: in instantiation of function template specialization 'std::__final_insertion_sort<std::_List_iterator<int>, __gnu_cxx::__ops::_Iter_less_iter>' requested here
+bits/stl_algo.h:4841:12: note: in instantiation of function template specialization 'std::__sort<std::_List_iterator<int>, __gnu_cxx::__ops::_Iter_less_iter>' requested here
+27_1_list_sort_fail.cpp:9:10: note: in instantiation of function template specialization 'std::sort<std::_List_iterator<int>>' requested here

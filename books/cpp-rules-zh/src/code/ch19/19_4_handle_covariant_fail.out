@@ -1,0 +1,2 @@
+19_4_handle_covariant_fail.cpp:12:30: error: virtual function 'clone' has a different return type ('unique_ptr<Derived>') than the function it overrides (which has return type 'unique_ptr<Base>')
+19_4_handle_covariant_fail.cpp:8:35: note: overridden virtual function is here

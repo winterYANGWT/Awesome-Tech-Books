@@ -1,0 +1,2 @@
+35_4_array_decay_warn.cpp:7:44: warning: sizeof on array function parameter will return size of 'const double *' instead of 'const double[8]' [-Wsizeof-array-argument]
+35_4_array_decay_warn.cpp:6:36: note: declared here

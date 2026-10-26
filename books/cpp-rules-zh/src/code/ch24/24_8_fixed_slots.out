@@ -1,0 +1,9 @@
+Session pool[100]: 构造 100 个，析构 0 个
+离开作用域后: 构造 100 个，析构 100 个
+std::array<Session, 100>: 构造 100 个，析构 0 个
+std::vector<Session> sized(100): 构造 100 个，析构 0 个
+reserve(100) 后容量 100，元素 0
+vector reserve 之后: 构造 0 个，析构 0 个
+emplace_back 10 次之后: 构造 10 个，析构 0 个
+optional 数组 emplace 10 个之后: 构造 10 个，析构 0 个
+std::ssize(readings) - 5 = -2

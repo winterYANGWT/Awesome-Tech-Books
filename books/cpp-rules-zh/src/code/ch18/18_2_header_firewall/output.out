@@ -1,0 +1,3 @@
+PimplReport: [Ada]
+继承版客户端头文件链包含 legacy_formatter.h：是
+Pimpl 版客户端头文件链包含 legacy_formatter.h：否

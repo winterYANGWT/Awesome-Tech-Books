@@ -1,0 +1,6 @@
+trim    = [GET	/index.html  HTTP/1.1]
+words   = 3
+squeeze = /usr/local/share/app
+erase   = ac
+find(s) = 2
+literal = 2

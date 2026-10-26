@@ -1,0 +1,4 @@
+离开作用域，没有其他异常在传播
+~Session 开始清理
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  把缓冲刷到磁盘失败

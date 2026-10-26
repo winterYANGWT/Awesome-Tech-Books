@@ -1,0 +1,9 @@
+大小写敏感 set：两个写法是两个元素，size = 2
+忽略大小写 set：插入三次变体后 size = 1，迭代器指向 Content-Type
+第一次插入的 insert().second = true
+第二次插入的 insert().second = false
+成员 find("content-TYPE")：Content-Type
+std::find(..., "content-TYPE")：没找到
+comp(a,b) = false，comp(b,a) = false，!comp(a,b) && !comp(b,a) = true
+a == b = false
+equal_range 的元素个数：1

@@ -1,0 +1,14 @@
+[book]
+title = "C++ 规则新编"
+description = "把八本经典 C++ 规则书的条目按主题合并重讲，以 C++20 为基准补上语言升级和工程实践带来的变化；每个示例都用 Clang 21 编译并实际运行过。"
+authors = ["winterYANGWT"]
+language = "zh-CN"
+src = "src"
+
+[output.html]
+additional-css = ["theme/custom.css"]
+git-repository-url = "https://github.com/winterYANGWT/Awesome-Tech-Books/tree/main/books/cpp-rules-zh"
+no-section-label = true
+
+[output.html.search]
+use-boolean-and = true

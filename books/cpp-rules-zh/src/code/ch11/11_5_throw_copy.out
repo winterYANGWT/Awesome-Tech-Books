@@ -1,0 +1,4 @@
+catch by value：copies=2，note=订单已提交
+catch by const&：copies=1，note=订单已提交
+throw local -> ValidationError
+throw AppError& -> AppError

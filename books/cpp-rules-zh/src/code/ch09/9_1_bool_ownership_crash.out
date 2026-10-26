@@ -1,0 +1,6 @@
+两个 PtrBag 都按默认值 owns=true 接收同一批元素
+两个容器都认为自己负责 delete
+  析构 Reading 1
+  析构 Reading 2
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free 9_1_bool_ownership_crash.cpp:9:54 in Reading::~Reading()

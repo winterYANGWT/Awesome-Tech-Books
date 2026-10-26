@@ -1,0 +1,4 @@
+double: unknown
+bool: bool
+int*: pointer
+Money: Money

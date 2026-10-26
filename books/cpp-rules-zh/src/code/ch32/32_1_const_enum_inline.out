@@ -1,0 +1,5 @@
+宏求值: 108，next_price 调用 2 次
+函数求值: 108，next_price 调用 1 次
+describe(int) / describe(double)
+通过指针读 kMaxItems: 8
+paid 的值: 1

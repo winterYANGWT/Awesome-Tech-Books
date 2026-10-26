@@ -1,0 +1,2 @@
+1_4_magic_bounds.cpp:14:9: runtime error: index 4 out of bounds for type 'int[4]'
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior 1_4_magic_bounds.cpp:14:9

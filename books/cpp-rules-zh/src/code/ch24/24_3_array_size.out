@@ -1,0 +1,9 @@
+作用域内 sizeof 除法: 8
+std::size(数组): 8
+std::ssize(数组): 8
+数组引用模板: 8
+std::array 的 size(): 8，std::size: 8
+vector 的 size(): 9，capacity(): 16
+grades: 90 85 77 92 60 88 95 71
+string 的 size(): 31
+对 vector 对象做 sizeof 除法: 6（不是元素个数）

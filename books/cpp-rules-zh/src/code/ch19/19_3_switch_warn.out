@@ -1,0 +1,1 @@
+19_3_switch_warn.cpp:13:13: warning: enumeration value 'Crypto' not handled in switch [-Wswitch]

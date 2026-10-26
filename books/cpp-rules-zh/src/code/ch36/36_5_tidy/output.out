@@ -1,0 +1,5 @@
+compiler warnings: none
+clang-tidy findings:
+sample.cpp:14:9: warning: the 'empty' method should be used to check for emptiness instead of 'size' [readability-container-size-empty]
+sample.cpp:17:18: warning: use nullptr [modernize-use-nullptr]
+sample.cpp:21:34: warning: 'id' used after it was moved [bugprone-use-after-move]

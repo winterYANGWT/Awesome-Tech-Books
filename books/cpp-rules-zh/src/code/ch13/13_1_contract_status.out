@@ -1,0 +1,6 @@
+find 命中：异常安全
+find 未命中：返回 nullptr，调用方按正常分支处理
+at 违反前置条件：Schedule::at: index 9 out of range
+add 拒绝空标题：Schedule::add: empty title
+add 达不成后置条件：Schedule::add: schedule is full
+size=2 capacity=2 invariant=true

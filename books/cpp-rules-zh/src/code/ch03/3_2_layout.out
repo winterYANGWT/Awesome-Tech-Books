@@ -1,0 +1,7 @@
+sizeof(Packet)=12 alignof=4
+offsetof: kind=0 sequence=4 payload=8
+standard layout: Packet=1 Split=0
+CHAR_BIT=8 sizeof(char)=1
+plain char signed=1; (char)0x80 -> -128
+unsigned char 0x80 -> 128
+std::byte 0x80 -> 128

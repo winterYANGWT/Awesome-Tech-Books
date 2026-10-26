@@ -1,0 +1,3 @@
+const Text& 接 char[]：构造 Text 1 次，找到 3 个 a
+string_view 接 char[]：构造 Text 0 次，找到 3 个 a
+按值返回：Text 构造 1 次，内容 inventory

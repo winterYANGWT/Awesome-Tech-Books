@@ -1,0 +1,4 @@
+about to write
+AddressSanitizer:DEADLYSIGNAL
+ERROR: AddressSanitizer: SEGV on unknown address 0x… (pc 0x… bp 0x… sp 0x… T0)
+SUMMARY: AddressSanitizer: SEGV 3_4_const_write.cpp:11:15 in main

@@ -1,0 +1,4 @@
+我们的重载，真实名字是 log_v2: one arg
+新 API log_v2(level=2): two args
+成员函数，真实名字是 log_v2: member
+旧 API log: after undef

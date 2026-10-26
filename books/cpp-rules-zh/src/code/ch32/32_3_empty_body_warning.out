@@ -1,0 +1,4 @@
+32_3_empty_body_warning.cpp:12:24: warning: if statement has empty body [-Wempty-body]
+32_3_empty_body_warning.cpp:12:24: note: put the semicolon on a separate line to silence this warning
+32_3_empty_body_warning.cpp:8:32: warning: for loop has empty body [-Wempty-body]
+32_3_empty_body_warning.cpp:8:32: note: put the semicolon on a separate line to silence this warning

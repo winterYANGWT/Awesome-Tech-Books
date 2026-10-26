@@ -1,0 +1,10 @@
+byValue:
+  左值重载：orders
+  左值重载：临时单号
+byForward:
+  左值重载：orders
+  右值重载：临时单号
+byForward20:
+  左值重载：orders
+  右值重载：临时单号
+decltype(x)：左值实参 -> T&，右值实参 -> T&&

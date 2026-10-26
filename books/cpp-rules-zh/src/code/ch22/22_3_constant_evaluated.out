@@ -1,0 +1,1 @@
+22_3_constant_evaluated.cpp:9:19: warning: 'std::is_constant_evaluated' will always evaluate to 'true' in a manifestly constant-evaluated expression [-Wconstant-evaluated]

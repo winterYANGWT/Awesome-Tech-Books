@@ -1,0 +1,4 @@
+普通多继承：File 构造了 2 次
+  InputFile::name()=in.txt，OutputFile::name()=out.txt
+虚继承：File 构造了 1 次
+  name()=shared.txt

@@ -1,0 +1,1 @@
+35_3_printf_warn.cpp:9:30: warning: format specifies type 'char *' but the argument has type 'int' [-Wformat]

@@ -1,0 +1,2 @@
+17_2_derive_value_fail.cpp:16:29: error: base 'Text' is marked 'final'
+17_2_derive_value_fail.cpp:6:7: note: 'Text' declared here

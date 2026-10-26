@@ -1,0 +1,5 @@
+通过 void* 删除 Session
+delete 返回，但 ~Session 没有执行
+
+ERROR: LeakSanitizer: detected memory leaks
+SUMMARY: AddressSanitizer: 64 byte(s) leaked in 1 allocation(s).

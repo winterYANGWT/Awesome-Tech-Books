@@ -1,0 +1,4 @@
+容量已满，再追加会重新分配
+通过缓存的 end() 写入
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free 26_2_cached_end.cpp:18:12 in main

@@ -1,0 +1,1 @@
+31_2_bad_return.cpp:28:5: error: no member named 'return_value' in 'Task::promise_type'

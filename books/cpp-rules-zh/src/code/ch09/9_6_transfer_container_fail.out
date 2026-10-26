@@ -1,0 +1,11 @@
+bits/alloc_traits.h:676:4: error: no matching function for call to 'construct_at'
+bits/vector.tcc:117:21: note: in instantiation of function template specialization 'std::allocator_traits<std::allocator<TransferPtr<int>>>::construct<TransferPtr<int>, TransferPtr<int>>' requested here
+bits/stl_vector.h:1434:9: note: in instantiation of function template specialization 'std::vector<TransferPtr<int>>::emplace_back<TransferPtr<int>>' requested here
+9_6_transfer_container_fail.cpp:27:12: note: in instantiation of member function 'std::vector<TransferPtr<int>>::push_back' requested here
+bits/stl_construct.h:129:4: error: no matching function for call to 'construct_at'
+bits/stl_uninitialized.h:145:7: note: in instantiation of function template specialization 'std::_Construct<TransferPtr<int>, TransferPtr<int>>' requested here
+bits/stl_uninitialized.h:618:14: note: in instantiation of function template specialization 'std::__do_uninit_copy<std::move_iterator<TransferPtr<int> *>, std::move_iterator<TransferPtr<int> *>, TransferPtr<int> *>' requested here
+bits/stl_uninitialized.h:663:19: note: in instantiation of function template specialization 'std::__uninitialized_copy_a<std::move_iterator<TransferPtr<int> *>, std::move_iterator<TransferPtr<int> *>, TransferPtr<int> *, TransferPtr<int>>' requested here
+bits/stl_construct.h:133:38: error: no matching constructor for initialization of 'TransferPtr<int>'
+9_6_transfer_container_fail.cpp:9:14: note: candidate constructor not viable: no known conversion from 'TransferPtr<int>' to 'int *' for 1st argument
+9_6_transfer_container_fail.cpp:11:5: note: candidate constructor not viable: expects an lvalue for 1st argument

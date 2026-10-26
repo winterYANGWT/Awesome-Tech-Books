@@ -1,0 +1,4 @@
+bind 对象：36（用的是创建时的 tick=1）
+lambda：39（用的是调用时的 tick=4）
+嵌套 bind：40（这次是调用时的 tick=5）
+bind 转发实参后 counter = 1

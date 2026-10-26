@@ -1,0 +1,3 @@
+14_3_deleted_overload.cpp:14:7: error: call to deleted member function 'log'
+14_3_deleted_overload.cpp:9:10: note: candidate function has been explicitly deleted
+14_3_deleted_overload.cpp:8:10: note: candidate function

@@ -1,0 +1,2 @@
+17_5_override_fail.cpp:15:28: error: non-virtual member function marked 'override' hides virtual member function
+17_5_override_fail.cpp:9:25: note: hidden overloaded virtual function 'Base::describe' declared here: different qualifiers ('const' vs unqualified)

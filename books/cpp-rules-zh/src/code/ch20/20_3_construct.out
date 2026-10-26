@@ -1,0 +1,5 @@
+double = 42
+Base.id = 7, sizeof(Base) = 4, sizeof(Derived) = 8
+Token.value = 42
+init-list: default=0 copy=1
+body-assign: default=1 copy=1

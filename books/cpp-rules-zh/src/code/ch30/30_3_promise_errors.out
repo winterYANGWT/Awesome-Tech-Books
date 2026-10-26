@@ -1,0 +1,2 @@
+第二次 set_value 是 promise_already_satisfied: 1
+promise 先销毁，等待方拿到 broken_promise: 1

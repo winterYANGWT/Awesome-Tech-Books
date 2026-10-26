@@ -1,0 +1,6 @@
+accumulate 初值 0（int）：27
+accumulate 初值 0.0（double）：28.74
+accumulate 字符串长度和：16
+for_each 平均：9.58
+split 到 vector：4 个词：the quick brown fox 
+split 到 ostream：alpha|beta|

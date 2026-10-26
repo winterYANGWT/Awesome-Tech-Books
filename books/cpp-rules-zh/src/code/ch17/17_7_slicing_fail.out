@@ -1,0 +1,4 @@
+17_7_slicing_fail.cpp:20:12: error: parameter type 'Shape' is an abstract class
+17_7_slicing_fail.cpp:9:25: note: unimplemented pure virtual method 'name' in 'Shape'
+17_7_slicing_fail.cpp:10:17: note: unimplemented pure virtual method 'area' in 'Shape'
+17_7_slicing_fail.cpp:26:11: error: allocating an object of abstract class type 'Shape'

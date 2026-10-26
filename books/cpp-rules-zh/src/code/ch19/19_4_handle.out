@@ -1,0 +1,9 @@
+赋值（按动态类型克隆）：
+  clone Graduate
+first 现在是 Grace: 95
+复制 vector：
+  clone Undergraduate
+  clone Graduate
+原 vector 清空后，copy 仍然完整：
+  Ada: 90
+  Grace: 95

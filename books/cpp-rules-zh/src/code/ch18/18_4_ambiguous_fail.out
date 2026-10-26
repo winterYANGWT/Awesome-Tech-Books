@@ -1,0 +1,3 @@
+18_4_ambiguous_fail.cpp:18:12: error: member 'checkOut' found in multiple base classes of different types
+18_4_ambiguous_fail.cpp:6:10: note: member found by ambiguous name lookup
+18_4_ambiguous_fail.cpp:11:10: note: member found by ambiguous name lookup

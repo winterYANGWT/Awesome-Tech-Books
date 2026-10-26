@@ -1,0 +1,5 @@
+  produce 0, on expected thread? true
+worker got 0
+  produce 1, on expected thread? true
+worker got 1
+main and worker are different threads? true

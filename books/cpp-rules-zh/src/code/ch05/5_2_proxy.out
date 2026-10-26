@@ -1,0 +1,4 @@
+proxy = 1
+写回后 flags[2] = 0
+value = 1，corrected = 1
+bit = 1，bit_value = 1

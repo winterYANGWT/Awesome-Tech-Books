@@ -1,0 +1,4 @@
+28_5_ci_cout_fail.cpp:39:15: error: invalid operands to binary expression ('ostream' (aka 'basic_ostream<char>') and 'const ci_string' (aka 'const basic_string<char, ci_char_traits>'))
+system_error:341:5: note: candidate function template not viable: no known conversion from 'const ci_string' (aka 'const basic_string<char, ci_char_traits>') to 'const error_code' for 2nd argument
+bits/ostream.h:636:5: note: candidate function template not viable: no known conversion from 'const ci_string' (aka 'const basic_string<char, ci_char_traits>') to 'char' for 2nd argument
+bits/ostream.h:642:5: note: candidate function template not viable: no known conversion from 'const ci_string' (aka 'const basic_string<char, ci_char_traits>') to 'char' for 2nd argument

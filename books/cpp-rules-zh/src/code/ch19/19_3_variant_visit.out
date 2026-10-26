@@ -1,0 +1,6 @@
+circle: area=3.14159
+rect: area=6
+triangle: area=10
+Rect 的下标: 1
+第一个是 Circle: 1
+取出的矩形宽: 2

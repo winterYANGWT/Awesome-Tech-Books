@@ -1,0 +1,5 @@
+hello from derived
+via member pointer: 42
+audit: 7
+specialized audit
+secret=42

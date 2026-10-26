@@ -1,0 +1,3 @@
+第一次取到的消息：job failed: backup-disk
+第二次取到的消息：job failed: backup-network
+再打印第一次的指针：job failed: backup-network

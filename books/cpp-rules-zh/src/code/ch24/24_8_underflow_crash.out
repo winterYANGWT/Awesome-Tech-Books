@@ -1,0 +1,6 @@
+readings.size() - missing = 18446744073709551614
+10
+20
+30
+ERROR: AddressSanitizer: heap-buffer-overflow
+SUMMARY: AddressSanitizer: heap-buffer-overflow 24_8_underflow_crash.cpp:17:31 in main

@@ -1,0 +1,2 @@
+7_3_pessimizing_move.cpp:10:12: warning: moving a local object in a return statement prevents copy elision [-Wpessimizing-move]
+7_3_pessimizing_move.cpp:10:12: note: remove std::move call here

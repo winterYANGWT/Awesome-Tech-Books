@@ -1,0 +1,9 @@
+无序 raw：is_sorted=false，std::find(4) 命中
+排序后 raw：is_sorted=true，binary_search(4)=true
+降序 desc：默认 is_sorted=false，用 greater is_sorted=true，binary_search(5, greater)=true
+有序 users 上 binary_search(probe)=true
+lower_bound 指向 Ada(42)；*it == probe ？false；按 ById 等价？true
+equal_range 覆盖 2 个元素： Ada(42) Cyd(42)
+对 users 用 std::find(probe)：未找到
+set 大小=3；成员 find 命中 Ada；std::find 未找到
+map 成员 count(42)=1；std::count 整个 pair=0

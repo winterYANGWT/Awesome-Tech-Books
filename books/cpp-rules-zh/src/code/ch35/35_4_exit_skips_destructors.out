@@ -1,0 +1,4 @@
+construct global
+construct local
+calling exit
+destroy global

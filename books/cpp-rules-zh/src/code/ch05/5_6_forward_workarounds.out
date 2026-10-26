@@ -1,0 +1,6 @@
+target(vector)：和 = 10
+target(int*)：空指针
+target(函数指针)：42
+target(函数指针)：22
+target(size_t)：1500
+target(size_t)：28

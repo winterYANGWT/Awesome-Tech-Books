@@ -1,0 +1,1 @@
+29_6_operator_brackets_fail.cpp:9:8: error: 'operator[]' cannot be the name of a variable or data member

@@ -1,0 +1,4 @@
+外层 Discount 大小 = 16 字节，实现类大小 = 1040 字节
+按值传入：Discount 被拷贝 1 次
+std::ref 传入：Discount 仍被拷贝 1 次
+按长度排序后的首元素：ops

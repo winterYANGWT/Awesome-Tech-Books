@@ -1,0 +1,8 @@
+sum(vector)       = 60
+sum(list)         = 60
+sum(forward_list) = 60
+sum(数组)         = 60
+sum_range(vector) = 60
+sum_range(list)   = 60
+has_items：vector 1，空 list 0
+sum_vector_only(vector) = 60

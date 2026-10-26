@@ -1,0 +1,10 @@
+1) 普通 new/delete
+  值：1
+2) placement new，显式析构
+3) nothrow new；delete 仍走普通 delete
+4) 数组 new[]/delete[]
+  普通 new/delete：1/2
+  placement new/delete：1/0
+  nothrow new/delete：1/0
+  数组 new[]/delete[]：1/1
+  构造/析构：6/6

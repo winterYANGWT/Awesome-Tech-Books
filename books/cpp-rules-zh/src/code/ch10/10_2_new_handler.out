@@ -1,0 +1,14 @@
+1) 全局 handler 的查询与替换
+  初始 handler 为空：是
+  set_new_handler 返回旧 handler：是
+2) 请求一块大到不可能满足的内存，观察调用循环
+  全局 new-handler 第 1 次被调用
+  全局 new-handler 第 2 次被调用
+  全局 new-handler 第 3 次被调用
+  捕获 OutOfMemory：handler 抛异常后 operator new 停止重试
+  全局 handler 调用次数：3
+3) 类级 handler：Widget 的 operator new 临时替换全局 handler
+  Widget 之前的 handler 为空：是
+  Widget::operator new 期间，全局 handler 是 Widget 的：是
+  Widget handler 调用次数：0（分配成功，不会被调用）
+  离开 Widget::operator new 后全局 handler 已恢复：是

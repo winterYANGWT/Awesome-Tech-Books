@@ -1,0 +1,3 @@
+Base 构造函数调用 call_init()
+pure virtual method called
+terminate called without an active exception

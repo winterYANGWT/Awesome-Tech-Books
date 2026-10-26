@@ -1,0 +1,8 @@
+  operator new[](20 字节)
+  构造 Widget 0（live=1）
+  构造 Widget 1（live=2）
+  析构 Widget 1（live=1）
+  析构 Widget 0（live=0）
+  operator delete[]
+捕获：第 2 个 Widget 构造失败
+constructed=2 destroyed=2 live=0 allocations=1 deallocations=1

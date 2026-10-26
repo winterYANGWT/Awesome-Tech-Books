@@ -1,0 +1,5 @@
+pop_value failed: token assignment failed
+pop_value: stack=1 received=[none]
+pop_into failed: token assignment failed
+pop_into: stack=1 received=[none]
+top+pop: stack=0 delivered=[alpha]

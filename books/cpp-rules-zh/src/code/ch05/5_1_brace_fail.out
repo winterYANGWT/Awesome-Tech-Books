@@ -1,0 +1,7 @@
+5_1_brace_fail.cpp:5:14: error: deduced conflicting types ('int' vs 'double') for initializer list element type
+5_1_brace_fail.cpp:6:14: error: initializer for variable 'pair' with type 'auto' contains multiple expressions
+5_1_brace_fail.cpp:9:12: error: cannot deduce return type from initializer list
+5_1_brace_fail.cpp:18:5: error: no matching function for call to 'take'
+5_1_brace_fail.cpp:13:6: note: candidate template ignored: couldn't infer template argument 'T'
+5_1_brace_fail.cpp:19:5: error: no matching function for call to 'abbreviated'
+5_1_brace_fail.cpp:15:6: note: candidate template ignored: couldn't infer template argument 'auto:1'

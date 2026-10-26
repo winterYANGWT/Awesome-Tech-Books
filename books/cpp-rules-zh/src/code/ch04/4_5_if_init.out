@@ -1,0 +1,4 @@
+if init: pear = 5
+switch init: two
+while 条件里声明 c: 1 1 1 
+循环体里读取: a b c

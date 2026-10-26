@@ -1,0 +1,4 @@
+链式赋值: a=c/3 b=c/3
+复合赋值: a=18
+重载 operator&: 自赋值后 revision=1
+std::addressof: 自赋值后 revision=0

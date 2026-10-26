@@ -1,0 +1,2 @@
+12_6_noexcept_warn.cpp:8:9: warning: 'flush' has a non-throwing exception specification but can still throw [-Wexceptions]
+12_6_noexcept_warn.cpp:6:6: note: function declared non-throwing here

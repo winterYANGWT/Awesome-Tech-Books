@@ -1,0 +1,7 @@
+5_6_forward_fail.cpp:30:5: error: no matching function for call to 'fwd'
+5_6_forward_fail.cpp:10:6: note: candidate template ignored: couldn't infer template argument 'T'
+5_6_forward_fail.cpp:32:5: error: no matching function for call to 'fwd'
+5_6_forward_fail.cpp:10:6: note: candidate template ignored: couldn't infer template argument 'T'
+5_6_forward_fail.cpp:16:5: error: no matching function for call to 'target_pointer'
+5_6_forward_fail.cpp:31:5: note: in instantiation of function template specialization 'fwd_pointer<int>' requested here
+5_6_forward_fail.cpp:7:6: note: candidate function not viable: no known conversion from 'int' to 'int *' for 1st argument

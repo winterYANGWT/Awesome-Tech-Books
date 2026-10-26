@@ -1,0 +1,12 @@
+bits/algorithmfwd.h:427:9: error: expected unqualified-id
+bits/algorithmfwd.h:427:9: error: expected ')'
+bits/algorithmfwd.h:427:5: note: to match this '('
+32_2_define_before_include.cpp:6:20: note: expanded from macro 'min'
+bits/algorithmfwd.h:427:5: error: expected ')'
+32_2_define_before_include.cpp:6:24: note: expanded from macro 'min'
+bits/algorithmfwd.h:427:5: note: to match this '('
+32_2_define_before_include.cpp:6:19: note: expanded from macro 'min'
+bits/algorithmfwd.h:432:33: error: too many arguments provided to function-like macro invocation
+32_2_define_before_include.cpp:6:9: note: macro 'min' defined here
+bits/algorithmfwd.h:432:5: error: redefinition of 'min' as different kind of symbol
+bits/stl_algobase.h:234:5: note: previous definition is here

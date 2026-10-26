@@ -1,0 +1,4 @@
+VectorIndex size=2，顺序： ada bob
+ListIndex 顺序： bob ada
+RuntimeIndex (vector)： ada bob
+RuntimeIndex (list)： bob ada

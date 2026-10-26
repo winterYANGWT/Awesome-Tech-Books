@@ -1,0 +1,6 @@
+ref:      ok=1 port=8080
+ref 失败: ok=0 port=443（旧值没变，调用点看不出来）
+ptr:      ok=1 port=8080
+optional: 8080
+optional 失败: none
+split_pair 写反: host=5432 service=db

@@ -1,0 +1,2 @@
+11_5_catch_order.cpp:12:20: warning: exception of type 'const std::invalid_argument &' will be caught by earlier handler [-Wexceptions]
+11_5_catch_order.cpp:10:20: note: for type 'const std::logic_error &'

@@ -1,0 +1,4 @@
+改掉第 2 位后，代理读到 false，快照仍是 true
+deque<bool> 第一个元素: true
+bitset: 00000101，置位个数 2
+vector<char> 第 1 字节: 1

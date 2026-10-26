@@ -1,0 +1,2 @@
+4_1_uninitialized.cpp:6:25: warning: field 'seconds' is uninitialized when used here [-Wuninitialized]
+4_1_uninitialized.cpp:10:16: warning: variable 'gain' is uninitialized when used within its own initialization [-Wuninitialized]

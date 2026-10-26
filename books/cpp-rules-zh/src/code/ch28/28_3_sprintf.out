@@ -1,0 +1,2 @@
+ERROR: AddressSanitizer: stack-buffer-overflow
+SUMMARY: AddressSanitizer: stack-buffer-overflow (/root/data/mediaflow/Learn/CppRulesBook/build/examples/ch28/28_3_sprintf+0x56b4e) (BuildId: 7095a5abceee6fb9f5157e063070282169da7ddc) in vsprintf

@@ -1,0 +1,7 @@
+app.log: streaming limit=0
+app.log: streaming limit=0
+app.log: capped limit=4096
+app.log: streaming limit=0
+app.log: capped limit=4096
+draw_box 3x2 color=black
+draw_box 3x2 color=red

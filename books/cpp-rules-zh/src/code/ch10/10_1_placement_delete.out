@@ -1,0 +1,9 @@
+1) 构造成功：placement delete 不会被任何 delete 表达式调用
+    未归还块数：0
+2) 构造抛异常，签名匹配的 placement delete 被自动调用
+    捕获：构造失败
+    未归还块数：0
+3) 没有匹配的 placement delete：运行时不知道该怎么释放
+    捕获：构造失败
+    未归还块数：1
+    手动归还后：0

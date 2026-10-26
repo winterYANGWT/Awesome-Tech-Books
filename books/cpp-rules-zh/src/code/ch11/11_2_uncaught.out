@@ -1,0 +1,8 @@
+--- 异常在内部被捕获 ---
+  inner：检测到新的栈展开，回滚（计数 0 -> 1）
+  处理掉：内部失败，此时 uncaught_exceptions=0
+  inner 已析构，outer 还没到析构点
+  outer：正常提交（计数 0）
+--- 异常继续向外传播 ---
+  propagating：检测到新的栈展开，回滚（计数 0 -> 1）
+  最外层捕获：传给调用者，此时 uncaught_exceptions=0

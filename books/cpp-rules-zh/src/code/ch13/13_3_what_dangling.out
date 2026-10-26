@@ -1,0 +1,3 @@
+准备读取 what()
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free (/root/data/mediaflow/Learn/CppRulesBook/build/examples/ch13/13_3_what_dangling+0x488de) (BuildId: 25a0992013343d7c9caa2773ebf653bd5ab1ea26) in strlen

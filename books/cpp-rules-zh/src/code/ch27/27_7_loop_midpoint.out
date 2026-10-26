@@ -1,0 +1,5 @@
+sum_first_n(10)=45
+lower_bound_hand(7) -> 下标 3，值 7
+lower_bound_hand(4) -> 下标 2，值 5
+std::midpoint(2000000000, 2000000001)=2000000000
+指针中点相对偏移=4

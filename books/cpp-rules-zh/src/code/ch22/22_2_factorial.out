@@ -1,0 +1,4 @@
+Factorial<10>       = 3628800
+factorial_recursive = 3628800
+factorial_loop      = 3628800
+integer_sequence 展开：0 1 2 3 4

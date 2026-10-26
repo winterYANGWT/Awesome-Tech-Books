@@ -1,0 +1,3 @@
+20_4_friend_short_fail.cpp:8:12: error: calling a private destructor of class 'Session'
+20_4_friend_short_fail.cpp:26:12: note: in instantiation of function template specialization 'audit::purge<Session>' requested here
+20_4_friend_short_fail.cpp:19:5: note: declared private here

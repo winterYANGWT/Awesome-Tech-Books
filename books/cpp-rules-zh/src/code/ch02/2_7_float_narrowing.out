@@ -1,0 +1,1 @@
+2_7_float_narrowing.cpp:9:15: warning: implicit conversion loses floating-point precision: 'double' to 'float' [-Wimplicit-float-conversion]

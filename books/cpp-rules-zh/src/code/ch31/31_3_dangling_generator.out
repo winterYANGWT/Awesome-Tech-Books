@@ -1,0 +1,4 @@
+generator created; the vector is still alive
+vector destroyed; now iterate
+ERROR: AddressSanitizer: heap-use-after-free
+SUMMARY: AddressSanitizer: heap-use-after-free 31_3_dangling_generator.cpp:12:34 in names(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char>>>> const&) (.resume)

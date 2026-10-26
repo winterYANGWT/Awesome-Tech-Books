@@ -1,0 +1,7 @@
+pointer: camera 24 MP
+reference: camera 24 MP
+network: link 100
+pointer: not camera (printer)
+reference: bad_cast
+network: not networked
+known camera: 24 MP

@@ -1,0 +1,6 @@
+按值传 vector:  copies=1000  moves=0  sum=749250
+按 const 引用:  copies=0  moves=0  sum=749250
+不 reserve:    reallocations=11  moves=1023  capacity=1024
+reserve(1000): reallocations=0  moves=0  capacity=1000
+s = s + "ab" 整体复制次数: 1000
+s += "ab" 整体复制次数:    8

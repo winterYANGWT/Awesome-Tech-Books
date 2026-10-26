@@ -1,0 +1,2 @@
+3_2_access_blocks.cpp:18:35: warning: 'offsetof' on non-standard-layout type 'Split' [-Winvalid-offsetof]
+/usr/lib/llvm-21/lib/clang/21/include/__stddef_offsetof.h:16:24: note: expanded from macro 'offsetof'

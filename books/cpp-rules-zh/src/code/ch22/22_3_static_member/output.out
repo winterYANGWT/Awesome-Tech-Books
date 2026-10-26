@@ -1,0 +1,10 @@
+C++14，没有类外定义：
+undefined reference to `Legacy::cap'
+C++14，补上 constexpr int Legacy::cap;：
+Legacy::cap = 200
+C++17，同一个头文件、不补类外定义：
+Legacy::cap = 200
+C++20，static const int 被取引用：
+undefined reference to `Budget::limit'
+补上 const int Budget::limit; 后：
+limit = 100, cap = 200, rate = 0.25

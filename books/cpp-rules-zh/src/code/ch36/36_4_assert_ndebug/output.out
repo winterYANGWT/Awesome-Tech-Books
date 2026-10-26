@@ -1,0 +1,2 @@
+assert enabled: value=1 checks=1
+NDEBUG defined: value=0 checks=0

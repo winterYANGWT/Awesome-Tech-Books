@@ -1,0 +1,5 @@
+float digits = 24
+x = 100000000
+x - 1 == x: true
+ulp at 1e8 = 8
+double d - 1 == d: false

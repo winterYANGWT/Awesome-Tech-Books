@@ -1,0 +1,5 @@
+int 1000: 900
+double 9.5: 8.55
+Item 大小: 4
+换用没有显式实例化的 long long：
+  链接失败：找不到 store::discounted<long long> 的定义
