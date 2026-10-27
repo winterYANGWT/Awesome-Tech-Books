@@ -12,6 +12,7 @@
 | [CUDA 编程：从并行模型到工程实践](https://winteryangwt.github.io/Awesome-Tech-Books/cuda-programming-zh/) | 原创中文教程，每章围绕可运行的程序和实测数据，7 部分 36 章；不是 NVIDIA 官方文档 | 文字 CC BY 4.0，代码 MIT | [`books/cuda-programming-zh/`](books/cuda-programming-zh/) |
 | [CUDA 编程：从并行模型到工程实践（旧版）](https://winteryangwt.github.io/Awesome-Tech-Books/cuda-programming-zh-legacy/) | 新版的前身，14 部分 87 章，按主题逐项讲解，每章附 API 速查；已不再更新，留作参考 | 文字 CC BY 4.0，代码 MIT | [`books/cuda-programming-zh-legacy/`](books/cuda-programming-zh-legacy/) |
 | [C++ 规则新编](https://winteryangwt.github.io/Awesome-Tech-Books/cpp-rules-zh/) | 原创中文教程，把八本经典 C++ 规则书的 410 条规则按主题合并重讲，以 C++20 为基准补上新标准和工程实践，8 部分 36 章，512 个示例均用 Clang 21 实测 | 文字 CC BY 4.0，代码 MIT | [`books/cpp-rules-zh/`](books/cpp-rules-zh/) |
+| [Swift 编程语言](https://winteryangwt.github.io/Awesome-Tech-Books/swift-book-zh/) | [The Swift Programming Language](https://docs.swift.org/swift-book/) 的简体中文译本（Swift 6.4），译自 2026-09 上游版本（`1c05984`），语言指南 + 语言参考共 43 章 | Apache-2.0（附 Runtime Library Exception） | [`books/swift-book-zh/`](books/swift-book-zh/) |
 
 这些书都借助 AI 翻译或编写，难免有错，欢迎通过 issue 指正。
 

@@ -1,0 +1,14 @@
+[book]
+title = "Swift 编程语言"
+description = "The Swift Programming Language（Swift 6.4）的简体中文译本。"
+authors = ["Apple Inc. 与 Swift 项目贡献者（原著）", "winterYANGWT（翻译）"]
+language = "zh-CN"
+src = "src"
+
+[output.html]
+additional-css = ["theme/custom.css"]
+git-repository-url = "https://github.com/winterYANGWT/Awesome-Tech-Books/tree/main/books/swift-book-zh"
+no-section-label = true
+
+[output.html.search]
+use-boolean-and = true

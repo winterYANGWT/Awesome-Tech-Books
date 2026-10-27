@@ -1,0 +1,5 @@
+/* Upstream figures come in a light and a dark variant; show the one that matches the theme. */
+img.fig-dark { display: none; }
+html.coal img.fig-light, html.navy img.fig-light, html.ayu img.fig-light { display: none; }
+html.coal img.fig-dark, html.navy img.fig-dark, html.ayu img.fig-dark { display: inline; }
+main img { max-width: 100%; height: auto; }
