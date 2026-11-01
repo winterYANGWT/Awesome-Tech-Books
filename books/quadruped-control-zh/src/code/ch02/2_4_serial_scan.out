@@ -1,0 +1,6 @@
+扫描 /dev/ttyUSB* 与 /dev/ttyACM* ...
+未发现 USB 串口
+把 USB 转 RS-485 转接器插好、确认驱动加载后重新运行。
+udev 规则模板（用 lsusb 和 udevadm info -a -n <设备> 替换尖括号里的值）：
+SUBSYSTEM=="tty", ATTRS{idVendor}=="<idVendor>", ATTRS{idProduct}=="<idProduct>", ATTRS{serial}=="<serial>", SYMLINK+="a1_motor"
+权限：sudo usermod -aG dialout $USER，重新登录后生效；不要长期用 sudo 跑控制程序。
