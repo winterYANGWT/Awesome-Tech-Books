@@ -1,0 +1,102 @@
+[Passive] enter: 12 个关节 kp=0, kd=2.0，进入阻尼
+初始状态: Passive
+[FSM] 拒绝切换: 未注册的状态 'Jump'
+[Passive] run: 发阻尼命令
+    当前状态: Passive
+[Passive] run: 发阻尼命令
+    当前状态: Passive
+[Passive] run: 发阻尼命令
+    当前状态: Passive
+--- cycle 3: 按键请求 FixedStand
+[FSM] 收到请求 Passive -> FixedStand
+[Passive] run: 发阻尼命令
+[FSM] 登记切换 Passive -> FixedStand（下一周期执行）
+    当前状态: Passive
+[FSM] CHANGE: Passive.exit() -> FixedStand.enter()
+[FixedStand] enter: 记录当前角度，p=0
+[FixedStand] run: 插值 p=0.05
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.10
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.15
+    当前状态: FixedStand
+--- cycle 7: 按键请求 FreeStand
+[FSM] 收到请求 FixedStand -> FreeStand
+[FixedStand] run: 插值 p=0.20
+[FSM] FixedStand 插值 p=0.20 未完成，拒绝切换到 FreeStand
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.25
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.30
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.35
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.40
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.45
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.50
+    当前状态: FixedStand
+--- cycle 14: 按键请求 FreeStand
+[FSM] 收到请求 FixedStand -> FreeStand
+[FixedStand] run: 插值 p=0.55
+[FSM] FixedStand 插值 p=0.55 未完成，拒绝切换到 FreeStand
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.60
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.65
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.70
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.75
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.80
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.85
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.90
+    当前状态: FixedStand
+[FixedStand] run: 插值 p=0.95
+    当前状态: FixedStand
+--- cycle 23: 按键请求 FreeStand
+[FSM] 收到请求 FixedStand -> FreeStand
+[FixedStand] run: 插值 p=1.00
+[FSM] 登记切换 FixedStand -> FreeStand（下一周期执行）
+    当前状态: FixedStand
+[FixedStand] exit: 清零插值进度
+[FSM] CHANGE: FixedStand.exit() -> FreeStand.enter()
+[FreeStand] enter: 位姿保持器接管，目标高度 0.27 m
+[FreeStand] run: 位姿 PD → QP → 关节角
+    当前状态: FreeStand
+[FreeStand] run: 位姿 PD → QP → 关节角
+    当前状态: FreeStand
+[FreeStand] run: 位姿 PD → QP → 关节角
+    当前状态: FreeStand
+--- cycle 27: 按键请求 Trotting
+[FSM] 收到请求 FreeStand -> Trotting
+[FreeStand] run: 位姿 PD → QP → 关节角
+[FSM] 登记切换 FreeStand -> Trotting（下一周期执行）
+    当前状态: FreeStand
+[FreeStand] exit: 清空位姿指令
+[FSM] CHANGE: FreeStand.exit() -> Trotting.enter()
+[Trotting] enter: 相位清零，先全触地 0.2 s
+[Trotting] run: 步态相位 0.002 s
+    当前状态: Trotting
+[Trotting] run: 步态相位 0.004 s
+    当前状态: Trotting
+[Trotting] run: 步态相位 0.006 s
+    当前状态: Trotting
+--- cycle 31: 按键请求 Passive
+[FSM] 收到请求 Trotting -> Passive
+[Trotting] run: 步态相位 0.008 s
+[FSM] 登记切换 Trotting -> Passive（下一周期执行）
+    当前状态: Trotting
+[Trotting] exit: 速度指令归零
+[FSM] CHANGE: Trotting.exit() -> Passive.enter()
+[Passive] enter: 12 个关节 kp=0, kd=2.0，进入阻尼
+[Passive] run: 发阻尼命令
+    当前状态: Passive
+[Passive] run: 发阻尼命令
+    当前状态: Passive
+当前状态: Passive
+图已保存: figs/3_3_fsm.png

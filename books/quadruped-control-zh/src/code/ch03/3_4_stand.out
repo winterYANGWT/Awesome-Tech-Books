@@ -1,0 +1,53 @@
+起始机身高度: 0.1200 m（折叠姿态）
+阻尼结束（0.5 s）机身高度: 0.1056 m
+12 个关节起始角（阻尼结束）:
+   0  leg0 joint0  -0.0229 rad
+   1  leg0 joint1   1.3301 rad
+   2  leg0 joint2  -2.7044 rad
+   3  leg1 joint0   0.0269 rad
+   4  leg1 joint1   1.3272 rad
+   5  leg1 joint2  -2.7046 rad
+   6  leg2 joint0  -0.0201 rad
+   7  leg2 joint1   1.3671 rad
+   8  leg2 joint2  -2.7051 rad
+   9  leg3 joint0   0.0237 rad
+  10  leg3 joint1   1.3658 rad
+  11  leg3 joint2  -2.7055 rad
+12 个关节目标角（A1 home）:
+   0  leg0 joint0   0.0000 rad
+   1  leg0 joint1   0.9000 rad
+   2  leg0 joint2  -1.8000 rad
+   3  leg1 joint0   0.0000 rad
+   4  leg1 joint1   0.9000 rad
+   5  leg1 joint2  -1.8000 rad
+   6  leg2 joint0   0.0000 rad
+   7  leg2 joint1   0.9000 rad
+   8  leg2 joint2  -1.8000 rad
+   9  leg3 joint0   0.0000 rad
+  10  leg3 joint1   0.9000 rad
+  11  leg3 joint2  -1.8000 rad
+站立结束（2.5 s）机身高度: 0.2675 m
+12 个关节终止角（实测）:
+   0  leg0 joint0  -0.0156 rad
+   1  leg0 joint1   0.8966 rad
+   2  leg0 joint2  -1.8055 rad
+   3  leg1 joint0   0.0165 rad
+   4  leg1 joint1   0.8968 rad
+   5  leg1 joint2  -1.8055 rad
+   6  leg2 joint0  -0.0157 rad
+   7  leg2 joint1   0.9027 rad
+   8  leg2 joint2  -1.8034 rad
+   9  leg3 joint0   0.0164 rad
+  10  leg3 joint1   0.9025 rad
+  11  leg3 joint2  -1.8035 rad
+四足接触: [True, True, True, True]
+四足法向力: 28.5, 29.5, 32.0, 32.2 N
+四足法向力之和: 122.2 N
+12 关节最大跟踪误差: 0.0165 rad（关节 3）
+外摆最大误差: 0.0165 rad
+大腿最大误差: 0.0034 rad
+小腿最大误差: 0.0055 rad
+图已保存: figs/3_4_sequence.png
+图已保存: figs/3_4_leg_joints.png
+图已保存: figs/3_4_legs.png
+图已保存: figs/3_4_frames.png

@@ -1,0 +1,22 @@
+MuJoCo 3.17.0
+nq=19, nv=18, nu=12
+总质量: 12.453 kg
+12 个关节（腿号 × 3 + 关节号）:
+   0  leg0  joint0  FR_hip_joint
+   1  leg0  joint1  FR_thigh_joint
+   2  leg0  joint2  FR_calf_joint
+   3  leg1  joint0  FL_hip_joint
+   4  leg1  joint1  FL_thigh_joint
+   5  leg1  joint2  FL_calf_joint
+   6  leg2  joint0  RR_hip_joint
+   7  leg2  joint1  RR_thigh_joint
+   8  leg2  joint2  RR_calf_joint
+   9  leg3  joint0  RL_hip_joint
+  10  leg3  joint1  RL_thigh_joint
+  11  leg3  joint2  RL_calf_joint
+初始机身高度: 0.5000 m
+1.0 s 自由下落:
+  机身高度: 0.0996 m
+  四足接触: [True, True, True, True]
+  触地足端法向力之和: 101.5 N
+图已保存: figs/3_1_framework.png

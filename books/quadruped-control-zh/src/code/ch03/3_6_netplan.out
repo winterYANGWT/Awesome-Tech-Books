@@ -1,0 +1,33 @@
+输入: 网口 enp3s0, 本机 192.168.123.162/24, 机器人 192.168.123.161
+地址检查: 192.168.123.162 在 192.168.123.0/24 内: 是
+与机器人已有地址冲突: 否
+可以用于用户计算机: 是
+已占用: 192.168.123.10(主控板（普通模式/底层通信）), 192.168.123.12(A1 树莓派/TX2（图传/SLAM）), 192.168.123.13(Go1 Nano1（头部相机）), 192.168.123.14(Go1 Nano2（左右相机）), 192.168.123.15(Go1 Nano3（主 Nano）), 192.168.123.161(Go1 树莓派 / A1 UP Board（运动模式）), 192.168.123.1(路由器 LAN 口)
+netplan 片段（写入 /etc/netplan/60-robot.yaml 后执行 netplan apply）:
+network:
+  version: 2
+  ethernets:
+    enp3s0:
+      dhcp4: false
+      addresses: [192.168.123.162/24]
+      routes:
+        - to: default
+          via: 192.168.123.1
+      nameservers:
+        addresses: [192.168.123.1, 114.114.114.114]
+ip route 期望输出（示意，实际以本机为准）:
+default via 192.168.123.1 dev enp3s0 proto static
+192.168.123.0/24 dev enp3s0 proto kernel scope link src 192.168.123.162
+检查清单: ping -> ssh -> scp -> 启动控制器
+  1. ping -c 3 192.168.123.161      # 有回包、time 为毫秒级
+  2. ssh unitree@192.168.123.161     # 首次登录输入密码，exit 退出
+  3. scp stand.py unitree@192.168.123.161:/home/unitree
+  4. 在机器人上启动控制器；先阻尼，再固定站立
+本脚本不修改任何网络配置。
+图已保存: figs/3_6_a1_net.png
+图已保存: figs/3_6_go1_net.png
+图已保存: figs/3_6_ports.png
+图已保存: figs/3_6_ipaddr.png
+图已保存: figs/3_6_ssh.png
+图已保存: figs/3_6_topology.png
+图已保存: figs/3_6_route.png

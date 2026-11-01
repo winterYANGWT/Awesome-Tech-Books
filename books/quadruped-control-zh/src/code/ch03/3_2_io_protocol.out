@@ -1,0 +1,9 @@
+后端: sim
+[SimMotorBus::send] 发布 12 个关节命令, q_des[0]=0.00, kp[0]=80
+[SimMotorBus::recv] 读回 12 个关节角度, q[0]=0.00
+后端: real（Controller 不变，只换注入对象）
+[Rs485MotorBus::send] 打包 34 字节命令帧, id=0, q_des[0]=0.10
+[Rs485MotorBus::recv] 拼 78 字节状态帧, q[0]=0.00
+类型检查: SimMotorBus 与 Rs485MotorBus 都满足 MotorBus
+图已保存: figs/3_2_uml.png
+图已保存: figs/3_2_dispatch.png

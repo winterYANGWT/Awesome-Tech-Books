@@ -1,0 +1,13 @@
+后端: sim
+[IOROS] 打开 ROS 2 话题 /joint_cmd、/joint_states
+[IOROS::send] 发布 JointCmd, q_des[0]=0, kp[0]=80
+[IOROS::recv] 订阅到 12 个关节状态, q[0]=0
+[IOROS::send] 发布 JointCmd, q_des[0]=0.1, kp[0]=80
+[IOROS::recv] 订阅到 12 个关节状态, q[0]=0
+后端: real（同一个 Controller，换一个对象）
+[IOSDK] 打开 UDP 套接字, 目标 192.168.123.10
+[IOROS] 释放话题与节点
+[IOSDK::send] 打包 LowCmd 报文, q_des[0]=0.2, kp[0]=80
+[IOSDK::recv] 解析 LowState 报文, q[0]=0
+程序结束，unique_ptr 自动释放当前后端
+[IOSDK] 关闭套接字
