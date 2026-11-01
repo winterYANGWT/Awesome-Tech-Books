@@ -1,0 +1,24 @@
+=== 4.6 欧拉角：Y-P-R 顺序与万向锁 ===
+
+ 1000 组随机姿态 R->rpy->R 往返：
+ 旋转矩阵最大误差 = 1.07e-14 rad
+ 三个角的最大绝对误差 = 1.07e-14 rad
+
+ 万向锁：roll=0.3000, yaw=0.7000，pitch 逐渐逼近 90 deg
+ 姿态矩阵带 1e-6 rad 的测量噪声，20 次取最大
+ pitch =  60.0000 deg: roll 误差 = 1.99e-06 rad, yaw 误差 = 1.90e-06 rad, 条件数 1/cos = 2.0
+ pitch =  85.0000 deg: roll 误差 = 1.04e-05 rad, yaw 误差 = 1.04e-05 rad, 条件数 1/cos = 11.5
+ pitch =  89.0000 deg: roll 误差 = 5.36e-05 rad, yaw 误差 = 5.33e-05 rad, 条件数 1/cos = 57.3
+ pitch =  89.9000 deg: roll 误差 = 5.39e-04 rad, yaw 误差 = 5.40e-04 rad, 条件数 1/cos = 573.0
+ pitch =  89.9900 deg: roll 误差 = 5.52e-03 rad, yaw 误差 = 5.52e-03 rad, 条件数 1/cos = 5729.6
+ pitch =  89.9990 deg: roll 误差 = 5.65e-02 rad, yaw 误差 = 5.65e-02 rad, 条件数 1/cos = 57295.8
+ pitch =  89.9999 deg: roll 误差 = 5.67e-01 rad, yaw 误差 = 5.67e-01 rad, 条件数 1/cos = 572957.8
+
+ yaw 跨过 +-pi 的跳变（roll=0, pitch=0）：
+ 输入 yaw =   178.00 deg -> atan2 输出   178.00 deg
+ 输入 yaw =   179.00 deg -> atan2 输出   179.00 deg
+ 输入 yaw =   179.90 deg -> atan2 输出   179.90 deg
+ 输入 yaw =   180.00 deg -> atan2 输出   180.00 deg
+ 输入 yaw =  -179.90 deg -> atan2 输出  -179.90 deg
+ 输入 yaw =  -179.00 deg -> atan2 输出  -179.00 deg
+ 输入 yaw =  -178.00 deg -> atan2 输出  -178.00 deg
