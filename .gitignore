@@ -1,3 +1,5 @@
 # Built by scripts/build-site.sh and by `mdbook build` inside a book; never committed.
 /_site/
 /books/*/book/
+
+CLAUDE.md
