@@ -1,0 +1,17 @@
+2013  Atlas         Boston Dynamics  hydraulic closed
+2015  HyQ2Max       IIT              hydraulic closed
+2015  Spot          Boston Dynamics  electric  closed
+2016  ANYmal        ETH              electric  closed
+2017  Laikago       Unitree          electric  closed
+2018  Cheetah 3     MIT              electric  closed
+2019  Mini Cheetah  MIT              electric  open
+2019  Aliengo       Unitree          electric  closed
+2020  A1            Unitree          electric  closed
+2021  Go1           Unitree          electric  closed
+2023  Go2           Unitree          electric  closed
+2024  B2-W          Unitree          electric  closed
+样本机型数: 12
+电机驱动占比: 10/12 = 83.3%
+液压驱动占比: 2/12 = 16.7%
+开源机型数: 1（Mini Cheetah：硬件设计 + 2019 年控制算法）
+图已保存: figs/1_1_timeline.png, figs/1_1_forms.png
