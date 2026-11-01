@@ -1,0 +1,22 @@
+[book]
+title = "四足机器人控制：从关节电机到自主行走"
+description = "一本可运行的中文四足机器人控制教程：从关节电机、单腿运动学、整机动力学，到状态估计、平衡控制、步态规划、行走控制器与 ROS 2 导航；示例用 Python + MuJoCo 在 A1 模型上验证。"
+authors = ["winterYANGWT"]
+language = "zh-CN"
+src = "src"
+
+[output.html]
+additional-css = ["theme/custom.css"]
+git-repository-url = "https://github.com/winterYANGWT/Awesome-Tech-Books/tree/main/books/quadruped-control-zh"
+no-section-label = true
+mathjax-support = true
+# Formulas must reach MathJax verbatim: no ’ ‘ “ ” – — … substitutions.
+smart-punctuation = false
+
+[output.html.search]
+use-boolean-and = true
+
+# Chapters use \(...\) and \[...\]; CommonMark would eat markdown syntax inside
+# the formulas.  This preprocessor escapes every formula outside code (theme/).
+[preprocessor.mathjax-fix]
+command = "python3 theme/mathjax_preprocess.py"
