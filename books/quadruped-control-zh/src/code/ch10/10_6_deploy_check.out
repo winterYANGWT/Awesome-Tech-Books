@@ -1,0 +1,34 @@
+=== 10.6 机载部署检查 ===
+机型：A1；目标架构 amd64；机载用户 unitree；Home /home/unitree
+代码路径：/root/unitree_guide（本机未找到，仅生成命令）
+
+CMake 配置（本书选项，替代原书六个开关）：
+  cmake -S . -B build -DQUADRUPED_BACKEND=real -DQUADRUPED_ROBOT=a1 -DQUADRUPED_ARCH=amd64 -DCMAKE_BUILD_TYPE=Release
+  cmake --build build -j2
+
+复制与登录：
+  scp -r /root/unitree_guide unitree@192.168.123.161:/home/unitree/
+  ssh unitree@192.168.123.161
+
+关闭运动模式（在机载计算机上）：
+  ps aux | grep A1_sport | grep -v grep
+  gnome-session-properties（取消 A1-Sport）
+  重启：sudo reboot；恢复：重新勾选 A1-Sport，重启
+
+编译与运行：
+  cd ~/unitree_guide && mkdir -p build bin
+  cd build && cmake .. && make -j2
+  sudo ./bin/junior_ctrl    # 需要实时权限
+
+开机自启：
+  A1：把启动项加到 gnome-session-properties；Go1：在 ~/Unitree/autostart 下新建目录和同名 .sh
+  回到网线调试前必须先取消自启，否则两个控制器会同时发关节命令
+
+四项本地检查：
+  架构：PASS：本机 amd64 与 A1 目标 amd64 一致，可在本机编译
+  依赖：PASS：cmake/编译器齐全；Eigen3 头文件存在
+  权限：PASS：euid=0（root）；SCHED_FIFO 本机可用（已恢复普通策略）
+  自启：待机载确认：登录机载计算机后先 ps 查 A1_sport，再执行 gnome-session-properties（取消 A1-Sport）
+
+没有执行任何远程命令；所有 scp/ssh/ps/mv 都需要在实机上手动执行。
+图 10-7 已保存：10_7_deploy.png
