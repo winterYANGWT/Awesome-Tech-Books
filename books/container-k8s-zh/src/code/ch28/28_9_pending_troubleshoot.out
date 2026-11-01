@@ -1,0 +1,19 @@
+$ kubectl apply -f pending-pods.yaml
+namespace/ch28-pending created
+pod/too-big created
+pod/control-plane-only created
+pod/missing-pvc created
+$ for p in too-big control-plane-only missing-pvc; do
+  kubectl -n ch28-pending wait --for=jsonpath='{.status.conditions[?(@.type=="PodScheduled")].reason}'=Unschedulable pod/"$p" --timeout=60s
+  echo "== $p"
+  kubectl -n ch28-pending describe pod "$p" | grep -A1 'FailedScheduling' | tail -1
+done
+pod/too-big condition met
+== too-big
+  Warning  FailedScheduling  0s    default-scheduler  0/3 nodes are available: 1 node(s) had untolerated taint(s), 2 Insufficient cpu. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+pod/control-plane-only condition met
+== control-plane-only
+  Warning  FailedScheduling  1s    default-scheduler  0/3 nodes are available: 1 node(s) had untolerated taint(s), 2 node(s) didn't match Pod's node affinity/selector. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+pod/missing-pvc condition met
+== missing-pvc
+  Warning  FailedScheduling  1s    default-scheduler  0/3 nodes are available: persistentvolumeclaim "no-such-pvc" not found. not found

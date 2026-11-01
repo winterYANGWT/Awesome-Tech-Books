@@ -1,0 +1,54 @@
+$ kubectl apply -f exposed-services.yaml
+service/api-nodeport created
+service/api-lb created
+$ kubectl get svc -A -o wide
+NAMESPACE       NAME                       TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                  AGE     SELECTOR
+default         kubernetes                 ClusterIP      10.96.0.1      <none>        443/TCP                  3m16s   <none>
+kube-system     kube-dns                   ClusterIP      10.96.0.10     <none>        53/UDP,53/TCP,9153/TCP   3m15s   k8s-app=kube-dns
+kube-system     metrics-server             ClusterIP      10.96.183.41   <none>        443/TCP                  2m49s   k8s-app=metrics-server
+nginx-gateway   ngf-nginx-gateway-fabric   ClusterIP      10.96.82.239   <none>        443/TCP,9113/TCP         2m2s    app.kubernetes.io/instance=ngf,app.kubernetes.io/name=nginx-gateway-fabric
+shorty          api                        ClusterIP      10.96.26.4     <none>        8080/TCP                 91s     app.kubernetes.io/name=api
+shorty          api-lb                     LoadBalancer   10.96.244.66   <pending>     8080:30544/TCP           0s      app.kubernetes.io/name=api
+shorty          api-nodeport               NodePort       10.96.164.0    <none>        8080:30699/TCP           0s      app.kubernetes.io/name=api
+shorty          postgres                   ClusterIP      None           <none>        5432/TCP                 91s     app.kubernetes.io/name=postgres
+shorty          redis                      ClusterIP      10.96.205.22   <none>        6379/TCP                 91s     app.kubernetes.io/name=redis
+shorty          shorty-gw-nginx            LoadBalancer   10.96.83.210   <pending>     80:31467/TCP             90s     app.kubernetes.io/instance=ngf,app.kubernetes.io/managed-by=ngf-nginx,app.kubernetes.io/name=shorty-gw-nginx,gateway.networking.k8s.io/gateway-name=shorty-gw
+$ kubectl get svc -A -o json \
+  | jq -r '.items[] | select(.spec.type == "NodePort" or .spec.type == "LoadBalancer")
+           | [.metadata.namespace, .metadata.name, .spec.type,
+              ([.spec.ports[].nodePort] | join(","))] | @tsv'
+shorty	api-lb	LoadBalancer	30544
+shorty	api-nodeport	NodePort	30699
+shorty	shorty-gw-nginx	LoadBalancer	31467
+$ kubectl get networkpolicy -A
+NAMESPACE   NAME                 POD-SELECTOR                       AGE
+shorty      allow-api-db         app.kubernetes.io/part-of=shorty   91s
+shorty      allow-dns            <none>                             91s
+shorty      allow-gateway        <none>                             91s
+shorty      allow-worker-redis   app.kubernetes.io/part-of=shorty   91s
+shorty      default-deny         <none>                             91s
+$ kubectl -n shorty describe networkpolicy allow-gateway
+Name:         allow-gateway
+Namespace:    shorty
+Created on:   2026-10-28 05:25:21 +0000 UTC
+Labels:       <none>
+Annotations:  <none>
+Spec:
+  PodSelector:     <none> (Allowing the specific traffic to all pods in this namespace)
+  Allowing ingress traffic:
+    To Port: 8080/TCP
+    From:
+      PodSelector: app.kubernetes.io/part-of=shorty
+    ----------
+    To Port: 8080/TCP
+    From:
+      PodSelector: gateway.networking.k8s.io/gateway-name=shorty-gw
+  Allowing egress traffic:
+    To Port: 8080/TCP
+    To:
+      PodSelector: app.kubernetes.io/part-of=shorty
+    ----------
+    To Port: <any> (traffic allowed to all ports)
+    To:
+      NamespaceSelector: kubernetes.io/metadata.name=nginx-gateway
+  Policy Types: Ingress, Egress

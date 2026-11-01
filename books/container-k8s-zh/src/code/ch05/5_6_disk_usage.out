@@ -1,0 +1,48 @@
+$ docker info --format 'Storage Driver={{.Driver}} Docker Root Dir={{.DockerRootDir}}'
+Storage Driver=overlayfs Docker Root Dir=/var/lib/docker
+$ docker system df
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          11        2         4.033GB   2.163GB (53%)
+Containers      4         4         45.06kB   0B (0%)
+Local Volumes   2         2         65.27MB   0B (0%)
+Build Cache     119       0         5.535GB   4.172GB
+$ for pad in 2 4 6; do
+    docker build -q --build-arg PAD="$pad" -f disk.Dockerfile . > /dev/null
+done
+$ docker build -q -t ch05-disk:1 --build-arg PAD=8 -f disk.Dockerfile . > /dev/null
+$ docker run --name ch05-stopped-1 shorty:dev sh -c 'dd if=/dev/zero of=/filler bs=1M count=8' > /dev/null 2>&1
+$ docker run --name ch05-stopped-2 shorty:dev sh -c 'dd if=/dev/zero of=/filler bs=1M count=8' > /dev/null 2>&1
+$ docker system df
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          15        2         4.054GB   2.185GB (53%)
+Containers      6         4         16.83MB   16.79MB (99%)
+Local Volumes   2         2         65.27MB   0B (0%)
+Build Cache     125       0         5.556GB   4.172GB
+$ docker ps -a --filter name=ch05-stopped --format 'table {{.Names}}\t{{.Status}}'
+NAMES            STATUS
+ch05-stopped-2   Exited (0) Less than a second ago
+ch05-stopped-1   Exited (0) Less than a second ago
+$ docker image ls --filter dangling=true --format 'table {{.Repository}}\t{{.Tag}}\t{{.ID}}'
+REPOSITORY   TAG       IMAGE ID
+<none>       <none>    95c4f11d4da4
+<none>       <none>    feb784c581db
+<none>       <none>    9b6fd34add7f
+$ docker system prune -f | grep -E '^(Deleted|Total reclaimed)'
+Deleted Containers:
+Deleted Images:
+Deleted build cache objects:
+Total reclaimed space: 4.171GB
+$ docker volume ls --filter name=shorty --format 'table {{.Driver}}\t{{.Name}}'
+DRIVER    VOLUME NAME
+local     shorty-backup
+local     shorty-pgdata
+$ docker image ls ch05-disk
+IMAGE         ID             DISK USAGE   CONTENT SIZE   EXTRA
+ch05-disk:1   d5e44f6ddfa1       1.33GB          321MB
+$ docker rmi ch05-disk:1 > /dev/null
+$ docker system df
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          11        2         4.033GB   2.163GB (53%)
+Containers      4         4         45.06kB   0B (0%)
+Local Volumes   2         2         65.27MB   0B (0%)
+Build Cache     30        0         1.414GB   51.52MB

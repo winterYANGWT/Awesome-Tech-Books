@@ -1,0 +1,106 @@
+$ kubectl -n shorty scale deployment/api --replicas=0
+deployment.apps/api scaled
+$ kubectl -n shorty scale deployment/worker --replicas=0
+deployment.apps/worker scaled
+$ kubectl -n shorty rollout status deployment/api --timeout=120s
+deployment "api" successfully rolled out
+$ kubectl -n shorty rollout status deployment/worker --timeout=120s
+deployment "worker" successfully rolled out
+$ kubectl apply -f job-pg-seed.yaml
+job.batch/pg-seed created
+$ kubectl -n shorty wait --for=condition=complete job/pg-seed --timeout=120s
+job.batch/pg-seed condition met
+$ kubectl -n shorty logs job/pg-seed
+INSERT 0 3
+links rows: 3
+$ kubectl -n shorty delete job pg-seed --wait=true
+job.batch "pg-seed" deleted from shorty namespace
+$ kubectl apply -f pg-backup-pvc.yaml
+persistentvolumeclaim/postgres-backup created
+$ kubectl apply -f job-pg-dump.yaml
+job.batch/pg-dump created
+$ kubectl -n shorty wait --for=condition=complete job/pg-dump --timeout=180s
+job.batch/pg-dump condition met
+$ kubectl -n shorty logs job/pg-dump
+-rw-r--r--    1 root     root          2157 Oct 30 08:47 /backup/shorty.dump
+$ kubectl -n shorty delete job pg-dump --wait=true
+job.batch "pg-dump" deleted from shorty namespace
+$ kubectl -n shorty delete deployment postgres --wait=true
+deployment.apps "postgres" deleted from shorty namespace
+$ kubectl -n shorty wait --for=delete pod -l app.kubernetes.io/name=postgres --timeout=120s
+pod/postgres-8655689f55-kdvrq condition met
+$ kubectl -n shorty get pvc postgres-data
+NAME            STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+postgres-data   Bound    pvc-ed1f7b29-a148-4b8d-861e-f81a4e43a225   1Gi        RWO            standard       <unset>                 5m10s
+$ kubectl -n shorty delete service postgres --wait=true
+service "postgres" deleted from shorty namespace
+$ kubectl apply -f postgres-headless-service.yaml
+service/postgres created
+$ kubectl apply -f postgres-sts.yaml
+statefulset.apps/postgres created
+$ kubectl -n shorty rollout status statefulset/postgres --timeout=180s
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+$ kubectl -n shorty get statefulset postgres
+NAME       READY   AGE
+postgres   1/1     7s
+$ kubectl -n shorty get pod,pvc
+NAME                        READY   STATUS      RESTARTS   AGE
+pod/postgres-0              1/1     Running     0          7s
+pod/redis-688d4759d-s8l5g   1/1     Running     0          5m17s
+pod/shorty-migrate-8xmsm    0/1     Completed   0          5m17s
+
+NAME                                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/data-postgres-0   Bound    pvc-208b4a54-d82c-4fd9-8940-28fecd406ac9   1Gi        RWO            standard       <unset>                 7s
+persistentvolumeclaim/postgres-backup   Bound    pvc-cf6ac48f-cbd6-46f4-a1d3-8ff857e6f3fa   1Gi        RWO            standard       <unset>                 14s
+persistentvolumeclaim/postgres-data     Bound    pvc-ed1f7b29-a148-4b8d-861e-f81a4e43a225   1Gi        RWO            standard       <unset>                 5m17s
+$ kubectl apply -f job-pg-restore.yaml
+job.batch/pg-restore created
+$ kubectl -n shorty wait --for=condition=complete job/pg-restore --timeout=180s
+job.batch/pg-restore condition met
+$ kubectl -n shorty logs job/pg-restore
+links rows after restore: 3
+$ kubectl -n shorty delete job pg-restore --wait=true
+job.batch "pg-restore" deleted from shorty namespace
+$ kubectl -n shorty scale deployment/api --replicas=2
+deployment.apps/api scaled
+$ kubectl -n shorty scale deployment/worker --replicas=1
+deployment.apps/worker scaled
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "api" rollout to finish: 1 of 2 updated replicas are available...
+deployment "api" successfully rolled out
+$ kubectl -n shorty rollout status deployment/worker --timeout=180s
+deployment "worker" successfully rolled out
+$ kubectl apply -f job-readyz.yaml
+job.batch/readyz-check created
+$ kubectl -n shorty wait --for=condition=complete job/readyz-check --timeout=120s
+job.batch/readyz-check condition met
+$ kubectl -n shorty logs job/readyz-check
+ok
+$ kubectl -n shorty delete job readyz-check --wait=true
+job.batch "readyz-check" deleted from shorty namespace
+$ kubectl -n shorty get statefulset,pod,service,pvc
+NAME                        READY   AGE
+statefulset.apps/postgres   1/1     14s
+
+NAME                          READY   STATUS      RESTARTS   AGE
+pod/api-5bf7f6544f-6qldc      1/1     Running     0          4s
+pod/api-5bf7f6544f-hnsln      1/1     Running     0          4s
+pod/postgres-0                1/1     Running     0          14s
+pod/redis-688d4759d-s8l5g     1/1     Running     0          5m24s
+pod/shorty-migrate-8xmsm      0/1     Completed   0          5m24s
+pod/worker-858d564db5-vlpwt   1/1     Running     0          4s
+
+NAME               TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+service/api        ClusterIP   10.96.187.9    <none>        8080/TCP   5m24s
+service/postgres   ClusterIP   None           <none>        5432/TCP   14s
+service/redis      ClusterIP   10.96.52.139   <none>        6379/TCP   5m24s
+
+NAME                                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/data-postgres-0   Bound    pvc-208b4a54-d82c-4fd9-8940-28fecd406ac9   1Gi        RWO            standard       <unset>                 14s
+persistentvolumeclaim/postgres-backup   Bound    pvc-cf6ac48f-cbd6-46f4-a1d3-8ff857e6f3fa   1Gi        RWO            standard       <unset>                 21s
+persistentvolumeclaim/postgres-data     Bound    pvc-ed1f7b29-a148-4b8d-861e-f81a4e43a225   1Gi        RWO            standard       <unset>                 5m24s
+$ kubectl -n shorty get endpointslice -l kubernetes.io/service-name=postgres -o custom-columns=NAME:.metadata.name,ADDRESSES:.endpoints[*].addresses,PORTS:.ports[*].port
+NAME             ADDRESSES       PORTS
+postgres-m77db   [10.244.0.25]   5432

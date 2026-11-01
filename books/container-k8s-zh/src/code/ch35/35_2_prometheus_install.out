@@ -1,0 +1,75 @@
+$ kubectl get apiservice v1beta1.metrics.k8s.io
+NAME                     SERVICE                      AVAILABLE   AGE
+v1beta1.metrics.k8s.io   kube-system/metrics-server   True        3m44s
+$ for i in $(seq 1 60); do
+  kubectl top nodes >/dev/null 2>&1 && break
+  sleep 1
+done
+$ kubectl top pods -n shorty
+NAME                               CPU(cores)   MEMORY(bytes)
+api-547fc786f9-fz44m               1m           7Mi
+api-547fc786f9-mrrws               1m           7Mi
+postgres-0                         8m           38Mi
+redis-789b85c667-nhhp8             7m           8Mi
+shorty-gw-nginx-7dcb9c98d5-5wx42   11m          66Mi
+worker-7f977dd6bf-t9rsf            5m           40Mi
+$ helm upgrade --install kps prometheus-community/kube-prometheus-stack \
+  --version 92.14.1 -n monitoring --create-namespace \
+  -f prometheus-values.yaml --wait --timeout 600s
+Release "kps" does not exist. Installing it now.
+NAME: kps
+LAST DEPLOYED: Wed Oct 28 10:23:58 2026
+NAMESPACE: monitoring
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+...（省略 19 行）
+$ until kubectl -n monitoring get statefulset prometheus-kps-kube-prometheus-stack-prometheus >/dev/null 2>&1; do
+  sleep 1
+done
+$ kubectl -n monitoring rollout status \
+  statefulset/prometheus-kps-kube-prometheus-stack-prometheus --timeout=180s
+Waiting for 1 pods to be ready...
+statefulset rolling update complete 1 pods at revision prometheus-kps-kube-prometheus-stack-prometheus-778d9d7974...
+$ kubectl get crd | grep monitoring.coreos.com
+alertmanagerconfigs.monitoring.coreos.com      Namespaced   v1alpha1(storage)     2026-10-28T10:23:57Z
+alertmanagers.monitoring.coreos.com            Namespaced   v1(storage)           2026-10-28T10:23:57Z
+podmonitors.monitoring.coreos.com              Namespaced   v1(storage)           2026-10-28T10:23:57Z
+probes.monitoring.coreos.com                   Namespaced   v1(storage)           2026-10-28T10:23:57Z
+prometheusagents.monitoring.coreos.com         Namespaced   v1alpha1(storage)     2026-10-28T10:23:57Z
+prometheuses.monitoring.coreos.com             Namespaced   v1(storage)           2026-10-28T10:23:57Z
+prometheusrules.monitoring.coreos.com          Namespaced   v1(storage)           2026-10-28T10:23:57Z
+scrapeconfigs.monitoring.coreos.com            Namespaced   v1alpha1(storage)     2026-10-28T10:23:57Z
+servicemonitors.monitoring.coreos.com          Namespaced   v1(storage)           2026-10-28T10:23:57Z
+thanosrulers.monitoring.coreos.com             Namespaced   v1(storage)           2026-10-28T10:23:57Z
+$ kubectl -n monitoring get prometheus
+NAME                                   VERSION              DESIRED   READY   RECONCILED   AVAILABLE   AGE
+kps-kube-prometheus-stack-prometheus   v3.15.1-distroless   1         1       True         True        17s
+$ kubectl -n monitoring get prometheus kps-kube-prometheus-stack-prometheus \
+  -o jsonpath='{.spec.replicas} replica, retention {.spec.retention}{"\n"}'
+1 replica, retention 10d
+$ kubectl -n monitoring get deploy,statefulset,daemonset
+NAME                                                 READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/kps-kube-prometheus-stack-operator   1/1     1            1           17s
+deployment.apps/kps-kube-state-metrics               1/1     1            1           17s
+
+NAME                                                               READY   AGE
+statefulset.apps/prometheus-kps-kube-prometheus-stack-prometheus   1/1     16s
+$ kubectl -n monitoring get pods
+NAME                                                READY   STATUS    RESTARTS   AGE
+kps-kube-prometheus-stack-operator-6d9b6ff4-m5sj8   1/1     Running   0          17s
+kps-kube-state-metrics-5f69fb89b6-zpdz5             1/1     Running   0          17s
+prometheus-kps-kube-prometheus-stack-prometheus-0   2/2     Running   0          16s
+$ kubectl -n monitoring get prometheus kps-kube-prometheus-stack-prometheus \
+  -o jsonpath='{.spec.serviceMonitorSelector}{"\n"}{.spec.serviceMonitorNamespaceSelector}{"\n"}'
+{"matchLabels":{"release":"kps"}}
+{}
+$ kubectl -n monitoring get servicemonitor
+NAME                                   AGE
+kps-kube-prometheus-stack-apiserver    17s
+kps-kube-prometheus-stack-coredns      17s
+kps-kube-prometheus-stack-kubelet      17s
+kps-kube-prometheus-stack-operator     17s
+kps-kube-prometheus-stack-prometheus   17s
+kps-kube-state-metrics                 17s

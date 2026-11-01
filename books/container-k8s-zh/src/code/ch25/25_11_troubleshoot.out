@@ -1,0 +1,42 @@
+$ kubectl -n shorty get gateway,httproute
+NAME                                          CLASS   ADDRESS   PROGRAMMED   AGE
+gateway.gateway.networking.k8s.io/shorty-gw   nginx             True         3m55s
+
+NAME                                         HOSTNAMES          AGE
+httproute.gateway.networking.k8s.io/shorty   ["shorty.local"]   3m29s
+$ kubectl -n shorty get gateway shorty-gw \
+  -o jsonpath='{range .status.listeners[*]}{.name}{" programmed="}{.conditions[?(@.type=="Programmed")].status}{" resolved="}{.conditions[?(@.type=="ResolvedRefs")].status}{"\n"}{end}'
+http programmed=True resolved=True
+https programmed=True resolved=True
+$ kubectl -n shorty get svc api -o jsonpath='{.spec.ports[*].port}{"\n"}'
+8080
+$ kubectl apply -f httproute-bad-port.yaml
+httproute.gateway.networking.k8s.io/shorty-bad-port created
+$ kubectl -n shorty wait \
+  --for=jsonpath='{.status.parents[0].conditions[?(@.type=="ResolvedRefs")].status}'=False \
+  httproute/shorty-bad-port --timeout=60s
+httproute.gateway.networking.k8s.io/shorty-bad-port condition met
+$ kubectl -n shorty get httproute shorty-bad-port \
+  -o jsonpath='{range .status.parents[*]}{.parentRef.name}{" accepted="}{.conditions[?(@.type=="Accepted")].status}{" resolved="}{.conditions[?(@.type=="ResolvedRefs")].status}{" reason="}{.conditions[?(@.type=="ResolvedRefs")].reason}{"\n"}{end}'
+shorty-gw accepted=True resolved=False reason=BackendNotFound
+$ kubectl -n shorty delete httproute shorty-bad-port
+httproute.gateway.networking.k8s.io "shorty-bad-port" deleted from shorty namespace
+$ kubectl -n shorty port-forward svc/shorty-gw-nginx 18080:80 >/tmp/ch25-pf-trouble.log 2>&1 & PF=$!
+$ for i in $(seq 1 50); do
+  curl -fsS -H 'Host: shorty.local' http://127.0.0.1:18080/healthz >/dev/null 2>&1 && break
+  sleep 0.2
+done
+$ curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: other.local' http://127.0.0.1:18080/healthz
+404
+$ curl -sS -o /dev/null -w '%{http_code}\n' -H 'Host: shorty.local' http://127.0.0.1:18080/healthz
+200
+$ kubectl -n nginx-gateway logs deploy/ngf-nginx-gateway-fabric --tail=20 \
+  | grep -o '"msg":"[^"]*"' | tail -6 || true
+"msg":"Sent nginx configuration to agent"
+"msg":"NGINX configuration was successfully updated"
+"msg":"Sent nginx configuration to agent"
+"msg":"NGINX configuration was successfully updated"
+"msg":"Sent nginx configuration to agent"
+"msg":"NGINX configuration was successfully updated"
+$ kill "$PF"
+$ wait "$PF" 2>/dev/null || true

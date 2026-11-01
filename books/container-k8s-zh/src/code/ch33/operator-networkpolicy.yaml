@@ -1,0 +1,15 @@
+# s4 的 default-deny 会挡住 operator 到 apiserver 的 HTTPS。
+# 示例放行全部出站；生产应把 to 收窄到 apiserver 的地址和端口。
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-shorty-operator
+  namespace: shorty
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: shorty-operator
+  policyTypes:
+    - Egress
+  egress:
+    - {}

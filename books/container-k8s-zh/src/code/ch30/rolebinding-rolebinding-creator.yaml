@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: shorty-rolebinding-creator
+  namespace: shorty
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: shorty-rolebinding-creator
+subjects:
+  - kind: ServiceAccount
+    name: shorty-deployer
+    namespace: shorty

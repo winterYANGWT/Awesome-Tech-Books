@@ -1,0 +1,23 @@
+$ bash ci promote-1 > /tmp/ch15-promote.log 2>&1
+$ grep '^smoke' /tmp/ch15-promote.log
+smoke: shorty promote-1
+$ tail -n 2 /tmp/ch15-promote.log
+#18 writing cache image manifest sha256:3a22dcf208d86ab66dbcc47ce84457c221b4a3c9936b6ee9dc692a39a74f7515 done
+#18 DONE 0.6s
+$ dev=$(docker buildx imagetools inspect localhost:5000/shorty:ci-promote-1 \
+  --format '{{.Manifest.Digest}}')
+$ docker buildx imagetools create -t localhost:5000/shorty:prod \
+  "localhost:5000/shorty:ci-promote-1@$dev"
+#1 [internal] pushing localhost:5000/shorty
+#1 0.000 copying sha256:2eb82aa6496d8fba803e95703e7640b0619ec7b3ae92d1785ef5bea9411270c3 from localhost:5000/shorty:ci-promote-1@sha256:c783ac4ebbbb0e36969db284e55c458631efa2a60c2f64416d6a23959d936188 to localhost:5000/shorty
+#1 0.000 copying sha256:6901fb34729e184b9a4c75e0d7e5745e8220d1909f41b4583a593394f987a6e9 from localhost:5000/shorty:ci-promote-1@sha256:c783ac4ebbbb0e36969db284e55c458631efa2a60c2f64416d6a23959d936188 to localhost:5000/shorty
+#1 0.011 pushing sha256:c783ac4ebbbb0e36969db284e55c458631efa2a60c2f64416d6a23959d936188 to localhost:5000/shorty:prod
+#1 DONE 0.0s
+$ prod=$(docker buildx imagetools inspect localhost:5000/shorty:prod \
+  --format '{{.Manifest.Digest}}')
+$ printf 'dev  %s\n' "$dev"
+dev  sha256:c783ac4ebbbb0e36969db284e55c458631efa2a60c2f64416d6a23959d936188
+$ printf 'prod %s\n' "$prod"
+prod sha256:c783ac4ebbbb0e36969db284e55c458631efa2a60c2f64416d6a23959d936188
+$ [ "$dev" = "$prod" ] && echo 'same digest'
+same digest

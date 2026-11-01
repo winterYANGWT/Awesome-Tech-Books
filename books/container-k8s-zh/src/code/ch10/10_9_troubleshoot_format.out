@@ -1,0 +1,8 @@
+$ uname -m
+x86_64
+$ echo "registered binfmt handlers: $(ls /proc/sys/fs/binfmt_misc 2>/dev/null | wc -l)"
+registered binfmt handlers: 0
+$ docker run --rm --platform linux/arm64 localhost:5000/shorty:0.1 version
+exec /shorty: exec format error
+$ docker run --rm --platform linux/amd64 localhost:5000/shorty:0.1 version
+shorty 0.1

@@ -1,0 +1,38 @@
+# 迁移跑完就退出的正常 Job。ttlSecondsAfterFinished: 30 让它在完成后
+# 半分钟被 TTL 控制器级联删除。
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: shorty-migrate-ttl
+  namespace: shorty
+  labels:
+    app.kubernetes.io/name: shorty-migrate-ttl
+    app.kubernetes.io/part-of: shorty
+spec:
+  ttlSecondsAfterFinished: 30
+  backoffLimit: 2
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: shorty-migrate-ttl
+        app.kubernetes.io/part-of: shorty
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: shorty:0.1
+          imagePullPolicy: IfNotPresent
+          args: ["migrate"]
+          envFrom:
+            - configMapRef:
+                name: shorty-config
+          volumeMounts:
+            - name: db-secret
+              mountPath: /etc/shorty
+              readOnly: true
+      volumes:
+        - name: db-secret
+          secret:
+            secretName: shorty-db
+            defaultMode: 0444

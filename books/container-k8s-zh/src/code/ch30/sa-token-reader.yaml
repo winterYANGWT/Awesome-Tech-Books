@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sa-token-reader
+  namespace: shorty
+spec:
+  serviceAccountName: shorty-api
+  restartPolicy: Never
+  containers:
+    - name: reader
+      image: busybox:1.37
+      imagePullPolicy: IfNotPresent
+      command:
+        - sh
+        - -c
+        - |
+          set -e
+          SA=/var/run/secrets/kubernetes.io/serviceaccount
+          ls -l "$SA"
+          echo "namespace file: $(cat "$SA/namespace")"
+          TOKEN=$(cat "$SA/token")
+          P=$(echo "$TOKEN" | cut -d. -f2)
+          case $((${#P} % 4)) in
+            2) P="$P==" ;;
+            3) P="$P=" ;;
+          esac
+          echo "$P" | tr '_-' '/+' | base64 -d | tr ',' '\n'
+          echo

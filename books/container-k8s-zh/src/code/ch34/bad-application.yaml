@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shorty-bad
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: http://gitea.git.svc.cluster.local:3000/git/shorty-deploy.git
+    targetRevision: main
+    path: overlays/missing
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shorty
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false

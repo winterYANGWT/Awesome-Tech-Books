@@ -1,0 +1,20 @@
+$ docker run --rm --mount type=bind,src="$PWD/no-such-config",dst=/etc/shorty shorty:dev true
+docker: Error response from daemon: invalid mount config for type "bind": bind source path does not exist: /book/src/code/ch05/no-such-config
+
+Run 'docker run --help' for more information
+$ rm -rf /tmp/ch05-autocreate
+$ docker run --rm -v /tmp/ch05-autocreate:/data shorty:dev sh -c 'ls -ld /data'
+drwxr-xr-x 2 root root 40 Oct 27 16:49 /data
+$ ls -ldn /tmp/ch05-autocreate
+drwxr-xr-x 2 0 0 40 Oct 27 16:49 /tmp/ch05-autocreate
+$ rmdir /tmp/ch05-autocreate
+$ docker run -d --name ch05-ro -v "$PWD/config:/etc/shorty:ro" shorty:dev sleep 300 > /dev/null
+$ docker exec ch05-ro cat /etc/shorty/app.env
+# 5.3 只读挂载示例用的配置文件，不是生产配置。
+SHORTY_LISTEN=:8080
+SHORTY_LOG_LEVEL=info
+SHORTY_SHUTDOWN_DELAY=5
+$ docker inspect ch05-ro --format '{{json .Mounts}}'
+[{"Type":"bind","Source":"/book/src/code/ch05/config","Destination":"/etc/shorty","Mode":"ro","RW":false,"Propagation":"rprivate"}]
+$ docker exec ch05-ro sh -c 'echo "change" >> /etc/shorty/app.env'
+sh: 1: cannot create /etc/shorty/app.env: Read-only file system

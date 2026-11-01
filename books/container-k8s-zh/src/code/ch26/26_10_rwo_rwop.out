@@ -1,0 +1,29 @@
+$ kubectl apply -f access-a.yaml
+namespace/access-demo created
+persistentvolumeclaim/rwo-pvc created
+persistentvolumeclaim/rwop-pvc created
+pod/rwo-a created
+pod/rwop-a created
+$ kubectl -n access-demo wait --for=condition=Ready pod/rwo-a pod/rwop-a --timeout=120s
+pod/rwo-a condition met
+pod/rwop-a condition met
+$ kubectl -n access-demo get pods -o wide
+NAME     READY   STATUS    RESTARTS   AGE   IP            NODE                   NOMINATED NODE   READINESS GATES
+rwo-a    1/1     Running   0          5s    10.244.0.26   shorty-control-plane   <none>           <none>
+rwop-a   1/1     Running   0          5s    10.244.0.27   shorty-control-plane   <none>           <none>
+$ kubectl apply -f access-b.yaml
+pod/rwo-b created
+pod/rwop-b created
+$ kubectl -n access-demo wait --for=condition=Ready pod/rwo-b --timeout=120s
+pod/rwo-b condition met
+$ kubectl -n access-demo get pods -o wide
+NAME     READY   STATUS    RESTARTS   AGE   IP            NODE                   NOMINATED NODE   READINESS GATES
+rwo-a    1/1     Running   0          5s    10.244.0.26   shorty-control-plane   <none>           <none>
+rwo-b    1/1     Running   0          0s    10.244.0.28   shorty-control-plane   <none>           <none>
+rwop-a   1/1     Running   0          5s    10.244.0.27   shorty-control-plane   <none>           <none>
+rwop-b   0/1     Pending   0          0s    <none>        <none>                 <none>           <none>
+$ kubectl -n access-demo describe pod rwop-b | sed -n '/^Events:/,$p'
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  0s    default-scheduler  0/1 nodes are available: 1 node(s) unavailable due to PersistentVolumeClaim with ReadWriteOncePod access mode already in-use by another pod. preemption: 0/1 nodes are available: 1 No preemption victims found for incoming pod.

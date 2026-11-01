@@ -1,0 +1,16 @@
+$ docker pause shorty-control-plane
+shorty-control-plane
+$ timeout 20 kubectl --request-timeout=5s get pods -n shorty
+Unable to connect to the server: context deadline exceeded
+$ docker unpause shorty-control-plane
+shorty-control-plane
+$ kubectl wait --for=condition=Ready pod -n shorty \
+  -l app.kubernetes.io/name=api --timeout=120s
+pod/api-6859cf8794-582hg condition met
+$ kubectl get pods -n shorty
+NAME                   READY   STATUS    RESTARTS   AGE
+api-6859cf8794-582hg   1/1     Running   0          3m25s
+$ [ "$POD_UID" = "$(kubectl get pod -n shorty -l app.kubernetes.io/name=api \
+  -o jsonpath='{.items[0].metadata.uid}')" ] \
+  && echo "pause 前后 Pod UID 相同：容器没有被重建"
+pause 前后 Pod UID 相同：容器没有被重建

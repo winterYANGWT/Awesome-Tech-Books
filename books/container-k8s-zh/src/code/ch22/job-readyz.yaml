@@ -1,0 +1,19 @@
+# 从集群内部访问 api 的 /readyz，确认切库后应用真的能用。
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: readyz-check
+  namespace: shorty
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: readyz-check
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: wget
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "wget -qO- http://api:8080/readyz"]

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdb-demo
+  namespace: shorty
+  labels:
+    app: pdb-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pdb-demo
+  template:
+    metadata:
+      labels:
+        app: pdb-demo
+    spec:
+      terminationGracePeriodSeconds: 0
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: sleep
+          image: alpine:3.22
+          imagePullPolicy: IfNotPresent
+          command: ["sleep", "3600"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pdb-demo
+  namespace: shorty
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: pdb-demo

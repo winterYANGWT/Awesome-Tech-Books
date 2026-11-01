@@ -1,0 +1,96 @@
+$ rm -rf /tmp/shorty-cache
+$ cp -a ../app/api /tmp/shorty-cache
+$ docker build --progress=plain --provenance=false --no-cache -f first.Dockerfile -t shorty:cache-1 /tmp/shorty-cache
+...（省略 76 行）
+#10 [4/6] RUN go mod download
+#10 DONE 3.0s
+
+#11 [5/6] COPY . .
+#11 DONE 0.0s
+
+#12 [6/6] RUN CGO_ENABLED=0 go build -trimpath -o /shorty .
+#12 DONE 7.4s
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 3.4s done
+#13 exporting manifest sha256:91f1290c6f45213d15a35d70a28f7a8e8119eac2007b19ff0ac876a3ba4aee33 done
+#13 exporting config sha256:91835ee3436fdc05aa0a1e14ce807b3d430cc4da9fae052c560a47564c74e35b done
+#13 naming to docker.io/library/shorty:cache-1 done
+#13 unpacking to docker.io/library/shorty:cache-1
+#13 unpacking to docker.io/library/shorty:cache-1 0.6s done
+#13 DONE 4.0s
+$ docker build --progress=plain --provenance=false -f first.Dockerfile -t shorty:cache-2 /tmp/shorty-cache
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from first.Dockerfile
+#1 transferring dockerfile: 255B done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 0.3s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+#3 resolve docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e 0.0s done
+#3 CACHED
+
+#4 [internal] load metadata for docker.io/library/golang:1.27.3-trixie
+#4 DONE 0.3s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 80B done
+#5 DONE 0.0s
+
+#6 [1/6] FROM docker.io/library/golang:1.27.3-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385
+#6 resolve docker.io/library/golang:1.27.3-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 254B done
+#7 DONE 0.0s
+
+#8 [5/6] COPY . .
+#8 CACHED
+
+#9 [2/6] WORKDIR /src
+#9 CACHED
+
+#10 [3/6] COPY go.mod go.sum ./
+#10 CACHED
+
+#11 [4/6] RUN go mod download
+#11 CACHED
+
+#12 [6/6] RUN CGO_ENABLED=0 go build -trimpath -o /shorty .
+#12 CACHED
+
+#13 exporting to image
+#13 exporting layers done
+#13 exporting manifest sha256:91f1290c6f45213d15a35d70a28f7a8e8119eac2007b19ff0ac876a3ba4aee33 done
+#13 exporting config sha256:91835ee3436fdc05aa0a1e14ce807b3d430cc4da9fae052c560a47564c74e35b done
+#13 naming to docker.io/library/shorty:cache-2 done
+#13 unpacking to docker.io/library/shorty:cache-2 0.0s done
+#13 DONE 0.0s
+$ printf '\n// 只改这一行注释\n' >> /tmp/shorty-cache/http.go
+$ printf 'cache experiment\n' > /tmp/shorty-cache/cache-note.txt
+$ touch -m -d '2030-01-01 00:00:00' /tmp/shorty-cache/cache-note.txt
+$ docker build --progress=plain --provenance=false -f first.Dockerfile -t shorty:cache-3 /tmp/shorty-cache
+...（省略 37 行）
+#10 [4/6] RUN go mod download
+#10 CACHED
+
+#11 [5/6] COPY . .
+#11 DONE 0.0s
+
+#12 [6/6] RUN CGO_ENABLED=0 go build -trimpath -o /shorty .
+#12 DONE 7.3s
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 3.3s done
+#13 exporting manifest sha256:c4f3824292b04986d8314aafe5ee3030ed5fa671af1dfb85848aa3cb13b60f4c 0.0s done
+#13 exporting config sha256:140c29e17fc83559c07bde2526b60473b48248fcfce26fce1772fb3e66a7ba92 0.0s done
+#13 naming to docker.io/library/shorty:cache-3 done
+#13 unpacking to docker.io/library/shorty:cache-3
+#13 unpacking to docker.io/library/shorty:cache-3 0.4s done
+#13 DONE 3.7s

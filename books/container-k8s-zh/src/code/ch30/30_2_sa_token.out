@@ -1,0 +1,51 @@
+$ kubectl -n shorty get serviceaccounts
+NAME      AGE
+default   81s
+$ kubectl -n shorty create serviceaccount shorty-api
+serviceaccount/shorty-api created
+$ kubectl -n shorty get secrets
+NAME        TYPE     DATA   AGE
+shorty-db   Opaque   1      81s
+$ kubectl -n shorty get secrets -o name | grep -c 'default-token'
+0
+$ kubectl apply -f sa-token-reader.yaml
+pod/sa-token-reader created
+$ kubectl -n shorty wait --for=jsonpath='{.status.phase}'=Succeeded pod/sa-token-reader --timeout=120s
+pod/sa-token-reader condition met
+$ kubectl -n shorty logs sa-token-reader
+total 0
+lrwxrwxrwx    1 root     root            13 Oct 28 04:15 ca.crt -> ..data/ca.crt
+lrwxrwxrwx    1 root     root            16 Oct 28 04:15 namespace -> ..data/namespace
+lrwxrwxrwx    1 root     root            12 Oct 28 04:15 token -> ..data/token
+namespace file: shorty
+{"aud":["https://kubernetes.default.svc.cluster.local"]
+"exp":1824696938
+"iat":1793160938
+"iss":"https://kubernetes.default.svc.cluster.local"
+"jti":"9b7faaea-ec10-474a-8e0b-af0431d564f7"
+"kubernetes.io":{"namespace":"shorty"
+"node":{"name":"shorty-control-plane"
+"uid":"3d0423b6-cc1a-4fe9-9ca0-d6e6e7d7fa04"}
+"pod":{"name":"sa-token-reader"
+"uid":"cdafbc87-8582-425e-a287-2577d039507f"}
+"serviceaccount":{"name":"shorty-api"
+"uid":"cb0e9fa1-bf19-4e14-85ee-61ea598e1bdd"}
+"warnafter":1793164545}
+"nbf":1793160938
+"sub":"system:serviceaccount:shorty:shorty-api"}
+$ kubectl apply -f sa-no-token.yaml
+pod/sa-no-token created
+$ kubectl -n shorty wait --for=jsonpath='{.status.phase}'=Succeeded pod/sa-no-token --timeout=120s
+pod/sa-no-token condition met
+$ kubectl -n shorty logs sa-no-token
+no token mounted
+$ TOKEN=$(kubectl -n shorty create token shorty-api --duration=10m)
+$ kubectl create -f - -o jsonpath='{.status.authenticated}{"\n"}{.status.user.username}{"\n"}{.status.user.groups}{"\n"}' <<EOF
+apiVersion: authentication.k8s.io/v1
+kind: TokenReview
+spec:
+  token: $TOKEN
+EOF
+true
+system:serviceaccount:shorty:shorty-api
+["system:serviceaccounts","system:serviceaccounts:shorty","system:authenticated"]

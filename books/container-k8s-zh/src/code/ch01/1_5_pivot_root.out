@@ -1,0 +1,32 @@
+$ unshare --mount --propagation private /bin/bash -s <<'EOS'
+set -e
+d=/tmp/ch01-pivot
+rm -rf "$d"
+mkdir -p "$d/newroot/bin" "$d/newroot/lib" "$d/newroot/oldroot"
+cp /bin/busybox "$d/newroot/bin/"
+cp /lib/ld-musl-x86_64.so.1 "$d/newroot/lib/"
+mount --bind "$d/newroot" "$d/newroot"
+cd "$d/newroot"
+busybox pivot_root . oldroot
+exec /bin/busybox sh -c '
+    echo "new root:"
+    /bin/busybox ls /
+    echo "old root 挂在 /oldroot:"
+    /bin/busybox ls /oldroot | /bin/busybox head -5
+    echo "从 / 已经看不到宿主原来的目录:"
+    /bin/busybox test -d /book && echo "still there" || echo "not visible"
+'
+EOS
+new root:
+bin
+lib
+oldroot
+old root 挂在 /oldroot:
+bin
+book
+certs
+dev
+etc
+从 / 已经看不到宿主原来的目录:
+not visible
+$ rm -rf /tmp/ch01-pivot

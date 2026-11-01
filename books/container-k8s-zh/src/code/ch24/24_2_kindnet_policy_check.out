@@ -1,0 +1,43 @@
+$ kubectl -n kube-system get daemonset kindnet
+NAME      DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+kindnet   2         2         2       2            2           kubernetes.io/os=linux   2m7s
+$ kubectl -n kube-system get pods -l app=kindnet -o wide
+NAME            READY   STATUS    RESTARTS   AGE    IP           NODE                   NOMINATED NODE   READINESS GATES
+kindnet-74rwd   1/1     Running   0          116s   172.19.0.3   shorty-worker          <none>           <none>
+kindnet-ssrs8   1/1     Running   0          2m1s   172.19.0.2   shorty-control-plane   <none>           <none>
+$ kubectl apply -f kindnet-deny-ingress.yaml
+networkpolicy.networking.k8s.io/deny-ingress created
+$ kubectl -n net-demo get networkpolicy
+NAME           POD-SELECTOR   AGE
+deny-ingress   <none>         0s
+$ server_ip=$(kubectl -n net-demo get pod net-server -o jsonpath='{.status.podIP}')
+$ denied=0
+$ for i in $(seq 1 20); do
+  if timeout 5 kubectl -n net-demo exec net-client -- wget -T 2 -qO- "http://$server_ip/" >/dev/null 2>&1; then
+    sleep 1
+  else
+    echo "denied: kindnet 执行了 NetworkPolicy，wget 超时"
+    denied=1
+    break
+  fi
+done
+denied: kindnet 执行了 NetworkPolicy，wget 超时
+$ if [ "$denied" -eq 0 ]; then
+  echo "still allowed: NetworkPolicy 被忽略"
+fi
+$ [ "$denied" -eq 1 ]
+$ kubectl -n net-demo delete networkpolicy deny-ingress
+networkpolicy.networking.k8s.io "deny-ingress" deleted from net-demo namespace
+$ restored=0
+$ for i in $(seq 1 20); do
+  if timeout 5 kubectl -n net-demo exec net-client -- wget -T 2 -qO- "http://$server_ip/" >/dev/null 2>&1; then
+    echo "restored: 删除策略后 wget 恢复"
+    restored=1
+    break
+  fi
+  sleep 1
+done
+restored: 删除策略后 wget 恢复
+$ [ "$restored" -eq 1 ]
+$ kubectl delete namespace net-demo --wait=true
+namespace "net-demo" deleted

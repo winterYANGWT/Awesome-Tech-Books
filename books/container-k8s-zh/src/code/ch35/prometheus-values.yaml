@@ -1,0 +1,39 @@
+# 只保留本章要讲的部分：一个 Prometheus、kube-state-metrics 和 operator。
+# 关掉 Alertmanager、Grafana、node-exporter 和控制面各组件的 ServiceMonitor，
+# 省内存，也让 target 列表只留下本章要看的对象。
+alertmanager:
+  enabled: false
+grafana:
+  enabled: false
+nodeExporter:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+
+prometheus:
+  prometheusSpec:
+    # 单副本：没有 HA，Pod 重建期间抓不到指标。
+    replicas: 1
+    # 默认 30s；lab 调短，告警示例不用等太久。
+    scrapeInterval: 15s
+    evaluationInterval: 15s
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi

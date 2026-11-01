@@ -1,0 +1,15 @@
+# 备份卷：与数据库数据卷分开，删掉 StatefulSet 不会影响它。
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-backup
+  namespace: shorty
+  labels:
+    app.kubernetes.io/name: postgres-backup
+    app.kubernetes.io/part-of: shorty
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,33 @@
+$ kubectl apply -f immutable-config.yaml
+configmap/shorty-release created
+deployment.apps/release-demo created
+$ kubectl -n shorty rollout status deployment/release-demo --timeout=180s
+Waiting for deployment "release-demo" rollout to finish: 0 of 1 updated replicas are available...
+deployment "release-demo" successfully rolled out
+$ kubectl -n shorty get configmap shorty-release -o jsonpath='{.immutable}{"\n"}{.data.RELEASE}{"\n"}'
+true
+blue
+$ kubectl -n shorty exec deployment/release-demo -- printenv RELEASE
+blue
+$ kubectl -n shorty patch configmap shorty-release --type=merge -p '{"data":{"RELEASE":"green"}}'
+The ConfigMap "shorty-release" is invalid: data: Forbidden: field is immutable when `immutable` is set
+$ kubectl -n shorty delete configmap shorty-release --wait=true
+configmap "shorty-release" deleted from shorty namespace
+$ kubectl apply -f immutable-config-v2.yaml
+configmap/shorty-release-v2 created
+$ kubectl -n shorty patch deployment release-demo --type=json -p '[
+  {"op":"add","path":"/spec/template/metadata/labels/release","value":"green"},
+  {"op":"add","path":"/spec/template/metadata/annotations/checksum~1config","value":"green"},
+  {"op":"replace","path":"/spec/template/spec/containers/0/envFrom","value":[{"configMapRef":{"name":"shorty-release-v2"}}]}
+]' 
+deployment.apps/release-demo patched
+$ kubectl -n shorty rollout status deployment/release-demo --timeout=180s
+Waiting for deployment "release-demo" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "release-demo" rollout to finish: 1 old replicas are pending termination...
+deployment "release-demo" successfully rolled out
+$ POD=$(kubectl -n shorty get pods -l release=green -o jsonpath='{.items[0].metadata.name}')
+$ kubectl -n shorty exec "$POD" -- printenv RELEASE
+green
+$ kubectl -n shorty get pods -l release=green -o custom-columns=NAME:.metadata.name,PHASE:.status.phase,READY:.status.containerStatuses[0].ready
+NAME                            PHASE     READY
+release-demo-7c7f69cd5b-vh6bc   Running   true

@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: loadgen
+  namespace: shorty
+  labels:
+    app.kubernetes.io/name: loadgen
+    app.kubernetes.io/part-of: shorty
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: loadgen
+        app.kubernetes.io/part-of: shorty
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: loadgen
+          image: shorty-loadgen:0.1
+          imagePullPolicy: IfNotPresent
+          args:
+            - -url
+            - http://api:8080/
+            - -rate
+            - "800"
+            - -concurrency
+            - "32"
+            - -duration
+            - 10m
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 200m
+              memory: 64Mi

@@ -1,0 +1,24 @@
+# 这个 Pod 满足 PSA restricted，但没有 team 标签，用来触发 VAP。
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vap-no-label
+  namespace: shorty
+  labels:
+    app: vap-no-label
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: demo
+      image: busybox:1.37
+      imagePullPolicy: IfNotPresent
+      command: ["sleep", "3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL

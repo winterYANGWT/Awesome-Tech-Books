@@ -1,0 +1,89 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: shortybackups.shorty.example.com
+spec:
+  group: shorty.example.com
+  scope: Namespaced
+  names:
+    plural: shortybackups
+    singular: shortybackup
+    kind: ShortyBackup
+    shortNames:
+      - sb
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Database
+          type: string
+          description: 要备份的数据库
+          jsonPath: .spec.database
+        - name: Phase
+          type: string
+          description: 备份的当前阶段
+          jsonPath: .status.phase
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - database
+              properties:
+                database:
+                  type: string
+                  description: 备份哪个数据库；目前只支持 postgres。
+                  enum:
+                    - postgres
+                  default: postgres
+                retentionDays:
+                  type: integer
+                  description: 备份保留天数。
+                  minimum: 1
+                  maximum: 30
+                  default: 7
+            status:
+              type: object
+              properties:
+                phase:
+                  type: string
+                  description: Pending、Running、Completed 或 Failed。
+                observedGeneration:
+                  type: integer
+                  description: 控制器最后处理的 spec generation。
+                jobName:
+                  type: string
+                  description: 本次备份创建的 Job。
+                lastBackupTime:
+                  type: string
+                  description: 最近一次备份完成的时间。
+                conditions:
+                  type: array
+                  description: 控制器写入的条件。
+                  items:
+                    type: object
+                    required:
+                      - type
+                      - status
+                      - reason
+                      - message
+                      - lastTransitionTime
+                    properties:
+                      type:
+                        type: string
+                      status:
+                        type: string
+                      reason:
+                        type: string
+                      message:
+                        type: string
+                      lastTransitionTime:
+                        type: string

@@ -1,0 +1,9 @@
+shorty 已经安装到命名空间 {{ .Release.Namespace }}。
+
+查看 release：
+  helm history shorty -n {{ .Release.Namespace }}
+  kubectl -n {{ .Release.Namespace }} get deploy,svc,pod
+
+访问：
+  kubectl -n {{ .Release.Namespace }} port-forward svc/shorty 8080:8080
+  curl localhost:8080/readyz

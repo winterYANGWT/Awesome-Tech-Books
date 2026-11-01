@@ -1,0 +1,28 @@
+$ source ../lib/common.sh
+$ cluster_up kind-1n.yaml
+==> 创建集群 shorty（kind-1n.yaml）
+$ kubectl create namespace ch08-restricted
+namespace/ch08-restricted created
+$ kubectl label namespace ch08-restricted \
+    pod-security.kubernetes.io/enforce=restricted \
+    pod-security.kubernetes.io/warn=restricted \
+    pod-security.kubernetes.io/audit=restricted
+namespace/ch08-restricted labeled
+$ kubectl get namespace ch08-restricted --show-labels
+NAME              STATUS   AGE   LABELS
+ch08-restricted   Active   0s    kubernetes.io/metadata.name=ch08-restricted,pod-security.kubernetes.io/audit=restricted,pod-security.kubernetes.io/enforce=restricted,pod-security.kubernetes.io/warn=restricted
+$ kubectl apply -f restricted-violation.yaml
+Warning: would violate PodSecurity "restricted:latest": privileged (container "app" must not set securityContext.privileged=true), allowPrivilegeEscalation != false (container "app" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "app" must set securityContext.capabilities.drop=["ALL"]; container "app" must not include "SYS_ADMIN" in securityContext.capabilities.add), runAsNonRoot != true (container "app" must not set securityContext.runAsNonRoot=false), runAsUser=0 (container "app" must not set runAsUser=0), seccompProfile (container "app" must not set securityContext.seccompProfile.type to "Unconfined")
+deployment.apps/ch08-root-privileged created
+$ for _ in $(seq 1 60); do
+    msg=$(kubectl -n ch08-restricted get rs \
+        -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="ReplicaFailure")].message}{"\n"}{end}')
+    [ -n "$msg" ] && break
+    sleep 1
+done
+$ kubectl -n ch08-restricted get rs
+NAME                             DESIRED   CURRENT   READY   AGE
+ch08-root-privileged-c4d884bd8   1         0         0       0s
+$ kubectl -n ch08-restricted get events --field-selector reason=FailedCreate \
+    -o jsonpath='{.items[0].message}{"\n"}' | cut -c1-600
+Error creating: pods "ch08-root-privileged-c4d884bd8-9ccn9" is forbidden: violates PodSecurity "restricted:latest": privileged (container "app" must not set securityContext.privileged=true), allowPrivilegeEscalation != false (container "app" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "app" must set securityContext.capabilities.drop=["ALL"]; container "app" must not include "SYS_ADMIN" in securityContext.capabilities.add), runAsNonRoot != true (container "app" must not set securityContext.runAsNonRoot=false), runAsUser=0 (container "app" must

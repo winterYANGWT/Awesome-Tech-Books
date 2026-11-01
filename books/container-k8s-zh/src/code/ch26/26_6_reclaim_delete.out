@@ -1,0 +1,20 @@
+$ kubectl apply -f reclaim-delete-sc.yaml
+storageclass.storage.k8s.io/reclaim-delete created
+$ kubectl apply -f reclaim-delete.yaml
+namespace/reclaim-demo created
+persistentvolumeclaim/delete-pvc created
+pod/delete-pod created
+$ kubectl -n reclaim-demo wait --for=condition=Ready pod/delete-pod --timeout=120s
+pod/delete-pod condition met
+$ delete_pv=$(kubectl -n reclaim-demo get pvc delete-pvc -o jsonpath='{.spec.volumeName}')
+$ printf 'pvc=delete-pvc pv=%s reclaim=%s\n' "$delete_pv" \
+  "$(kubectl get pv "$delete_pv" -o jsonpath='{.spec.persistentVolumeReclaimPolicy}')"
+pvc=delete-pvc pv=pvc-3535a59f-44a5-4920-9088-b092d23f7a5c reclaim=Delete
+$ kubectl -n reclaim-demo delete pod delete-pod --wait=true --timeout=90s
+pod "delete-pod" deleted from reclaim-demo namespace
+$ kubectl -n reclaim-demo delete pvc delete-pvc --wait=true --timeout=90s
+persistentvolumeclaim "delete-pvc" deleted from reclaim-demo namespace
+$ kubectl wait --for=delete "pv/$delete_pv" --timeout=60s
+persistentvolume/pvc-3535a59f-44a5-4920-9088-b092d23f7a5c condition met
+$ kubectl get pv "$delete_pv"
+Error from server (NotFound): persistentvolumes "pvc-3535a59f-44a5-4920-9088-b092d23f7a5c" not found

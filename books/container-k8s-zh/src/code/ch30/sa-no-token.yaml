@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sa-no-token
+  namespace: shorty
+spec:
+  serviceAccountName: shorty-api
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  containers:
+    - name: reader
+      image: busybox:1.37
+      imagePullPolicy: IfNotPresent
+      command:
+        - sh
+        - -c
+        - |
+          if [ -e /var/run/secrets/kubernetes.io/serviceaccount/token ]; then
+            echo "token is mounted"
+          else
+            echo "no token mounted"
+          fi

@@ -1,0 +1,55 @@
+$ kubectl apply -f kube-bench-job.yaml
+namespace/kube-bench created
+job.batch/kube-bench created
+$ kubectl -n kube-bench wait --for=condition=Complete job/kube-bench --timeout=180s
+job.batch/kube-bench condition met
+$ kubectl -n kube-bench logs job/kube-bench > /tmp/kube-bench.log
+$ grep -E '^\[(FAIL|WARN)\]' /tmp/kube-bench.log | awk 'NR <= 15'
+[WARN] 1.1.9 Ensure that the Container Network Interface file permissions are set to 600 or more restrictive (Manual)
+[WARN] 1.1.10 Ensure that the Container Network Interface file ownership is set to root:root (Manual)
+[FAIL] 1.1.12 Ensure that the etcd data directory ownership is set to etcd:etcd (Automated)
+[WARN] 1.2.1 Ensure that the --anonymous-auth argument is set to false (Manual)
+[WARN] 1.2.3 Ensure that the --DenyServiceExternalIPs is set (Manual)
+[FAIL] 1.2.5 Ensure that the --kubelet-certificate-authority argument is set as appropriate (Automated)
+[WARN] 1.2.9 Ensure that the admission control plugin EventRateLimit is set (Manual)
+[WARN] 1.2.11 Ensure that the admission control plugin AlwaysPullImages is set (Manual)
+[FAIL] 1.2.15 Ensure that the --profiling argument is set to false (Automated)
+[FAIL] 1.2.17 Ensure that the --audit-log-maxage argument is set to 30 or as appropriate (Automated)
+[FAIL] 1.2.18 Ensure that the --audit-log-maxbackup argument is set to 10 or as appropriate (Automated)
+[FAIL] 1.2.19 Ensure that the --audit-log-maxsize argument is set to 100 or as appropriate (Automated)
+[WARN] 1.2.20 Ensure that the --request-timeout argument is set as appropriate (Manual)
+[WARN] 1.2.27 Ensure that the --encryption-provider-config argument is set as appropriate (Manual)
+[WARN] 1.2.28 Ensure that encryption providers are appropriately configured (Manual)
+$ awk '/^\[FAIL\]/{f++} /^\[WARN\]/{w++} END{printf "FAIL=%d WARN=%d\n", f, w}' /tmp/kube-bench.log
+FAIL=11 WARN=17
+$ sed -e 's/\x1b\[[0-9;]*m//g' /tmp/kube-bench.log | grep -A8 'Summary'
+== Summary master ==
+40 checks PASS
+9 checks FAIL
+11 checks WARN
+0 checks INFO
+
+[INFO] 4 Worker Node Security Configuration
+[INFO] 4.1 Worker Node Configuration Files
+[FAIL] 4.1.1 Ensure that the kubelet service file permissions are set to 600 or more restrictive (Automated)
+--
+== Summary node ==
+17 checks PASS
+2 checks FAIL
+6 checks WARN
+0 checks INFO
+
+== Summary total ==
+57 checks PASS
+11 checks FAIL
+17 checks WARN
+0 checks INFO
+$ kubectl -n shorty patch serviceaccount default --type=merge \
+  -p '{"automountServiceAccountToken":false}'
+serviceaccount/default patched
+$ kubectl -n shorty get serviceaccount default \
+  -o jsonpath='{.automountServiceAccountToken}{"\n"}'
+false
+$ kubectl -n shorty get limitrange shorty-defaults
+NAME              CREATED AT
+shorty-defaults   2026-10-28T05:28:57Z

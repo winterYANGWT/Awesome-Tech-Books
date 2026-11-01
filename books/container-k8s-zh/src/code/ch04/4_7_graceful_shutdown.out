@@ -1,0 +1,32 @@
+$ curl -fsS localhost:8080/readyz
+ok
+$ curl -sS -X POST 'localhost:8080/admin/fault?latency_ms=3000' | jq -c '{latency_ms}'
+{"latency_ms":3000}
+$ curl -sS -o /tmp/ch04-slow-body -w '%{http_code} %{time_total}\n' localhost:8080/healthz > /tmp/ch04-slow.out &
+$ CURL=$!
+$ sleep 0.5
+$ curl -sS -X POST 'localhost:8080/admin/fault?latency_ms=0' > /dev/null
+$ docker stop -t 15 shorty-api > /tmp/ch04-stop.out 2>&1 &
+$ STOP=$!
+$ for _ in $(seq 1 100); do
+  CODE=$(curl -s -o /tmp/ch04-ready.out -w '%{http_code}' localhost:8080/readyz || true)
+  [ "$CODE" = 503 ] && break
+  sleep 0.05
+done
+$ echo "readyz during shutdown: $CODE $(cat /tmp/ch04-ready.out)"
+readyz during shutdown: 503 not ready: shutting down
+$ wait $STOP
+$ wait $CURL
+$ echo "slow request: $(cat /tmp/ch04-slow.out)"
+slow request: 200 3.000748
+$ docker logs shorty-api | grep -E '收到退出信号|开始关闭 HTTP 服务|HTTP 服务已关闭|shorty 退出'
+{"time":"2026-10-28T11:05:40.850295282Z","level":"INFO","msg":"收到退出信号，readiness 置为失败","signal":"terminated","delay":"2s"}
+{"time":"2026-10-28T11:05:42.850724688Z","level":"INFO","msg":"开始关闭 HTTP 服务"}
+{"time":"2026-10-28T11:05:43.410632543Z","level":"INFO","msg":"HTTP 服务已关闭"}
+{"time":"2026-10-28T11:05:43.410645206Z","level":"INFO","msg":"shorty 退出"}
+$ docker inspect -f 'ExitCode={{.State.ExitCode}} OOMKilled={{.State.OOMKilled}}' shorty-api
+ExitCode=0 OOMKilled=false
+$ docker start shorty-api
+shorty-api
+$ curl -fsS --retry 30 --retry-delay 1 --retry-all-errors localhost:8080/readyz
+ok

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emptydir-demo
+  namespace: shorty
+  labels:
+    app: emptydir-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: emptydir-demo
+  template:
+    metadata:
+      labels:
+        app: emptydir-demo
+    spec:
+      terminationGracePeriodSeconds: 0
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: sleep
+          image: alpine:3.22
+          imagePullPolicy: IfNotPresent
+          command: ["sleep", "3600"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: scratch
+              mountPath: /data
+      volumes:
+        - name: scratch
+          emptyDir: {}

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: shorty-defaults
+  namespace: shorty
+spec:
+  limits:
+    - type: Container
+      # 没写 requests 的容器自动得到这些值。
+      defaultRequest:
+        cpu: 50m
+        memory: 64Mi
+      # 没写 limits 的容器自动得到这些值。
+      default:
+        cpu: 200m
+        memory: 128Mi

@@ -1,0 +1,35 @@
+$ kubectl apply -f pod-gvisor.yaml
+Error from server (Forbidden): error when creating "pod-gvisor.yaml": pods "gvisor-demo" is forbidden: pod rejected: RuntimeClass "gvisor" not found
+$ kubectl apply -f runtimeclass-gvisor.yaml
+runtimeclass.node.k8s.io/gvisor created
+$ kubectl get runtimeclass gvisor -o yaml
+apiVersion: node.k8s.io/v1
+handler: runsc
+kind: RuntimeClass
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"node.k8s.io/v1","handler":"runsc","kind":"RuntimeClass","metadata":{"annotations":{},"name":"gvisor"}}
+  creationTimestamp: "2026-10-27T15:19:19Z"
+  name: gvisor
+  resourceVersion: "654"
+  uid: 7040c1a6-530f-4ca8-86b9-f1e37a123fdc
+$ kubectl apply -f pod-gvisor.yaml
+pod/gvisor-demo created
+$ kubectl wait --for=jsonpath='{.status.conditions[?(@.type=="PodReadyToStartContainers")].reason}'=PodSandboxNotReady \
+  pod/gvisor-demo -n shorty --timeout=60s
+pod/gvisor-demo condition met
+$ kubectl get pod -n shorty gvisor-demo -o wide
+NAME          READY   STATUS              RESTARTS   AGE   IP       NODE                   NOMINATED NODE   READINESS GATES
+gvisor-demo   0/1     ContainerCreating   0          0s    <none>   shorty-control-plane   <none>           <none>
+$ NODE=$(kind get nodes --name shorty)
+$ docker exec "$NODE" crictl pods --namespace shorty
+POD ID              CREATED              STATE               NAME                      NAMESPACE           ATTEMPT             RUNTIME
+fc4dc319eb1a1       About a minute ago   Ready               shorty-66886646dc-7gsbh   shorty              0                   (default)
+$ kubectl get pod -n shorty gvisor-demo -o jsonpath='{.status.phase}{"\n"}{.status.conditions[?(@.type=="PodReadyToStartContainers")].message}{"\n"}'
+Pending
+no pod sandbox exists
+$ kubectl get events -n shorty --field-selector involvedObject.name=gvisor-demo --sort-by=.lastTimestamp
+LAST SEEN   TYPE      REASON                   OBJECT            MESSAGE
+1s          Normal    Scheduled                pod/gvisor-demo   Successfully assigned shorty/gvisor-demo to shorty-control-plane
+0s          Warning   FailedCreatePodSandBox   pod/gvisor-demo   Failed to create pod sandbox: rpc error: code = Unknown desc = unable to get OCI runtime for sandbox "cfe2615ac1c48469e3071f9cfdbd19b130fc268fb67a5c4fd3adf906bd48ab85": no runtime for "runsc" is configured

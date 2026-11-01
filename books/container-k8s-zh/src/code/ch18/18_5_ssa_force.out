@@ -1,0 +1,42 @@
+$ kubectl -n shorty get deploy api -o json --show-managed-fields | jq -r '.metadata.managedFields[] | select(.fieldsV1."f:spec"."f:replicas") | "replicas owned by \(.manager) (\(.operation))"'
+replicas owned by team-a (Apply)
+$ kubectl apply --server-side --field-manager=team-b --force-conflicts -f api-replicas-2.yaml
+deployment.apps/api serverside-applied
+$ kubectl -n shorty get deploy api -o json --show-managed-fields | jq -r '.metadata.managedFields[] | select(.fieldsV1."f:spec"."f:replicas") | "replicas owned by \(.manager) (\(.operation))"'
+replicas owned by team-b (Apply)
+$ kubectl diff --server-side --field-manager=team-b --force-conflicts -f api-replicas-1.yaml
+--- /tmp/LIVE-326880956/apps.v1.Deployment.shorty.api
++++ /tmp/MERGED-2866051098/apps.v1.Deployment.shorty.api
+@@ -4,7 +4,7 @@
+   annotations:
+     deployment.kubernetes.io/revision: "1"
+   creationTimestamp: "2026-10-27T18:03:11Z"
+-  generation: 3
++  generation: 4
+   labels:
+     app.kubernetes.io/name: api
+     app.kubernetes.io/part-of: shorty
+@@ -14,7 +14,7 @@
+   uid: 392ca3d4-feb3-487e-931d-8b5fe708aba8
+ spec:
+   progressDeadlineSeconds: 600
+-  replicas: 2
++  replicas: 1
+   revisionHistoryLimit: 10
+   selector:
+     matchLabels:
+$ kubectl apply --server-side --field-manager=team-b --dry-run=server -f api-replicas-1.yaml
+deployment.apps/api serverside-applied (server dry run)
+$ kubectl -n shorty get deploy api -o jsonpath='{.spec.replicas}{"\n"}'
+2
+$ kubectl apply --server-side --field-manager=team-b -f api-replicas-1.yaml
+deployment.apps/api serverside-applied
+$ kubectl -n shorty rollout status deployment/api --timeout=120s
+Waiting for deployment "api" rollout to finish: 1 of 2 updated replicas are available...
+deployment "api" successfully rolled out
+$ kubectl -n shorty get deploy api -o jsonpath='{.spec.replicas}{" "}{.status.availableReplicas}{"\n"}'
+1 1
+$ kubectl apply --server-side --field-manager=team-a --force-conflicts -f api-service.yaml
+service/api serverside-applied
+$ kubectl -n shorty get svc api -o json --show-managed-fields | jq -r '.metadata.managedFields[] | "\(.manager) \(.operation)"'
+team-a Apply

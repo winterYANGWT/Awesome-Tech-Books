@@ -1,0 +1,13 @@
+apiVersion: policy.sigstore.dev/v1beta1
+kind: ClusterImagePolicy
+metadata:
+  name: shorty-signed
+spec:
+  # warn 只记录不拒绝，相当于 audit；确认一段时间没有问题后再改成 enforce。
+  mode: warn
+  images:
+    - glob: "__REGISTRY__/shorty**"
+  authorities:
+    - key:
+        secretRef:
+          name: cosign-pub

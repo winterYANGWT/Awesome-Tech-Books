@@ -1,0 +1,25 @@
+# hostUsers: false 打开 Pod user namespace。容器里仍然是 uid 0，
+# 但这个 0 只在这个 user namespace 里有效，节点上会映射到 kubelet 分配的 subuid。
+# 因为启用了 user namespace，restricted 不再检查 runAsNonRoot/runAsUser。
+apiVersion: v1
+kind: Pod
+metadata:
+  name: userns-demo
+  namespace: shorty
+  labels:
+    app: userns-demo
+spec:
+  hostUsers: false
+  containers:
+    - name: demo
+      image: busybox:1.37
+      imagePullPolicy: IfNotPresent
+      command: ["sleep", "3600"]
+      securityContext:
+        runAsUser: 0
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault

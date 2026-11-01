@@ -1,0 +1,4 @@
+# 第 4 章的 shell 形式对照镜像：同一个二进制，用 shell 形式 CMD 启动。
+FROM shorty:dev
+RUN CGO_ENABLED=0 go build -trimpath -o /shorty .
+CMD /shorty serve

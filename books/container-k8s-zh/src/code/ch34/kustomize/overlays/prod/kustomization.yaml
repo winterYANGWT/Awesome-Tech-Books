@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+namespace: shorty
+
+replicas:
+  - name: api
+    count: 2
+
+configMapGenerator:
+  - name: shorty-runtime
+    behavior: merge
+    literals:
+      - SHORTY_BASE_URL=https://shorty.example
+
+images:
+  - name: shorty
+    newName: localhost:5000/shorty
+    newTag: "0.1"
+
+patches:
+  - path: resources.yaml
+    target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: api

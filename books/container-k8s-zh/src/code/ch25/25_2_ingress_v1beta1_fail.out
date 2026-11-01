@@ -1,0 +1,26 @@
+$ kubectl apply -f ingress-v1beta1.yaml
+error: resource mapping not found for name: "shorty" namespace: "shorty" from "ingress-v1beta1.yaml": no matches for kind "Ingress" in version "extensions/v1beta1"
+ensure CRDs are installed first
+$ kubectl apply -f ingress.yaml
+ingress.networking.k8s.io/shorty created
+$ kubectl -n shorty get ingress
+NAME     CLASS   HOSTS          ADDRESS   PORTS     AGE
+shorty   nginx   shorty.local             80, 443   1s
+$ kubectl -n shorty describe ingress shorty
+Name:             shorty
+Labels:           <none>
+Namespace:        shorty
+Address:
+Ingress Class:    nginx
+Default backend:  <default>
+TLS:
+  shorty-tls terminates shorty.local
+Rules:
+  Host          Path  Backends
+  ----          ----  --------
+  shorty.local
+                /api   api:8080 (10.244.0.7:8080,10.244.0.6:8080)
+                /      web:80 (<error: services "web" not found>)
+Annotations:    nginx.ingress.kubernetes.io/limit-rps: 10
+                nginx.ingress.kubernetes.io/proxy-body-size: 8m
+Events:         <none>

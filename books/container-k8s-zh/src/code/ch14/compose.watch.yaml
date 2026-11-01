@@ -1,0 +1,19 @@
+name: shorty
+
+services:
+  page:
+    profiles: ["watch"]
+    build:
+      context: ./page
+      dockerfile: Dockerfile
+    image: shorty-page:0.1
+    ports:
+      - "8081:8081"
+    develop:
+      watch:
+        - action: sync
+          path: ./page/index.html
+          target: /srv/index.html
+          initial_sync: true
+        - action: rebuild
+          path: ./page/VERSION

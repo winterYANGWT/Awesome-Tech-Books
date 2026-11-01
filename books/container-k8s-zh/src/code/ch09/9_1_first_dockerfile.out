@@ -1,0 +1,57 @@
+$ docker build --progress=plain --provenance=false --no-cache -f first.Dockerfile -t shorty:dev ../app/api
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from first.Dockerfile
+#1 transferring dockerfile: 255B done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 0.4s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+#3 resolve docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e 0.0s done
+#3 CACHED
+
+#4 [internal] load metadata for docker.io/library/golang:1.27.3-trixie
+#4 DONE 0.7s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 80B done
+#5 DONE 0.0s
+
+#6 [1/6] FROM docker.io/library/golang:1.27.3-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385
+#6 resolve docker.io/library/golang:1.27.3-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385 0.0s done
+#6 DONE 0.1s
+
+#7 [internal] load build context
+#7 transferring context: 26.49kB done
+#7 DONE 0.0s
+
+#8 [2/6] WORKDIR /src
+#8 DONE 0.0s
+
+#9 [3/6] COPY go.mod go.sum ./
+#9 DONE 0.0s
+
+#10 [4/6] RUN go mod download
+#10 DONE 3.5s
+
+#11 [5/6] COPY . .
+#11 DONE 0.1s
+
+#12 [6/6] RUN CGO_ENABLED=0 go build -trimpath -o /shorty .
+#12 DONE 7.8s
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 3.7s done
+#13 exporting manifest sha256:32c31b586bd6910086887fb02af4c530c06d137455202cfd75a938fa277e2591 done
+#13 exporting config sha256:2ee404410d09afd19e26dc882db738f940d47bc0dc4125c7228cf733a5755878 done
+#13 naming to docker.io/library/shorty:dev done
+#13 unpacking to docker.io/library/shorty:dev
+#13 unpacking to docker.io/library/shorty:dev 0.6s done
+#13 DONE 4.4s
+$ docker run -d --name shorty-api -p 127.0.0.1:18080:8080 shorty:dev
+570b403983ee09fad009e048df709f132929cba9c9aa3178f9e57a2e525fdc3f
+$ curl -fsS --retry 30 --retry-delay 1 --retry-all-errors http://127.0.0.1:18080/healthz
+ok

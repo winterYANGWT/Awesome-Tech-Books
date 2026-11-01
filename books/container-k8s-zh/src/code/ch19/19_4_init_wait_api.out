@@ -1,0 +1,70 @@
+$ kubectl -n shorty apply -f pod_init_wait.yaml
+pod/api-waiter created
+$ kubectl -n shorty wait --for=jsonpath='{.status.initContainerStatuses[0].state.waiting.reason}'=CrashLoopBackOff \
+    pod/api-waiter --timeout=90s
+pod/api-waiter condition met
+$ kubectl -n shorty get pod api-waiter
+NAME         READY   STATUS                  RESTARTS      AGE
+api-waiter   0/1     Init:CrashLoopBackOff   1 (14s ago)   15s
+$ kubectl -n shorty describe pod api-waiter | grep -A20 'Init Containers:'
+Init Containers:
+  wait-api:
+    Container ID:  containerd://04177d35b44af9a4a8b7216309426b8beca652bcefa42613ccfd33e10858549f
+    Image:         busybox:1.37
+    Image ID:      docker.io/library/import-2026-10-27@sha256:26d505f6dd419c8c87a945ab330d75798cb874c5e75edb7069bb759ed8556788
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      nslookup api-wrong || { echo "DNS lookup failed for api-wrong"; exit 1; }
+    State:          Running
+      Started:      Tue, 27 Oct 2026 19:31:06 +0000
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Tue, 27 Oct 2026 19:30:51 +0000
+      Finished:     Tue, 27 Oct 2026 19:30:51 +0000
+    Ready:          False
+    Restart Count:  2
+    Environment:    <none>
+$ kubectl -n shorty describe pod api-waiter | sed -n '/Events:/,$p'
+Events:
+  Type     Reason     Age               From               Message
+  ----     ------     ----              ----               -------
+  Normal   Scheduled  16s               default-scheduler  Successfully assigned shorty/api-waiter to shorty-control-plane
+  Warning  BackOff    14s               kubelet            spec.initContainers{wait-api}: Back-off restarting failed container wait-api in pod api-waiter_shorty(4a53bdbd-8d78-4c0a-b191-b38836132d63)
+  Normal   Pulled     1s (x3 over 16s)  kubelet            spec.initContainers{wait-api}: Container image "busybox:1.37" already present on machine and can be accessed by the pod
+  Normal   Created    1s (x3 over 16s)  kubelet            spec.initContainers{wait-api}: Container created
+  Normal   Started    0s (x3 over 16s)  kubelet            spec.initContainers{wait-api}: Container started
+$ kubectl -n shorty logs api-waiter -c wait-api
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+** server can't find api-wrong.cluster.local: NXDOMAIN
+
+** server can't find api-wrong.cluster.local: NXDOMAIN
+
+** server can't find api-wrong.shorty.svc.cluster.local: NXDOMAIN
+
+** server can't find api-wrong.svc.cluster.local: NXDOMAIN
+
+** server can't find api-wrong.svc.cluster.local: NXDOMAIN
+
+** server can't find api-wrong.shorty.svc.cluster.local: NXDOMAIN
+
+** server can't find api-wrong.tail9fe2ea.ts.net: SERVFAIL
+
+** server can't find api-wrong.tail9fe2ea.ts.net: SERVFAIL
+
+DNS lookup failed for api-wrong
+$ kubectl -n shorty apply -f pod_init_wait_ok.yaml
+pod/api-waiter-ok created
+$ kubectl -n shorty wait --for=condition=Ready pod/api-waiter-ok --timeout=120s
+pod/api-waiter-ok condition met
+$ kubectl -n shorty get pod api-waiter-ok
+NAME            READY   STATUS    RESTARTS   AGE
+api-waiter-ok   1/1     Running   0          1s
+$ kubectl -n shorty delete pod api-waiter api-waiter-ok
+pod "api-waiter" deleted from shorty namespace
+pod "api-waiter-ok" deleted from shorty namespace

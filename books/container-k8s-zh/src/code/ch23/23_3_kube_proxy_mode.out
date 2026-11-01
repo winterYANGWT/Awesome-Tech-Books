@@ -1,0 +1,99 @@
+$ kubectl -n kube-system get configmap kube-proxy -o go-template='{{index .data "config.conf"}}'
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+bindAddress: 0.0.0.0
+bindAddressHardFail: false
+clientConnection:
+  acceptContentTypes: ""
+  burst: 0
+  contentType: ""
+  kubeconfig: /var/lib/kube-proxy/kubeconfig.conf
+  qps: 0
+clusterCIDR: 10.244.0.0/16
+configSyncPeriod: 0s
+conntrack:
+  maxPerCore: 0
+  min: null
+  tcpBeLiberal: false
+  tcpCloseWaitTimeout: null
+  tcpEstablishedTimeout: null
+  udpStreamTimeout: 0s
+  udpTimeout: 0s
+detectLocal:
+  bridgeInterface: ""
+  interfaceNamePrefix: ""
+detectLocalMode: ""
+enableProfiling: false
+healthzBindAddress: ""
+hostnameOverride: ""
+iptables:
+  localhostNodePorts: null
+  masqueradeAll: false
+  masqueradeBit: null
+  minSyncPeriod: 1s
+  syncPeriod: 0s
+ipvs:
+  excludeCIDRs: null
+  minSyncPeriod: 0s
+  scheduler: ""
+  strictARP: false
+  syncPeriod: 0s
+  tcpFinTimeout: 0s
+  tcpTimeout: 0s
+  udpTimeout: 0s
+kind: KubeProxyConfiguration
+logging:
+  flushFrequency: 0
+  options:
+    json:
+      infoBufferSize: "0"
+    text:
+      infoBufferSize: "0"
+  verbosity: 0
+metricsBindAddress: ""
+mode: iptables
+nftables:
+  masqueradeAll: false
+  masqueradeBit: null
+  minSyncPeriod: 0s
+  syncPeriod: 0s
+nodePortAddresses: null
+oomScoreAdj: null
+portRange: ""
+showHiddenMetricsForVersion: ""
+winkernel:
+  enableDSR: false
+  forwardHealthCheckVip: false
+  networkName: ""
+  rootHnsEndpointName: ""
+  sourceVip: ""
+$ kubectl -n kube-system get pods -l k8s-app=kube-proxy -o wide
+NAME               READY   STATUS    RESTARTS   AGE     IP           NODE                   NOMINATED NODE   READINESS GATES
+kube-proxy-dsrxq   1/1     Running   0          3m52s   172.19.0.3   shorty-worker2         <none>           <none>
+kube-proxy-p259w   1/1     Running   0          3m57s   172.19.0.2   shorty-control-plane   <none>           <none>
+kube-proxy-vnkh2   1/1     Running   0          3m52s   172.19.0.4   shorty-worker          <none>           <none>
+$ kubectl -n kube-system logs -l k8s-app=kube-proxy --tail=200 | awk '/Using .* Proxier/ && ++n <= 3'
+I1027 20:41:51.061177       1 server_linux.go:144] "Using iptables Proxier"
+I1027 20:41:45.303384       1 server_linux.go:144] "Using iptables Proxier"
+I1027 20:41:51.038046       1 server_linux.go:144] "Using iptables Proxier"
+$ cluster_ip=$(kubectl -n shorty get svc api -o jsonpath='{.spec.clusterIP}')
+$ svc_chain=$(docker exec shorty-worker iptables-save -t nat | awk -v ip="$cluster_ip" 'index($0,"-d " ip "/32") && !found {for (i=1; i<=NF; i++) if ($i ~ /^KUBE-SVC-/) {print $i; found=1}}')
+$ printf 'clusterIP=%s chain=%s\n' "$cluster_ip" "$svc_chain"
+clusterIP=10.96.124.53 chain=KUBE-SVC-WNCCABNBUJXLCD26
+$ docker exec shorty-worker iptables-save -t nat | grep -- "-d $cluster_ip/32"
+-A KUBE-SERVICES -d 10.96.124.53/32 -p tcp -m comment --comment "shorty/api:http cluster IP" -m tcp --dport 8080 -j KUBE-SVC-WNCCABNBUJXLCD26
+-A KUBE-SVC-WNCCABNBUJXLCD26 ! -s 10.244.0.0/16 -d 10.96.124.53/32 -p tcp -m comment --comment "shorty/api:http cluster IP" -m tcp --dport 8080 -j KUBE-MARK-MASQ
+$ docker exec shorty-worker iptables-save -t nat | grep -A3 -- "-A $svc_chain"
+-A KUBE-SVC-WNCCABNBUJXLCD26 ! -s 10.244.0.0/16 -d 10.96.124.53/32 -p tcp -m comment --comment "shorty/api:http cluster IP" -m tcp --dport 8080 -j KUBE-MARK-MASQ
+-A KUBE-SVC-WNCCABNBUJXLCD26 -m comment --comment "shorty/api:http -> 10.244.1.2:8080" -m statistic --mode random --probability 0.50000000000 -j KUBE-SEP-YTJFU544YM2KLP7V
+-A KUBE-SVC-WNCCABNBUJXLCD26 -m comment --comment "shorty/api:http -> 10.244.2.4:8080" -j KUBE-SEP-C6SPR7HGYUTZTFPO
+COMMIT
+# Completed on Tue Oct 27 20:45:41 2026
+$ for ip in $(kubectl -n shorty get pods -l app.kubernetes.io/name=api -o jsonpath='{range .items[*]}{.status.podIP}{"\n"}{end}'); do
+    docker exec shorty-worker iptables-save -t nat | awk -v ip="$ip" '/^-A KUBE-SEP/ && index($0,"to-destination " ip ":8080")'
+done
+-A KUBE-SEP-C6SPR7HGYUTZTFPO -p tcp -m comment --comment "shorty/api:http" -m tcp -j DNAT --to-destination 10.244.2.4:8080
+-A KUBE-SEP-CAKMJCM4EM3AG6DJ -p tcp -m comment --comment "shorty/api-lb:http" -m tcp -j DNAT --to-destination 10.244.2.4:8080
+-A KUBE-SEP-RDQPLPEWIYC4NRNO -p tcp -m comment --comment "shorty/api-nodeport:http" -m tcp -j DNAT --to-destination 10.244.2.4:8080
+-A KUBE-SEP-GMG6HYTTAVQ767UF -p tcp -m comment --comment "shorty/api-lb:http" -m tcp -j DNAT --to-destination 10.244.1.2:8080
+-A KUBE-SEP-WYKSY7DZS43XBLZJ -p tcp -m comment --comment "shorty/api-nodeport:http" -m tcp -j DNAT --to-destination 10.244.1.2:8080
+-A KUBE-SEP-YTJFU544YM2KLP7V -p tcp -m comment --comment "shorty/api:http" -m tcp -j DNAT --to-destination 10.244.1.2:8080

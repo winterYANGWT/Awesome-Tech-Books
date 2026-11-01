@@ -1,0 +1,93 @@
+$ source ../lib/common.sh
+$ cluster_up kind-2n-nocni.yaml
+==> 删除已有集群 shorty
+==> 创建集群 shorty（kind-2n-nocni.yaml）
+==> 配置禁用了默认 CNI，跳过节点 Ready 等待
+$ app_images
+==> 构建 shorty:0.1 与 shorty-worker:0.1
+==> 把 shorty 镜像加载进集群
+Image: "shorty:0.1" with ID "sha256:950ce50fd63a3c7487f68a41947067cfc64d948d8cbecc50209fe29a776d07c5" not yet present on node "shorty-control-plane", loading...
+Image: "shorty:0.1" with ID "sha256:950ce50fd63a3c7487f68a41947067cfc64d948d8cbecc50209fe29a776d07c5" not yet present on node "shorty-worker", loading...
+Image: "shorty-worker:0.1" with ID "sha256:e367664fd487ca3a78130b082972325348fa743211bf0a1cea9dfa92a4aa142f" not yet present on node "shorty-control-plane", loading...
+Image: "shorty-worker:0.1" with ID "sha256:e367664fd487ca3a78130b082972325348fa743211bf0a1cea9dfa92a4aa142f" not yet present on node "shorty-worker", loading...
+$ kubectl get nodes
+NAME                   STATUS     ROLES           AGE   VERSION
+shorty-control-plane   NotReady   control-plane   81s   v1.37.0
+shorty-worker          NotReady   <none>          72s   v1.37.0
+$ kubectl apply -f ../stages/s3-stateful
+namespace/shorty created
+configmap/shorty-config created
+secret/shorty-db created
+statefulset.apps/postgres created
+deployment.apps/redis created
+deployment.apps/api created
+deployment.apps/worker created
+job.batch/shorty-migrate created
+service/api created
+service/postgres created
+service/redis created
+$ kubectl -n shorty get pods
+NAME                      READY   STATUS    RESTARTS   AGE
+api-5bf7f6544f-92qdj      0/1     Pending   0          0s
+api-5bf7f6544f-zc6wb      0/1     Pending   0          0s
+postgres-0                0/1     Pending   0          0s
+redis-688d4759d-6wfqr     0/1     Pending   0          0s
+shorty-migrate-fk54c      0/1     Pending   0          0s
+worker-858d564db5-zfnnr   0/1     Pending   0          0s
+$ kubectl get nodes -o custom-columns=NAME:.metadata.name,PODCIDR:.spec.podCIDR
+NAME                   PODCIDR
+shorty-control-plane   10.244.0.0/24
+shorty-worker          10.244.1.0/24
+$ kubectl apply -f tigera-operator.yaml >/dev/null
+$ kubectl -n tigera-operator wait --for=condition=Available deployment/tigera-operator --timeout=600s
+deployment.apps/tigera-operator condition met
+$ for i in $(seq 1 60); do
+  kubectl get crd installations.operator.tigera.io >/dev/null 2>&1 && break
+  sleep 2
+done
+$ kubectl wait --for=condition=Established crd/installations.operator.tigera.io --timeout=120s
+customresourcedefinition.apiextensions.k8s.io/installations.operator.tigera.io condition met
+$ kubectl apply -f calico-installation.yaml
+installation.operator.tigera.io/default created
+$ for i in $(seq 1 60); do
+  [ "$(kubectl -n calico-system get pods -l k8s-app=calico-node --no-headers 2>/dev/null | wc -l)" -ge 2 ] && break
+  sleep 2
+done
+$ kubectl -n calico-system wait --for=condition=Ready pod -l k8s-app=calico-node --timeout=600s
+pod/calico-node-6wq6l condition met
+pod/calico-node-kvdk5 condition met
+$ kubectl -n calico-system wait --for=condition=Available deployment/calico-kube-controllers --timeout=600s
+deployment.apps/calico-kube-controllers condition met
+$ kubectl -n calico-system get pods -o wide
+NAME                                     READY   STATUS    RESTARTS   AGE   IP               NODE                   NOMINATED NODE   READINESS GATES
+calico-kube-controllers-dd449fd8-dlbg6   1/1     Running   0          37s   10.244.63.133    shorty-control-plane   <none>           <none>
+calico-node-6wq6l                        1/1     Running   0          37s   172.19.0.3       shorty-control-plane   <none>           <none>
+calico-node-kvdk5                        1/1     Running   0          37s   172.19.0.2       shorty-worker          <none>           <none>
+calico-typha-7f4f74ccc8-2sxbz            1/1     Running   0          37s   172.19.0.2       shorty-worker          <none>           <none>
+csi-node-driver-89mzt                    2/2     Running   0          37s   10.244.63.129    shorty-control-plane   <none>           <none>
+csi-node-driver-h8xlx                    2/2     Running   0          37s   10.244.199.198   shorty-worker          <none>           <none>
+$ kubectl get nodes
+NAME                   STATUS   ROLES           AGE    VERSION
+shorty-control-plane   Ready    control-plane   2m9s   v1.37.0
+shorty-worker          Ready    <none>          2m     v1.37.0
+$ kubectl -n shorty rollout status deployment/api --timeout=600s
+deployment "api" successfully rolled out
+$ kubectl -n shorty rollout status deployment/redis --timeout=600s
+deployment "redis" successfully rolled out
+$ kubectl -n shorty rollout status deployment/worker --timeout=600s
+deployment "worker" successfully rolled out
+$ kubectl -n shorty rollout status statefulset/postgres --timeout=600s
+partitioned roll out complete: 1 new pods have been updated...
+$ kubectl -n shorty wait --for=condition=Complete job/shorty-migrate --timeout=600s
+job.batch/shorty-migrate condition met
+$ kubectl -n shorty get pods -o wide
+NAME                      READY   STATUS      RESTARTS   AGE   IP               NODE            NOMINATED NODE   READINESS GATES
+api-5bf7f6544f-92qdj      1/1     Running     0          48s   10.244.199.194   shorty-worker   <none>           <none>
+api-5bf7f6544f-zc6wb      1/1     Running     0          48s   10.244.199.193   shorty-worker   <none>           <none>
+postgres-0                1/1     Running     0          48s   10.244.199.200   shorty-worker   <none>           <none>
+redis-688d4759d-6wfqr     1/1     Running     0          48s   10.244.199.197   shorty-worker   <none>           <none>
+shorty-migrate-fk54c      0/1     Completed   0          48s   10.244.199.196   shorty-worker   <none>           <none>
+worker-858d564db5-zfnnr   1/1     Running     0          48s   10.244.199.195   shorty-worker   <none>           <none>
+$ calicoctl get ippool -o wide
+NAME                  CIDR            NAT    IPIPMODE   VXLANMODE   DISABLED   DISABLEBGPEXPORT   SELECTOR   ASSIGNMENTMODE
+default-ipv4-ippool   10.244.0.0/16   true   Never      Always      false      false              all()      Automatic

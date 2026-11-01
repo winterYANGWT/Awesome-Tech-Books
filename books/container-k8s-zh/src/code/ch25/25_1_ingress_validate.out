@@ -1,0 +1,53 @@
+$ kubectl get ingressclass
+No resources found
+$ kubectl -n shorty get ingress
+No resources found in shorty namespace.
+$ kubectl apply --dry-run=server -f ingress.yaml
+ingress.networking.k8s.io/shorty created (server dry run)
+$ kubectl -n shorty get ingress
+No resources found in shorty namespace.
+$ kubectl apply --dry-run=server -f ingress-no-pathtype.yaml
+The Ingress "shorty" is invalid: spec.rules[0].http.paths[0].pathType: Required value: pathType must be specified
+$ kubectl explain ingress.spec.rules.http.paths.pathType
+GROUP:      networking.k8s.io
+KIND:       Ingress
+VERSION:    v1
+
+FIELD: pathType <string>
+ENUM:
+    Exact
+    ImplementationSpecific
+    Prefix
+
+DESCRIPTION:
+    pathType determines the interpretation of the path matching. PathType can be
+    one of the following values: * Exact: Matches the URL path exactly. *
+    Prefix: Matches based on a URL path prefix split by '/'. Matching is
+      done on a path element by element basis. A path element refers is the
+      list of labels in the path split by the '/' separator. A request is a
+      match for path p if every p is an element-wise prefix of p of the
+      request path. Note that if the last element of the path is a substring
+      of the last element in request path, it is not a match (e.g. /foo/bar
+      matches /foo/bar/baz, but does not match /foo/barbaz).
+    * ImplementationSpecific: Interpretation of the Path matching is up to
+      the IngressClass. Implementations can treat this as a separate PathType
+      or treat it identically to Prefix or Exact path types.
+    Implementations are required to support all path types.
+
+    Possible enum values:
+     - `"Exact"` matches the URL path exactly and with case sensitivity.
+     - `"ImplementationSpecific"` matching is up to the IngressClass.
+    Implementations can treat this as a separate PathType or treat it
+    identically to Prefix or Exact path types.
+     - `"Prefix"` matches based on a URL path prefix split by '/'. Matching is
+    case sensitive and done on a path element by element basis. A path element
+    refers to the list of labels in the path split by the '/' separator. A
+    request is a match for path p if every p is an element-wise prefix of p of
+    the request path. Note that if the last element of the path is a substring
+    of the last element in request path, it is not a match (e.g. /foo/bar
+    matches /foo/bar/baz, but does not match /foo/barbaz). If multiple matching
+    paths exist in an Ingress spec, the longest matching path is given priority.
+    Examples: - /foo/bar does not match requests to /foo/barbaz - /foo/bar
+    matches request to /foo/bar and /foo/bar/baz - /foo and /foo/ both match
+    requests to /foo and /foo/. If both paths are present in an Ingress spec,
+    the longest matching path (/foo/) is given priority.

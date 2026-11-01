@@ -1,0 +1,43 @@
+$ docker port shorty-api
+8080/tcp -> 127.0.0.1:8080
+$ docker inspect -f '{{json .HostConfig.PortBindings}}' shorty-api
+{"8080/tcp":[{"HostIp":"127.0.0.1","HostPort":"8080"}]}
+$ docker rm -f shorty-api >/dev/null
+$ docker run -d --name shorty-api --network shorty-net --network-alias api \
+    -p 8080:8080 \
+    -e 'SHORTY_DB_URL=postgres://shorty:shorty@postgres:5432/shorty?sslmode=disable' \
+    -e SHORTY_REDIS_ADDR=redis:6379 \
+    -e SHORTY_LISTEN=:8080 \
+    shorty:dev /out/shorty serve >/dev/null
+$ curl -fsS --retry 30 --retry-delay 1 --retry-all-errors http://localhost:8080/readyz >/dev/null
+$ curl -sS localhost:8080/healthz
+ok
+$ docker port shorty-api
+8080/tcp -> 0.0.0.0:8080
+8080/tcp -> [::]:8080
+$ docker inspect -f '{{json .NetworkSettings.Ports}}' shorty-api
+{"8080/tcp":[{"HostIp":"0.0.0.0","HostPort":"8080"},{"HostIp":"::","HostPort":"8080"}]}
+$ iptables -t nat -S DOCKER | grep 8080
+-A DOCKER ! -i br-67feaf88c60b -p tcp -m tcp --dport 8080 -j DNAT --to-destination 172.19.0.4:8080
+$ docker update --help | grep -i publish || echo 'docker update: 没有 publish 选项'
+docker update: 没有 publish 选项
+$ docker rm -f shorty-api >/dev/null
+$ docker run -d --name shorty-api --network shorty-net --network-alias api \
+    -p 127.0.0.1:8080:8080 \
+    -e 'SHORTY_DB_URL=postgres://shorty:shorty@postgres:5432/shorty?sslmode=disable' \
+    -e SHORTY_REDIS_ADDR=redis:6379 \
+    -e SHORTY_LISTEN=:8080 \
+    shorty:dev /out/shorty serve >/dev/null
+$ curl -fsS --retry 30 --retry-delay 1 --retry-all-errors http://127.0.0.1:8080/readyz >/dev/null
+$ docker port shorty-api
+8080/tcp -> 127.0.0.1:8080
+$ docker run -d --name ch06-random -P --expose 8080 shorty:dev /out/shorty serve >/dev/null
+$ docker port ch06-random
+8080/tcp -> 0.0.0.0:32768
+8080/tcp -> [::]:32768
+$ random_port=$(docker port ch06-random 8080/tcp | head -1 | sed 's/.*://')
+$ printf 'host port=%s\n' "$random_port"
+host port=32768
+$ curl -sS "localhost:${random_port}/healthz"
+ok
+$ docker rm -f ch06-random >/dev/null

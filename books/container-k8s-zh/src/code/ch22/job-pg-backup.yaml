@@ -1,0 +1,40 @@
+# 逻辑备份到独立的备份卷；生产里还要把文件复制到集群外。
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pg-backup
+  namespace: shorty
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pg-backup
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: pg-backup
+          image: postgres:18.6-alpine
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -eu
+              export PGPASSWORD="$(cat /etc/shorty/db_password)"
+              echo -n 'links rows before backup: '
+              psql -h postgres -U shorty -d shorty -tAc 'SELECT count(*) FROM links'
+              pg_dump -h postgres -U shorty -d shorty -Fc -f /backup/shorty-backup.dump
+              ls -l /backup/shorty-backup.dump
+          volumeMounts:
+            - name: backup
+              mountPath: /backup
+            - name: db-secret
+              mountPath: /etc/shorty
+              readOnly: true
+      volumes:
+        - name: backup
+          persistentVolumeClaim:
+            claimName: postgres-backup
+        - name: db-secret
+          secret:
+            secretName: shorty-db

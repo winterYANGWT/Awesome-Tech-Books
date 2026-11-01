@@ -1,0 +1,45 @@
+$ docker info --format 'Server Version: {{.ServerVersion}}
+Storage Driver: {{.Driver}}
+Driver Status: {{json .DriverStatus}}
+'
+Server Version: 29.9.2
+Storage Driver: overlayfs
+Driver Status: [["driver-type","io.containerd.snapshotter.v1"]]
+$ docker image ls | sed -n '1p;/^alpine/p;/^busybox/p;/^shorty/p;/^ch02/p'
+IMAGE                                                                                  ID             DISK USAGE   CONTENT SIZE   EXTRA
+alpine:3.22                                                                            2e0b81d60597       26.3MB          8.1MB
+busybox:1.37                                                                           bdf57e528e45       6.77MB         2.22MB
+shorty:0.1                                                                             d62c00c392ea       24.3MB         5.58MB
+shorty:dev                                                                             358fdb8fd02a       1.32GB          321MB
+$ docker image ls --tree shorty:0.1
+IMAGE                ID             DISK USAGE   CONTENT SIZE   EXTRA
+shorty:0.1           d62c00c392ea       24.3MB         5.58MB
+└─ linux/amd64       744d5e5dc22d       24.3MB         5.58MB
+$ docker image --help | sed -n '/Commands:/,/^$/p'
+Commands:
+  build       Build an image from a Dockerfile
+  history     Show the history of an image
+  import      Import the contents from a tarball to create a filesystem image
+  inspect     Display detailed information on one or more images
+  load        Load an image from a tar archive or STDIN
+  ls          List images
+  prune       Remove unused images
+  pull        Download an image from a registry
+  push        Upload an image to a registry
+  rm          Remove one or more images
+  save        Save one or more images to a tar archive (streamed to STDOUT by default)
+  tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+$ docker run --rm --mount type=image,src=busybox:1.37,dst=/dbg alpine:3.22 ls /dbg/bin
+[
+[[
+acpid
+add-shell
+addgroup
+adduser
+adjtimex
+ar
+arch
+arp
+arping
+ascii
+...（省略 395 行）

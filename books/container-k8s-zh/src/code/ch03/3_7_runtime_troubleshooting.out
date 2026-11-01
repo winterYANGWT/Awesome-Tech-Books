@@ -1,0 +1,53 @@
+$ docker run -d --name ch03-stop shorty:0.1 serve
+8ea917c20cc81c00c7561f611030d9dd730e9dedc92cc21fd795a3c0a5371012
+$ docker ps --format 'table {{.ID}}\t{{.Names}}'
+CONTAINER ID   NAMES
+8ea917c20cc8   ch03-stop
+572e0cae96e2   shorty-control-plane
+$ runc --root /var/run/docker/runtime-runc/moby list
+ID                                                                 PID         STATUS      BUNDLE                                                                                                                              CREATED                          OWNER
+572e0cae96e2b5aad2f29bb3113ce199f6beb4e39b2d6175aa443617a835485f   7117        running     /run/docker/containerd/daemon/io.containerd.runtime.v2.task/moby/572e0cae96e2b5aad2f29bb3113ce199f6beb4e39b2d6175aa443617a835485f   2026-10-27T15:17:47.078536308Z   root
+8ea917c20cc81c00c7561f611030d9dd730e9dedc92cc21fd795a3c0a5371012   23821       running     /run/docker/containerd/daemon/io.containerd.runtime.v2.task/moby/8ea917c20cc81c00c7561f611030d9dd730e9dedc92cc21fd795a3c0a5371012   2026-10-27T15:20:22.252900874Z   root
+$ docker stop --timeout 1 ch03-stop
+ch03-stop
+$ runc --root /var/run/docker/runtime-runc/moby list
+ID                                                                 PID         STATUS      BUNDLE                                                                                                                              CREATED                          OWNER
+572e0cae96e2b5aad2f29bb3113ce199f6beb4e39b2d6175aa443617a835485f   7117        running     /run/docker/containerd/daemon/io.containerd.runtime.v2.task/moby/572e0cae96e2b5aad2f29bb3113ce199f6beb4e39b2d6175aa443617a835485f   2026-10-27T15:17:47.078536308Z   root
+$ docker ps -a --filter name=ch03-stop --format 'table {{.Names}}\t{{.Status}}'
+NAMES       STATUS
+ch03-stop   Exited (137) Less than a second ago
+$ docker inspect -f '{{.State.Status}} exit={{.State.ExitCode}}' ch03-stop
+exited exit=137
+$ docker rm ch03-stop
+ch03-stop
+$ kubectl apply -f pod-exit.yaml
+pod/exit-demo created
+$ kubectl wait --for=jsonpath='{.status.phase}'=Failed pod/exit-demo -n shorty --timeout=60s
+pod/exit-demo condition met
+$ kubectl get pod -n shorty exit-demo -o wide
+NAME        READY   STATUS   RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+exit-demo   0/1     Error    0          2s    10.244.0.6   shorty-control-plane   <none>           <none>
+$ kubectl get pod -n shorty exit-demo \
+  -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}{"\n"}'
+7
+$ NODE=$(kind get nodes --name shorty)
+$ docker exec "$NODE" crictl ps -a | grep -E 'CONTAINER|exit-demo'
+CONTAINER           IMAGE               CREATED             STATE               NAME                      ATTEMPT             POD ID              POD                                            NAMESPACE
+cc84567b0316d       30ecbe1509090       1 second ago        Exited              app                       0                   9601366d9acc8       exit-demo                                      shorty
+$ cid=$(docker exec "$NODE" crictl ps -a | awk '/exit-demo/ {print $1; exit}')
+$ docker exec "$NODE" crictl inspect "$cid" | jq '{state: .status.state, exitCode: .status.exitCode}'
+{
+  "state": "CONTAINER_EXITED",
+  "exitCode": 7
+}
+$ docker exec "$NODE" systemctl is-active containerd
+active
+$ docker exec "$NODE" journalctl -u containerd -n 5 --no-pager
+Oct 27 15:20:25 shorty-control-plane containerd[133]: time="2026-10-27T15:20:25.389984176Z" level=info msg="cleaning up after shim disconnected" id=9601366d9acc8eb8e8c842484fcb84c98cee7a8d67bd472433b77f31dfcd7e30 namespace=k8s.io
+Oct 27 15:20:25 shorty-control-plane containerd[133]: time="2026-10-27T15:20:25.389989056Z" level=info msg="cleaning up dead shim" id=9601366d9acc8eb8e8c842484fcb84c98cee7a8d67bd472433b77f31dfcd7e30 namespace=k8s.io
+Oct 27 15:20:25 shorty-control-plane containerd[133]: time="2026-10-27T15:20:25.394944327Z" level=info msg="received sandbox container exit event sandbox_id:\"9601366d9acc8eb8e8c842484fcb84c98cee7a8d67bd472433b77f31dfcd7e30\"  exit_status:137  exited_at:{seconds:1793114425  nanos:376753232}" monitor_name=criService
+Oct 27 15:20:25 shorty-control-plane containerd[133]: time="2026-10-27T15:20:25.429756540Z" level=info msg="TearDown network for sandbox \"9601366d9acc8eb8e8c842484fcb84c98cee7a8d67bd472433b77f31dfcd7e30\" successfully"
+Oct 27 15:20:25 shorty-control-plane containerd[133]: time="2026-10-27T15:20:25.429783541Z" level=info msg="StopPodSandbox for \"9601366d9acc8eb8e8c842484fcb84c98cee7a8d67bd472433b77f31dfcd7e30\" returns successfully"
+$ kubectl delete pod gvisor-demo exit-demo -n shorty --ignore-not-found
+pod "gvisor-demo" deleted from shorty namespace
+pod "exit-demo" deleted from shorty namespace

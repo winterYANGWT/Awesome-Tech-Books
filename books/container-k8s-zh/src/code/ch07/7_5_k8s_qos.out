@@ -1,0 +1,47 @@
+$ source ../lib/common.sh
+$ ok=0
+$ for _ in 1 2; do
+    if cluster_up > /tmp/ch07-cluster.log 2>&1; then
+        ok=1
+        break
+    fi
+    sleep 2
+done
+$ if [ "$ok" -ne 1 ]; then
+    cat /tmp/ch07-cluster.log >&2
+    exit 1
+fi
+$ echo '==> 创建集群 shorty（kind-1n.yaml）'
+==> 创建集群 shorty（kind-1n.yaml）
+$ for _ in 1 2 3; do
+    pull_images busybox:1.37 && break
+    sleep 2
+done
+==> 预拉 busybox:1.37
+==> 把预拉镜像加载进集群
+$ kubectl apply -f k8s-qos.yaml
+pod/qos-guaranteed created
+pod/qos-burstable created
+pod/qos-besteffort created
+$ kubectl wait --for=condition=Ready pod -l app=ch07-qos --timeout=120s
+pod/qos-besteffort condition met
+pod/qos-burstable condition met
+pod/qos-guaranteed condition met
+$ kubectl get pod -l app=ch07-qos \
+    -o custom-columns=NAME:.metadata.name,QOS:.status.qosClass,PHASE:.status.phase
+NAME             QOS          PHASE
+qos-besteffort   BestEffort   Running
+qos-burstable    Burstable    Running
+qos-guaranteed   Guaranteed   Running
+$ for pod in qos-guaranteed qos-burstable qos-besteffort; do
+    printf '%-18s %s\n' "$pod" "$(kubectl get pod "$pod" -o jsonpath='{.status.qosClass}')"
+done
+qos-guaranteed     Guaranteed
+qos-burstable      Burstable
+qos-besteffort     BestEffort
+$ kubectl get pod qos-guaranteed \
+    -o jsonpath='{.spec.containers[0].resources.requests}{" = "}{.spec.containers[0].resources.limits}{"\n"}'
+{"cpu":"100m","memory":"32Mi"} = {"cpu":"100m","memory":"32Mi"}
+$ kubectl get pod qos-burstable \
+    -o jsonpath='{.spec.containers[0].resources.requests}{" < "}{.spec.containers[0].resources.limits}{"\n"}'
+{"cpu":"50m","memory":"24Mi"} < {"cpu":"100m","memory":"48Mi"}

@@ -1,0 +1,31 @@
+$ docker buildx build --provenance=false --progress=plain \
+    --cache-to type=registry,ref=localhost:5000/shorty:buildcache,mode=max \
+    -f shorty.Dockerfile -t shorty:0.1-cache --load ../app/api
+...（省略 77 行）
+#16 writing layer sha256:b3560024de9caf4f31eb81decf4a997d9ca03b1ac0657e866593c4b17aac565f 0.1s done
+#16 writing layer sha256:c0168c6e6744fc499abc90618818f9e4aaf652a587fb6345b3882dc57de1495c 0.1s done
+#16 writing layer sha256:e40d8f12e4cc743bd60adfdede4e411a55ffbe765c4f1200b412e21e4220bbe6 0.0s done
+#16 writing config sha256:3845f741b0688157b0d242d6ab92be3e5cecfefc33b1229241aaa9c3347336f9 done
+#16 writing cache image manifest sha256:fc5cc2161c31d8a0c6d9a0f00e159063b2e5d59edf632b2bb46b474cc32c6715 done
+#16 DONE 0.3s
+$ docker buildx prune -af --builder ch10
+...（省略 64 行）
+gx5fin2egbwclkc7f61j0eywm               	true 	90.6MB    	4 minutes ago
+r7i2b89cmc0i4tu3ehk5cs2e5               	true 	183.7MB   	4 minutes ago
+Total:	2.635GB
+$ docker buildx du --builder ch10 | tail -4
+ID                          RECLAIMABLE   SIZE      LAST ACCESSED
+o52t0qcqnzurthk2yat6kx29n   false         12.76MB
+Reclaimable:	0B
+Total:		12.76MB
+$ docker buildx build --provenance=false --progress=plain \
+    --cache-from type=registry,ref=localhost:5000/shorty:buildcache \
+    -f shorty.Dockerfile -t shorty:0.1-cache --load ../app/api 2>&1 \
+    | grep -E "importing cache manifest|CACHED|sending tarball"
+#6 importing cache manifest from localhost:5000/shorty:buildcache
+#9 CACHED
+#10 CACHED
+#11 CACHED
+#12 CACHED
+#13 CACHED
+#16 sending tarball 0.1s done

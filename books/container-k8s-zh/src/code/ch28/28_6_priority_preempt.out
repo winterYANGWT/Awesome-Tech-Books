@@ -1,0 +1,37 @@
+$ kubectl apply -f priorityclasses.yaml
+priorityclass.scheduling.k8s.io/shorty-low created
+priorityclass.scheduling.k8s.io/shorty-api created
+$ kubectl get priorityclass
+NAME                      VALUE        GLOBAL-DEFAULT   AGE     PREEMPTIONPOLICY
+shorty-api                1000         false            0s      PreemptLowerPriority
+shorty-low                -10          false            0s      PreemptLowerPriority
+system-cluster-critical   2000000000   false            4m55s   PreemptLowerPriority
+system-node-critical      2000001000   false            4m55s   PreemptLowerPriority
+$ alloc=$(kubectl get node shorty-worker2 -o jsonpath='{.status.allocatable.cpu}')
+$ used=$(kubectl describe node shorty-worker2 | awk '/^Allocated resources:/{f=1} f && $1=="cpu"{print $2; exit}')
+$ to_m() { case "$1" in *m) echo "${1%m}";; *) echo $(($1 * 1000));; esac; }
+$ free=$(( $(to_m "$alloc") - $(to_m "$used") ))
+$ filler=$(( free - 200 ))
+$ sed "s/__CPU__/${filler}m/" priority-filler.yaml | kubectl apply -f -
+pod/fill-worker2 created
+$ kubectl -n shorty wait --for=condition=Ready pod/fill-worker2 --timeout=120s
+pod/fill-worker2 condition met
+$ kubectl apply -f priority-high.yaml
+pod/high-priority created
+$ for i in $(seq 1 30); do
+  ts=$(kubectl -n shorty get pod fill-worker2 -o jsonpath='{.metadata.deletionTimestamp}')
+  [ -n "$ts" ] && break
+  sleep 1
+done
+$ kubectl -n shorty wait --for=jsonpath='{.status.conditions[?(@.type=="DisruptionTarget")].reason}'=PreemptionByScheduler pod/fill-worker2 --timeout=30s
+pod/fill-worker2 condition met
+$ kubectl -n shorty get pod fill-worker2 -o wide
+NAME           READY   STATUS        RESTARTS   AGE   IP            NODE             NOMINATED NODE   READINESS GATES
+fill-worker2   1/1     Terminating   0          2s    10.244.2.11   shorty-worker2   <none>           <none>
+$ kubectl -n shorty get pod fill-worker2 -o jsonpath='{.status.conditions[?(@.type=="DisruptionTarget")].reason}{" "}{.status.conditions[?(@.type=="DisruptionTarget")].message}{"\n"}'
+PreemptionByScheduler default-scheduler: preempting to accommodate a higher priority pod
+$ kubectl -n shorty wait --for=condition=Ready pod/high-priority --timeout=120s
+pod/high-priority condition met
+$ kubectl -n shorty get pod high-priority -o wide
+NAME            READY   STATUS    RESTARTS   AGE   IP            NODE             NOMINATED NODE   READINESS GATES
+high-priority   1/1     Running   0          16s   10.244.2.12   shorty-worker2   <none>           <none>

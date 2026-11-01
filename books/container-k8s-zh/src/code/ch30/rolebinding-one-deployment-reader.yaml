@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: shorty-one-deployment-reader
+  namespace: shorty
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: shorty-one-deployment-reader
+subjects:
+  - kind: ServiceAccount
+    name: shorty-api
+    namespace: shorty

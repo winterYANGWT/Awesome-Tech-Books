@@ -1,0 +1,37 @@
+$ kubectl create namespace probe
+namespace/probe created
+$ kubectl -n probe run probe-client --image=busybox:1.37 --restart=Never -- sleep 3600
+pod/probe-client created
+$ kubectl -n probe wait --for=condition=Ready pod/probe-client --timeout=60s
+pod/probe-client condition met
+$ api_ip=$(kubectl -n shorty get pod -l app.kubernetes.io/name=api -o jsonpath='{.items[0].status.podIP}')
+$ printf 'api Pod IP: %s\n' "$api_ip"
+api Pod IP: 10.244.199.194
+$ kubectl -n probe exec probe-client -- wget -qO- "http://$api_ip:8080/readyz"
+ok
+$ kubectl apply -f default-deny.yaml
+networkpolicy.networking.k8s.io/default-deny created
+$ kubectl -n shorty get networkpolicy
+NAME           POD-SELECTOR   AGE
+default-deny   <none>         0s
+$ kubectl -n shorty get networkpolicy default-deny -o yaml | sed -n '/^spec:/,$p'
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+$ denied=0
+$ for i in $(seq 1 20); do
+  if timeout 5 kubectl -n probe exec probe-client -- wget -T 2 -qO- "http://$api_ip:8080/readyz" >/dev/null 2>&1; then
+    sleep 1
+  else
+    echo "denied: 默认拒绝后 wget 超时"
+    denied=1
+    break
+  fi
+done
+denied: 默认拒绝后 wget 超时
+$ if [ "$denied" -eq 0 ]; then
+  echo "still allowed: 策略没有生效"
+fi
+$ [ "$denied" -eq 1 ]

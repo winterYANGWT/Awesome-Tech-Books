@@ -1,0 +1,54 @@
+$ REG=$(cat /tmp/ch13-registry)
+$ cd ../app/api
+$ docker buildx build --sbom=true \
+  --provenance=mode=max,version=v0.2,builder-id=https://build.shorty.example/ci/run-42 \
+  --push -t "$REG/shorty:0.1" .
+...（省略 61 行）
+#18 [linux/amd64] generating sbom using docker.io/docker/buildkit-syft-scanner:stable-1
+#18 CACHED
+
+#19 exporting to image
+#19 exporting layers done
+#19 exporting manifest sha256:1b8ce31d4c25f310551d9b061b007685a9f8a242fbffdb7346927a72622f1fe1 done
+#19 exporting config sha256:755f590a80e82d0ba3b0341cca2684d74790e9ff62eb013b1298909ddc3e8850 done
+#19 exporting attestation manifest sha256:b771513059eabb89cbadd0696ca56baa987575cde296d95306406bec71ed4704 done
+#19 exporting manifest list sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29 done
+#19 naming to 172.18.0.1:5000/shorty:0.1 done
+#19 pushing layers 0.0s done
+#19 pushing manifest for 172.18.0.1:5000/shorty:0.1@sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29
+#19 pushing manifest for 172.18.0.1:5000/shorty:0.1@sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29 0.0s done
+#19 DONE 0.1s
+$ DIGEST=$(docker buildx imagetools inspect "$REG/shorty:0.1" --format '{{.Manifest.Digest}}')
+$ printf '%s\n' "$DIGEST" > /tmp/ch13-digest
+$ docker buildx imagetools inspect "$REG/shorty:0.1"
+Name:      172.18.0.1:5000/shorty:0.1
+MediaType: application/vnd.oci.image.index.v1+json
+Digest:    sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29
+
+Manifests:
+  Name:        172.18.0.1:5000/shorty:0.1@sha256:1b8ce31d4c25f310551d9b061b007685a9f8a242fbffdb7346927a72622f1fe1
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/amd64
+
+  Name:        172.18.0.1:5000/shorty:0.1@sha256:b771513059eabb89cbadd0696ca56baa987575cde296d95306406bec71ed4704
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    unknown/unknown
+  Annotations:
+    vnd.docker.reference.digest: sha256:1b8ce31d4c25f310551d9b061b007685a9f8a242fbffdb7346927a72622f1fe1
+    vnd.docker.reference.type:   attestation-manifest
+$ docker buildx imagetools inspect "$REG/shorty:0.1" \
+  --format '{{json .Provenance.SLSA}}' > /tmp/ch13-slsa.json
+$ jq -r '"buildType: \(.buildType)", "builder: \(.builder.id)",
+       (.materials[] | "material: \(.uri)"),
+       (.invocation.parameters.args | to_entries[] | "arg: \(.key)=\(.value)"),
+       "vcs: \(.metadata["https://mobyproject.org/buildkit@v1#metadata"].vcs // "无")"' \
+  /tmp/ch13-slsa.json
+buildType: https://mobyproject.org/buildkit@v1
+builder: https://build.shorty.example/ci/run-42
+material: pkg:docker/docker/buildkit-syft-scanner@stable-1?platform=linux%2Famd64
+material: pkg:docker/docker/dockerfile@1
+material: pkg:docker/golang@1.27.3-trixie?platform=linux%2Famd64
+material: pkg:docker/gcr.io/distroless/static-debian13@nonroot?platform=linux%2Famd64
+arg: cmdline=docker/dockerfile:1
+arg: source=docker/dockerfile:1
+vcs: 无

@@ -1,0 +1,35 @@
+$ kubectl -n shorty get deployment api -o jsonpath='{.spec.template.spec.securityContext}{"\n"}{.spec.template.spec.containers[0].securityContext}{"\n"}'
+{}
+$ kubectl -n shorty patch deployment api --type=strategic --patch-file api-securitycontext-patch.yaml
+deployment.apps/api patched
+$ kubectl -n shorty rollout status deployment/api --timeout=120s
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ kubectl -n shorty get pod -l app.kubernetes.io/name=api -o jsonpath='{range .items[*]}{.metadata.name}{"\n  pod: "}{.spec.securityContext}{"\n  container: "}{.spec.containers[0].securityContext}{"\n"}{end}'
+api-758d9859cf-t2ktq
+  pod: {"fsGroup":65532,"fsGroupChangePolicy":"OnRootMismatch","runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532,"seccompProfile":{"type":"RuntimeDefault"}}
+  container: {"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}
+api-758d9859cf-t7zqr
+  pod: {"fsGroup":65532,"fsGroupChangePolicy":"OnRootMismatch","runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532,"seccompProfile":{"type":"RuntimeDefault"}}
+  container: {"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}
+$ kubectl apply -f securitycontext-shell.yaml
+pod/securitycontext-shell created
+$ kubectl -n shorty wait --for=condition=Ready pod/securitycontext-shell --timeout=60s
+pod/securitycontext-shell condition met
+$ kubectl -n shorty exec securitycontext-shell -- id
+uid=65532 gid=65532 groups=65532
+$ kubectl -n shorty exec securitycontext-shell -- stat -c 'uid=%u gid=%g mode=%a' /data
+uid=0 gid=65532 mode=2777
+$ kubectl -n shorty exec securitycontext-shell -- sh -c 'echo ok > /data/probe && cat /data/probe'
+ok
+$ kubectl -n shorty exec securitycontext-shell -- touch /blocked
+touch: /blocked: Read-only file system
+command terminated with exit code 1
+$ kubectl -n shorty exec securitycontext-shell -- wget -qO- http://api:8080/readyz
+ok
+$ kubectl -n shorty delete pod securitycontext-shell
+pod "securitycontext-shell" deleted from shorty namespace

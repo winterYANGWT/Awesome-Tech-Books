@@ -1,0 +1,63 @@
+$ kubectl -n shorty get deploy api -o yaml | yq '.apiVersion, .kind, .metadata.name, .metadata.namespace'
+apps/v1
+Deployment
+api
+shorty
+$ kubectl -n shorty get deploy api -o yaml | yq '.metadata | {"labels": .labels, "annotation keys": (.annotations | keys), "finalizers": .finalizers, "ownerReferences": .ownerReferences}'
+labels:
+  app.kubernetes.io/name: api
+  app.kubernetes.io/part-of: shorty
+annotation keys:
+  - deployment.kubernetes.io/revision
+  - kubectl.kubernetes.io/last-applied-configuration
+finalizers: null
+ownerReferences: null
+$ kubectl -n shorty get deploy api -o yaml | yq '{"spec keys": (.spec | keys), "status keys": (.status | keys)}'
+spec keys:
+  - progressDeadlineSeconds
+  - replicas
+  - revisionHistoryLimit
+  - selector
+  - strategy
+  - template
+status keys:
+  - availableReplicas
+  - conditions
+  - observedGeneration
+  - readyReplicas
+  - replicas
+  - terminatingReplicas
+  - updatedReplicas
+$ kubectl -n shorty get deploy api -o yaml | yq '{"spec.replicas": .spec.replicas, "spec.strategy.type": .spec.strategy.type, "spec.strategy.rollingUpdate.maxSurge": .spec.strategy.rollingUpdate.maxSurge, "status.observedGeneration": .status.observedGeneration, "status.availableReplicas": .status.availableReplicas}'
+spec.replicas: 1
+spec.strategy.type: RollingUpdate
+spec.strategy.rollingUpdate.maxSurge: 25%
+status.observedGeneration: 1
+status.availableReplicas: 1
+$ kubectl api-resources --api-group=apps
+NAME                  SHORTNAMES   APIVERSION   NAMESPACED   KIND
+controllerrevisions                apps/v1      true         ControllerRevision
+daemonsets            ds           apps/v1      true         DaemonSet
+deployments           deploy       apps/v1      true         Deployment
+replicasets           rs           apps/v1      true         ReplicaSet
+statefulsets          sts          apps/v1      true         StatefulSet
+$ kubectl get --raw /apis/apps/v1/namespaces/shorty/deployments/api | jq -r '"\(.kind) \(.apiVersion) \(.metadata.name)"'
+Deployment apps/v1 api
+$ kubectl explain deployment.spec.strategy --recursive
+GROUP:      apps
+KIND:       Deployment
+VERSION:    v1
+
+FIELD: strategy <DeploymentStrategy>
+
+
+DESCRIPTION:
+    The deployment strategy to use to replace existing pods with new ones.
+    DeploymentStrategy describes how to replace existing pods with new ones.
+
+FIELDS:
+  rollingUpdate	<RollingUpdateDeployment>
+    maxSurge	<IntOrString>
+    maxUnavailable	<IntOrString>
+  type	<string>
+  enum: Recreate, RollingUpdate

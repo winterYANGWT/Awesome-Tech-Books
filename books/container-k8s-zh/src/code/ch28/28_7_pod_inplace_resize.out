@@ -1,0 +1,34 @@
+$ kubectl -n shorty patch deployment api --type strategic -p '{"spec":{"template":{"spec":{"priorityClassName":"shorty-api","topologySpreadConstraints":[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule","nodeTaintsPolicy":"Honor","labelSelector":{"matchLabels":{"app.kubernetes.io/name":"api"}}}],"containers":[{"name":"api","resources":{"requests":{"cpu":"250m","memory":"64Mi"},"limits":{"cpu":"500m","memory":"128Mi"}}}]}}}}'
+deployment.apps/api patched
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ old=$(kubectl -n shorty get rs -l app.kubernetes.io/name=api -o jsonpath='{range .items[?(@.spec.replicas==0)]}{.metadata.labels.pod-template-hash}{"\n"}{end}' | head -1)
+$ [ -z "$old" ] || kubectl -n shorty wait --for=delete pod -l pod-template-hash="$old" --timeout=60s
+pod/api-5bf7f6544f-dvxnk condition met
+pod/api-5bf7f6544f-n6q6h condition met
+$ kubectl -n shorty get pod -l app.kubernetes.io/name=api -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName,QOS:.status.qosClass,CPU-REQ:.spec.containers[0].resources.requests.cpu,CPU-LIMIT:.spec.containers[0].resources.limits.cpu,MEM-LIMIT:.spec.containers[0].resources.limits.memory
+NAME                   NODE             QOS         CPU-REQ   CPU-LIMIT   MEM-LIMIT
+api-6ccf666b6c-dgtjd   shorty-worker2   Burstable   250m      500m        128Mi
+api-6ccf666b6c-j9sng   shorty-worker    Burstable   250m      500m        128Mi
+$ pod=$(kubectl -n shorty get pod -l app.kubernetes.io/name=api -o jsonpath='{.items[0].metadata.name}')
+$ kubectl -n shorty get pod "$pod" -o jsonpath='{.status.qosClass}{" restarts="}{.status.containerStatuses[0].restartCount}{" cpu-limit="}{.status.containerStatuses[0].resources.limits.cpu}{"\n"}'
+Burstable restarts=0 cpu-limit=500m
+$ kubectl -n shorty patch pod "$pod" --subresource resize --type merge -p '{"spec":{"containers":[{"name":"api","resources":{"requests":{"cpu":"250m","memory":"64Mi"},"limits":{"cpu":"1","memory":"128Mi"}}}]}}'
+pod/api-6ccf666b6c-dgtjd patched
+$ kubectl -n shorty wait --for=jsonpath='{.status.containerStatuses[0].resources.limits.cpu}'=1 pod/"$pod" --timeout=60s
+pod/api-6ccf666b6c-dgtjd condition met
+$ kubectl -n shorty get pod "$pod" -o jsonpath='{.status.qosClass}{" restarts="}{.status.containerStatuses[0].restartCount}{" cpu-limit="}{.status.containerStatuses[0].resources.limits.cpu}{"\n"}'
+Burstable restarts=0 cpu-limit=1
+$ kubectl -n shorty describe pod "$pod" | grep -E -A2 'Limits:|Requests:|Restart Count:'
+    Restart Count:  0
+    Limits:
+      cpu:     1
+      memory:  128Mi
+    Requests:
+      cpu:     250m
+      memory:  64Mi

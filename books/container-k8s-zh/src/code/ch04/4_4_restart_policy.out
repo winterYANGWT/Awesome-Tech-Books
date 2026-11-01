@@ -1,0 +1,37 @@
+$ docker events --since "$(date +%s)" --until "$(date -d '+10 seconds' +%s)" \
+  --format '{{.Action}} {{.Actor.Attributes.name}} {{.TimeNano}}' > /tmp/ch04-restart-events.log &
+$ EV=$!
+$ sleep 0.5
+$ for _ in $(seq 1 100); do
+  [ "$(docker inspect -f '{{.RestartCount}} {{.State.Status}}' shorty-restart)" = '3 exited' ] && break
+  sleep 0.1
+done
+$ docker inspect -f 'restarts={{.RestartCount}} exit={{.State.ExitCode}} policy={{json .HostConfig.RestartPolicy}}' shorty-restart
+restarts=3 exit=1 policy={"Name":"on-failure","MaximumRetryCount":3}
+$ docker logs shorty-restart | grep -c '^start$'
+4
+$ grep -E '^(die|start) shorty-restart ' /tmp/ch04-restart-events.log
+start shorty-restart 1793185427600064127
+die shorty-restart 1793185427708828338
+start shorty-restart 1793185427813210396
+die shorty-restart 1793185427903280324
+start shorty-restart 1793185428107076046
+die shorty-restart 1793185428190978620
+start shorty-restart 1793185428599319674
+die shorty-restart 1793185428685612028
+$ grep '^start shorty-restart ' /tmp/ch04-restart-events.log \
+  | awk 'NR==1{prev=$3; next}{printf "%d ms\n", ($3-prev)/1000000; prev=$3}'
+213 ms
+293 ms
+492 ms
+$ docker run -d --name shorty-manual busybox:1.37 sleep 1000 > /dev/null
+$ docker events --since "$(date +%s)" --until "$(date -d '+5 seconds' +%s)" \
+  --format '{{.Action}} {{.Actor.Attributes.name}}' > /tmp/ch04-manual-events.log &
+$ EV=$!
+$ sleep 0.5
+$ docker restart shorty-manual > /dev/null
+$ docker kill shorty-manual > /dev/null
+$ wait $EV || true
+$ grep '^start shorty-manual$' /tmp/ch04-manual-events.log
+start shorty-manual
+$ docker rm -f shorty-restart shorty-manual > /dev/null

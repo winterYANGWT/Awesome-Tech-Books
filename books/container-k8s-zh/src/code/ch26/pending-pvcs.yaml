@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trouble-demo
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: missing-class
+  namespace: trouble-demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: does-not-exist
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: no-class
+  namespace: trouble-demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: waiting
+  namespace: trouble-demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

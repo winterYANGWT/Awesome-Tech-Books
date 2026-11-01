@@ -1,0 +1,38 @@
+$ docker build --progress=plain --provenance=false --no-cache -f multi.Dockerfile -t shorty:scratch ../app/api
+...（省略 33 行）
+
+#10 [build 4/6] RUN go mod download
+#10 DONE 2.8s
+
+#11 [build 5/6] COPY . .
+#11 DONE 0.1s
+
+#12 [build 6/6] RUN CGO_ENABLED=0 go build -trimpath -o /out/shorty .
+#12 DONE 8.4s
+
+#13 [stage-1 1/2] COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+#13 DONE 0.0s
+
+#14 [stage-1 2/2] COPY --from=build /out/shorty /shorty
+#14 DONE 0.0s
+
+#15 exporting to image
+#15 exporting layers
+#15 exporting layers 0.4s done
+#15 exporting manifest sha256:4889d570716532f80ac9fea7fc679f39f109d3b4969f260f89e70f12dc0335f9 done
+#15 exporting config sha256:103ef9dfb02035b2fb9cdeb481504462cb25f2a6fc2dd141561ef84e29cc210e done
+#15 naming to docker.io/library/shorty:scratch done
+#15 unpacking to docker.io/library/shorty:scratch 0.1s done
+#15 DONE 0.5s
+$ docker image ls shorty:dev
+IMAGE        ID             DISK USAGE   CONTENT SIZE   EXTRA
+shorty:dev   32c31b586bd6       1.72GB          399MB   U
+$ docker image ls shorty:scratch
+IMAGE            ID             DISK USAGE   CONTENT SIZE   EXTRA
+shorty:scratch   4889d5707165       28.4MB         9.42MB
+$ docker run --rm shorty:scratch version
+shorty dev
+$ docker run --rm --entrypoint sh shorty:scratch -c 'echo hello'
+docker: Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: exec: "sh": executable file not found in $PATH
+
+Run 'docker run --help' for more information

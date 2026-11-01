@@ -1,0 +1,15 @@
+$ (
+  set -e
+  ./devc up --workspace-folder /book/src/code/app/api \
+    --config /book/src/code/ch15/devcontainer.json \
+    --remove-existing-container \
+    --no-lockfile > /tmp/ch15-devcontainer.log 2>&1
+  tail -n 3 /tmp/ch15-devcontainer.log
+)
+{"outcome":"success","containerId":"0199846531f71f4f7875028cfcab30850399ea1c5ec5c2f4edf07f99e59441b4","remoteUser":"root","remoteWorkspaceFolder":"/workspaces/api","ociAuthDiagnostics":{"authLookupWouldBeBlocked":false,"registryRedirectWouldPreventCredentialForwarding":false,"authServerRedirect":false}}
+$ ./devc exec --workspace-folder /book/src/code/app/api \
+  --config /book/src/code/ch15/devcontainer.json go version
+go version go1.27.3 linux/amd64
+$ ./devc exec --workspace-folder /book/src/code/app/api \
+  --config /book/src/code/ch15/devcontainer.json go test -p 1 ./...
+ok  	shorty	0.003s

@@ -1,0 +1,32 @@
+$ kubectl -n shorty create configmap shorty-files \
+  --from-literal=SHORTY_LOG_LEVEL=debug \
+  --from-file=app.properties=app.properties
+configmap/shorty-files created
+$ kubectl -n shorty get configmap shorty-files -o jsonpath='{.data}'
+{"SHORTY_LOG_LEVEL":"debug","app.properties":"mode=prod\nupstream=http://api:8080\n"}
+$ kubectl apply -f binary-configmap.yaml
+configmap/shorty-binary created
+$ kubectl -n shorty get configmap shorty-binary -o jsonpath='{.data}{"\n"}{.binaryData}'
+{"release":"2026.11"}
+{"probe.bin":"AAECAw=="}
+$ kubectl -n shorty get configmap shorty-config -o jsonpath='{.data}'
+{"SHORTY_BASE_URL":"http://api:8080","SHORTY_DB_PASSWORD_FILE":"/etc/shorty/db_password","SHORTY_DB_URL":"postgres://shorty@postgres:5432/shorty?sslmode=disable","SHORTY_LISTEN":":8080","SHORTY_LOG_LEVEL":"info","SHORTY_REDIS_ADDR":"redis:6379","SHORTY_SHUTDOWN_DELAY":"5"}
+$ kubectl -n shorty get deployment api -o jsonpath='{.spec.template.spec.containers[0].envFrom[0]}'
+{"configMapRef":{"name":"shorty-config"}}
+$ kubectl -n shorty patch configmap shorty-config --type=merge \
+  -p '{"data":{"SHORTY_BASE_URL":"http://shorty.local"}}'
+configmap/shorty-config patched
+$ kubectl -n shorty rollout restart deployment/api
+deployment.apps/api restarted
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment spec update to be observed...
+Waiting for deployment "api" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ POD=$(kubectl -n shorty get pods -l app.kubernetes.io/name=api --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
+$ kubectl -n shorty logs "$POD" --tail=-1 | grep 'shorty starting'
+{"time":"2026-10-28T04:50:27.78020636Z","level":"INFO","msg":"shorty starting","version":"dev","config":{"listen":":8080","db_url":"postgres://shorty:***@postgres:5432/shorty?sslmode=disable","redis_addr":"redis:6379","base_url":"http://shorty.local","shutdown_delay":"5s","log_level":"info"}}

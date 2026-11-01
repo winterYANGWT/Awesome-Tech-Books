@@ -1,0 +1,31 @@
+$ addr=$(hostname -i | awk '{print $1}')
+$ printf 'eth0 地址：%s\n' "$addr"
+eth0 地址：172.17.0.3
+$ docker tag shorty:0.1 "$addr:5000/shorty:tls"
+$ docker push "$addr:5000/shorty:tls" 2>&1 | tail -2
+da23b125dc1d: Waiting
+failed to do request: Head "https://172.17.0.3:5000/v2/shorty/blobs/sha256:2cc7ee286bf3a9e6af5f71756d7fc8e22e23ce65fec9047d774511ffcef79fa8": http: server gave HTTP response to HTTPS client
+$ printf '%s' s3cret | docker login localhost:5000 -u shorty --password-stdin
+WARNING! Your credentials are stored unencrypted in '/root/.docker/config.json'.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/go/credential-store/
+
+Login Succeeded
+$ docker tag shorty:0.1 localhost:5000/shorty:tls
+$ docker push localhost:5000/shorty:tls 2>&1 | tail -2
+b839dfae01f6: Layer already exists
+tls: digest: sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c size: 856
+$ kubectl -n shorty create secret docker-registry wrongreg --docker-server=localhost:5001 --docker-username=shorty --docker-password=s3cret
+secret/wrongreg created
+$ kubectl -n shorty get secret wrongreg -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | jq -c '.auths | keys'
+["localhost:5001"]
+$ kubectl -n shorty apply -f pod-wrong-secret.yaml
+pod/wrong-secret created
+$ kubectl -n shorty wait --for=jsonpath='{.status.containerStatuses[0].state.waiting.reason}'=ImagePullBackOff pod/wrong-secret --timeout=120s
+pod/wrong-secret condition met
+$ kubectl -n shorty get events -o json | jq -r '.items[] | select(.involvedObject.name == "wrong-secret" and .reason == "Failed") | select(.message | contains("Failed to pull image")) | .message' | tail -1
+Failed to pull image "localhost:5000/shorty:0.1": failed to pull and unpack image "localhost:5000/shorty:0.1": failed to resolve reference "localhost:5000/shorty:0.1": pull access denied, repository does not exist or may require authorization: authorization failed: no basic auth credentials
+$ kubectl -n shorty delete pod wrong-secret --wait=true
+pod "wrong-secret" deleted from shorty namespace
+$ kubectl -n shorty delete secret wrongreg
+secret "wrongreg" deleted from shorty namespace

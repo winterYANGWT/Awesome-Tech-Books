@@ -1,0 +1,19 @@
+$ kubectl apply -f userns-pod.yaml
+pod/userns-demo created
+$ kubectl -n shorty get pod userns-demo -o jsonpath='hostUsers={.spec.hostUsers} runAsUser={.spec.containers[0].securityContext.runAsUser}{"\n"}'
+hostUsers=false runAsUser=0
+$ if kubectl -n shorty wait --for=condition=Ready pod/userns-demo --timeout=30s >/dev/null 2>&1; then
+  kubectl -n shorty exec userns-demo -- id
+else
+  for i in $(seq 1 30); do
+    msg=$(kubectl -n shorty get events --field-selector involvedObject.name=userns-demo \
+      -o jsonpath='{range .items[*]}{.reason}{": "}{.message}{"\n"}{end}' \
+      | grep -E 'FailedCreatePodSandBox|FailedCreate' || true)
+    [ -n "$msg" ] && break
+    sleep 1
+  done
+  printf '%s\n' "$msg" | head -1
+fi
+FailedCreatePodSandBox: Failed to create pod sandbox: rpc error: code = Unknown desc = failed to start sandbox "f6c83f667231d50887b3709ecc5c5a32c29fe517c00394aa3e69730b1662783c": failed to create containerd task: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error mounting "sysfs" to rootfs at "/sys": mount src=sysfs, dst=/sys, dstFd=/proc/thread-self/fd/11, flags=MS_RDONLY|MS_NOSUID|MS_NODEV|MS_NOEXEC: operation not permitted
+$ kubectl -n shorty delete pod userns-demo --ignore-not-found
+pod "userns-demo" deleted from shorty namespace

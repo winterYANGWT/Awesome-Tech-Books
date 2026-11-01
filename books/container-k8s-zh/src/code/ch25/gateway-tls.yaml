@@ -1,0 +1,29 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: shorty-gw
+  namespace: shorty
+  labels:
+    app.kubernetes.io/part-of: shorty
+spec:
+  gatewayClassName: nginx
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      hostname: shorty.local
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: shorty.local
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: shorty-tls
+      allowedRoutes:
+        namespaces:
+          from: Same

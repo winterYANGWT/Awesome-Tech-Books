@@ -1,0 +1,48 @@
+$ d=/tmp/ch01-ovl
+$ if mountpoint -q "$d/merged"; then
+    umount -l "$d/merged"
+fi
+$ rm -rf "$d"
+$ mkdir -p "$d/lower" "$d/upper" "$d/work" "$d/merged"
+$ echo "lower original" > "$d/lower/hello.txt"
+$ mount -t overlay overlay \
+    -o "lowerdir=$d/lower,upperdir=$d/upper,workdir=$d/work" "$d/merged"
+$ echo '--- 第一次读：内容来自 lower ---'
+--- 第一次读：内容来自 lower ---
+$ cat "$d/merged/hello.txt"
+lower original
+$ echo '--- upper 里现在有什么 ---'
+--- upper 里现在有什么 ---
+$ ls -A "$d/upper"
+$ echo 'append from merged' >> "$d/merged/hello.txt"
+$ echo '--- 写之后 upper 里多了副本 ---'
+--- 写之后 upper 里多了副本 ---
+$ ls -A "$d/upper"
+hello.txt
+$ echo '--- 副本内容 ---'
+--- 副本内容 ---
+$ cat "$d/upper/hello.txt"
+lower original
+append from merged
+$ echo '--- lower 原文件没变 ---'
+--- lower 原文件没变 ---
+$ cat "$d/lower/hello.txt"
+lower original
+$ echo '--- 文件大小 ---'
+--- 文件大小 ---
+$ stat -c '%s %n' "$d/lower/hello.txt" "$d/merged/hello.txt" "$d/upper/hello.txt"
+15 /tmp/ch01-ovl/lower/hello.txt
+34 /tmp/ch01-ovl/merged/hello.txt
+34 /tmp/ch01-ovl/upper/hello.txt
+$ echo '--- /proc/self/mountinfo 里的 overlay ---'
+--- /proc/self/mountinfo 里的 overlay ---
+$ grep " $d/merged " /proc/self/mountinfo | sed 's/,/,\n  /g'
+4129 3480 0:144 / /tmp/ch01-ovl/merged rw,
+  relatime shared:1262 - overlay overlay rw,
+  lowerdir=/tmp/ch01-ovl/lower,
+  upperdir=/tmp/ch01-ovl/upper,
+  workdir=/tmp/ch01-ovl/work,
+  uuid=on,
+  nouserxattr
+$ umount "$d/merged"
+$ rm -rf "$d"

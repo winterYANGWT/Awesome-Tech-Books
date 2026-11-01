@@ -1,0 +1,25 @@
+$ docker run -d --init --name shorty-init shorty:ch04 > /dev/null
+$ docker exec shorty-init sh -c "cat /proc/1/cmdline | tr '\\0' ' '; echo"
+/sbin/docker-init -- /shorty serve
+$ docker exec shorty-init sh -c 'ps -o pid,ppid,comm'
+    PID    PPID COMMAND
+      1       0 docker-init
+      7       1 shorty
+     23       0 sh
+     29      23 ps
+$ docker stop -t 10 shorty-init
+shorty-init
+$ docker inspect -f 'ExitCode={{.State.ExitCode}}' shorty-init
+ExitCode=0
+$ docker rm -f shorty-init > /dev/null
+$ docker inspect -f '{{index .RepoTags 0}} StopSignal={{.Config.StopSignal}}' shorty:ch04 shorty:ch04-int
+shorty:ch04 StopSignal=
+shorty:ch04-int StopSignal=SIGINT
+$ docker run -d --name shorty-int shorty:ch04-int > /dev/null
+$ docker stop -t 10 shorty-int
+shorty-int
+$ docker inspect -f 'ExitCode={{.State.ExitCode}}' shorty-int
+ExitCode=0
+$ docker logs shorty-int 2>&1 | grep '收到退出信号'
+{"time":"2026-10-28T11:03:11.734450754Z","level":"INFO","msg":"收到退出信号，readiness 置为失败","signal":"interrupt","delay":"5s"}
+$ docker rm -f shorty-int > /dev/null

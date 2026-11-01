@@ -1,0 +1,31 @@
+# 固定完成数 4、并行度 2 的 Indexed Job。每个 Pod 从 JOB_COMPLETION_INDEX
+# 拿到自己的编号，sleep 6 秒让两个 Pod 的重叠窗口足够大、便于观察。
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: shorty-parallel
+  namespace: shorty
+  labels:
+    app.kubernetes.io/name: shorty-parallel
+    app.kubernetes.io/part-of: shorty
+spec:
+  completions: 4
+  parallelism: 2
+  completionMode: Indexed
+  backoffLimit: 0
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: shorty-parallel
+        app.kubernetes.io/part-of: shorty
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: worker
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - 'echo "index=${JOB_COMPLETION_INDEX} start"; sleep 6; echo "index=${JOB_COMPLETION_INDEX} done"'

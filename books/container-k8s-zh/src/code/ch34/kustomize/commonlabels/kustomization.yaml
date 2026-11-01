@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+
+# 只用于演示 commonLabels 对 selector 的影响；不要拿它去 apply 已有的 Deployment。
+commonLabels:
+  app.kubernetes.io/part-of: shorty
+  app.kubernetes.io/managed-by: kustomize

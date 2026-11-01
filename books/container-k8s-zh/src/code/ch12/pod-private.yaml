@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: private-pull
+  namespace: shorty
+spec:
+  restartPolicy: Never
+  imagePullSecrets:
+    - name: regcred
+  containers:
+    - name: shorty
+      image: localhost:5000/shorty:0.1
+      imagePullPolicy: Always
+      command: ["/shorty", "version"]

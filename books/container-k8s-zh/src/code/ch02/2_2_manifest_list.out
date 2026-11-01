@@ -1,0 +1,31 @@
+$ docker buildx imagetools inspect --raw public.ecr.aws/docker/library/alpine:3.22 \
+  | jq -r '.manifests[]
+      | select(.platform.os == "linux")
+      | select(.platform.architecture == "amd64" or .platform.architecture == "arm64")
+      | "\(.platform.os)/\(.platform.architecture)/\(.platform.variant // "-")  \(.digest)"'
+linux/amd64/-  sha256:dc92f017beea8e7f43263073d717f7bc011228c95d5312e440deb4d035bb4eec
+linux/arm64/v8  sha256:3e07a4f627d12468155eb812785e10f2453a447c346872b47788a62437366764
+$ docker image ls --tree alpine:3.22
+IMAGE                   ID             DISK USAGE   CONTENT SIZE   EXTRA
+alpine:3.22             2e0b81d60597       12.9MB         3.88MB
+├─ linux/amd64          dc92f017beea       12.8MB          3.8MB
+├─ linux/arm/v6         178826c1dd59           0B             0B
+├─ linux/arm/v7         2194dc1bfe94           0B             0B
+├─ linux/arm64/v8       3e07a4f627d1           0B             0B
+├─ linux/386            d4765993de94           0B             0B
+├─ linux/ppc64le        380029807118           0B             0B
+├─ linux/riscv64        f1741b288dd7           0B             0B
+└─ linux/s390x          afba41359a0f           0B             0B
+$ docker run --rm --platform linux/arm64 alpine:3.22 uname -m
+Unable to find image 'alpine:3.22' locally
+3.22: Pulling from library/alpine
+281d5a96263b: Pulling fs layer
+98e3b1322cb3: Download complete
+6f734c24b502: Download complete
+281d5a96263b: Download complete
+281d5a96263b: Pull complete
+Digest: sha256:2e0b81d60597f449baa56dc25d355367869d2dca4cd57e866f1e2b52af3eb55f
+Status: Image is up to date for alpine:3.22
+exec /bin/uname: exec format error
+$ docker run --rm --platform linux/amd64 alpine:3.22 uname -m
+x86_64

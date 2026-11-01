@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: grace-client
+  namespace: shorty
+  labels:
+    app.kubernetes.io/part-of: shorty
+spec:
+  restartPolicy: Never
+  containers:
+    - name: client
+      image: busybox:1.37
+      command:
+        - sh
+        - -c
+        - |
+          ok=0
+          fail=0
+          for i in $(seq 1 15); do
+            if wget -q -O /dev/null http://api:8080/; then
+              ok=$((ok+1))
+            else
+              fail=$((fail+1))
+            fi
+          done
+          echo "requests=$((ok+fail)) ok=$ok fail=$fail"

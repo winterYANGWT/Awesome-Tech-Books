@@ -1,0 +1,45 @@
+$ POD=$(kubectl -n shorty get pod -l app.kubernetes.io/name=api \
+  -o jsonpath='{.items[0].metadata.name}')
+$ kubectl -n shorty port-forward pod/$POD 18082:8080 >/tmp/ch35-pf-logs.log 2>&1 &
+$ PF=$!
+$ for i in $(seq 1 60); do
+  curl -sf localhost:18082/healthz >/dev/null 2>&1 && break
+  sleep 0.2
+done
+$ curl -s -o /dev/null -w 'GET / -> %{http_code}\n' localhost:18082/
+GET / -> 200
+$ curl -s -o /dev/null -w 'GET /r/nope -> %{http_code}\n' localhost:18082/r/nope
+GET /r/nope -> 404
+$ curl -s -X POST 'localhost:18082/admin/fault?error_rate=1' >/dev/null
+$ for i in 1 2 3; do
+  curl -s -o /dev/null -w 'POST /api/links -> %{http_code}\n' -X POST \
+    localhost:18082/api/links -H 'Content-Type: application/json' \
+    -d '{"url":"http://api:8080/","ttl_seconds":60}'
+done
+POST /api/links -> 500
+POST /api/links -> 500
+POST /api/links -> 500
+$ curl -s -X POST 'localhost:18082/admin/fault?error_rate=0' >/dev/null
+$ kubectl -n shorty logs $POD --tail=60 \
+  | jq -c 'select(.msg == "request" and .status >= 400) | {status, path, duration_ms}'
+{"status":404,"path":"/r/nope","duration_ms":143.421}
+{"status":500,"path":"/api/links","duration_ms":0.518}
+{"status":500,"path":"/api/links","duration_ms":0.007}
+{"status":500,"path":"/api/links","duration_ms":0.004}
+$ NODE=$(kubectl -n shorty get pod $POD -o jsonpath='{.spec.nodeName}')
+$ docker exec "$NODE" ls -l /var/log/pods | grep "$POD"
+drwxr-xr-x 3 root root 4096 Oct 28 10:21 shorty_api-547fc786f9-fz44m_235ea067-aa1d-4bd6-86e4-3c7dc0715ec0
+$ docker exec "$NODE" ls -l /var/log/containers | grep "$POD"
+lrwxrwxrwx 1 root root  88 Oct 28 10:21 api-547fc786f9-fz44m_shorty_api-ab4235e53e126f9ede0de8a3493be03b4fb7cea813446fcdec6bfb94147f6890.log -> /var/log/pods/shorty_api-547fc786f9-fz44m_235ea067-aa1d-4bd6-86e4-3c7dc0715ec0/api/0.log
+$ curl -s -X POST 'localhost:18082/admin/fault?crash_after=3' >/dev/null
+$ kubectl -n shorty wait \
+  --for=jsonpath='{.status.containerStatuses[0].restartCount}'=1 pod/$POD --timeout=180s
+pod/api-547fc786f9-fz44m condition met
+$ kubectl -n shorty get pod $POD -o jsonpath='exitCode={.status.containerStatuses[0].lastState.terminated.exitCode} reason={.status.containerStatuses[0].lastState.terminated.reason}{"\n"}'
+exitCode=1 reason=Error
+$ kubectl -n shorty logs $POD --previous --tail=4
+{"time":"2026-10-28T10:26:05.639860356Z","level":"INFO","msg":"request","method":"POST","path":"/admin/fault","status":200,"duration_ms":0.024,"route":"/admin/fault"}
+{"time":"2026-10-28T10:26:06.031952893Z","level":"INFO","msg":"request","method":"POST","path":"/admin/fault","status":200,"duration_ms":5.663,"route":"/admin/fault"}
+{"time":"2026-10-28T10:26:06.247723824Z","level":"INFO","msg":"request","method":"GET","path":"/readyz","status":200,"duration_ms":0.228,"route":"GET /readyz"}
+{"time":"2026-10-28T10:26:06.29097536Z","level":"ERROR","msg":"故障开关触发退出","crash_after_seconds":3}
+$ kill $PF 2>/dev/null || true

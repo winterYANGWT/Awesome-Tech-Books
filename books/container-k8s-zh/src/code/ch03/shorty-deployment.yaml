@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shorty
+  namespace: shorty
+  labels:
+    app: shorty
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shorty
+  template:
+    metadata:
+      labels:
+        app: shorty
+    spec:
+      containers:
+        - name: app
+          image: shorty:0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080

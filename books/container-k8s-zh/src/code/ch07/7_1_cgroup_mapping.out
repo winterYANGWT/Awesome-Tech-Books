@@ -1,0 +1,53 @@
+$ pid=$(docker inspect -f '{{.State.Pid}}' shorty-api)
+$ echo "api pid=$pid"
+api pid=30657
+$ cat "/proc/$pid/cgroup"
+0::/docker/0db2eab3aaf960ee58f929dc239deca5c2f72ef6cb3de8b95c62ae08a0bb1a2f
+$ cg=$(awk -F: '{print $3}' "/proc/$pid/cgroup")
+$ echo "cgroup 目录=/sys/fs/cgroup$cg"
+cgroup 目录=/sys/fs/cgroup/docker/0db2eab3aaf960ee58f929dc239deca5c2f72ef6cb3de8b95c62ae08a0bb1a2f
+$ for f in memory.max cpu.max cpu.weight pids.max cpuset.cpus.effective; do
+    printf '%-22s %s\n' "$f" "$(cat "/sys/fs/cgroup$cg/$f")"
+done
+memory.max             max
+cpu.max                max 100000
+cpu.weight             100
+pids.max               max
+cpuset.cpus.effective  0-31
+$ docker run -d --name shorty-cg --network none \
+    --memory 64m --memory-swap 64m --cpus 0.5 \
+    --cpu-shares 512 --cpuset-cpus 0 --pids-limit 64 \
+    busybox:1.37 sleep 300 > /dev/null
+$ docker inspect -f '{{.HostConfig.Memory}} {{.HostConfig.MemorySwap}} {{.HostConfig.NanoCpus}} {{.HostConfig.CpuShares}} {{.HostConfig.CpusetCpus}} {{.HostConfig.PidsLimit}}' shorty-cg
+67108864 67108864 500000000 512 0 64
+$ pid=$(docker inspect -f '{{.State.Pid}}' shorty-cg)
+$ cg=$(awk -F: '{print $3}' "/proc/$pid/cgroup")
+$ for f in memory.max memory.swap.max cpu.max cpu.weight cpuset.cpus pids.max; do
+    printf '%-18s %s\n' "$f" "$(cat "/sys/fs/cgroup$cg/$f")"
+done
+memory.max         67108864
+memory.swap.max    0
+cpu.max            50000 100000
+cpu.weight         59
+cpuset.cpus        0
+pids.max           64
+$ docker run -d --name shorty-swap --network none --memory 64m \
+    busybox:1.37 sleep 300 > /dev/null
+$ pid=$(docker inspect -f '{{.State.Pid}}' shorty-swap)
+$ cg=$(awk -F: '{print $3}' "/proc/$pid/cgroup")
+$ printf 'MemorySwap=%s memory.swap.max=%s\n' \
+    "$(docker inspect -f '{{.HostConfig.MemorySwap}}' shorty-swap)" \
+    "$(cat "/sys/fs/cgroup$cg/memory.swap.max")"
+MemorySwap=134217728 memory.swap.max=67108864
+$ docker update --memory 128m --memory-swap 128m --cpus 0.5 shorty-api
+shorty-api
+$ pid=$(docker inspect -f '{{.State.Pid}}' shorty-api)
+$ cg=$(awk -F: '{print $3}' "/proc/$pid/cgroup")
+$ docker inspect -f 'api HostConfig: Memory={{.HostConfig.Memory}} MemorySwap={{.HostConfig.MemorySwap}} NanoCpus={{.HostConfig.NanoCpus}}' shorty-api
+api HostConfig: Memory=134217728 MemorySwap=134217728 NanoCpus=500000000
+$ for f in memory.max memory.swap.max cpu.max; do
+    printf '%-18s %s\n' "$f" "$(cat "/sys/fs/cgroup$cg/$f")"
+done
+memory.max         134217728
+memory.swap.max    0
+cpu.max            50000 100000

@@ -1,0 +1,20 @@
+# Helm chart 的精简安装没有建默认 AppProject；Argo CD 的 Application 必须引用一个
+# 已存在的 project。这里补一个和上游 install.yaml 等价的 default。
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+  namespace: argocd
+spec:
+  description: 默认项目，允许从任意仓库同步到任意 namespace
+  sourceRepos:
+    - "*"
+  destinations:
+    - namespace: "*"
+      server: "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

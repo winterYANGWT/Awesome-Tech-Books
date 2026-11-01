@@ -1,0 +1,18 @@
+$ REG=$(cat /tmp/ch13-registry)
+$ cd /tmp/ch13-keys
+$ cosign tree "$REG/shorty:0.1"
+📦 Supply Chain Security Related artifacts for an image: 172.18.0.1:5000/shorty:0.1
+└── 💾 Attestations for an image tag: 172.18.0.1:5000/shorty:sha256-905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29.att
+   ├── 🍒 sha256:39eace7f74156542db9250f4b4f7a41ca17046c2d794fbabf8c903c1ac7d5246
+   └── 🍒 sha256:80f3490b32a5b44090a7a5d8e834c2ee54bb5a9307cdd248960ad94fce424315
+└── 🔐 Signatures for an image tag: 172.18.0.1:5000/shorty:sha256-905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29.sig
+   └── 🍒 sha256:205f82c51a671e0e2894c6dd03cf4ad8cb5895ac44998f54ff32a42751861523
+$ kubectl get validatingwebhookconfiguration policy.sigstore.dev \
+  -o jsonpath='{.webhooks[0].failurePolicy}'; echo
+Fail
+$ kubectl get clusterimagepolicy shorty-signed \
+  -o jsonpath='{.spec.images[0].glob}'; echo
+172.18.0.1:5000/shorty**
+$ kubectl -n cosign-system get deploy policy-controller-webhook
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+policy-controller-webhook   1/1     1            1           2m38s

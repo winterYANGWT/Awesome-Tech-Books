@@ -1,0 +1,6 @@
+apiVersion: v2
+name: shorty
+description: shorty API 的最小 chart，用于演示 values 与 release
+type: application
+version: 0.1.0
+appVersion: "0.1"

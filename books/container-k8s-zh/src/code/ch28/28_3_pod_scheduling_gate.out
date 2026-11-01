@@ -1,0 +1,24 @@
+$ kubectl apply -f gate-pod.yaml
+pod/gate-demo created
+$ kubectl -n shorty wait --for=jsonpath='{.status.conditions[?(@.type=="PodScheduled")].reason}'=SchedulingGated pod/gate-demo --timeout=60s
+pod/gate-demo condition met
+$ kubectl -n shorty get pod gate-demo
+NAME        READY   STATUS            RESTARTS   AGE
+gate-demo   0/1     SchedulingGated   0          0s
+$ kubectl -n shorty get pod gate-demo -o jsonpath='{.spec.schedulingGates}{"\n"}'
+[{"name":"shorty.example.com/warmup"}]
+$ kubectl -n shorty get pod gate-demo -o jsonpath='{.status.conditions[?(@.type=="PodScheduled")].reason}{" "}{.status.conditions[?(@.type=="PodScheduled")].message}{"\n"}'
+SchedulingGated Scheduling is blocked due to non-empty scheduling gates
+$ kubectl -n shorty patch pod gate-demo --type=json -p='[{"op":"remove","path":"/spec/schedulingGates"}]'
+pod/gate-demo patched
+$ kubectl -n shorty wait --for=condition=Ready pod/gate-demo --timeout=120s
+pod/gate-demo condition met
+$ kubectl -n shorty get pod gate-demo -o wide
+NAME        READY   STATUS    RESTARTS   AGE   IP           NODE            NOMINATED NODE   READINESS GATES
+gate-demo   1/1     Running   0          0s    10.244.1.9   shorty-worker   <none>           <none>
+$ kubectl -n shorty get events --field-selector involvedObject.name=gate-demo --sort-by=.lastTimestamp -o custom-columns=REASON:.reason,MESSAGE:.message
+REASON      MESSAGE
+Scheduled   Successfully assigned shorty/gate-demo to shorty-worker
+Pulled      Container image "alpine:3.22" already present on machine and can be accessed by the pod
+Created     Container created
+Started     Container started

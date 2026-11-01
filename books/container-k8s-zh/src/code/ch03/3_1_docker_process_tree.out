@@ -1,0 +1,46 @@
+$ docker run -d --name ch03-shorty shorty:0.1 serve
+f639b33a63b0cf6c8bedf5a17b4479677e72c59e754b9164cef1652aebb28653
+$ docker ps --filter name=ch03-shorty --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
+NAMES         IMAGE        STATUS
+ch03-shorty   shorty:0.1   Up Less than a second
+$ pid=$(docker inspect -f '{{.State.Pid}}' ch03-shorty)
+$ ppid=$(ps -o ppid= -p "$pid" | tr -d ' ')
+$ ps -o pid,ppid,user,args -p 1 -p "$(pgrep -x dockerd)" -p "$ppid" -p "$pid"
+    PID    PPID USER     COMMAND
+      1       0 root     docker-init -- dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375
+     32       1 root     dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375
+   6134       1 root     /usr/local/bin/containerd-shim-runc-v2 -namespace moby -id f639b33a63b0cf6c8bedf5a17b4479677e72c59e754b9164cef1652aebb28653 -address /v
+   6157    6134 65532    /shorty serve
+$ pstree -p "$ppid" | sed -n '1,5p'
+containerd-shim(6134)-+-shorty(6157)-+-{shorty}(6171)
+                      |              |-{shorty}(6172)
+                      |              |-{shorty}(6173)
+                      |              |-{shorty}(6174)
+                      |              |-{shorty}(6175)
+$ pstree -p "$(pgrep -x dockerd)" | sed -n '1,8p'
+dockerd(32)-+-{dockerd}(38)
+            |-{dockerd}(39)
+            |-{dockerd}(40)
+            |-{dockerd}(41)
+            |-{dockerd}(42)
+            |-{dockerd}(45)
+            |-{dockerd}(48)
+            |-{dockerd}(49)
+$ docker version | sed -n '/containerd:/,/runc:/p'
+ containerd:
+  Version:          v2.4.2
+  GitCommit:
+ runc:
+$ docker info --format 'Server {{.ServerVersion}} | Storage {{.Driver}} | Cgroup {{.CgroupDriver}}'
+Server 29.9.2 | Storage overlayfs | Cgroup cgroupfs
+$ ctr --address /var/run/docker/containerd/containerd.sock --namespace moby containers list
+CONTAINER                                                           IMAGE                           RUNTIME
+f639b33a63b0cf6c8bedf5a17b4479677e72c59e754b9164cef1652aebb28653    docker.io/library/shorty:0.1    io.containerd.runc.v2
+$ ctr --address /var/run/docker/containerd/containerd.sock --namespace moby tasks list
+TASK                                                                PID     STATUS
+f639b33a63b0cf6c8bedf5a17b4479677e72c59e754b9164cef1652aebb28653    6157    RUNNING
+$ runc --root /var/run/docker/runtime-runc/moby list
+ID                                                                 PID         STATUS      BUNDLE                                                                                                                              CREATED                          OWNER
+f639b33a63b0cf6c8bedf5a17b4479677e72c59e754b9164cef1652aebb28653   6157        running     /run/docker/containerd/daemon/io.containerd.runtime.v2.task/moby/f639b33a63b0cf6c8bedf5a17b4479677e72c59e754b9164cef1652aebb28653   2026-10-27T15:16:08.790495382Z   root
+$ docker rm -f ch03-shorty
+ch03-shorty

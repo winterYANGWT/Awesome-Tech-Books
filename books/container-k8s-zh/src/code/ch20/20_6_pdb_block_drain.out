@@ -1,0 +1,31 @@
+$ kubectl -n shorty apply -f pdb.yaml
+poddisruptionbudget.policy/api created
+$ kubectl -n shorty get poddisruptionbudget api
+NAME   MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+api    2               N/A               0                     0s
+$ NODE=$(kubectl -n shorty get pod -l app.kubernetes.io/name=api -o jsonpath='{.items[0].spec.nodeName}')
+$ echo "NODE=$NODE"
+NODE=shorty-worker2
+$ kubectl drain "$NODE" --ignore-daemonsets --delete-emptydir-data --timeout=10s
+node/shorty-worker2 cordoned
+Warning: ignoring DaemonSet-managed Pods: kube-system/kindnet-fl8cx, kube-system/kube-proxy-9lhkd, shorty/node-agent-9b829
+evicting pod shorty/api-6f96d65cbd-59vx6
+error when evicting pods/"api-6f96d65cbd-59vx6" -n "shorty" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+evicting pod shorty/api-6f96d65cbd-59vx6
+error when evicting pods/"api-6f96d65cbd-59vx6" -n "shorty" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+evicting pod shorty/api-6f96d65cbd-59vx6
+There are pending pods in node "shorty-worker2" when an error occurred: error when evicting pods/"api-6f96d65cbd-59vx6" -n "shorty": global timeout reached: 10s
+pod/api-6f96d65cbd-59vx6
+error: unable to drain node "shorty-worker2" due to error: error when evicting pods/"api-6f96d65cbd-59vx6" -n "shorty": global timeout reached: 10s, continuing command...
+There are pending nodes to be drained:
+ shorty-worker2
+error when evicting pods/"api-6f96d65cbd-59vx6" -n "shorty": global timeout reached: 10s
+$ kubectl get node "$NODE"
+NAME             STATUS                     ROLES    AGE    VERSION
+shorty-worker2   Ready,SchedulingDisabled   <none>   5m1s   v1.37.0
+$ kubectl uncordon "$NODE"
+node/shorty-worker2 uncordoned
+$ kubectl -n shorty delete poddisruptionbudget api
+poddisruptionbudget.policy "api" deleted from shorty namespace
+$ kubectl -n shorty get poddisruptionbudget
+No resources found in shorty namespace.

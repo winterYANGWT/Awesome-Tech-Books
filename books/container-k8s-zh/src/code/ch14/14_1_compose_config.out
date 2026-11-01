@@ -1,0 +1,28 @@
+$ docker compose config --services
+postgres
+migrate
+redis
+api
+worker
+$ docker compose config --format json | jq '{name, has_version: has("version"), services: (.services | keys), volumes: (.volumes | keys)}'
+{
+  "name": "shorty",
+  "has_version": false,
+  "services": [
+    "api",
+    "migrate",
+    "postgres",
+    "redis",
+    "worker"
+  ],
+  "volumes": [
+    "pgdata"
+  ]
+}
+$ SHORTY_API_PORT=18080 docker compose config --format json | jq '.services.api.ports[0] | {published, target}'
+{
+  "published": "18080",
+  "target": 8080
+}
+$ docker compose config --volumes
+pgdata

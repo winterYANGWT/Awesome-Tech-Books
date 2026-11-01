@@ -1,0 +1,57 @@
+$ docker buildx bake --provenance=false -f docker-bake.hcl --load
+...（省略 10 行）
+
+Your full command with requested privileges:
+
+docker buildx bake --allow=fs.read=../app/api --provenance=false -f docker-bake.hcl --load
+
+To disable filesystem entitlements checks, you can set BUILDX_BAKE_ENTITLEMENTS_FS=0 .
+
+ERROR: additional privileges requested
+$ docker buildx bake --allow=fs.read=../app/api --allow=fs.read=../app/worker --provenance=false -f docker-bake.hcl --load
+...（省略 130 行）
+#24 4.838    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 560.6/560.6 kB 1.4 MB/s  0:00:00
+#24 5.051 Downloading psycopg-3.3.6-py3-none-any.whl (215 kB)
+#24 5.303 Downloading psycopg_binary-3.3.6-cp315-cp315-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.2 MB)
+#24 6.347    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 5.7 MB/s  0:00:01
+#24 6.403 Installing collected packages: redis, psycopg-binary, psycopg
+#24 6.789
+#24 6.789 Successfully installed psycopg-3.3.6 psycopg-binary-3.3.6 redis-8.1.0
+#24 6.789 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#24 DONE 6.9s
+
+#25 [worker stage-0 5/5] COPY --chmod=0644 worker.py .
+#25 DONE 0.0s
+
+#26 [worker] exporting to oci image format
+#26 exporting layers
+#26 exporting layers 0.5s done
+#26 exporting manifest sha256:165a1c841cf9233e47effc1bd624d36f2be1ddb196b2b6ae324d8188e64078d0 done
+#26 exporting config sha256:e3de3713299f2b9e7423df94741aabaec0bff153be1cc612c3594beedfd9bb81 done
+#26 sending tarball
+#26 sending tarball 0.4s done
+#26 DONE 0.9s
+
+#27 importing to docker
+#27 DONE 0.0s
+$ docker image ls shorty
+IMAGE              ID             DISK USAGE   CONTENT SIZE   EXTRA
+shorty:0.1         491845420e34       17.7MB         4.72MB
+shorty:cachetest   f9fd8282df59       17.7MB         4.72MB
+shorty:dev-ch10    18f7bb101edd       1.32GB          321MB
+shorty:multi       81fb5f830737         22MB         9.02MB
+shorty:secret      aff79554c0f3         15MB         4.49MB
+$ docker image ls shorty-worker
+IMAGE               ID             DISK USAGE   CONTENT SIZE   EXTRA
+shorty-worker:0.1   165a1c841cf9        219MB           52MB
+$ docker network create shorty-net >/dev/null
+$ docker run -d --name shorty-redis --network shorty-net redis:8.8.4-alpine >/dev/null
+$ docker run -d --name shorty-api --network shorty-net -p 18080:8080 shorty:0.1 >/dev/null
+$ docker run -d --name shorty-worker --network shorty-net \
+    -e WORKER_REDIS_ADDR=shorty-redis:6379 \
+    -e WORKER_DB_URL=postgres://shorty:shorty@postgres:5432/shorty \
+    shorty-worker:0.1 >/dev/null
+$ docker ps --filter name=shorty --format '{{.Names}} {{.Image}} {{.State}}'
+shorty-worker shorty-worker:0.1 running
+shorty-api shorty:0.1 running
+shorty-redis redis:8.8.4-alpine running

@@ -1,0 +1,117 @@
+name: shorty
+
+x-db-env: &db-env
+  SHORTY_DB_URL: postgres://shorty@postgres:5432/shorty?sslmode=disable
+  SHORTY_DB_PASSWORD_FILE: /run/secrets/db_password
+
+services:
+  postgres:
+    image: postgres:18.6-alpine
+    environment:
+      POSTGRES_USER: shorty
+      POSTGRES_DB: shorty
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      # PostgreSQL 18 的 PGDATA 是 /var/lib/postgresql/18/docker，卷挂在它的上一层。
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shorty -d shorty"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+
+  redis:
+    image: redis:8.8.4-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 2s
+
+  migrate:
+    # 复用 api 构建出的镜像；up --build 会先构建 api，再创建 migrate。
+    image: shorty:0.1
+    command: ["migrate"]
+    environment: *db-env
+    secrets:
+      - db_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: ../app/api
+      dockerfile: Dockerfile
+    image: shorty:0.1
+    environment:
+      <<: *db-env
+      SHORTY_LISTEN: ":8080"
+      SHORTY_REDIS_ADDR: redis:6379
+      SHORTY_BASE_URL: http://localhost:8080
+      SHORTY_SHUTDOWN_DELAY: "5"
+      SHORTY_LOG_LEVEL: info
+    secrets:
+      - db_password
+    ports:
+      - "${SHORTY_API_PORT:-8080}:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    develop:
+      watch:
+        - action: rebuild
+          path: ../app/api
+
+  worker:
+    build:
+      context: ../app/worker
+      dockerfile: Dockerfile
+    image: shorty-worker:0.1
+    environment:
+      WORKER_REDIS_ADDR: redis:6379
+      WORKER_DB_URL: postgres://shorty@postgres:5432/shorty?sslmode=disable
+      WORKER_DB_PASSWORD_FILE: /run/secrets/db_password
+      WORKER_CONCURRENCY: "1"
+    secrets:
+      - db_password
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  tools:
+    profiles: ["tools"]
+    build:
+      context: ../app/tools
+      dockerfile: Dockerfile
+    image: shorty-tools:0.1
+    secrets:
+      - db_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt

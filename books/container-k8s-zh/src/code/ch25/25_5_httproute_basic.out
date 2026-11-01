@@ -1,0 +1,37 @@
+$ kubectl apply -f gateway.yaml
+gateway.gateway.networking.k8s.io/shorty-gw created
+$ kubectl -n shorty wait --for=condition=Programmed gateway/shorty-gw --timeout=180s
+gateway.gateway.networking.k8s.io/shorty-gw condition met
+$ kubectl -n shorty get gateway shorty-gw
+NAME        CLASS   ADDRESS   PROGRAMMED   AGE
+shorty-gw   nginx             True         0s
+$ kubectl -n shorty wait --for=condition=Available deployment \
+  -l gateway.networking.k8s.io/gateway-name=shorty-gw --timeout=180s
+deployment.apps/shorty-gw-nginx condition met
+$ kubectl -n shorty wait --for=jsonpath='{.endpoints[0].addresses[0]}' endpointslice \
+  -l kubernetes.io/service-name=shorty-gw-nginx --timeout=60s
+endpointslice.discovery.k8s.io/shorty-gw-nginx-wrvwt condition met
+$ kubectl -n shorty get deploy,svc -l gateway.networking.k8s.io/gateway-name=shorty-gw
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/shorty-gw-nginx   1/1     1            1           26s
+
+NAME                      TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+service/shorty-gw-nginx   LoadBalancer   10.96.148.142   <pending>     80:31461/TCP   26s
+$ kubectl apply -f httproute-basic.yaml
+httproute.gateway.networking.k8s.io/shorty created
+$ kubectl -n shorty wait \
+  --for=jsonpath='{.status.parents[0].conditions[?(@.type=="Accepted")].status}'=True \
+  httproute/shorty --timeout=60s
+httproute.gateway.networking.k8s.io/shorty condition met
+$ kubectl -n shorty get httproute shorty
+NAME     HOSTNAMES          AGE
+shorty   ["shorty.local"]   0s
+$ kubectl -n shorty port-forward svc/shorty-gw-nginx 18080:80 >/tmp/ch25-pf-basic.log 2>&1 & PF=$!
+$ for i in $(seq 1 50); do
+  curl -fsS -H 'Host: shorty.local' http://127.0.0.1:18080/healthz >/dev/null 2>&1 && break
+  sleep 0.2
+done
+$ curl -sS -H 'Host: shorty.local' http://127.0.0.1:18080/healthz
+ok
+$ kill "$PF"
+$ wait "$PF" 2>/dev/null || true

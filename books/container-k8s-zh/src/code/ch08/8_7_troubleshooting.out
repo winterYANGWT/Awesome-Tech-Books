@@ -1,0 +1,29 @@
+$ docker run --rm --sysctl net.ipv4.ip_unprivileged_port_start=1024 \
+    -e SHORTY_LISTEN=:80 --cap-drop=ALL shorty:dev /out/shorty serve 2>&1 | tail -n 1
+{"time":"2026-10-27T18:21:08.264692627Z","level":"ERROR","msg":"HTTP 服务异常退出","error":"listen tcp :80: bind: permission denied"}
+$ docker run -d --name ch08-port80 \
+    --sysctl net.ipv4.ip_unprivileged_port_start=1024 \
+    -e SHORTY_LISTEN=:80 --cap-drop=ALL --cap-add=NET_BIND_SERVICE \
+    -p 18083:80 shorty:dev /out/shorty serve
+8337d7c2543fc4032c452105c4505492e76dd3d8a86faee6d2f9bd6b7057f054
+$ until curl -fsS localhost:18083/healthz > /dev/null 2>&1; do sleep 1; done
+$ curl -fsS localhost:18083/healthz
+ok
+$ capsh --decode=$(docker exec ch08-port80 awk '/^CapEff/ {print $2}' /proc/self/status)
+0x0000000000000400=cap_net_bind_service
+$ docker rm -f ch08-port80
+ch08-port80
+$ echo 'demo-password' > /tmp/ch08-secret
+$ chmod 600 /tmp/ch08-secret
+$ stat -c '%u:%g %a %n' /tmp/ch08-secret
+0:0 600 /tmp/ch08-secret
+$ docker run --rm --user 65532:65532 \
+    --mount type=bind,src=/tmp/ch08-secret,dst=/run/secrets/db_password,readonly \
+    shorty:dev cat /run/secrets/db_password
+cat: /run/secrets/db_password: Permission denied
+$ chmod 644 /tmp/ch08-secret
+$ docker run --rm --user 65532:65532 \
+    --mount type=bind,src=/tmp/ch08-secret,dst=/run/secrets/db_password,readonly \
+    shorty:dev cat /run/secrets/db_password
+demo-password
+$ rm -f /tmp/ch08-secret

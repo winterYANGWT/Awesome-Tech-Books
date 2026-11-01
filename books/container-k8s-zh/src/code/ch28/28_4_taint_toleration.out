@@ -1,0 +1,18 @@
+$ kubectl taint node shorty-worker dedicated=shorty:NoSchedule
+node/shorty-worker tainted
+$ kubectl apply -f taint-pod.yaml
+pod/taint-demo created
+$ kubectl -n shorty wait --for=jsonpath='{.status.conditions[?(@.type=="PodScheduled")].reason}'=Unschedulable pod/taint-demo --timeout=60s
+pod/taint-demo condition met
+$ kubectl -n shorty describe pod taint-demo | sed -n '/Events:/,$p' | head -8
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  1s    default-scheduler  0/3 nodes are available: 1 node(s) didn't match Pod's node affinity/selector, 2 node(s) had untolerated taint(s). preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+$ kubectl -n shorty patch pod taint-demo --type merge -p '{"spec":{"tolerations":[{"key":"dedicated","operator":"Equal","value":"shorty","effect":"NoSchedule"}]}}'
+pod/taint-demo patched
+$ kubectl -n shorty wait --for=condition=Ready pod/taint-demo --timeout=120s
+pod/taint-demo condition met
+$ kubectl -n shorty get pod taint-demo -o wide
+NAME         READY   STATUS    RESTARTS   AGE   IP            NODE            NOMINATED NODE   READINESS GATES
+taint-demo   1/1     Running   0          1s    10.244.1.10   shorty-worker   <none>           <none>

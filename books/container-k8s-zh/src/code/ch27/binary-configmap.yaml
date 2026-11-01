@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shorty-binary
+  namespace: shorty
+data:
+  release: "2026.11"
+binaryData:
+  # 4 个字节 00 01 02 03；binaryData 的值必须是 base64。
+  probe.bin: "AAECAw=="

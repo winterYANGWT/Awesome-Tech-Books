@@ -1,0 +1,28 @@
+$ kubectl apply -f quota.yaml
+resourcequota/shorty-quota created
+$ until [ -n "$(kubectl -n shorty get resourcequota shorty-quota -o jsonpath='{.status.hard.pods}')" ]; do sleep 1; done
+$ kubectl -n shorty describe resourcequota shorty-quota | sed -n '/Resource/,$p'
+Resource      Used  Hard
+--------      ----  ----
+pods          6     10
+requests.cpu  300m  2
+$ kubectl apply -f quota-pod.yaml
+Error from server (Forbidden): error when creating "quota-pod.yaml": pods "quota-filler" is forbidden: exceeded quota: shorty-quota, requested: requests.cpu=1800m, used: requests.cpu=300m, limited: requests.cpu=2
+$ kubectl -n shorty patch resourcequota shorty-quota --type=merge \
+  -p '{"spec":{"hard":{"requests.cpu":"4"}}}'
+resourcequota/shorty-quota patched
+$ kubectl apply -f quota-pod.yaml
+pod/quota-filler created
+$ kubectl -n shorty wait --for=condition=Ready pod/quota-filler --timeout=120s
+pod/quota-filler condition met
+$ kubectl apply -f limitrange.yaml
+limitrange/shorty-defaults created
+$ kubectl apply -f defaulted-pod.yaml
+pod/defaulted-pod created
+$ kubectl -n shorty wait --for=condition=Ready pod/defaulted-pod --timeout=120s
+pod/defaulted-pod condition met
+$ kubectl -n shorty get pod defaulted-pod \
+  -o jsonpath='{.spec.containers[0].resources}{"\n"}'
+{"limits":{"cpu":"200m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}
+$ kubectl -n shorty get resourcequota shorty-quota -o jsonpath='{.spec.hard}{"\n"}'
+{"pods":"10","requests.cpu":"4"}

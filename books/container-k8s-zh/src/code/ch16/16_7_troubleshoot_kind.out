@@ -1,0 +1,41 @@
+$ docker info --format 'Docker {{.ServerVersion}} / {{.Driver}} / cgroup v{{.CgroupVersion}}'
+Docker 29.9.2 / overlayfs / cgroup v2
+$ df -h /var/lib/docker | tail -1
+/dev/nvme0n1p1  937G  154G  736G  18% /var/lib/docker
+$ free -m
+               total        used        free      shared  buff/cache   available
+Mem:           14640       10304        1794         266        3134        4335
+Swap:           4095        4038          57
+$ printf 'cgroup memory.max=%s current=%s\n' \
+  "$(cat /sys/fs/cgroup/memory.max)" "$(cat /sys/fs/cgroup/memory.current)"
+cgroup memory.max=2621440000 current=1644855296
+$ kubectl config current-context
+kind-shorty
+$ kind export kubeconfig --name shorty
+Set kubectl context to "kind-shorty"
+$ kubectl config current-context
+kind-shorty
+$ kubectl config set-cluster kind-old --server=https://127.0.0.1:1 --insecure-skip-tls-verify=true
+Cluster "kind-old" set.
+$ kubectl config set-context kind-old --cluster=kind-old --user=kind-shorty
+Context "kind-old" created.
+$ kubectl config use-context kind-old
+Switched to context "kind-old".
+$ kubectl config current-context
+kind-old
+$ kubectl get nodes --request-timeout=3s
+E1028 12:42:59.094045 2376815 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:1/api?timeout=3s\": dial tcp 127.0.0.1:1: connect: connection refused"
+E1028 12:42:59.094190 2376815 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:1/api?timeout=3s\": dial tcp 127.0.0.1:1: connect: connection refused"
+E1028 12:42:59.095179 2376815 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:1/api?timeout=3s\": dial tcp 127.0.0.1:1: connect: connection refused"
+E1028 12:42:59.096355 2376815 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:1/api?timeout=3s\": dial tcp 127.0.0.1:1: connect: connection refused"
+E1028 12:42:59.096541 2376815 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:1/api?timeout=3s\": dial tcp 127.0.0.1:1: connect: connection refused"
+The connection to the server 127.0.0.1:1 was refused - did you specify the right host or port?
+$ kind export kubeconfig --name shorty
+Set kubectl context to "kind-shorty"
+$ kubectl config current-context
+kind-shorty
+$ kubectl get nodes
+NAME                   STATUS   ROLES           AGE     VERSION
+shorty-control-plane   Ready    control-plane   2m26s   v1.37.0
+$ kind get clusters
+shorty

@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: net-demo
+  labels:
+    purpose: net-demo
+---
+# 故意放到控制面节点，另一个放 worker，用 -o wide 能直接看到跨节点。
+apiVersion: v1
+kind: Pod
+metadata:
+  name: net-server
+  namespace: net-demo
+  labels:
+    app: net-server
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: shorty-control-plane
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      effect: NoSchedule
+  containers:
+    - name: nginx
+      image: nginx:1.29-alpine
+      imagePullPolicy: IfNotPresent
+      ports:
+        - name: http
+          containerPort: 80
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: net-client
+  namespace: net-demo
+  labels:
+    app: net-client
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: shorty-worker
+  containers:
+    - name: busybox
+      image: busybox:1.37
+      imagePullPolicy: IfNotPresent
+      command: ["sleep", "3600"]

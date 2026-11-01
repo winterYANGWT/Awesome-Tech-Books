@@ -1,0 +1,33 @@
+$ docker build -q -t ch02-commit-base:1 -f commit-base.Dockerfile . >/dev/null
+$ docker run -d --name ch02-commit ch02-commit-base:1 sleep 300
+f74953cf1b16266641d94c77db8c949ab4c7e0b30c3b221ece9d0a3bfe8cb6a0
+$ docker exec ch02-commit sh -c 'echo new > /app/added.txt; echo changed >> /app/change.txt; rm /app/delete.txt'
+$ docker diff ch02-commit
+C /app
+A /app/added.txt
+C /app/change.txt
+D /app/delete.txt
+$ (
+docker commit -m 'add/change/delete under /app' ch02-commit ch02-committed:1
+docker history --no-trunc ch02-committed:1
+)
+sha256:6027e7fc1bd8139453864266f544d1844a9bc9abe1ba384699d9e798c2c2e2c9
+IMAGE                                                                     CREATED                  CREATED BY                                                                                                                             SIZE      COMMENT
+sha256:6027e7fc1bd8139453864266f544d1844a9bc9abe1ba384699d9e798c2c2e2c9   Less than a second ago   sleep 300                                                                                                                              16.4kB    add/change/delete under /app
+sha256:8252df570e39791d815aa4a5478f2feddbb6fd31ab0db2bd94f6f01a1edc0a12   Less than a second ago   RUN /bin/sh -c mkdir -p /app  && echo keep > /app/keep.txt  && echo old > /app/change.txt  && echo gone > /app/delete.txt # buildkit   20.5kB    buildkit.dockerfile.v0
+<missing>                                                                 6 days ago               CMD ["/bin/sh"]                                                                                                                        0B        buildkit.dockerfile.v0
+<missing>                                                                 6 days ago               ADD alpine-minirootfs-3.22.7-x86_64.tar.gz / # buildkit                                                                                8.97MB    buildkit.dockerfile.v0
+$ (
+docker export ch02-commit -o /tmp/ch02-commit.tar
+docker import /tmp/ch02-commit.tar ch02-flat:1
+)
+sha256:2e6b39ea65eba3cd9b9f86c6e57dc1ddc41fa23a6915ac0b6b13e1dcb6f62a38
+$ (
+docker history --no-trunc ch02-flat:1
+docker image inspect ch02-flat:1 --format 'layers={{len .RootFS.Layers}} cmd={{json .Config.Cmd}} entrypoint={{json .Config.Entrypoint}}'
+)
+IMAGE                                                                     CREATED                  CREATED BY   SIZE      COMMENT
+sha256:2e6b39ea65eba3cd9b9f86c6e57dc1ddc41fa23a6915ac0b6b13e1dcb6f62a38   Less than a second ago                8.99MB    Imported from -
+layers=1 cmd=null entrypoint=null
+$ docker rm -f ch02-commit
+ch02-commit

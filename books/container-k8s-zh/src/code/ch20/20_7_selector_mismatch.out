@@ -1,0 +1,15 @@
+$ kubectl -n shorty apply -f api-bad-selector.yaml
+The Deployment "api-bad-selector" is invalid: spec.template.metadata.labels: Invalid value: {"app.kubernetes.io/name":"shorty-api"}: `selector` does not match template `labels`
+$ kubectl -n shorty apply -f api-fixed-selector.yaml
+deployment.apps/api-bad-selector created
+$ kubectl -n shorty rollout status deployment/api-bad-selector --timeout=120s
+Waiting for deployment "api-bad-selector" rollout to finish: 0 of 1 updated replicas are available...
+deployment "api-bad-selector" successfully rolled out
+$ kubectl -n shorty get deployment api-bad-selector
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+api-bad-selector   1/1     1            1           0s
+$ kubectl -n shorty delete deployment api-bad-selector
+deployment.apps "api-bad-selector" deleted from shorty namespace
+$ kubectl -n shorty get deployment
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+api    2/2     2            2           5m10s

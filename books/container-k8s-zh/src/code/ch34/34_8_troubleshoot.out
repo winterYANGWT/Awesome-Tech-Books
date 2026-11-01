@@ -1,0 +1,27 @@
+$ kubectl apply -f bad-application.yaml
+application.argoproj.io/shorty-bad created
+$ for _ in $(seq 1 30); do
+    cond=$(kubectl -n argocd get application shorty-bad \
+        -o jsonpath='{range .status.conditions[*]}{.type}{"\n"}{end}' 2>/dev/null)
+    case "$cond" in *ComparisonError*) break ;; esac
+    sleep 2
+done
+$ kubectl -n argocd get application shorty-bad \
+    -o jsonpath='{range .status.conditions[*]}{.type}: {.message}{"\n"}{end}'
+ComparisonError: Failed to load target state: failed to generate manifest for source 1 of 1: rpc error: code = Unknown desc = overlays/missing: app path does not exist
+$ kubectl -n argocd logs deploy/argocd-repo-server --tail=50 \
+    | grep -iE 'error|not found|does not exist' | tail -8
+Defaulted container "repo-server" out of: repo-server, copyutil (init)
+time="2026-10-28T10:03:43Z" level=info msg="setting manifests cache (error)" appNamespace=shorty application=shorty-bad cacheKey="mfst|annotation:argocd.argoproj.io/instance|shorty-bad|8a74fa6eec6067b23787ba6ec46ed0ae5566fbb9|shorty|2673851465|nil"
+time="2026-10-28T10:03:43Z" level=error msg="finished call" grpc.code=Unknown grpc.component=server grpc.error="overlays/missing: app path does not exist" grpc.method=GenerateManifest grpc.method_type=unary grpc.request.deadline="2026-10-28T10:04:43Z" grpc.service=repository.RepoServerService grpc.start_time="2026-10-28T10:03:43Z" grpc.time_ms=170.883 peer.address="10.244.0.24:43970" protocol=grpc
+$ kubectl -n argocd delete application shorty-bad
+application.argoproj.io "shorty-bad" deleted from argocd namespace
+$ helm install api ./chart -n shorty --wait --timeout 30s
+Error: INSTALLATION FAILED: unable to continue with install: Service "api" in namespace "shorty" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: key "app.kubernetes.io/managed-by" must equal "Helm": current value is "kustomize"; annotation validation error: missing key "meta.helm.sh/release-name": must be set to "api"; annotation validation error: missing key "meta.helm.sh/release-namespace": must be set to "shorty"
+$ helm uninstall api -n shorty >/dev/null 2>&1 || true
+$ kubectl kustomize kustomize/badpatch \
+    | yq eval-all -r 'select(.kind == "Deployment") | "badpatch replicas=\(.spec.replicas)"'
+badpatch replicas=1
+$ kubectl kustomize kustomize/goodpatch \
+    | yq eval-all -r 'select(.kind == "Deployment") | "goodpatch replicas=\(.spec.replicas)"'
+goodpatch replicas=5

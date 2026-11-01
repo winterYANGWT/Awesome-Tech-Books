@@ -1,0 +1,64 @@
+$ kubectl -n shorty patch deployment api --type=json -p='[
+  {"op":"replace","path":"/spec/template/spec/containers/0/resources","value":{"requests":{"memory":"64Mi"},"limits":{"memory":"256Mi"}}}
+]'
+deployment.apps/api patched
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+...（省略 12 行）
+Waiting for deployment "api" rollout to finish: 3 of 4 updated replicas are available...
+deployment "api" successfully rolled out
+$ for i in $(seq 1 30); do
+  read -r cond msg < <(kubectl -n shorty get hpa api -o jsonpath='{range .status.conditions[?(@.type=="ScalingActive")]}{.status}/{.reason} {.message}{end}')
+  echo "ScalingActive=$cond"
+  case "$msg" in *"missing request for cpu"*) break;; esac
+  sleep 5
+done
+ScalingActive=True/ValidMetricFound
+ScalingActive=True/ValidMetricFound
+ScalingActive=False/FailedGetResourceMetric
+ScalingActive=False/FailedGetResourceMetric
+ScalingActive=False/FailedGetResourceMetric
+ScalingActive=False/FailedGetResourceMetric
+$ kubectl get hpa api -n shorty
+NAME   REFERENCE        TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+api    Deployment/api   cpu: <unknown>/50%   2         5         4          3m3s
+$ kubectl -n shorty describe hpa api | sed -n '/Conditions:/,$p'
+Conditions:
+  Type            Status  Reason                   Message
+  ----            ------  ------                   -------
+  AbleToScale     True    SucceededGetScale        the HPA controller was able to get the target's current scale
+  ScalingActive   False   FailedGetResourceMetric  the HPA was unable to compute the replica count: failed to get cpu utilization: missing request for cpu in container api of Pod api-68d6cfff8b-kcsdq
+  ScalingLimited  False   DesiredWithinRange       the desired count is within the acceptable range
+  ScaledToZero    False   NotScaledToZero          the HPA controller did not scale the workload to zero
+Events:
+  Type     Reason                        Age    From                       Message
+  ----     ------                        ----   ----                       -------
+  Normal   SuccessfulRescale             2m33s  horizontal-pod-autoscaler  New size: 3; reason: cpu resource utilization (percentage of request) above target
+  Normal   SuccessfulRescale             78s    horizontal-pod-autoscaler  New size: 4; reason: cpu resource utilization (percentage of request) above target
+  Warning  FailedGetResourceMetric       18s    horizontal-pod-autoscaler  failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Warning  FailedComputeMetricsReplicas  18s    horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Warning  FailedGetResourceMetric       3s     horizontal-pod-autoscaler  failed to get cpu utilization: missing request for cpu in container api of Pod api-68d6cfff8b-kcsdq
+  Warning  FailedComputeMetricsReplicas  3s     horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: missing request for cpu in container api of Pod api-68d6cfff8b-kcsdq
+$ kubectl -n shorty patch deployment api --type=json -p='[
+  {"op":"replace","path":"/spec/template/spec/containers/0/resources","value":{"requests":{"cpu":"45m","memory":"64Mi"},"limits":{"cpu":"500m","memory":"256Mi"}}}
+]'
+deployment.apps/api patched
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+...（省略 14 行）
+Waiting for deployment "api" rollout to finish: 3 of 4 updated replicas are available...
+deployment "api" successfully rolled out
+$ for i in $(seq 1 24); do
+  cond=$(kubectl -n shorty get hpa api -o jsonpath='{range .status.conditions[?(@.type=="ScalingActive")]}{.status}/{.reason}{end}')
+  echo "ScalingActive=$cond"
+  [ "$cond" = "True/ValidMetricFound" ] && break
+  sleep 5
+done
+ScalingActive=False/FailedGetResourceMetric
+ScalingActive=False/FailedGetResourceMetric
+ScalingActive=False/FailedGetResourceMetric
+ScalingActive=False/FailedGetResourceMetric
+ScalingActive=False/FailedGetResourceMetric
+ScalingActive=False/FailedGetResourceMetric
+ScalingActive=True/ValidMetricFound
+$ kubectl get hpa api -n shorty
+NAME   REFERENCE        TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+api    Deployment/api   cpu: 3%/50%   2         5         4          3m34s

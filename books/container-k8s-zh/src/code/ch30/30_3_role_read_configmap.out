@@ -1,0 +1,60 @@
+$ kubectl apply -f role-config-reader.yaml -f rolebinding-config-reader.yaml
+role.rbac.authorization.k8s.io/shorty-config-reader created
+rolebinding.rbac.authorization.k8s.io/shorty-config-reader created
+$ kubectl -n shorty describe role shorty-config-reader
+Name:         shorty-config-reader
+Labels:       <none>
+Annotations:  <none>
+PolicyRule:
+  Resources   Non-Resource URLs  Resource Names  Verbs
+  ---------   -----------------  --------------  -----
+  configmaps  []                 []              [get list]
+$ kubectl auth can-i get configmaps \
+  --as=system:serviceaccount:shorty:shorty-api -n shorty
+yes
+$ kubectl auth can-i list configmaps \
+  --as=system:serviceaccount:shorty:shorty-api -n shorty
+yes
+$ kubectl auth can-i --list \
+  --as=system:serviceaccount:shorty:shorty-api -n shorty
+Resources                                       Non-Resource URLs                      Resource Names   Verbs
+selfsubjectreviews.authentication.k8s.io        []                                     []               [create]
+selfsubjectaccessreviews.authorization.k8s.io   []                                     []               [create]
+selfsubjectrulesreviews.authorization.k8s.io    []                                     []               [create]
+clustertrustbundles.certificates.k8s.io         []                                     []               [get list watch]
+configmaps                                      []                                     []               [get list]
+                                                [/.well-known/openid-configuration/]   []               [get]
+                                                [/.well-known/openid-configuration]    []               [get]
+                                                [/api/*]                               []               [get]
+                                                [/api]                                 []               [get]
+                                                [/apis/*]                              []               [get]
+                                                [/apis]                                []               [get]
+                                                [/healthz]                             []               [get]
+                                                [/healthz]                             []               [get]
+                                                [/livez]                               []               [get]
+                                                [/livez]                               []               [get]
+                                                [/openapi/*]                           []               [get]
+                                                [/openapi]                             []               [get]
+                                                [/openid/v1/jwks/]                     []               [get]
+                                                [/openid/v1/jwks]                      []               [get]
+                                                [/readyz]                              []               [get]
+                                                [/readyz]                              []               [get]
+                                                [/version/]                            []               [get]
+                                                [/version/]                            []               [get]
+                                                [/version]                             []               [get]
+                                                [/version]                             []               [get]
+$ kubectl -n shorty patch deployment api --type=strategic \
+  -p '{"spec":{"template":{"spec":{"serviceAccountName":"shorty-api"}}}}'
+deployment.apps/api patched
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment spec update to be observed...
+Waiting for deployment "api" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ kubectl -n shorty get deployment api \
+  -o jsonpath='{.spec.template.spec.serviceAccountName}{"\n"}'
+shorty-api

@@ -1,0 +1,22 @@
+$ kubectl create namespace stuck-demo
+namespace/stuck-demo created
+$ kubectl -n stuck-demo create configmap stuck-cm --from-literal=key=value
+configmap/stuck-cm created
+$ kubectl -n stuck-demo patch configmap stuck-cm --type=merge -p '{"metadata":{"finalizers":["example.com/hold"]}}'
+configmap/stuck-cm patched
+$ kubectl delete namespace stuck-demo --timeout=10s
+namespace "stuck-demo" deleted
+error: timed out waiting for the condition on namespaces/stuck-demo
+$ kubectl get namespace stuck-demo -o jsonpath='{.status.phase}{"\n"}'
+Terminating
+$ for r in $(kubectl api-resources --verbs=list --namespaced -o name); do
+  kubectl -n stuck-demo get "$r" -o json 2>/dev/null |
+    jq -r --arg r "$r" '.items[]? | select(.metadata.deletionTimestamp != null) | "\($r)/\(.metadata.name) finalizers=\(.metadata.finalizers)"'
+done
+configmaps/stuck-cm finalizers=["example.com/hold"]
+$ kubectl -n stuck-demo patch configmap stuck-cm --type=merge -p '{"metadata":{"finalizers":[]}}'
+configmap/stuck-cm patched
+$ kubectl wait --for=delete namespace/stuck-demo --timeout=60s
+namespace/stuck-demo condition met
+$ kubectl get namespace stuck-demo
+Error from server (NotFound): namespaces "stuck-demo" not found

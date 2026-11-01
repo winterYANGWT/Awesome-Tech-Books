@@ -1,0 +1,73 @@
+$ echo '--- runc 版本 ---'
+--- runc 版本 ---
+$ runc --version
+runc version 1.5.2
+commit: v1.5.2-0-g29dd3dc
+spec: 1.3.0
+go: go1.26.10
+libseccomp: 2.6.0
+$ docker run -d --name runc-demo lab/busybox:1.37 sleep 600 >/dev/null
+$ cid=$(docker inspect -f '{{.Id}}' runc-demo)
+$ echo "docker inspect .Id: $cid"
+docker inspect .Id: 65a4025462235aa762be04c600fda7a90f364be82846125676accc0cda3d2ff1
+$ echo '--- runc list（第一行是表头）---'
+--- runc list（第一行是表头）---
+$ runc --root /run/docker/runtime-runc/moby list | head -1
+ID                                                                 PID         STATUS      BUNDLE                                                                                                                              CREATED                          OWNER
+$ runc --root /run/docker/runtime-runc/moby list | grep "$cid" | cut -c1-150
+65a4025462235aa762be04c600fda7a90f364be82846125676accc0cda3d2ff1   9184        running     /run/docker/containerd/daemon/io.containerd.runtime.v2.task
+$ echo '--- runc 的 pivot_root 开关（默认使用 pivot_root）---'
+--- runc 的 pivot_root 开关（默认使用 pivot_root）---
+$ runc run --help 2>&1 | grep -- '--no-pivot'
+   --no-pivot                do not use pivot root to jail process inside rootfs.  This should be used whenever the rootfs is on top of a ramdisk
+$ echo '--- runc state ---'
+--- runc state ---
+$ runc --root /run/docker/runtime-runc/moby state "$cid"
+{
+  "ociVersion": "1.3.0",
+  "id": "65a4025462235aa762be04c600fda7a90f364be82846125676accc0cda3d2ff1",
+  "pid": 9184,
+  "status": "running",
+  "bundle": "/run/docker/containerd/daemon/io.containerd.runtime.v2.task/moby/65a4025462235aa762be04c600fda7a90f364be82846125676accc0cda3d2ff1",
+  "rootfs": "/var/lib/docker/rootfs/overlayfs/65a4025462235aa762be04c600fda7a90f364be82846125676accc0cda3d2ff1",
+  "created": "2026-10-27T15:19:50.919994103Z",
+  "owner": ""
+}
+$ bundle=$(runc --root /run/docker/runtime-runc/moby state "$cid" | jq -r .bundle)
+$ echo "bundle 目录: $bundle"
+bundle 目录: /run/docker/containerd/daemon/io.containerd.runtime.v2.task/moby/65a4025462235aa762be04c600fda7a90f364be82846125676accc0cda3d2ff1
+$ ls "$bundle"
+bootstrap.json
+config.json
+init.pid
+log
+log.json
+options.json
+rootfs
+runtime
+s
+shim-binary-path
+work
+$ echo '--- bundle 里 config.json 的 root 和 namespaces ---'
+--- bundle 里 config.json 的 root 和 namespaces ---
+$ jq -r '.root.path' "$bundle/config.json"
+/var/lib/docker/rootfs/overlayfs/65a4025462235aa762be04c600fda7a90f364be82846125676accc0cda3d2ff1
+$ jq -r '.linux.namespaces[].type' "$bundle/config.json" | paste -sd' '
+mount network time uts pid ipc cgroup
+$ echo '--- docker inspect 的宿主 PID 与父进程 ---'
+--- docker inspect 的宿主 PID 与父进程 ---
+$ pid=$(docker inspect -f '{{.State.Pid}}' runc-demo)
+$ echo "docker inspect .State.Pid: $pid"
+docker inspect .State.Pid: 9184
+$ ps -o pid,ppid,args -p "$pid"
+    PID    PPID COMMAND
+   9184    9161 sleep 600
+$ ppid=$(ps -o ppid= -p "$pid" | tr -d ' ')
+$ ps -o pid,ppid,args -p "$ppid" | cut -c1-120
+    PID    PPID COMMAND
+   9161       1 /usr/local/bin/containerd-shim-runc-v2 -namespace moby -id 65a4025462235aa762be04c600fda7a90f364be828461
+$ echo '--- 这个容器的 rootfs 是一个 overlay 挂载 ---'
+--- 这个容器的 rootfs 是一个 overlay 挂载 ---
+$ mount | grep "rootfs/overlayfs/$cid" | cut -c1-260
+overlay on /var/lib/docker/rootfs/overlayfs/65a4025462235aa762be04c600fda7a90f364be82846125676accc0cda3d2ff1 type overlay (rw,relatime,lowerdir=/var/lib/docker/containerd/daemon/io.containerd.snapshotter.v1.overlayfs/snapshots/1280/fs:/var/lib/docker/container
+$ docker rm -f runc-demo >/dev/null

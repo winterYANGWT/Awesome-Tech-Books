@@ -1,0 +1,122 @@
+$ docker compose down -v --remove-orphans
+ Container shorty-worker-1 Stopping
+ Container shorty-api-1 Stopping
+ Container shorty-worker-1 Stopped
+ Container shorty-worker-1 Removing
+ Container shorty-worker-1 Removed
+ Container shorty-api-1 Stopped
+ Container shorty-api-1 Removing
+ Container shorty-api-1 Removed
+ Container shorty-redis-1 Stopping
+ Container shorty-migrate-1 Stopping
+ Container shorty-migrate-1 Stopped
+ Container shorty-migrate-1 Removing
+ Container shorty-migrate-1 Removed
+ Container shorty-postgres-1 Stopping
+ Container shorty-postgres-1 Stopped
+ Container shorty-postgres-1 Removing
+ Container shorty-postgres-1 Removed
+ Container shorty-redis-1 Stopped
+ Container shorty-redis-1 Removing
+ Container shorty-redis-1 Removed
+ Volume shorty_pgdata Removing
+ Network shorty_default Removing
+ Volume shorty_pgdata Removed
+ Network shorty_default Removed
+$ docker compose -f compose.race.yaml up -d
+...（省略 8 行）
+ Container shorty-race-postgres-1 Creating
+ Container shorty-race-postgres-1 Created
+ Container shorty-race-api-1 Creating
+ Container shorty-race-api-1 Created
+ Container shorty-race-postgres-1 Starting
+ Container shorty-race-postgres-1 Started
+ Container shorty-race-api-1 Starting
+ Container shorty-race-api-1 Started
+$ code=000
+$ for i in $(seq 1 40); do
+  code=$(curl -s -o /tmp/ch14-ready -w '%{http_code}' localhost:8080/readyz || true)
+  [ "$code" = 503 ] && break
+  sleep 0.5
+done
+$ echo "status=$code"
+status=503
+$ cat /tmp/ch14-ready
+not ready: database: failed to connect to `user=shorty database=shorty`: 172.19.0.2:5432 (postgres): dial error: dial tcp 172.19.0.2:5432: connect: connection refused
+$ code=000
+$ for i in $(seq 1 30); do
+  code=$(curl -s -o /tmp/ch14-ready -w '%{http_code}' localhost:8080/readyz || true)
+  [ "$code" = 200 ] && break
+  sleep 1
+done
+$ echo "status=$code"
+status=200
+$ cat /tmp/ch14-ready
+ok
+$ docker compose -f compose.race.yaml down -v
+ Container shorty-race-api-1 Stopping
+ Container shorty-race-api-1 Stopped
+ Container shorty-race-api-1 Removing
+ Container shorty-race-api-1 Removed
+ Container shorty-race-postgres-1 Stopping
+ Container shorty-race-postgres-1 Stopped
+ Container shorty-race-postgres-1 Removing
+ Container shorty-race-postgres-1 Removed
+ Volume shorty-race_pgdata Removing
+ Network shorty-race_default Removing
+ Volume shorty-race_pgdata Removed
+ Network shorty-race_default Removed
+$ docker compose up -d
+ Network shorty_default Creating
+ Network shorty_default Creating
+ Volume shorty_pgdata Creating
+ Volume shorty_pgdata Creating
+ Volume shorty_pgdata Created
+ Volume shorty_pgdata Created
+ Network shorty_default Created
+ Network shorty_default Created
+ Container shorty-redis-1 Creating
+ Container shorty-postgres-1 Creating
+ Container shorty-redis-1 Created
+ Container shorty-postgres-1 Created
+ Container shorty-migrate-1 Creating
+ Container shorty-migrate-1 Created
+ Container shorty-worker-1 Creating
+ Container shorty-api-1 Creating
+ Container shorty-worker-1 Created
+ Container shorty-api-1 Created
+ Container shorty-redis-1 Starting
+ Container shorty-postgres-1 Starting
+ Container shorty-redis-1 Started
+ Container shorty-postgres-1 Started
+ Container shorty-postgres-1 Waiting
+ Container shorty-postgres-1 Healthy
+ Container shorty-migrate-1 Starting
+ Container shorty-migrate-1 Started
+ Container shorty-migrate-1 Waiting
+ Container shorty-postgres-1 Waiting
+ Container shorty-redis-1 Waiting
+ Container shorty-migrate-1 Waiting
+ Container shorty-postgres-1 Waiting
+ Container shorty-redis-1 Waiting
+ Container shorty-redis-1 Healthy
+ Container shorty-postgres-1 Healthy
+ Container shorty-migrate-1 Exited
+ Container shorty-api-1 Starting
+ Container shorty-migrate-1 Exited
+ Container shorty-redis-1 Healthy
+ Container shorty-postgres-1 Healthy
+ Container shorty-worker-1 Starting
+ Container shorty-api-1 Started
+ Container shorty-worker-1 Started
+$ for i in $(seq 1 120); do
+  if curl -fsS localhost:8080/readyz >/dev/null 2>&1; then
+    break
+  fi
+  sleep 1
+done
+$ docker compose ps --format json | jq -sr '.[] | [.Service, .State, (.Health // "-")] | @tsv' | sort
+api	running
+postgres	running	healthy
+redis	running	healthy
+worker	running

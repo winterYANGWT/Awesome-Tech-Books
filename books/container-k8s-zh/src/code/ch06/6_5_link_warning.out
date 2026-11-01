@@ -1,0 +1,23 @@
+$ docker run -d --name ch06-link --link shorty-pg:db busybox:1.37 sleep 600 >/dev/null
+WARNING: Links on the default bridge network are deprecated and will be removed in a future release. Use a custom network instead.
+$ docker exec ch06-link cat /etc/hosts
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+fe00::	ip6-localnet
+ff00::	ip6-mcastprefix
+ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters
+172.18.0.2	db ca8036b52095 shorty-pg
+172.18.0.3	7849923f9ab7
+$ docker exec ch06-link sh -c 'env | grep "^DB_" || echo "没有 DB_* 环境变量"'
+没有 DB_* 环境变量
+$ docker exec ch06-link ping -c 1 -W 2 db
+PING db (172.18.0.2): 56 data bytes
+64 bytes from 172.18.0.2: seq=0 ttl=64 time=0.092 ms
+
+--- db ping statistics ---
+1 packets transmitted, 1 packets received, 0% packet loss
+round-trip min/avg/max = 0.092/0.092/0.092 ms
+$ docker inspect -f '{{json .HostConfig.Links}}' ch06-link
+["/shorty-pg:/ch06-link/db"]
+$ docker rm -f ch06-link >/dev/null

@@ -1,0 +1,54 @@
+$ kubectl -n shorty annotate deployment/api kubernetes.io/change-cause="bad image shorty:0.9" --overwrite
+deployment.apps/api annotated
+$ kubectl -n shorty set image deployment/api api=shorty:0.9
+deployment.apps/api image updated
+$ kubectl -n shorty rollout status deployment/api --timeout=90s
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+error: deployment "api" exceeded its progress deadline
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api
+NAME                   READY   STATUS             RESTARTS   AGE
+api-577d8f974f-5rsgd   0/1     ImagePullBackOff   0          31s
+api-577d8f974f-7xjw6   0/1     ImagePullBackOff   0          31s
+api-86d97f5f58-6j845   1/1     Running            0          72s
+$ kubectl -n shorty describe deployment api | sed -n '/^Conditions:/,/^OldReplicaSets:/p'
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    False   ProgressDeadlineExceeded
+OldReplicaSets:  api-6859cf8794 (0/0 replicas created), api-685ff46f8f (0/0 replicas created), api-86d97f5f58 (1/1 replicas created)
+$ kubectl -n shorty rollout history deployment/api
+deployment.apps/api
+REVISION  CHANGE-CAUSE
+1         <none>
+2         rolling update to shorty:0.2
+3         bad image shorty:0.9
+4         bad image shorty:0.9
+$ kubectl -n shorty rollout undo deployment/api
+Warning: resource deployments/api was previously managed with 'kubectl apply'. Rolling back will not update the kubectl.kubernetes.io/last-applied-configuration annotation, which may cause unexpected behavior on future 'kubectl apply' operations. Consider using 'kubectl apply' with your previous configuration file instead.
+deployment.apps/api rolled back
+$ kubectl -n shorty wait --for=condition=Progressing deployment/api --timeout=180s
+deployment.apps/api condition met
+$ kubectl -n shorty rollout status deployment/api --timeout=60s
+Waiting for deployment "api" rollout to finish: 1 of 2 updated replicas are available...
+Waiting for deployment "api" rollout to finish: 1 of 2 updated replicas are available...
+Waiting for deployment "api" rollout to finish: 1 of 2 updated replicas are available...
+Waiting for deployment "api" rollout to finish: 1 of 2 updated replicas are available...
+deployment "api" successfully rolled out
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api
+NAME                   READY   STATUS    RESTARTS   AGE
+api-86d97f5f58-6j845   1/1     Running   0          78s
+api-86d97f5f58-bq45k   1/1     Running   0          6s
+$ kubectl -n shorty rollout restart deployment/api
+deployment.apps/api restarted
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ kubectl -n shorty get deployment api -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+shorty:0.2

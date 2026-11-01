@@ -1,0 +1,45 @@
+$ POD=$(kubectl -n shorty get pod -l app.kubernetes.io/name=api \
+  -o jsonpath='{.items[0].metadata.name}')
+$ kubectl -n shorty exec $POD -- sh -c 'echo hello'
+error: Internal error occurred: Internal error occurred: error executing command in container: failed to exec in container: failed to start exec "878195e7ceb6f2c631de29c377da76f98c8e0fc9c12168f9ed6ed0540bde1a3b": OCI runtime exec failed: exec failed: unable to start container process: exec: "sh": executable file not found in $PATH
+$ BEFORE=$(kubectl -n shorty get pod $POD \
+  -o jsonpath='{.status.containerStatuses[0].restartCount}')
+$ kubectl -n shorty debug pod/$POD --image=curlimages/curl:8.14.1 \
+  --profile=restricted --attach=false -- curl -fsS localhost:8080/healthz
+Defaulting debug container name to debugger-xfbhl.
+$ DC=$(kubectl -n shorty get pod $POD -o jsonpath='{.spec.ephemeralContainers[0].name}')
+$ for i in $(seq 1 60); do
+  EC=$(kubectl -n shorty get pod $POD \
+    -o jsonpath='{.status.ephemeralContainerStatuses[0].state.terminated.exitCode}')
+  [ -n "$EC" ] && break
+  sleep 0.5
+done
+$ echo "ephemeral $DC exitCode=$EC"
+ephemeral debugger-xfbhl exitCode=0
+$ kubectl -n shorty logs $POD -c $DC
+ok
+$ AFTER=$(kubectl -n shorty get pod $POD \
+  -o jsonpath='{.status.containerStatuses[0].restartCount}')
+$ echo "api restartCount before=$BEFORE after=$AFTER, ephemeral=$DC"
+api restartCount before=1 after=1, ephemeral=debugger-xfbhl
+$ [ "$BEFORE" = "$AFTER" ]
+$ NODE=$(kubectl -n shorty get pod $POD -o jsonpath='{.spec.nodeName}')
+$ kubectl debug node/$NODE --image=alpine:3.22 --profile=sysadmin --attach=false -- \
+  sh -c 'chroot /host crictl ps | grep -E "CONTAINER|shorty$"'
+Creating debugging pod node-debugger-shorty-control-plane-gjwjb with container debugger on node shorty-control-plane.
+$ DPOD=$(kubectl get pods --sort-by=.metadata.creationTimestamp -o name | tail -n 1 | cut -d/ -f2)
+$ for i in $(seq 1 60); do
+  PHASE=$(kubectl get pod $DPOD -o jsonpath='{.status.phase}')
+  [ "$PHASE" = Succeeded ] && break
+  sleep 1
+done
+$ echo "node debug pod $DPOD phase=$PHASE"
+node debug pod node-debugger-shorty-control-plane-gjwjb phase=Succeeded
+$ kubectl logs $DPOD
+CONTAINER           IMAGE               CREATED                  STATE               NAME                      ATTEMPT             POD ID              POD                                                 NAMESPACE
+47d8c56087850       755f590a80e82       About a minute ago       Running             api                       1                   e662ccaafc825       api-547fc786f9-fz44m                                shorty
+744a0c00a1d72       47017a0995eb1       5 minutes ago            Running             nginx                     0                   36413288ebea0       shorty-gw-nginx-7dcb9c98d5-5wx42                    shorty
+2f3739946fb39       57b23a0326ee4       6 minutes ago            Running             postgres                  0                   7e66cb0075f5e       postgres-0                                          shorty
+bd9540a8fd5e3       755f590a80e82       6 minutes ago            Running             api                       0                   06eeec6404053       api-547fc786f9-mrrws                                shorty
+190b8a4a228d6       05c8de29db688       6 minutes ago            Running             redis                     0                   f4230389d2868       redis-789b85c667-nhhp8                              shorty
+111c84544f7e3       f385e603258f7       6 minutes ago            Running             worker                    0                   afe276bf2ec77       worker-7f977dd6bf-t9rsf                             shorty

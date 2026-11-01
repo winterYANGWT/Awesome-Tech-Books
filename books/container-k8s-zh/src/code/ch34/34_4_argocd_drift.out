@@ -1,0 +1,32 @@
+$ kubectl -n shorty scale deployment/api --replicas=5
+deployment.apps/api scaled
+$ kubectl -n argocd annotate application shorty argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+$ kubectl -n argocd wait --for=jsonpath='{.status.sync.status}'=OutOfSync application/shorty --timeout=120s
+application.argoproj.io/shorty condition met
+$ kubectl -n argocd get application shorty \
+    -o custom-columns=NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status
+NAME     SYNC        HEALTH
+shorty   OutOfSync   Progressing
+$ kubectl -n shorty get deployment api \
+    -o jsonpath='{.spec.replicas}{"\n"}'
+5
+$ kubectl -n argocd patch application shorty --type=merge \
+    -p '{"spec":{"syncPolicy":{"automated":{"prune":false,"selfHeal":true}}}}'
+application.argoproj.io/shorty patched
+$ kubectl -n argocd annotate application shorty argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+$ kubectl -n shorty wait --for=jsonpath='{.spec.replicas}'=2 deployment/api --timeout=120s
+deployment.apps/api condition met
+$ kubectl -n shorty wait --for=condition=Available deployment/api --timeout=120s
+deployment.apps/api condition met
+$ kubectl -n argocd annotate application shorty argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+$ kubectl -n argocd wait --for=jsonpath='{.status.sync.status}'=Synced application/shorty --timeout=120s
+application.argoproj.io/shorty condition met
+$ kubectl -n argocd wait --for=jsonpath='{.status.health.status}'=Healthy application/shorty --timeout=120s
+application.argoproj.io/shorty condition met
+$ kubectl -n argocd get application shorty \
+    -o custom-columns=NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status
+NAME     SYNC     HEALTH
+shorty   Synced   Healthy
+$ kubectl -n shorty get deployment api \
+    -o jsonpath='{.spec.replicas}{"\n"}'
+2

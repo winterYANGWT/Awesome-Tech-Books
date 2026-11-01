@@ -1,0 +1,115 @@
+$ rm -rf /tmp/stale-demo
+$ mkdir -p /tmp/stale-demo
+$ cat > /tmp/stale-demo/go.mod <<'EOF'
+module stale
+
+go 1.27.3
+EOF
+$ cat > /tmp/stale-demo/main.go <<'EOF'
+package main
+
+import "fmt"
+
+var version = "base"
+
+func main() {
+	fmt.Println(version)
+}
+EOF
+$ cat > /tmp/stale-demo/settings.go <<'EOF'
+package main
+
+func init() {
+	version = "v1"
+}
+EOF
+$ printf 'settings.go\n' > /tmp/stale-demo/.dockerignore
+$ cat > /tmp/stale-demo/Dockerfile <<'EOF'
+FROM golang:1.27.3-trixie
+WORKDIR /src
+COPY . .
+RUN CGO_ENABLED=0 go build -o /stale .
+ENTRYPOINT ["/stale"]
+EOF
+$ docker build --progress=plain --provenance=false -t stale:v1 /tmp/stale-demo
+...（省略 32 行）
+#9 exporting layers 0.6s done
+#9 exporting manifest sha256:2437a450c2bfe8bc3ccb59117a57ac8bdb94c3f69e2775919a7a8797a0228f25 0.0s done
+#9 exporting config sha256:f3e4d44dae6c5cd79915fcbd960183ae3924679bc898a22ec470010c9797f4ec done
+#9 naming to docker.io/library/stale:v1 done
+#9 unpacking to docker.io/library/stale:v1 0.1s done
+#9 DONE 0.7s
+$ docker run --rm stale:v1
+base
+$ sed -i 's/version = "v1"/version = "v2"/' /tmp/stale-demo/settings.go
+$ docker build --progress=plain --provenance=false -t stale:v2 /tmp/stale-demo
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 146B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/golang:1.27.3-trixie
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 52B done
+#3 DONE 0.0s
+
+#4 [1/4] FROM docker.io/library/golang:1.27.3-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385
+#4 resolve docker.io/library/golang:1.27.3-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 114B done
+#5 DONE 0.0s
+
+#6 [2/4] WORKDIR /src
+#6 CACHED
+
+#7 [3/4] COPY . .
+#7 CACHED
+
+#8 [4/4] RUN CGO_ENABLED=0 go build -o /stale .
+#8 CACHED
+
+#9 exporting to image
+#9 exporting layers done
+#9 exporting manifest sha256:2437a450c2bfe8bc3ccb59117a57ac8bdb94c3f69e2775919a7a8797a0228f25 done
+#9 exporting config sha256:f3e4d44dae6c5cd79915fcbd960183ae3924679bc898a22ec470010c9797f4ec done
+#9 naming to docker.io/library/stale:v2 done
+#9 unpacking to docker.io/library/stale:v2 done
+#9 DONE 0.0s
+$ docker run --rm stale:v2
+base
+$ docker build --progress=plain --provenance=false --no-cache -t stale:v2 /tmp/stale-demo
+...（省略 32 行）
+#9 exporting layers 0.6s done
+#9 exporting manifest sha256:6a144bea44e78f0bc17ec3543e41298e975c1869bdf6af31195303ed6a5fbc3b done
+#9 exporting config sha256:320eb04fab164df0dd8ba87ff987f4c7189bbeacd3ad9d160984e5d6dfe69156 done
+#9 naming to docker.io/library/stale:v2 done
+#9 unpacking to docker.io/library/stale:v2 0.1s done
+#9 DONE 0.7s
+$ docker run --rm stale:v2
+base
+$ : > /tmp/stale-demo/.dockerignore
+$ docker build --progress=plain --provenance=false -t stale:v2 /tmp/stale-demo
+...（省略 25 行）
+#6 CACHED
+
+#7 [3/4] COPY . .
+#7 DONE 0.0s
+
+#8 [4/4] RUN CGO_ENABLED=0 go build -o /stale .
+#8 DONE 1.7s
+
+#9 exporting to image
+#9 exporting layers
+#9 exporting layers 0.6s done
+#9 exporting manifest sha256:f77bc2de35037d753e2a3f546dd8f49efd09418d4c437f1509158ff1129645df done
+#9 exporting config sha256:690554ce6bc33e87b27c164f1b96b86a347d2ff6af6fd75cbcb15081618e6a3d done
+#9 naming to docker.io/library/stale:v2 done
+#9 unpacking to docker.io/library/stale:v2 0.1s done
+#9 DONE 0.7s
+$ docker run --rm stale:v2
+v2

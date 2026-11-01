@@ -1,0 +1,13 @@
+$ kubectl get lease -n kube-system
+NAME                                   HOLDER                                                                      AGE
+apiserver-umqtrrrkndmbx2lk3p5do3plcm   apiserver-umqtrrrkndmbx2lk3p5do3plcm_d7c14639-e9a4-496e-8383-f55887208d73   3m37s
+kube-controller-manager                shorty-control-plane_58857658-81b7-4d9d-8e66-5a59c77aac11                   3m34s
+kube-scheduler                         shorty-control-plane_b888f262-a178-4603-8e06-5e1a3378880a                   3m33s
+$ kubectl get lease -n kube-system kube-scheduler kube-controller-manager \
+  -o custom-columns='NAME:.metadata.name,HOLDER:.spec.holderIdentity,RENEW:.spec.renewTime,DURATION:.spec.leaseDurationSeconds'
+NAME                      HOLDER                                                      RENEW                         DURATION
+kube-scheduler            shorty-control-plane_b888f262-a178-4603-8e06-5e1a3378880a   2026-10-30T08:50:53.690198Z   15
+kube-controller-manager   shorty-control-plane_58857658-81b7-4d9d-8e66-5a59c77aac11   2026-10-30T08:50:53.031429Z   15
+$ kubectl get lease -n kube-node-lease
+NAME                   HOLDER                 AGE
+shorty-control-plane   shorty-control-plane   3m37s

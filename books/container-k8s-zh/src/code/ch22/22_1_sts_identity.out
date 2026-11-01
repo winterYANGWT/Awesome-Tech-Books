@@ -1,0 +1,50 @@
+$ kubectl apply -f sts-demo.yaml
+namespace/sts-demo created
+service/postgres created
+statefulset.apps/postgres created
+$ kubectl -n sts-demo rollout status statefulset/postgres --timeout=120s
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+$ kubectl -n sts-demo get statefulset postgres -o custom-columns=NAME:.metadata.name,REPLICAS:.spec.replicas,READY:.status.readyReplicas,SERVICE:.spec.serviceName,POLICY:.spec.podManagementPolicy
+NAME       REPLICAS   READY   SERVICE    POLICY
+postgres   1          1       postgres   OrderedReady
+$ kubectl -n sts-demo get pod,pvc
+NAME             READY   STATUS    RESTARTS   AGE
+pod/postgres-0   1/1     Running   0          3s
+
+NAME                                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/data-postgres-0   Bound    pvc-c5ce773a-4ee7-4574-bb99-dafd168d7d06   1Gi        RWO            standard       <unset>                 3s
+$ kubectl -n sts-demo exec postgres-0 -- hostname
+postgres-0
+$ kubectl -n sts-demo exec postgres-0 -- hostname -f
+postgres-0.postgres.sts-demo.svc.cluster.local
+$ kubectl -n sts-demo exec postgres-0 -- nslookup postgres-0.postgres.sts-demo.svc.cluster.local
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+Name:	postgres-0.postgres.sts-demo.svc.cluster.local
+Address: 10.244.0.13
+$ kubectl -n sts-demo exec postgres-0 -- nslookup postgres.sts-demo.svc.cluster.local
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+Name:	postgres.sts-demo.svc.cluster.local
+Address: 10.244.0.13
+$ kubectl -n sts-demo exec postgres-0 -- sh -c 'cat /data/written-by'
+initial
+$ old_uid=$(kubectl -n sts-demo get pod postgres-0 -o jsonpath='{.metadata.uid}')
+$ old_ip=$(kubectl -n sts-demo get pod postgres-0 -o jsonpath='{.status.podIP}')
+$ printf 'before: uid=%s ip=%s\n' "$old_uid" "$old_ip"
+before: uid=91a694cd-0854-4497-ab80-006e01427685 ip=10.244.0.13
+$ kubectl -n sts-demo delete pod postgres-0 --wait=true
+pod "postgres-0" deleted from sts-demo namespace
+$ kubectl -n sts-demo rollout status statefulset/postgres --timeout=120s
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+$ new_uid=$(kubectl -n sts-demo get pod postgres-0 -o jsonpath='{.metadata.uid}')
+$ new_ip=$(kubectl -n sts-demo get pod postgres-0 -o jsonpath='{.status.podIP}')
+$ printf 'after:  uid=%s ip=%s name=%s\n' "$new_uid" "$new_ip" "$(kubectl -n sts-demo get pod postgres-0 -o jsonpath='{.metadata.name}')"
+after:  uid=fefe9a22-237d-49e1-89f4-21eafd8dcd78 ip=10.244.0.14 name=postgres-0
+$ kubectl -n sts-demo exec postgres-0 -- sh -c 'cat /data/written-by'
+initial

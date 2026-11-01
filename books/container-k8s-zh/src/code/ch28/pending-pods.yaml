@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ch28-pending
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: too-big
+  namespace: ch28-pending
+spec:
+  containers:
+    - name: app
+      image: alpine:3.22
+      command: ["sleep", "3600"]
+      resources:
+        requests:
+          cpu: "100"
+          memory: 64Mi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: control-plane-only
+  namespace: ch28-pending
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: shorty-control-plane
+  containers:
+    - name: app
+      image: alpine:3.22
+      command: ["sleep", "3600"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: missing-pvc
+  namespace: ch28-pending
+spec:
+  containers:
+    - name: app
+      image: alpine:3.22
+      command: ["sleep", "3600"]
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: no-such-pvc

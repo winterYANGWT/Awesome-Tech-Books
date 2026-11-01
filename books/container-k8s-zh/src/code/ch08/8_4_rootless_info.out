@@ -1,0 +1,23 @@
+$ source ./rootless_env.bash
+$ trap rootless_stop EXIT
+$ rootless_start
+$ DOCKER_HOST="unix://$RLS_SOCK" docker info 2> /dev/null | sed -n \
+    -e '/^ Server Version:/p' -e '/^ Storage Driver:/p' -e '/^ Cgroup Driver:/p' \
+    -e '/Security Options:/,+4p'
+ Server Version: 29.9.2
+ Storage Driver: overlayfs
+ Cgroup Driver: none
+ Security Options:
+  seccomp
+   Profile: builtin
+  rootless
+  cgroupns
+$ ps -eo user=,pid=,comm=,args= | grep -E '[r]ootlesskit|[d]ockerd --rootless' | cut -c1-110
+rls       196768 rootlesskit     rootlesskit --state-dir=/run/docker/rootlesskit --net=slirp4netns --mtu=65520
+rls       196824 exe             /proc/self/exe --state-dir=/run/docker/rootlesskit --net=slirp4netns --mtu=65
+rls       196853 dockerd         dockerd --rootless --iptables=false --ip6tables=false --data-root=/tmp/ch08-r
+$ DOCKER_HOST="unix://$RLS_SOCK" docker run --rm -p 80:8080 busybox:1.37 true
+docker: Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint nice_chebyshev (a117962a05df4036cfad6ced53d382e2b01e4420720b88f7de88e2de7a29077d): error while calling RootlessKit PortManager.AddPort(): cannot expose privileged port 80, you can add 'net.ipv4.ip_unprivileged_port_start=80' to /etc/sysctl.conf (currently 1024), or set CAP_NET_BIND_SERVICE on rootlesskit binary, or choose a larger port number (>= 1024): listen tcp4 0.0.0.0:80: bind: permission denied
+
+Run 'docker run --help' for more information
+$ DOCKER_HOST="unix://$RLS_SOCK" docker run --rm -p 18080:8080 busybox:1.37 true

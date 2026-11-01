@@ -1,0 +1,82 @@
+$ TLS_DIR=$(mktemp -d)
+$ openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 2 \
+  -keyout "$TLS_DIR/tls.key" -out "$TLS_DIR/tls.crt" \
+  -subj '/CN=shorty.local' -addext 'subjectAltName=DNS:shorty.local' 2>/dev/null
+$ kubectl -n shorty create secret tls shorty-tls \
+  --cert="$TLS_DIR/tls.crt" --key="$TLS_DIR/tls.key"
+secret/shorty-tls created
+$ kubectl apply -f gateway-tls.yaml
+gateway.gateway.networking.k8s.io/shorty-gw configured
+$ kubectl -n shorty wait \
+  --for=jsonpath='{.status.listeners[?(@.name=="https")].conditions[?(@.type=="Programmed")].status}'=True \
+  gateway/shorty-gw --timeout=180s
+gateway.gateway.networking.k8s.io/shorty-gw condition met
+$ kubectl -n shorty rollout status deployment/shorty-gw-nginx --timeout=180s
+Waiting for deployment spec update to be observed...
+Waiting for deployment "shorty-gw-nginx" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "shorty-gw-nginx" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "shorty-gw-nginx" rollout to finish: 1 old replicas are pending termination...
+deployment "shorty-gw-nginx" successfully rolled out
+$ kubectl -n shorty wait --for=jsonpath='{.endpoints[0].addresses[0]}' endpointslice \
+  -l kubernetes.io/service-name=shorty-gw-nginx --timeout=60s
+endpointslice.discovery.k8s.io/shorty-gw-nginx-wrvwt condition met
+$ kubectl -n shorty get svc shorty-gw-nginx
+NAME              TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+shorty-gw-nginx   LoadBalancer   10.96.148.142   <pending>     80:31461/TCP,443:30823/TCP   102s
+$ kubectl -n shorty port-forward svc/shorty-gw-nginx 18080:80 18443:443 >/tmp/ch25-pf-tls.log 2>&1 & PF=$!
+$ for i in $(seq 1 50); do
+  curl -kfsS --resolve shorty.local:18443:127.0.0.1 -H 'Host: shorty.local' https://shorty.local:18443/healthz >/dev/null 2>&1 && break
+  sleep 0.2
+done
+$ curl -k -sS --resolve shorty.local:18443:127.0.0.1 -H 'Host: shorty.local' https://shorty.local:18443/healthz
+ok
+$ curl -sS --resolve shorty.local:18443:127.0.0.1 -H 'Host: shorty.local' https://shorty.local:18443/healthz
+curl: (60) SSL certificate OpenSSL verify result: self-signed certificate (18)
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the webpage mentioned above.
+$ timeout 5 openssl s_client -connect 127.0.0.1:18443 -servername shorty.local </dev/null 2>/dev/null \
+  | openssl x509 -noout -subject -issuer
+subject=CN=shorty.local
+issuer=CN=shorty.local
+$ kubectl -n shorty delete secret shorty-tls
+secret "shorty-tls" deleted from shorty namespace
+$ kubectl -n shorty wait \
+  --for=jsonpath='{.status.listeners[?(@.name=="https")].conditions[?(@.type=="ResolvedRefs")].status}'=False \
+  gateway/shorty-gw --timeout=120s
+gateway.gateway.networking.k8s.io/shorty-gw condition met
+$ kubectl -n shorty get gateway shorty-gw \
+  -o jsonpath='{range .status.listeners[*]}{.name}{" programmed="}{.conditions[?(@.type=="Programmed")].status}{" resolved="}{.conditions[?(@.type=="ResolvedRefs")].status}{"\n"}{end}'
+http programmed=True resolved=True
+https programmed=False resolved=False
+$ curl -k -sS --max-time 5 --resolve shorty.local:18443:127.0.0.1 -H 'Host: shorty.local' https://shorty.local:18443/healthz
+curl: (35) TLS connect error: error:0A000126:SSL routines::unexpected eof while reading
+$ kubectl -n shorty create secret tls shorty-tls \
+  --cert="$TLS_DIR/tls.crt" --key="$TLS_DIR/tls.key"
+secret/shorty-tls created
+$ kubectl -n shorty wait \
+  --for=jsonpath='{.status.listeners[?(@.name=="https")].conditions[?(@.type=="ResolvedRefs")].status}'=True \
+  gateway/shorty-gw --timeout=120s
+gateway.gateway.networking.k8s.io/shorty-gw condition met
+$ kubectl -n shorty wait \
+  --for=jsonpath='{.status.listeners[?(@.name=="https")].conditions[?(@.type=="Programmed")].status}'=True \
+  gateway/shorty-gw --timeout=120s
+gateway.gateway.networking.k8s.io/shorty-gw condition met
+$ kubectl -n shorty rollout status deployment/shorty-gw-nginx --timeout=180s
+deployment "shorty-gw-nginx" successfully rolled out
+$ kubectl -n shorty wait --for=jsonpath='{.endpoints[0].addresses[0]}' endpointslice \
+  -l kubernetes.io/service-name=shorty-gw-nginx --timeout=60s
+endpointslice.discovery.k8s.io/shorty-gw-nginx-wrvwt condition met
+$ kill "$PF" 2>/dev/null || true
+$ kubectl -n shorty port-forward svc/shorty-gw-nginx 18080:80 18443:443 >/tmp/ch25-pf-tls2.log 2>&1 & PF=$!
+$ for i in $(seq 1 50); do
+  curl -kfsS --resolve shorty.local:18443:127.0.0.1 -H 'Host: shorty.local' https://shorty.local:18443/healthz >/dev/null 2>&1 && break
+  sleep 0.2
+done
+$ curl -k -sS --resolve shorty.local:18443:127.0.0.1 -H 'Host: shorty.local' https://shorty.local:18443/healthz
+ok
+$ kill "$PF"
+$ wait "$PF" 2>/dev/null || true
+$ rm -rf "$TLS_DIR"

@@ -1,0 +1,114 @@
+$ kubectl -n kube-system get service kube-dns
+NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
+kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   3m10s
+$ kubectl apply -f allow-dns.yaml
+networkpolicy.networking.k8s.io/allow-dns created
+$ kubectl -n shorty rollout restart deployment/api
+deployment.apps/api restarted
+$ kubectl -n shorty rollout status deployment/api --timeout=120s
+Waiting for deployment "api" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ dns_ok=0
+$ for i in $(seq 1 20); do
+  ip=$(timeout 10 kubectl -n shorty exec deploy/worker -- \
+    python -c 'import socket; print(socket.gethostbyname("postgres"))' 2>/dev/null) || true
+  if [ -n "$ip" ]; then
+    printf 'worker resolves postgres to %s\n' "$ip"
+    dns_ok=1
+    break
+  fi
+  sleep 1
+done
+worker resolves postgres to 10.244.199.200
+$ [ "$dns_ok" -eq 1 ]
+$ kubectl apply -f allow-api-db.yaml
+networkpolicy.networking.k8s.io/allow-api-db created
+$ blocked=0
+$ if timeout 12 kubectl -n shorty exec deploy/worker -- \
+  python -c 'import socket; socket.create_connection(("postgres", 5432), timeout=3)' >/dev/null 2>&1; then
+  echo "unexpected: worker 仍能连 postgres"
+else
+  echo "blocked: worker -> postgres:5432 超时"
+  blocked=1
+fi
+blocked: worker -> postgres:5432 超时
+$ [ "$blocked" -eq 1 ]
+$ kubectl -n shorty port-forward deployment/api 18080:8080 >/tmp/ch24-port-forward.log 2>&1 &
+$ pf_pid=$!
+$ redis_blocked=0
+$ for i in $(seq 1 30); do
+  body=$(curl -sS --max-time 8 --retry 2 --retry-connrefused --retry-delay 1 \
+    http://127.0.0.1:18080/readyz 2>/dev/null || true)
+  case "$body" in
+    *database*)
+      ;;
+    *redis*)
+      printf '%s\n' "$body"
+      redis_blocked=1
+      break
+      ;;
+  esac
+  sleep 1
+done
+not ready: redis: context deadline exceeded
+not ready: redis: context deadline exceeded
+$ [ "$redis_blocked" -eq 1 ]
+$ kubectl apply -f allow-worker-redis.yaml
+networkpolicy.networking.k8s.io/allow-worker-redis created
+$ ready=0
+$ for i in $(seq 1 20); do
+  body=$(curl -sS --max-time 8 --retry 2 --retry-connrefused --retry-delay 1 \
+    http://127.0.0.1:18080/readyz 2>/dev/null || true)
+  if [ "$body" = "ok" ]; then
+    printf '%s\n' "$body"
+    ready=1
+    break
+  fi
+  sleep 1
+done
+ok
+$ [ "$ready" -eq 1 ]
+$ redis_ok=0
+$ for i in $(seq 1 20); do
+  out=$(timeout 10 kubectl -n shorty exec deploy/worker -- \
+    python -c 'import socket; socket.create_connection(("redis", 6379), timeout=3); print("connected")' \
+    2>/dev/null) || true
+  if [ "$out" = "connected" ]; then
+    printf 'worker -> redis:6379 connected\n'
+    redis_ok=1
+    break
+  fi
+  sleep 1
+done
+worker -> redis:6379 connected
+$ [ "$redis_ok" -eq 1 ]
+$ kubectl apply -f allow-api-db-worker.yaml
+networkpolicy.networking.k8s.io/allow-api-db configured
+$ worker_db=0
+$ for i in $(seq 1 20); do
+  if timeout 12 kubectl -n shorty exec deploy/worker -- \
+    python -c 'import socket; socket.create_connection(("postgres", 5432), timeout=3)' >/dev/null 2>&1; then
+    echo "worker -> postgres:5432 connected"
+    worker_db=1
+    break
+  fi
+  sleep 1
+done
+worker -> postgres:5432 connected
+$ [ "$worker_db" -eq 1 ]
+$ kill "$pf_pid" 2>/dev/null || true
+$ wait "$pf_pid" 2>/dev/null || true
+$ kubectl apply -f allow-gateway.yaml
+networkpolicy.networking.k8s.io/allow-gateway created
+$ kubectl -n shorty get networkpolicy
+NAME                 POD-SELECTOR                                      AGE
+allow-api-db         app.kubernetes.io/name in (api,postgres,worker)   10s
+allow-dns            <none>                                            12s
+allow-gateway        app.kubernetes.io/name=api                        0s
+allow-worker-redis   app.kubernetes.io/name in (api,redis,worker)      1s
+default-deny         <none>                                            44s

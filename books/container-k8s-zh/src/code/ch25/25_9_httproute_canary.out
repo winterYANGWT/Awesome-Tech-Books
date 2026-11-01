@@ -1,0 +1,39 @@
+$ kubectl apply -f httproute-canary.yaml
+httproute.gateway.networking.k8s.io/shorty configured
+$ kubectl -n shorty wait \
+  --for=jsonpath='{.status.parents[0].conditions[?(@.type=="Accepted")].status}'=True \
+  httproute/shorty --timeout=60s
+httproute.gateway.networking.k8s.io/shorty condition met
+$ kubectl -n shorty get httproute
+NAME     HOSTNAMES          AGE
+shorty   ["shorty.local"]   2m28s
+$ kubectl -n shorty port-forward svc/shorty-gw-nginx 18080:80 >/tmp/ch25-pf-canary.log 2>&1 & PF=$!
+$ for i in $(seq 1 50); do
+  curl -fsS -H 'Host: shorty.local' http://127.0.0.1:18080/canary >/dev/null 2>&1 && break
+  sleep 0.2
+done
+$ for i in $(seq 1 50); do
+  t=$(curl -sS -H 'Host: shorty.local' http://127.0.0.1:18080/canary | sed -n 's:.*<title>\(.*\)</title>.*:\1:p')
+  [ "$t" = "Shorty frontend" ] && break
+  sleep 0.2
+done
+$ curl -sS -H 'Host: shorty.local' http://127.0.0.1:18080/canary | grep -o '<title>.*</title>'
+<title>Shorty frontend</title>
+$ curl -sS -H 'Host: shorty.local' -H 'X-Canary: true' \
+  http://127.0.0.1:18080/canary | grep -o '<title>.*</title>'
+<title>Shorty frontend v2</title>
+$ kill "$PF"
+$ wait "$PF" 2>/dev/null || true
+$ kubectl apply -f httproute-path.yaml
+httproute.gateway.networking.k8s.io/shorty configured
+$ kubectl -n shorty wait \
+  --for=jsonpath='{.status.parents[0].conditions[?(@.type=="Accepted")].status}'=True \
+  httproute/shorty --timeout=60s
+httproute.gateway.networking.k8s.io/shorty condition met
+$ kubectl delete -f web-v2.yaml
+configmap "shorty-web-v2" deleted from shorty namespace
+deployment.apps "web-v2" deleted from shorty namespace
+service "web-v2" deleted from shorty namespace
+$ kubectl -n shorty get httproute
+NAME     HOSTNAMES          AGE
+shorty   ["shorty.local"]   2m28s

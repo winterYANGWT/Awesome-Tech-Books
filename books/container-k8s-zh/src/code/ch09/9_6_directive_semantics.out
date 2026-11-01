@@ -1,0 +1,41 @@
+$ rm -rf /tmp/directive-demo
+$ mkdir -p /tmp/directive-demo/payload
+$ printf 'hello from ADD\n' > /tmp/directive-demo/payload/hello.txt
+$ tar -czf /tmp/directive-demo/payload.tar.gz -C /tmp/directive-demo/payload .
+$ docker build --progress=plain --provenance=false --no-cache -f directives.Dockerfile -t shorty:directives /tmp/directive-demo
+...（省略 24 行）
+#7 [internal] load build context
+#7 transferring context: 188B done
+#7 DONE 0.0s
+
+#8 [2/3] RUN id
+#8 0.091 uid=65532 gid=65532 groups=65532
+#8 DONE 0.1s
+
+#9 [3/3] ADD payload.tar.gz /opt/
+#9 DONE 0.0s
+
+#10 exporting to image
+#10 exporting layers 0.1s done
+#10 exporting manifest sha256:c77e8aa845c3aa12f49091726821ac08756dabbbfc719d229115f5ce0ca4ae81 0.0s done
+#10 exporting config sha256:651c58d1e9846298212e8df04a42eed20f803b03fbbbad9dc7a7b949cecb0efa 0.0s done
+#10 naming to docker.io/library/shorty:directives done
+#10 unpacking to docker.io/library/shorty:directives 0.0s done
+#10 DONE 0.1s
+$ docker image inspect --format '{{json .Config.Env}}' shorty:directives
+["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin","PERSISTED=from-env"]
+$ docker image inspect --format 'User={{.Config.User}} StopSignal={{.Config.StopSignal}}' shorty:directives
+User=65532:65532 StopSignal=SIGQUIT
+$ docker image inspect --format '{{json .Config.ExposedPorts}} {{json .Config.Volumes}}' shorty:directives
+{"8080/tcp":{}} {"/data":{}}
+$ docker image inspect --format '{{json .Config.Healthcheck}}' shorty:directives
+{"Test":["CMD-SHELL","wget -qO- http://127.0.0.1:8080/healthz || exit 1"],"Interval":5000000000,"Timeout":2000000000,"StartPeriod":3000000000,"Retries":2}
+$ docker run --rm --entrypoint ls shorty:directives -l /opt
+total 4
+-rw-r--r--    1 root     root            15 Oct 30 08:45 hello.txt
+$ docker run -d --name directives-demo shorty:directives
+d8da09b8d6947eb4018f545320528f4a5f49f42bd08b7c804f067a0555e11528
+$ docker inspect --format '{{range .Mounts}}{{.Type}} {{.Destination}} {{.Name}}{{println}}{{end}}' directives-demo
+volume /data c39dba4b6d91f0495727d6833489772f98764c7748a99999a7726622a28900fc
+$ docker rm -fv directives-demo
+directives-demo

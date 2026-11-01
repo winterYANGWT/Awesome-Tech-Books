@@ -1,0 +1,40 @@
+$ REG=$(cat /tmp/ch13-registry)
+$ DIGEST=$(cat /tmp/ch13-digest)
+$ TLS=/book/build/scratch/ch13/tls
+$ kubectl create namespace shorty
+namespace/shorty created
+$ kubectl -n shorty run unsigned-before --image="$REG/shorty:unsigned" --restart=Never
+pod/unsigned-before created
+$ kubectl -n shorty wait --for=condition=Ready pod/unsigned-before --timeout=120s
+pod/unsigned-before condition met
+$ kubectl -n shorty delete pod unsigned-before >/dev/null
+$ applied=
+$ for _ in $(seq 1 30); do
+  if out=$(sed "s|__REGISTRY__|$REG|" clusterimagepolicy.yaml | kubectl apply -f - 2>&1); then
+    printf '%s\n' "$out"
+    applied=1
+    break
+  fi
+  sleep 2
+done
+clusterimagepolicy.policy.sigstore.dev/shorty-signed created
+$ [ -n "$applied" ]
+$ kubectl -n shorty run unsigned-warn --image="$REG/shorty:unsigned" --restart=Never
+Warning: failed policy: shorty-signed: spec.containers[0].image
+Warning: 172.18.0.1:5000/shorty:unsigned@sha256:6f64a01cf14a39a460ca96dd469c0ed78bff1dcca34472dfefc622acda8734d6 signature key validation failed for authority authority-0 for 172.18.0.1:5000/shorty@sha256:6f64a01cf14a39a460ca96dd469c0ed78bff1dcca34472dfefc622acda8734d6: no signatures found
+pod/unsigned-warn created
+$ kubectl -n shorty delete pod unsigned-warn --ignore-not-found >/dev/null
+$ kubectl patch clusterimagepolicy shorty-signed --type=merge -p '{"spec":{"mode":"enforce"}}'
+clusterimagepolicy.policy.sigstore.dev/shorty-signed patched
+$ kubectl -n shorty run unsigned --image="$REG/shorty:unsigned" --restart=Never
+Error from server (BadRequest): admission webhook "policy.sigstore.dev" denied the request: validation failed: failed policy: shorty-signed: spec.containers[0].image
+172.18.0.1:5000/shorty:unsigned@sha256:6f64a01cf14a39a460ca96dd469c0ed78bff1dcca34472dfefc622acda8734d6 signature key validation failed for authority authority-0 for 172.18.0.1:5000/shorty@sha256:6f64a01cf14a39a460ca96dd469c0ed78bff1dcca34472dfefc622acda8734d6: no signatures found
+$ kubectl -n shorty get pods
+No resources found in shorty namespace.
+$ kubectl -n shorty run signed --image="$REG/shorty@$DIGEST" --restart=Never
+pod/signed created
+$ kubectl -n shorty wait --for=condition=Ready pod/signed --timeout=180s
+pod/signed condition met
+$ kubectl -n shorty get pod signed
+NAME     READY   STATUS    RESTARTS   AGE
+signed   1/1     Running   0          0s

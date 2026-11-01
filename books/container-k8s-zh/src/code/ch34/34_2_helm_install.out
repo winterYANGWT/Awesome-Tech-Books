@@ -1,0 +1,108 @@
+$ helm lint ./chart
+==> Linting ./chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+$ helm template shorty ./chart -n shorty-helm --set replicaCount=3 \
+    | yq eval-all -r 'select(.kind == "Deployment") | "replicas=\(.spec.replicas) image=\(.spec.template.spec.containers[0].image)"'
+replicas=3 image=localhost:5000/shorty:0.1
+$ helm install shorty ./chart -n shorty-helm --create-namespace --wait --timeout 180s
+NAME: shorty
+LAST DEPLOYED: Wed Oct 28 09:58:51 2026
+NAMESPACE: shorty-helm
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+shorty 已经安装到命名空间 shorty-helm。
+
+查看 release：
+  helm history shorty -n shorty-helm
+  kubectl -n shorty-helm get deploy,svc,pod
+
+访问：
+  kubectl -n shorty-helm port-forward svc/shorty 8080:8080
+  curl localhost:8080/readyz
+$ kubectl -n shorty-helm get deploy,svc,pods -o wide
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES                      SELECTOR
+deployment.apps/shorty   2/2     2            2           1s    api          localhost:5000/shorty:0.1   app.kubernetes.io/instance=shorty,app.kubernetes.io/name=shorty
+
+NAME             TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE   SELECTOR
+service/shorty   ClusterIP   10.96.153.43   <none>        8080/TCP   1s    app.kubernetes.io/instance=shorty,app.kubernetes.io/name=shorty
+
+NAME                          READY   STATUS    RESTARTS   AGE   IP            NODE                   NOMINATED NODE   READINESS GATES
+pod/shorty-55d7578ff8-lnr4n   1/1     Running   0          1s    10.244.0.18   shorty-control-plane   <none>           <none>
+pod/shorty-55d7578ff8-tlhf5   1/1     Running   0          1s    10.244.0.17   shorty-control-plane   <none>           <none>
+$ kubectl -n shorty-helm get secret -l owner=helm \
+    -o custom-columns=NAME:.metadata.name,TYPE:.type
+NAME                           TYPE
+sh.helm.release.v1.shorty.v1   helm.sh/release.v1
+$ helm history shorty -n shorty-helm
+REVISION	UPDATED                 	STATUS  	CHART       	APP VERSION	DESCRIPTION
+1       	Wed Oct 28 09:58:51 2026	deployed	shorty-0.1.0	0.1        	Install complete
+$ helm template shorty ./chart -n shorty-helm --set replicaCount=3 \
+    | kubectl -n shorty-helm diff -f - || true
+--- /tmp/LIVE-960255658/apps.v1.Deployment.shorty-helm.shorty
++++ /tmp/MERGED-322834278/apps.v1.Deployment.shorty-helm.shorty
+@@ -6,7 +6,7 @@
+     meta.helm.sh/release-name: shorty
+     meta.helm.sh/release-namespace: shorty-helm
+   creationTimestamp: "2026-10-28T09:58:51Z"
+-  generation: 1
++  generation: 2
+   labels:
+     app.kubernetes.io/instance: shorty
+     app.kubernetes.io/managed-by: Helm
+@@ -18,7 +18,7 @@
+   uid: 2c3c1642-98c3-402a-968b-10378476f603
+ spec:
+   progressDeadlineSeconds: 600
+-  replicas: 2
++  replicas: 3
+   revisionHistoryLimit: 10
+   selector:
+     matchLabels:
+$ helm upgrade shorty ./chart -n shorty-helm --set replicaCount=3 --wait --timeout 180s
+Release "shorty" has been upgraded. Happy Helming!
+NAME: shorty
+LAST DEPLOYED: Wed Oct 28 09:58:52 2026
+NAMESPACE: shorty-helm
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+NOTES:
+shorty 已经安装到命名空间 shorty-helm。
+
+查看 release：
+  helm history shorty -n shorty-helm
+  kubectl -n shorty-helm get deploy,svc,pod
+
+访问：
+  kubectl -n shorty-helm port-forward svc/shorty 8080:8080
+  curl localhost:8080/readyz
+$ kubectl -n shorty-helm get deploy shorty -o jsonpath='{.spec.replicas}{"\n"}'
+3
+$ helm rollback shorty 1 -n shorty-helm --wait --timeout 180s
+Rollback was a success! Happy Helming!
+$ kubectl -n shorty-helm get deploy shorty -o jsonpath='{.spec.replicas}{"\n"}'
+2
+$ helm history shorty -n shorty-helm
+REVISION	UPDATED                 	STATUS    	CHART       	APP VERSION	DESCRIPTION
+1       	Wed Oct 28 09:58:51 2026	superseded	shorty-0.1.0	0.1        	Install complete
+2       	Wed Oct 28 09:58:52 2026	superseded	shorty-0.1.0	0.1        	Upgrade complete
+3       	Wed Oct 28 09:58:53 2026	deployed  	shorty-0.1.0	0.1        	Rollback to 1
+$ helm package ./chart --destination /tmp >/dev/null
+$ helm push /tmp/shorty-0.1.0.tgz oci://localhost:5000/charts --plain-http
+Pushed: localhost:5000/charts/shorty:0.1.0
+Digest: sha256:c9b978e4b8c829b4d2b8af987cc822bb017ea67cd51c4654b24287ba4aa494ea
+$ helm show chart oci://localhost:5000/charts/shorty --version 0.1.0 --plain-http
+Pulled: localhost:5000/charts/shorty:0.1.0
+Digest: sha256:c9b978e4b8c829b4d2b8af987cc822bb017ea67cd51c4654b24287ba4aa494ea
+apiVersion: v2
+appVersion: "0.1"
+description: shorty API 的最小 chart，用于演示 values 与 release
+name: shorty
+type: application
+version: 0.1.0

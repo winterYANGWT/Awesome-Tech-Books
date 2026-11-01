@@ -1,0 +1,56 @@
+$ kubectl get namespaces -o name
+namespace/default
+namespace/kube-node-lease
+namespace/kube-public
+namespace/kube-system
+namespace/local-path-storage
+namespace/shorty
+$ POD=$(kubectl -n shorty get pods -l app.kubernetes.io/name=api -o jsonpath='{.items[0].metadata.name}')
+$ kubectl -n shorty get pod "$POD" --show-labels
+NAME                   READY   STATUS    RESTARTS   AGE   LABELS
+api-6859cf8794-8cgxh   1/1     Running   0          62s   app.kubernetes.io/name=api,app.kubernetes.io/part-of=shorty,pod-template-hash=6859cf8794
+$ kubectl -n shorty label pod "$POD" tier=frontend env=dev
+pod/api-6859cf8794-8cgxh labeled
+$ kubectl -n shorty get pods -l tier=frontend,env=dev -o custom-columns='NAME:.metadata.name,TIER:.metadata.labels.tier,ENV:.metadata.labels.env'
+NAME                   TIER       ENV
+api-6859cf8794-8cgxh   frontend   dev
+$ kubectl -n shorty get pods -l 'env in (dev,staging)' --show-labels
+NAME                   READY   STATUS    RESTARTS   AGE   LABELS
+api-6859cf8794-8cgxh   1/1     Running   0          62s   app.kubernetes.io/name=api,app.kubernetes.io/part-of=shorty,env=dev,pod-template-hash=6859cf8794,tier=frontend
+$ kubectl -n shorty label pod "$POD" tier=backend --overwrite
+pod/api-6859cf8794-8cgxh labeled
+$ kubectl -n shorty get pods -l tier=frontend
+No resources found in shorty namespace.
+$ kubectl -n shorty get pods -l tier=backend -o name
+pod/api-6859cf8794-8cgxh
+$ kubectl -n shorty annotate pod "$POD" kubernetes.io/change-cause="tier changed to backend for label drill" --overwrite
+pod/api-6859cf8794-8cgxh annotated
+$ kubectl -n shorty get pod "$POD" -o jsonpath='{.metadata.annotations.kubernetes\.io/change-cause}{"\n"}'
+tier changed to backend for label drill
+$ kubectl explain deployment.spec.selector.matchExpressions
+GROUP:      apps
+KIND:       Deployment
+VERSION:    v1
+
+FIELD: matchExpressions <[]LabelSelectorRequirement>
+
+
+DESCRIPTION:
+    matchExpressions is a list of label selector requirements. The requirements
+    are ANDed.
+    A label selector requirement is a selector that contains values, a key, and
+    an operator that relates the key and values.
+
+FIELDS:
+  key	<string> -required-
+    key is the label key that the selector applies to.
+
+  operator	<string> -required-
+    operator represents a key's relationship to a set of values. Valid operators
+    are In, NotIn, Exists and DoesNotExist.
+
+  values	<[]string>
+    values is an array of string values. If the operator is In or NotIn, the
+    values array must be non-empty. If the operator is Exists or DoesNotExist,
+    the values array must be empty. This array is replaced during a strategic
+    merge patch.

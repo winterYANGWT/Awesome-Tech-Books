@@ -1,0 +1,29 @@
+$ ETCD_ID=$(docker exec shorty-control-plane crictl ps --name etcd -q)
+$ echo "$ETCD_ID"
+1ab55e1576f24da3bcab7f37fa87229357a11f733b99fd6c01f0feb282498a4f
+$ docker exec shorty-control-plane crictl exec "$ETCD_ID" \
+  /usr/local/bin/etcdctl \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key \
+  snapshot save /etc/kubernetes/pki/etcd/snapshot.db
+...（省略 4 行）
+{"level":"info","ts":"2026-10-28T10:07:26.864622Z","caller":"snapshot/v3_snapshot.go:111","msg":"fetched snapshot","endpoint":"https://127.0.0.1:2379","size":"13 MB","took":"89.631202ms","etcd-version":"3.7.0"}
+{"level":"info","ts":"2026-10-28T10:07:26.864686Z","caller":"snapshot/v3_snapshot.go:121","msg":"saved","path":"/etc/kubernetes/pki/etcd/snapshot.db"}
+Snapshot saved at /etc/kubernetes/pki/etcd/snapshot.db
+Server version 3.7.0
+$ docker exec shorty-control-plane crictl exec "$ETCD_ID" \
+  /usr/local/bin/etcdutl --write-out=table \
+  snapshot status /etc/kubernetes/pki/etcd/snapshot.db
+┌──────────┬──────────┬────────────┬────────────┬─────────┐
+│   HASH   │ REVISION │ TOTAL KEYS │ TOTAL SIZE │ VERSION │
+├──────────┼──────────┼────────────┼────────────┼─────────┤
+│ fd1102e7 │     1513 │        633 │      13 MB │   3.7.0 │
+└──────────┴──────────┴────────────┴────────────┴─────────┘
+$ docker cp shorty-control-plane:/etc/kubernetes/pki/etcd/snapshot.db \
+  /tmp/ch36-etcd-snapshot.db
+$ ls -lh /tmp/ch36-etcd-snapshot.db
+-rw------- 1 root root 13M Oct 28 10:07 /tmp/ch36-etcd-snapshot.db
+$ sha256sum /tmp/ch36-etcd-snapshot.db
+25c1f55f6bc7eb772009b95216b0e582b3395f7c20f24ea90c97064f13514fca  /tmp/ch36-etcd-snapshot.db

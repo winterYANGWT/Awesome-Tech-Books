@@ -1,0 +1,9 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: postgres-before-upgrade
+  namespace: shorty
+spec:
+  volumeSnapshotClassName: local-path-snapclass
+  source:
+    persistentVolumeClaimName: data-postgres-0

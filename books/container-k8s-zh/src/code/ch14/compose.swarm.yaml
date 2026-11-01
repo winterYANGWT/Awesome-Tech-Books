@@ -1,0 +1,28 @@
+version: "3.8"
+
+# docker stack deploy 只接受 legacy v3 文件，所以这里是从 compose.yaml 改出来的最小版本：
+# 去掉 Compose Spec 专有的 name/develop/profiles/secrets，只保留 depends_on 来观察 Swarm 的行为。
+services:
+  postgres:
+    image: postgres:18.6-alpine
+    command: ["sh", "-c", "sleep 12; exec docker-entrypoint.sh postgres"]
+    environment:
+      POSTGRES_USER: shorty
+      POSTGRES_DB: shorty
+      POSTGRES_PASSWORD: shorty
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+  api:
+    image: shorty:0.1
+    environment:
+      SHORTY_DB_URL: postgres://shorty:shorty@postgres:5432/shorty?sslmode=disable
+      SHORTY_LISTEN: ":8080"
+      SHORTY_LOG_LEVEL: info
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:

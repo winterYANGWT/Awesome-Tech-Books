@@ -1,0 +1,30 @@
+$ kubectl apply -f api-2-replicas.yaml
+namespace/shorty created
+deployment.apps/api created
+$ kubectl -n shorty rollout status deployment/api --timeout=120s
+Waiting for deployment "api" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "api" rollout to finish: 1 of 2 updated replicas are available...
+deployment "api" successfully rolled out
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api -o wide
+NAME                   READY   STATUS    RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+api-75c44467f9-ms7cs   1/1     Running   0          1s    10.244.0.6   shorty-control-plane   <none>           <none>
+api-75c44467f9-tls2n   1/1     Running   0          1s    10.244.0.5   shorty-control-plane   <none>           <none>
+$ old_pod=$(kubectl -n shorty get pods -l app.kubernetes.io/name=api \
+  -o jsonpath='{.items[0].metadata.name}')
+$ old_uid=$(kubectl -n shorty get pod "$old_pod" -o jsonpath='{.metadata.uid}')
+$ echo "被删掉的 Pod：$old_pod"
+被删掉的 Pod：api-75c44467f9-ms7cs
+$ kubectl -n shorty delete pod "$old_pod" --wait=true
+pod "api-75c44467f9-ms7cs" deleted from shorty namespace
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api \
+  -o custom-columns=NAME:.metadata.name,UID:.metadata.uid,STATUS:.status.phase
+NAME                   UID                                    STATUS
+api-75c44467f9-9mkbq   1b1a2dd2-32b3-41cc-a9e8-d531170f287d   Running
+api-75c44467f9-tls2n   5955cb46-da78-4ce1-8daf-319ba4c2a73d   Running
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api --no-headers | wc -l
+2
+$ kubectl -n shorty get pod "$old_pod"
+Error from server (NotFound): pods "api-75c44467f9-ms7cs" not found
+$ kubectl -n shorty get deployment api \
+  -o jsonpath='desired={.spec.replicas} ready={.status.readyReplicas} available={.status.availableReplicas}{"\n"}'
+desired=2 ready=2 available=2

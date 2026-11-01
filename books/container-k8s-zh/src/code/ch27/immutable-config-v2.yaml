@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shorty-release-v2
+  namespace: shorty
+data:
+  RELEASE: "green"
+immutable: true

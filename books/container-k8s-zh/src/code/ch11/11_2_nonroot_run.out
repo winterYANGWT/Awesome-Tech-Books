@@ -1,0 +1,13 @@
+$ docker image inspect --format 'User={{.Config.User}}' shorty:0.1
+User=65532:65532
+$ docker run --rm shorty:0.1 version
+shorty 0.1
+$ docker run --rm --user 65532:65532 busybox:1.37 sh -c 'id; touch /probe'
+uid=65532 gid=65532 groups=65532
+touch: /probe: Permission denied
+$ docker run --rm --read-only --user 65532:65532 --tmpfs /tmp busybox:1.37 \
+    sh -c 'echo ok >/tmp/shorty && cat /tmp/shorty'
+ok
+$ docker run --rm --read-only --user 65532:65532 busybox:1.37 \
+    sh -c 'echo ok >/tmp/shorty'
+sh: can't create /tmp/shorty: Read-only file system

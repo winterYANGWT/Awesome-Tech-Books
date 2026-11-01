@@ -1,0 +1,195 @@
+$ ingress2gateway print --providers=ingress-nginx -n shorty -o yaml > ingress2gateway.yaml
+┌─ WARN  ────────────────────────────────────────
+│  Unsupported annotation nginx.ingress.kubernetes.io/limit-rps
+│  source: INGRESS-NGINX
+│  object: : shorty/shorty
+└─
+┌─ WARN  ────────────────────────────────────────
+│  Failed to apply shorty.shorty.metadata.annotations."nginx.ingress.kubernetes.io/proxy-body-size" from shorty/shorty: Most Gateway API implementations have reasonable body size and buffering defaults
+│  source: STANDARD_EMITTER
+│  object: HTTPRoute: shorty/shorty-shorty-local
+└─
+┌─ WARN  ────────────────────────────────────────
+│  Failed to apply shorty.shorty.metadata.annotations."nginx.ingress.kubernetes.io/proxy-body-size" from shorty/shorty: Most Gateway API implementations have reasonable body size and buffering defaults
+│  source: STANDARD_EMITTER
+│  object: HTTPRoute: shorty/shorty-shorty-local
+└─
+┌─ WARN  ────────────────────────────────────────
+│  Gateway API does not support configuring URL normalization (RFC 3986, Section 6). Please check if this matters for your use case and consult implementation-specific details.
+│  source: STANDARD_EMITTER
+└─
+$ head -80 ingress2gateway.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  annotations:
+    gateway.networking.k8s.io/generator: ingress2gateway-1.2.0
+  name: nginx
+  namespace: shorty
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - hostname: shorty.local
+    name: shorty-local-http
+    port: 80
+    protocol: HTTP
+  - hostname: shorty.local
+    name: shorty-local-https
+    port: 443
+    protocol: HTTPS
+    tls:
+      certificateRefs:
+      - group: ""
+        kind: Secret
+        name: shorty-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  annotations:
+    gateway.networking.k8s.io/generator: ingress2gateway-1.2.0
+  name: shorty-shorty-local
+  namespace: shorty
+spec:
+  hostnames:
+  - shorty.local
+  parentRefs:
+  - name: nginx
+    port: 443
+    sectionName: shorty-local-https
+  rules:
+  - backendRefs:
+    - name: api
+      port: 8080
+    matches:
+    - path:
+        type: PathPrefix
+        value: /api
+  - backendRefs:
+    - name: web
+      port: 80
+    matches:
+    - path:
+        type: PathPrefix
+        value: /
+status:
+  parents: []
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  annotations:
+    gateway.networking.k8s.io/generator: ingress2gateway-1.2.0
+  name: shorty-shorty-local-http
+  namespace: shorty
+spec:
+  hostnames:
+  - shorty.local
+  parentRefs:
+  - name: nginx
+    port: 80
+  rules:
+  - filters:
+    - requestRedirect:
+        scheme: https
+        statusCode: 308
+      type: RequestRedirect
+    matches:
+    - path:
+        type: PathPrefix
+        value: /api
+  - filters:
+$ sed -e 's/^  name: nginx$/  name: shorty-gw/' \
+    -e 's/^  - name: nginx$/  - name: shorty-gw/' \
+    -e 's/^  name: shorty-shorty-local$/  name: shorty/' \
+    -e 's/^  name: shorty-shorty-local-http$/  name: shorty-http-redirect/' \
+    ingress2gateway.yaml > ingress2gateway-fixed.yaml
+$ kubectl diff -f ingress2gateway-fixed.yaml > /tmp/ch25-diff.txt 2>&1; rc=$?
+$ head -60 /tmp/ch25-diff.txt
+--- /tmp/LIVE-2910441713/gateway.networking.k8s.io.v1.Gateway.shorty.shorty-gw
++++ /tmp/MERGED-2527943083/gateway.networking.k8s.io.v1.Gateway.shorty.shorty-gw
+@@ -2,12 +2,11 @@
+ kind: Gateway
+ metadata:
+   annotations:
++    gateway.networking.k8s.io/generator: ingress2gateway-1.2.0
+     kubectl.kubernetes.io/last-applied-configuration: |
+       {"apiVersion":"gateway.networking.k8s.io/v1","kind":"Gateway","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"shorty"},"name":"shorty-gw","namespace":"shorty"},"spec":{"gatewayClassName":"nginx","listeners":[{"allowedRoutes":{"namespaces":{"from":"Same"}},"hostname":"shorty.local","name":"http","port":80,"protocol":"HTTP"},{"allowedRoutes":{"namespaces":{"from":"Same"}},"hostname":"shorty.local","name":"https","port":443,"protocol":"HTTPS","tls":{"certificateRefs":[{"kind":"Secret","name":"shorty-tls"}],"mode":"Terminate"}}]}}
+   creationTimestamp: "2026-10-28T02:15:29Z"
+-  generation: 2
+-  labels:
+-    app.kubernetes.io/part-of: shorty
++  generation: 3
+   name: shorty-gw
+   namespace: shorty
+   resourceVersion: "1498"
+@@ -19,14 +18,14 @@
+       namespaces:
+         from: Same
+     hostname: shorty.local
+-    name: http
++    name: shorty-local-http
+     port: 80
+     protocol: HTTP
+   - allowedRoutes:
+       namespaces:
+         from: Same
+     hostname: shorty.local
+-    name: https
++    name: shorty-local-https
+     port: 443
+     protocol: HTTPS
+     tls:
+--- /tmp/LIVE-2910441713/gateway.networking.k8s.io.v1.HTTPRoute.shorty.shorty
++++ /tmp/MERGED-2527943083/gateway.networking.k8s.io.v1.HTTPRoute.shorty.shorty
+@@ -2,10 +2,11 @@
+ kind: HTTPRoute
+ metadata:
+   annotations:
++    gateway.networking.k8s.io/generator: ingress2gateway-1.2.0
+     kubectl.kubernetes.io/last-applied-configuration: |
+       {"apiVersion":"gateway.networking.k8s.io/v1","kind":"HTTPRoute","metadata":{"annotations":{},"name":"shorty","namespace":"shorty"},"spec":{"hostnames":["shorty.local"],"parentRefs":[{"name":"shorty-gw"}],"rules":[{"backendRefs":[{"name":"api","port":8080}],"matches":[{"path":{"type":"PathPrefix","value":"/api"}}]},{"backendRefs":[{"name":"api","port":8080}],"matches":[{"path":{"type":"PathPrefix","value":"/healthz"}}]},{"backendRefs":[{"name":"web","port":80}],"matches":[{"path":{"type":"PathPrefix","value":"/"}}]}]}}
+   creationTimestamp: "2026-10-28T02:15:55Z"
+-  generation: 6
++  generation: 7
+   name: shorty
+   namespace: shorty
+   resourceVersion: "1671"
+@@ -17,6 +18,8 @@
+   - group: gateway.networking.k8s.io
+     kind: Gateway
+     name: shorty-gw
++    port: 443
++    sectionName: shorty-local-https
+   rules:
+   - backendRefs:
+     - group: ""
+@@ -28,16 +31,6 @@
+     - path:
+$ echo "kubectl diff exit=$rc"
+kubectl diff exit=1
+$ if grep -q 'nginx.ingress' ingress2gateway-fixed.yaml; then
+  echo "annotations copied"
+else
+  echo "nginx annotations not copied"
+fi
+nginx annotations not copied
+$ kubectl apply --dry-run=server -f ingress2gateway-fixed.yaml
+gateway.gateway.networking.k8s.io/shorty-gw configured (server dry run)
+httproute.gateway.networking.k8s.io/shorty configured (server dry run)
+httproute.gateway.networking.k8s.io/shorty-http-redirect created (server dry run)
+$ kubectl -n shorty get ingress shorty -o yaml > /tmp/ch25-ingress-backup.yaml
+$ kubectl -n shorty delete ingress shorty
+ingress.networking.k8s.io "shorty" deleted from shorty namespace
+$ kubectl -n shorty get ingress
+No resources found in shorty namespace.
+$ kubectl -n shorty port-forward svc/shorty-gw-nginx 18080:80 >/tmp/ch25-pf-i2g.log 2>&1 & PF=$!
+$ for i in $(seq 1 50); do
+  curl -fsS -H 'Host: shorty.local' http://127.0.0.1:18080/healthz >/dev/null 2>&1 && break
+  sleep 0.2
+done
+$ curl -sS -H 'Host: shorty.local' http://127.0.0.1:18080/healthz
+ok
+$ kill "$PF"
+$ wait "$PF" 2>/dev/null || true
+$ rm -f ingress2gateway.yaml ingress2gateway-fixed.yaml

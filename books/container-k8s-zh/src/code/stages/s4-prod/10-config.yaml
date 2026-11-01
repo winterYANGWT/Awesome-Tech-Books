@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shorty-config
+  namespace: shorty
+  labels:
+    app.kubernetes.io/part-of: shorty
+data:
+  SHORTY_LISTEN: ":8080"
+  SHORTY_DB_URL: "postgres://shorty@postgres:5432/shorty?sslmode=disable"
+  SHORTY_DB_PASSWORD_FILE: "/etc/shorty/db_password"
+  SHORTY_REDIS_ADDR: "redis:6379"
+  SHORTY_BASE_URL: "http://api:8080"
+  SHORTY_LOG_LEVEL: "info"
+  SHORTY_SHUTDOWN_DELAY: "5"
+---
+# 仅用于本地演示；正式环境用外部 secret 管理，见第 27 章。
+apiVersion: v1
+kind: Secret
+metadata:
+  name: shorty-db
+  namespace: shorty
+  labels:
+    app.kubernetes.io/part-of: shorty
+type: Opaque
+stringData:
+  db_password: shorty-dev-password

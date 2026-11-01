@@ -1,0 +1,16 @@
+$ docker build -q -t ch02-big:keep -f bigfile.Dockerfile . >/dev/null
+$ docker build -q -t ch02-big:delete -f rmbig.Dockerfile . >/dev/null
+$ docker image ls ch02-big
+IMAGE             ID             DISK USAGE   CONTENT SIZE   EXTRA
+ch02-big:delete   58307ae21b3d       33.8MB         14.3MB
+ch02-big:keep     439891355cb9       33.7MB         14.3MB
+$ docker history --no-trunc ch02-big:delete
+IMAGE                                                                     CREATED                  CREATED BY                                                                SIZE      COMMENT
+sha256:58307ae21b3d3cbe482dfcbbbfd89d842a7227dce4da649e5086ad389350cefc   Less than a second ago   RUN /bin/sh -c rm /bigfile # buildkit                                     4.1kB     buildkit.dockerfile.v0
+<missing>                                                                 Less than a second ago   RUN /bin/sh -c dd if=/dev/urandom of=/bigfile bs=1M count=10 # buildkit   10.5MB    buildkit.dockerfile.v0
+<missing>                                                                 6 days ago               CMD ["/bin/sh"]                                                           0B        buildkit.dockerfile.v0
+<missing>                                                                 6 days ago               ADD alpine-minirootfs-3.22.7-x86_64.tar.gz / # buildkit                   8.97MB    buildkit.dockerfile.v0
+$ docker image inspect ch02-big:delete --format 'layers={{len .RootFS.Layers}}'
+layers=3
+$ docker run --rm ch02-big:delete ls -l /bigfile
+ls: /bigfile: No such file or directory

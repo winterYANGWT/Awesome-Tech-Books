@@ -1,0 +1,14 @@
+$ kubectl apply -f map-default-team.yaml
+mutatingadmissionpolicy.admissionregistration.k8s.io/default-team created
+$ kubectl apply -f map-default-team-binding.yaml
+mutatingadmissionpolicybinding.admissionregistration.k8s.io/default-team created
+$ kubectl apply -f vap-no-label.yaml
+pod/vap-no-label created
+$ kubectl -n shorty wait --for=condition=Ready pod/vap-no-label --timeout=60s
+pod/vap-no-label condition met
+$ kubectl -n shorty get pod vap-no-label -o jsonpath='{.metadata.labels}{"\n"}'
+{"app":"vap-no-label","team":"unknown"}
+$ kubectl -n shorty get pod vap-no-label -o jsonpath='team={.metadata.labels.team}{"\n"}'
+team=unknown
+$ kubectl -n shorty delete pod vap-no-label
+pod "vap-no-label" deleted from shorty namespace

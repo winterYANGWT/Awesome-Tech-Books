@@ -1,0 +1,24 @@
+$ first=$(kubectl -n shorty create -f job-migrate.yaml -o name)
+$ echo "first job: $first"
+first job: job.batch/shorty-migrate-fndsn
+$ kubectl -n shorty wait --for=condition=complete "$first" --timeout=120s
+job.batch/shorty-migrate-fndsn condition met
+$ kubectl -n shorty logs "$first"
+migrate: links 表与过期索引已就绪（可重复执行）
+$ second=$(kubectl -n shorty create -f job-migrate.yaml -o name)
+$ echo "second job: $second"
+second job: job.batch/shorty-migrate-zggv9
+$ kubectl -n shorty wait --for=condition=complete "$second" --timeout=120s
+job.batch/shorty-migrate-zggv9 condition met
+$ kubectl -n shorty logs "$second"
+migrate: links 表与过期索引已就绪（可重复执行）
+$ kubectl -n shorty exec -i deploy/postgres -- sh -c 'PGPASSWORD=$(cat /etc/shorty/db_password) psql -U shorty -d shorty -tA' <<'SQL'
+SELECT 'tables=' || count(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'links';
+SELECT 'indexes=' || count(*) FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'links';
+SQL
+tables=1
+indexes=2
+$ kubectl -n shorty get jobs -l app.kubernetes.io/name=shorty-migrate-check
+NAME                   STATUS     COMPLETIONS   DURATION   AGE
+shorty-migrate-fndsn   Complete   1/1           3s         7s
+shorty-migrate-zggv9   Complete   1/1           3s         4s

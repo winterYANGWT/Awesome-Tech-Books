@@ -1,0 +1,21 @@
+$ kubectl apply -f kubelet-probe.yaml
+pod/kubelet-probe created
+$ kubectl wait --for=condition=Ready pod/kubelet-probe --timeout=120s
+pod/kubelet-probe condition met
+$ kubectl exec kubelet-probe -- wget -O- --no-check-certificate https://127.0.0.1:10250/pods
+Connecting to 127.0.0.1:10250 (127.0.0.1:10250)
+wget: server returned error: HTTP/1.1 401 Unauthorized
+command terminated with exit code 1
+$ docker exec shorty-worker sh -c \
+  'grep -A3 -E "^(authentication|authorization):" /var/lib/kubelet/config.yaml'
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+--
+authorization:
+  mode: Webhook
+  webhook:
+    cacheAuthorizedTTL: 0s
+$ kubectl delete pod kubelet-probe
+pod "kubelet-probe" deleted from default namespace

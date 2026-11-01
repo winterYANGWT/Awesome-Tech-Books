@@ -1,0 +1,59 @@
+$ docker build --check -f check.Dockerfile .
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from check.Dockerfile
+#1 transferring dockerfile: 117B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/alpine:3.22
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+Check complete, 3 warnings have been found!
+
+WARNING: MaintainerDeprecated - https://docs.docker.com/go/dockerfile/rule/maintainer-deprecated/
+Maintainer instruction is deprecated in favor of using label
+check.Dockerfile:2
+--------------------
+   1 |     FROM alpine:3.22
+   2 | >>> MAINTAINER shorty
+   3 |     ENV API_TOKEN=ch13-demo
+   4 |     CMD echo hello
+--------------------
+
+WARNING: SecretsUsedInArgOrEnv - https://docs.docker.com/go/dockerfile/rule/secrets-used-in-arg-or-env/
+Do not use ARG or ENV instructions for sensitive data (ENV "API_TOKEN")
+check.Dockerfile:3
+--------------------
+   1 |     FROM alpine:3.22
+   2 |     MAINTAINER shorty
+   3 | >>> ENV API_TOKEN=ch13-demo
+   4 |     CMD echo hello
+   5 |
+--------------------
+
+WARNING: JSONArgsRecommended - https://docs.docker.com/go/dockerfile/rule/json-args-recommended/
+JSON arguments recommended for CMD to prevent unintended behavior related to OS signals
+check.Dockerfile:4
+--------------------
+   2 |     MAINTAINER shorty
+   3 |     ENV API_TOKEN=ch13-demo
+   4 | >>> CMD echo hello
+   5 |
+--------------------
+$ docker build --check -f check-fixed.Dockerfile .
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from check-fixed.Dockerfile
+#1 transferring dockerfile: 88B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/alpine:3.22
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+Check complete, no warnings found.

@@ -1,0 +1,31 @@
+$ docker run -d --name shorty-api -p 8080:8080 -e SHORTY_SHUTDOWN_DELAY=2 shorty:ch04 > /dev/null
+$ curl -fsS --retry 30 --retry-delay 1 --retry-all-errors localhost:8080/readyz
+ok
+$ docker exec shorty-api head -n 10 /proc/1/status
+Name:	shorty
+Umask:	0022
+State:	S (sleeping)
+Tgid:	1
+Ngid:	0
+Pid:	1
+PPid:	0
+TracerPid:	0
+Uid:	0	0	0	0
+Gid:	0	0	0	0
+$ docker exec shorty-api ls -l /proc/1/ns
+total 0
+lrwxrwxrwx 1 root root 0 Oct 28 11:05 cgroup -> cgroup:[4026533611]
+lrwxrwxrwx 1 root root 0 Oct 28 11:05 ipc -> ipc:[4026533609]
+lrwxrwxrwx 1 root root 0 Oct 28 11:05 mnt -> mnt:[4026532960]
+lrwxrwxrwx 1 root root 0 Oct 28 11:05 net -> net:[4026533613]
+lrwxrwxrwx 1 root root 0 Oct 28 11:05 pid -> pid:[4026533610]
+lrwxrwxrwx 1 root root 0 Oct 28 11:05 pid_for_children -> pid:[4026533610]
+lrwxrwxrwx 1 root root 0 Oct 28 11:05 time -> time:[4026533677]
+lrwxrwxrwx 1 root root 0 Oct 28 11:05 time_for_children -> time:[4026533677]
+lrwxrwxrwx 1 root root 0 Oct 28 11:05 user -> user:[4026531837]
+lrwxrwxrwx 1 root root 0 Oct 28 11:05 uts -> uts:[4026533607]
+$ docker exec shorty-api sh -c 'echo pid1=$(readlink /proc/1/ns/pid) self=$(readlink /proc/self/ns/pid)'
+pid1=pid:[4026533610] self=pid:[4026533610]
+$ docker cp /etc/hostname shorty-api:/tmp/from-host
+$ docker exec shorty-api cat /tmp/from-host
+cbook-lab2

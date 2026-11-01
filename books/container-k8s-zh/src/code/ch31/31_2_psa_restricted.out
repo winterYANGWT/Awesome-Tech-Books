@@ -1,0 +1,28 @@
+$ kubectl label --dry-run=server --overwrite namespace shorty pod-security.kubernetes.io/enforce=restricted
+Warning: existing pods in namespace "shorty" violate the new PodSecurity enforce level "restricted:latest"
+Warning: postgres-0 (and 3 other pods): allowPrivilegeEscalation != false, unrestricted capabilities, runAsNonRoot != true, seccompProfile
+namespace/shorty labeled (server dry run)
+$ kubectl label namespace shorty \
+  pod-security.kubernetes.io/enforce=restricted \
+  pod-security.kubernetes.io/enforce-version=v1.37 \
+  pod-security.kubernetes.io/warn=restricted \
+  pod-security.kubernetes.io/audit=restricted
+Warning: existing pods in namespace "shorty" violate the new PodSecurity enforce level "restricted:v1.37"
+Warning: postgres-0 (and 3 other pods): allowPrivilegeEscalation != false, unrestricted capabilities, runAsNonRoot != true, seccompProfile
+namespace/shorty labeled
+$ kubectl apply -f psa-root-pod.yaml
+Error from server (Forbidden): error when creating "psa-root-pod.yaml": pods "psa-root" is forbidden: violates PodSecurity "restricted:v1.37": privileged (container "demo" must not set securityContext.privileged=true), allowPrivilegeEscalation != false (container "demo" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "demo" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "demo" must set securityContext.runAsNonRoot=true), runAsUser=0 (container "demo" must not set runAsUser=0), seccompProfile (pod or container "demo" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+$ kubectl apply -f psa-root-deploy.yaml
+Warning: would violate PodSecurity "restricted:latest": privileged (container "demo" must not set securityContext.privileged=true), allowPrivilegeEscalation != false (container "demo" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "demo" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "demo" must set securityContext.runAsNonRoot=true), runAsUser=0 (container "demo" must not set runAsUser=0), seccompProfile (pod or container "demo" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+deployment.apps/psa-root-demo created
+$ for i in $(seq 1 30); do
+  msg=$(kubectl -n shorty get events --field-selector reason=FailedCreate \
+    -o jsonpath='{range .items[*]}{.involvedObject.name}{": "}{.message}{"\n"}{end}' \
+    | grep psa-root-demo || true)
+  [ -n "$msg" ] && break
+  sleep 1
+done
+$ printf '%s\n' "$msg" | head -1
+psa-root-demo-7498d87f69: Error creating: pods "psa-root-demo-7498d87f69-z8xsv" is forbidden: violates PodSecurity "restricted:v1.37": privileged (container "demo" must not set securityContext.privileged=true), allowPrivilegeEscalation != false (container "demo" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "demo" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "demo" must set securityContext.runAsNonRoot=true), runAsUser=0 (container "demo" must not set runAsUser=0), seccompProfile (pod or container "demo" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+$ kubectl -n shorty delete deployment psa-root-demo
+deployment.apps "psa-root-demo" deleted from shorty namespace

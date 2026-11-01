@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh">
+<head><meta charset="utf-8"><title>Shorty</title></head>
+<body>
+<h1>Shorty</h1>
+<form id="f"><input name="url" type="url" required><button>创建短链</button></form>
+<pre id="out"></pre>
+<script>
+f.onsubmit = async (e) => {
+  e.preventDefault();
+  const r = await fetch("/api/links", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({url: f.url.value})});
+  out.textContent = await r.text();
+};
+</script>
+</body>
+</html>

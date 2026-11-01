@@ -1,0 +1,9 @@
+$ kubectl apply -f replace-demo-crd.yaml
+customresourcedefinition.apiextensions.k8s.io/replacedemos.example.com created
+$ kubectl replace --raw /apis/apiextensions.k8s.io/v1/customresourcedefinitions/replacedemos.example.com -f replace-demo-crd.json
+The customresourcedefinitions "replacedemos.example.com" is invalid: metadata.resourceVersion: Invalid value: 0: must be specified for an update
+$ kubectl get crd replacedemos.example.com -o yaml | yq 'del(.status, .metadata.managedFields)' > /tmp/replace-demo-crd.yaml
+$ kubectl replace -f /tmp/replace-demo-crd.yaml
+customresourcedefinition.apiextensions.k8s.io/replacedemos.example.com replaced
+$ kubectl delete crd replacedemos.example.com
+customresourcedefinition.apiextensions.k8s.io "replacedemos.example.com" deleted

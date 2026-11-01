@@ -1,0 +1,48 @@
+$ kubectl -n shorty auth can-i get configmaps \
+  --as=system:serviceaccount:shorty:shorty-api
+yes
+$ kubectl -n default auth can-i get configmaps \
+  --as=system:serviceaccount:shorty:shorty-api
+no
+$ kubectl -n shorty auth can-i list deployments.apps \
+  --as=system:serviceaccount:shorty:shorty-api
+no
+$ kubectl -n shorty auth can-i get deployments.apps/api \
+  --as=system:serviceaccount:shorty:shorty-api
+yes
+$ kubectl -n shorty auth can-i get deployments.apps/API \
+  --as=system:serviceaccount:shorty:shorty-api
+no
+$ kubectl -n shorty auth can-i --list \
+  --as=system:serviceaccount:shorty:shorty-api
+Resources                                       Non-Resource URLs                      Resource Names   Verbs
+selfsubjectreviews.authentication.k8s.io        []                                     []               [create]
+selfsubjectaccessreviews.authorization.k8s.io   []                                     []               [create]
+selfsubjectrulesreviews.authorization.k8s.io    []                                     []               [create]
+clustertrustbundles.certificates.k8s.io         []                                     []               [get list watch]
+configmaps                                      []                                     []               [get list]
+                                                [/.well-known/openid-configuration/]   []               [get]
+                                                [/.well-known/openid-configuration]    []               [get]
+                                                [/api/*]                               []               [get]
+                                                [/api]                                 []               [get]
+                                                [/apis/*]                              []               [get]
+                                                [/apis]                                []               [get]
+                                                [/healthz]                             []               [get]
+                                                [/healthz]                             []               [get]
+                                                [/livez]                               []               [get]
+                                                [/livez]                               []               [get]
+                                                [/openapi/*]                           []               [get]
+                                                [/openapi]                             []               [get]
+                                                [/openid/v1/jwks/]                     []               [get]
+                                                [/openid/v1/jwks]                      []               [get]
+                                                [/readyz]                              []               [get]
+                                                [/readyz]                              []               [get]
+                                                [/version/]                            []               [get]
+                                                [/version/]                            []               [get]
+                                                [/version]                             []               [get]
+...（省略 2 行）
+$ kubectl -n shorty get deployment api -o jsonpath='{.spec.template.spec.serviceAccountName}{"\n"}{.spec.template.spec.automountServiceAccountToken}{"\n"}'
+shorty-api
+$ kubectl -n shorty get rolebinding shorty-config-reader \
+  -o jsonpath='{.subjects[0].kind}/{.subjects[0].namespace}:{.subjects[0].name}{"\n"}'
+ServiceAccount/shorty:shorty-api

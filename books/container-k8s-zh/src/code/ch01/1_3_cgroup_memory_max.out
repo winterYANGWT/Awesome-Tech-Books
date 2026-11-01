@@ -1,0 +1,66 @@
+$ cg=/sys/fs/cgroup/ch01demo
+$ if [ -d "$cg" ]; then
+    echo 1 > "$cg/cgroup.kill" 2>/dev/null || true
+    rmdir "$cg" 2>/dev/null || true
+fi
+$ mkdir "$cg"
+$ echo "cgroup.controllers: $(cat /sys/fs/cgroup/cgroup.controllers)"
+cgroup.controllers: cpuset cpu io memory hugetlb pids rdma misc dmem
+$ echo "cgroup.subtree_control: $(cat /sys/fs/cgroup/cgroup.subtree_control)"
+cgroup.subtree_control: cpuset cpu io memory hugetlb pids rdma misc dmem
+$ echo "根 cgroup 里的进程数: $(wc -l < /sys/fs/cgroup/cgroup.procs)"
+根 cgroup 里的进程数: 0
+$ echo 64M > "$cg/memory.max"
+$ echo 32 > "$cg/pids.max"
+$ echo "50000 100000" > "$cg/cpu.max"
+$ echo "memory.max=$(cat "$cg/memory.max")"
+memory.max=67108864
+$ echo "cpu.max=$(cat "$cg/cpu.max")"
+cpu.max=50000 100000
+$ echo "pids.max=$(cat "$cg/pids.max")"
+pids.max=32
+$ bash ./run_shorty_in_cgroup.bash >/tmp/ch01-shorty-cg.log 2>&1 &
+$ cgpid=$!
+$ for _ in $(seq 1 50); do
+    curl -fsS http://127.0.0.1:18080/healthz >/dev/null 2>&1 && break
+done
+$ echo "shorty 的宿主 PID: $cgpid，cgroup: $(cat "/proc/$cgpid/cgroup")"
+shorty 的宿主 PID: 9046，cgroup: 0::/ch01demo
+$ for i in $(seq 1 30); do
+    code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/healthz || true)
+    echo "request $i -> ${code:-failed} memory.current=$(cat "$cg/memory.current")"
+    if ! kill -0 "$cgpid" 2>/dev/null; then
+        echo "shorty 在第 $i 个请求后消失"
+        break
+    fi
+done
+request 1 -> 200 memory.current=20402176
+request 2 -> 200 memory.current=29052928
+request 3 -> 200 memory.current=37437440
+request 4 -> 200 memory.current=46088192
+request 5 -> 200 memory.current=54738944
+request 6 -> 200 memory.current=63389696
+bash: line 75:  9046 Killed                     bash ./run_shorty_in_cgroup.bash > /tmp/ch01-shorty-cg.log 2>&1
+request 7 -> 000 memory.current=675840
+shorty 在第 7 个请求后消失
+$ wait "$cgpid"; echo "wait exit=$?"
+wait exit=137
+$ echo '--- memory.events ---'
+--- memory.events ---
+$ cat "$cg/memory.events"
+low 0
+high 0
+max 36
+oom 1
+oom_kill 1
+oom_group_kill 0
+sock_throttled 0
+$ echo '--- memory.peak ---'
+--- memory.peak ---
+$ cat "$cg/memory.peak"
+67108864
+$ echo "cgroup.procs 剩余进程数: $(wc -l < "$cg/cgroup.procs")"
+cgroup.procs 剩余进程数: 0
+$ rmdir "$cg"
+$ if [ -d "$cg" ]; then echo "cgroup 仍然存在"; else echo "cgroup 已删除"; fi
+cgroup 已删除

@@ -1,0 +1,31 @@
+$ kubectl apply -f job-parallel.yaml
+job.batch/shorty-parallel created
+$ max=0; while :; do
+  active=$(kubectl -n shorty get job shorty-parallel -o jsonpath='{.status.active}' 2>/dev/null)
+  active=${active:-0}
+  [ "$active" -gt "$max" ] && max=$active
+  complete=$(kubectl -n shorty get job shorty-parallel -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' 2>/dev/null)
+  [ "$complete" = True ] && break
+  sleep 1
+done; echo "max active pods: $max"
+max active pods: 2
+$ kubectl -n shorty get job shorty-parallel
+NAME              STATUS     COMPLETIONS   DURATION   AGE
+shorty-parallel   Complete   4/4           19s        20s
+$ kubectl -n shorty get job shorty-parallel -o jsonpath='completedIndexes={.status.completedIndexes}{"\n"}'
+completedIndexes=0-3
+$ kubectl -n shorty get pods -l batch.kubernetes.io/job-name=shorty-parallel -o custom-columns=NAME:.metadata.name,PHASE:.status.phase
+NAME                      PHASE
+shorty-parallel-0-g48xw   Succeeded
+shorty-parallel-1-z4kzs   Succeeded
+shorty-parallel-2-29w7b   Succeeded
+shorty-parallel-3-t2462   Succeeded
+$ kubectl -n shorty logs -l batch.kubernetes.io/job-name=shorty-parallel --prefix | sort
+[pod/shorty-parallel-0-g48xw/worker] index=0 done
+[pod/shorty-parallel-0-g48xw/worker] index=0 start
+[pod/shorty-parallel-1-z4kzs/worker] index=1 done
+[pod/shorty-parallel-1-z4kzs/worker] index=1 start
+[pod/shorty-parallel-2-29w7b/worker] index=2 done
+[pod/shorty-parallel-2-29w7b/worker] index=2 start
+[pod/shorty-parallel-3-t2462/worker] index=3 done
+[pod/shorty-parallel-3-t2462/worker] index=3 start

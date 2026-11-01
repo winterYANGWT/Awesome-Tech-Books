@@ -1,0 +1,23 @@
+$ docker exec shorty-control-plane \
+  sed -n '/^authentication:/,/^cgroupDriver:/p' /var/lib/kubelet/config.yaml
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    cacheTTL: 0s
+    enabled: true
+  x509:
+    clientCAFile: /etc/kubernetes/pki/ca.crt
+authorization:
+  mode: Webhook
+  webhook:
+    cacheAuthorizedTTL: 0s
+    cacheUnauthorizedTTL: 0s
+cgroupDriver: systemd
+$ curl -k -s -o /dev/null -w 'HTTP %{http_code}\n' --max-time 5 \
+  "https://$NODE_IP:10250/healthz"
+HTTP 401
+$ curl -k -s --max-time 5 "https://$NODE_IP:10250/healthz"
+Unauthorized
+$ kubectl exec -n shorty deploy/api -- /shorty version
+shorty dev

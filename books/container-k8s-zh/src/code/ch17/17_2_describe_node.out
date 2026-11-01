@@ -1,0 +1,82 @@
+$ kubectl describe node shorty-control-plane
+Name:               shorty-control-plane
+Roles:              control-plane
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=shorty-control-plane
+                    kubernetes.io/os=linux
+                    node-role.kubernetes.io/control-plane=
+Annotations:        node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Fri, 30 Oct 2026 08:47:17 +0000
+Taints:             <none>
+Unschedulable:      false
+Lease:
+  HolderIdentity:  shorty-control-plane
+  AcquireTime:     <unset>
+  RenewTime:       Fri, 30 Oct 2026 08:49:11 +0000
+Conditions:
+  Type             Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
+  ----             ------  -----------------                 ------------------                ------                       -------
+  MemoryPressure   False   Fri, 30 Oct 2026 08:48:20 +0000   Fri, 30 Oct 2026 08:47:16 +0000   KubeletHasSufficientMemory   kubelet has sufficient memory available
+  DiskPressure     False   Fri, 30 Oct 2026 08:48:20 +0000   Fri, 30 Oct 2026 08:47:16 +0000   KubeletHasNoDiskPressure     kubelet has no disk pressure
+  PIDPressure      False   Fri, 30 Oct 2026 08:48:20 +0000   Fri, 30 Oct 2026 08:47:16 +0000   KubeletHasSufficientPID      kubelet has sufficient PID available
+  Ready            True    Fri, 30 Oct 2026 08:48:20 +0000   Fri, 30 Oct 2026 08:47:39 +0000   KubeletReady                 kubelet is posting ready status
+Addresses:
+  InternalIP:  172.19.0.2
+  Hostname:    shorty-control-plane
+Capacity:
+  cpu:                32
+  ephemeral-storage:  1005867986944
+  hugepages-1Gi:      0
+  hugepages-2Mi:      1Gi
+  memory:             14991480Ki
+  pods:               110
+Allocatable:
+  cpu:                32
+  ephemeral-storage:  1005867986944
+  hugepages-1Gi:      0
+  hugepages-2Mi:      1Gi
+  memory:             13942904Ki
+  pods:               110
+System Info:
+  Machine ID:                 58550ded0dbc4cc9a0459de74757cf3e
+  System UUID:                218dd7a8-a44b-480b-a092-222ff8d6d65b
+  Boot ID:                    f8892e77-7f4d-41fd-b9e4-0c6d28f922f8
+  Kernel Version:             7.0.0-42-generic
+  OS Image:                   Debian GNU/Linux 13 (trixie)
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  containerd://2.3.4
+  Kubelet Version:            v1.37.0
+PodCIDR:                      10.244.0.0/24
+PodCIDRs:                     10.244.0.0/24
+ProviderID:                   kind://docker/shorty/shorty-control-plane
+Non-terminated Pods:          (10 in total)
+  Namespace                   Name                                            CPU Requests  CPU Limits  Memory Requests  Memory Limits  Age
+  ---------                   ----                                            ------------  ----------  ---------------  -------------  ---
+  kube-system                 coredns-559f6c778d-4dln9                        100m (0%)     0 (0%)      70Mi (0%)        170Mi (1%)     110s
+  kube-system                 coredns-559f6c778d-rtt7p                        100m (0%)     0 (0%)      70Mi (0%)        170Mi (1%)     110s
+  kube-system                 etcd-shorty-control-plane                       100m (0%)     0 (0%)      100Mi (0%)       0 (0%)         119s
+  kube-system                 kindnet-f5lgk                                   100m (0%)     0 (0%)      50Mi (0%)        0 (0%)         110s
+  kube-system                 kube-apiserver-shorty-control-plane             250m (0%)     0 (0%)      0 (0%)           0 (0%)         119s
+  kube-system                 kube-controller-manager-shorty-control-plane    200m (0%)     0 (0%)      0 (0%)           0 (0%)         119s
+  kube-system                 kube-proxy-bvnpm                                0 (0%)        0 (0%)      0 (0%)           0 (0%)         110s
+  kube-system                 kube-scheduler-shorty-control-plane             100m (0%)     0 (0%)      0 (0%)           0 (0%)         119s
+  local-path-storage          local-path-provisioner-75f7fc7dc5-stxz9         0 (0%)        0 (0%)      0 (0%)           0 (0%)         110s
+  shorty                      api-6859cf8794-582hg                            0 (0%)        0 (0%)      0 (0%)           0 (0%)         62s
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests    Limits
+  --------           --------    ------
+  cpu                950m (2%)   0 (0%)
+  memory             290Mi (2%)  340Mi (2%)
+  ephemeral-storage  0 (0%)      0 (0%)
+  hugepages-1Gi      0 (0%)      0 (0%)
+  hugepages-2Mi      0 (0%)      0 (0%)
+Events:
+  Type    Reason                   Age   From             Message
+...（省略 6 行）
+$ kubectl top node
+error: Metrics API not available

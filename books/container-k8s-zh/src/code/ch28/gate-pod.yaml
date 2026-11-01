@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gate-demo
+  namespace: shorty
+spec:
+  schedulingGates:
+    - name: shorty.example.com/warmup
+  containers:
+    - name: app
+      image: alpine:3.22
+      command: ["sleep", "3600"]

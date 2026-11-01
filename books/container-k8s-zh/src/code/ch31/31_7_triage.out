@@ -1,0 +1,33 @@
+$ kubectl label --dry-run=server --overwrite namespace shorty pod-security.kubernetes.io/enforce=restricted
+namespace/shorty not labeled (server dry run)
+$ kubectl create namespace triage-demo
+namespace/triage-demo created
+$ kubectl -n triage-demo run legacy --image=busybox:1.37 --restart=Never -- sleep 3600
+pod/legacy created
+$ kubectl -n triage-demo wait --for=condition=Ready pod/legacy --timeout=60s
+pod/legacy condition met
+$ kubectl label --dry-run=server --overwrite namespace triage-demo pod-security.kubernetes.io/enforce=restricted
+Warning: existing pods in namespace "triage-demo" violate the new PodSecurity enforce level "restricted:latest"
+Warning: legacy: allowPrivilegeEscalation != false, unrestricted capabilities, runAsNonRoot != true, seccompProfile
+namespace/triage-demo labeled (server dry run)
+$ kubectl delete namespace triage-demo
+namespace "triage-demo" deleted
+$ kubectl apply -f vap-typecheck-pod.yaml
+validatingadmissionpolicy.admissionregistration.k8s.io/demo-typecheck-pod created
+$ for i in $(seq 1 30); do
+  warnings=$(kubectl get validatingadmissionpolicy demo-typecheck-pod \
+    -o jsonpath='{range .status.typeChecking.expressionWarnings[*]}{.fieldRef}{"\n"}{.warning}{"\n"}{end}' 2>/dev/null || true)
+  [ -n "$warnings" ] && break
+  sleep 1
+done
+$ printf '%s\n' "$warnings"
+spec.validations[0].expression
+/v1, Kind=Pod: ERROR: <input>:1:12: undefined field 'replicas'
+ | object.spec.replicas > 1
+ | ...........^
+$ kubectl apply -f vap-syntax-error.yaml
+The ValidatingAdmissionPolicy "demo-syntax-error" is invalid: spec.validations[0].expression: Invalid value: "object.metadata.labels[": compilation failed: ERROR: <input>:1:24: Syntax error: mismatched input '<EOF>' expecting {'[', '{', '(', '.', '-', '!', '?', 'true', 'false', 'null', NUM_FLOAT, NUM_INT, NUM_UINT, STRING, BYTES, IDENTIFIER}
+ | object.metadata.labels[
+ | .......................^
+$ kubectl delete validatingadmissionpolicy demo-typecheck-pod
+validatingadmissionpolicy.admissionregistration.k8s.io "demo-typecheck-pod" deleted

@@ -1,0 +1,71 @@
+$ docker compose down -v --remove-orphans
+ Container shorty-worker-1 Stopping
+ Container shorty-api-1 Stopping
+ Container shorty-worker-1 Stopped
+ Container shorty-worker-1 Removing
+ Container shorty-worker-1 Removed
+ Container shorty-api-1 Stopped
+ Container shorty-api-1 Removing
+ Container shorty-api-1 Removed
+ Container shorty-redis-1 Stopping
+ Container shorty-migrate-1 Stopping
+ Container shorty-migrate-1 Stopped
+ Container shorty-migrate-1 Removing
+ Container shorty-migrate-1 Removed
+ Container shorty-postgres-1 Stopping
+ Container shorty-redis-1 Stopped
+ Container shorty-redis-1 Removing
+ Container shorty-redis-1 Removed
+ Container shorty-postgres-1 Stopped
+ Container shorty-postgres-1 Removing
+ Container shorty-postgres-1 Removed
+ Network shorty_default Removing
+ Volume shorty_pgdata Removing
+ Volume shorty_pgdata Removed
+ Network shorty_default Removed
+$ docker swarm init --advertise-addr eth0
+Swarm initialized: current node (utcgavia74edpzqq6zwh8ud0q) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+...（省略 3 行）
+$ docker stack deploy -d --resolve-image never -c compose.swarm.yaml shorty-swarm
+Creating network shorty-swarm_default
+Creating service shorty-swarm_postgres
+Creating service shorty-swarm_api
+$ code=000
+$ for i in $(seq 1 40); do
+  code=$(curl -s -o /tmp/ch14-swarm-ready -w '%{http_code}' localhost:8080/readyz || true)
+  [ "$code" = 503 ] && break
+  sleep 0.5
+done
+$ echo "status=$code"
+status=503
+$ cat /tmp/ch14-swarm-ready
+not ready: database: failed to connect to `user=shorty database=shorty`: 10.0.1.2:5432 (postgres): dial error: dial tcp 10.0.1.2:5432: connect: connection refused
+$ docker service ps shorty-swarm_api --format '{{.Name}} {{.CurrentState}}'
+shorty-swarm_api.1 Running less than a second ago
+$ docker service ps shorty-swarm_postgres --format '{{.Name}} {{.CurrentState}}'
+shorty-swarm_postgres.1 Running less than a second ago
+$ docker service logs --timestamps shorty-swarm_api > /tmp/ch14-swarm-api.log 2>&1 || true
+$ grep 'HTTP 服务开始监听' /tmp/ch14-swarm-api.log | head -n 1
+2026-10-27T19:28:49.255105271Z shorty-swarm_api.1.u9jp1ypn6k53@cbook-lab4    | {"time":"2026-10-27T19:28:49.255050388Z","level":"INFO","msg":"HTTP 服务开始监听","addr":":8080"}
+$ for i in $(seq 1 40); do
+  docker service logs shorty-swarm_postgres 2>&1 | grep -q 'database system is ready' && break
+  sleep 1
+done
+$ docker service logs --timestamps --tail 200 shorty-swarm_postgres > /tmp/ch14-swarm-postgres.log 2>&1 || true
+$ grep 'database system is ready' /tmp/ch14-swarm-postgres.log | head -n 1
+2026-10-27T19:29:01.100609668Z shorty-swarm_postgres.1.nkyaj2ct4snk@cbook-lab4    | 2026-10-27 19:29:01.100 UTC [47] LOG:  database system is ready to accept connections
+$ docker stack rm shorty-swarm
+Removing service shorty-swarm_api
+Removing service shorty-swarm_postgres
+Removing network shorty-swarm_default
+$ for i in $(seq 1 30); do
+  [ -z "$(docker stack services shorty-swarm -q 2>/dev/null)" ] && break
+  sleep 1
+done
+$ docker swarm leave --force
+Node left the swarm.
+$ docker info --format 'swarm={{.Swarm.LocalNodeState}}'
+swarm=inactive

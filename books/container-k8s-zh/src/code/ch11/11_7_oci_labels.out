@@ -1,0 +1,42 @@
+$ docker buildx build --load --sbom=true \
+    --build-arg VERSION=0.1 \
+    --build-arg REVISION=9f2c1ab \
+    --build-arg CREATED=2026-10-27T00:00:00Z \
+    --build-arg SOURCE=https://git.example/shorty \
+    -f shorty.Dockerfile -t shorty:0.1 ../app/api
+...（省略 47 行）
+#14 CACHED
+
+#15 [build 2/6] WORKDIR /src
+#15 CACHED
+
+#16 [build 6/6] RUN --mount=type=cache,id=ch11-gomod,target=/go/pkg/mod     --mount=type=cache,id=ch11-gobuild,target=/root/.cache/go-build     GOMAXPROCS=1 GOGC=20 GOMEMLIMIT=300MiB CGO_ENABLED=0 GOOS=linux GOARCH=amd64     go build -p 1 -trimpath -ldflags="-s -w -X main.version=0.1" -o /out/shorty .
+#16 CACHED
+
+#17 docker-image://docker.io/docker/buildkit-syft-scanner:stable-1
+#17 resolve docker.io/docker/buildkit-syft-scanner:stable-1
+#17 resolve docker.io/docker/buildkit-syft-scanner:stable-1 0.2s done
+#17 DONE 0.2s
+
+#18 [linux/amd64] generating sbom using docker.io/docker/buildkit-syft-scanner:stable-1
+#18 CACHED
+
+#19 exporting to image
+#19 exporting layers done
+#19 exporting manifest sha256:b2da4babc1697e39ba866711ef643221901e016eb9d85421ae8e1b19f3483765 done
+#19 exporting config sha256:ffd427ffb6e67ed8c6c6a13e89c990c1481de65dc5a2e7743c4d013bacb755e8 done
+#19 exporting attestation manifest sha256:d5c9fd617bf2c7a46dae3c5b88b34c5e71923031edd39579a5f294965a79cffa done
+#19 exporting manifest list sha256:3713ab326316a5c28cc761fa8123153402e596e7c24a2639effabaddda6ffe66 done
+#19 naming to docker.io/library/shorty:0.1 done
+#19 unpacking to docker.io/library/shorty:0.1 done
+#19 DONE 0.1s
+$ docker image inspect --format '{{range $k, $v := .Config.Labels}}{{$k}}={{$v}}{{"\n"}}{{end}}' shorty:0.1
+org.opencontainers.image.created=2026-10-27T00:00:00Z
+org.opencontainers.image.description=shorty URL shortener API
+org.opencontainers.image.licenses=Apache-2.0
+org.opencontainers.image.revision=9f2c1ab
+org.opencontainers.image.source=https://git.example/shorty
+org.opencontainers.image.title=shorty
+org.opencontainers.image.version=0.1
+$ docker run --rm shorty:0.1 version
+shorty 0.1

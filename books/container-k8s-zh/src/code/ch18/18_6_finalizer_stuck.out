@@ -1,0 +1,17 @@
+$ kubectl -n shorty get pods -o json | jq -r '.items[] | "\(.metadata.name) -> \(.metadata.ownerReferences[0].kind)/\(.metadata.ownerReferences[0].name)"'
+api-6859cf8794-8cgxh -> ReplicaSet/api-6859cf8794
+$ kubectl -n shorty get rs -o json | jq -r '.items[] | "\(.metadata.name) -> \(.metadata.ownerReferences[0].kind)/\(.metadata.ownerReferences[0].name)"'
+api-6859cf8794 -> Deployment/api
+$ kubectl -n shorty create configmap finalizer-demo --from-literal=key=value
+configmap/finalizer-demo created
+$ kubectl -n shorty patch configmap finalizer-demo --type=merge -p '{"metadata":{"finalizers":["example.com/hold"]}}'
+configmap/finalizer-demo patched
+$ kubectl -n shorty delete configmap finalizer-demo --timeout=5s
+configmap "finalizer-demo" deleted from shorty namespace
+error: timed out waiting for the condition on configmaps/finalizer-demo
+$ kubectl -n shorty get configmap finalizer-demo -o jsonpath='{.metadata.deletionTimestamp}{" "}{.metadata.finalizers}{"\n"}'
+2026-10-27T18:06:16Z ["example.com/hold"]
+$ kubectl -n shorty patch configmap finalizer-demo --type=merge -p '{"metadata":{"finalizers":[]}}'
+configmap/finalizer-demo patched
+$ kubectl -n shorty get configmap finalizer-demo
+Error from server (NotFound): configmaps "finalizer-demo" not found

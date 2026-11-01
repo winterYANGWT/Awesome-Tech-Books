@@ -1,0 +1,37 @@
+# 与 api 相同的加固项，换成带 shell 的 busybox，方便观察 uid 和写文件的结果。
+# Pod 级 runAsUser 是 1000，容器级写 65532，用来验证容器级覆盖 Pod 级。
+apiVersion: v1
+kind: Pod
+metadata:
+  name: securitycontext-shell
+  namespace: shorty
+  labels:
+    app: securitycontext-shell
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 65532
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: shell
+      image: busybox:1.37
+      imagePullPolicy: IfNotPresent
+      command: ["sleep", "3600"]
+      securityContext:
+        runAsUser: 65532
+        runAsGroup: 65532
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+      volumeMounts:
+        - name: scratch
+          mountPath: /data
+  volumes:
+    - name: scratch
+      emptyDir: {}

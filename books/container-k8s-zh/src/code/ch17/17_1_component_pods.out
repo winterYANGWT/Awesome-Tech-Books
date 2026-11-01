@@ -1,0 +1,10 @@
+$ kubectl get pods -n kube-system -o wide
+NAME                                           READY   STATUS    RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+coredns-559f6c778d-4dln9                       1/1     Running   0          80s   10.244.0.4   shorty-control-plane   <none>           <none>
+coredns-559f6c778d-rtt7p                       1/1     Running   0          80s   10.244.0.3   shorty-control-plane   <none>           <none>
+etcd-shorty-control-plane                      1/1     Running   0          89s   172.19.0.2   shorty-control-plane   <none>           <none>
+kindnet-f5lgk                                  1/1     Running   0          80s   172.19.0.2   shorty-control-plane   <none>           <none>
+kube-apiserver-shorty-control-plane            1/1     Running   0          89s   172.19.0.2   shorty-control-plane   <none>           <none>
+kube-controller-manager-shorty-control-plane   1/1     Running   0          89s   172.19.0.2   shorty-control-plane   <none>           <none>
+kube-proxy-bvnpm                               1/1     Running   0          80s   172.19.0.2   shorty-control-plane   <none>           <none>
+kube-scheduler-shorty-control-plane            1/1     Running   0          89s   172.19.0.2   shorty-control-plane   <none>           <none>

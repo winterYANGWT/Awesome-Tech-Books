@@ -1,0 +1,41 @@
+$ docker rm -f shorty-api >/dev/null
+$ docker run -d --name shorty-api --network shorty-net --network-alias api \
+    -p 127.0.0.1:8080:8080 \
+    -e 'SHORTY_DB_URL=postgres://shorty:shorty@postgres:5432/shorty?sslmode=disable' \
+    -e SHORTY_REDIS_ADDR=redis:6379 \
+    -e SHORTY_LISTEN=127.0.0.1:8080 \
+    shorty:dev /out/shorty serve >/dev/null
+$ for _ in $(seq 1 30); do
+    docker logs shorty-api 2>&1 | grep -q 'HTTP 服务开始监听' && break
+    sleep 1
+done
+$ docker logs shorty-api 2>&1 | grep 'HTTP 服务开始监听'
+{"time":"2026-10-28T11:09:47.496233353Z","level":"INFO","msg":"HTTP 服务开始监听","addr":"127.0.0.1:8080"}
+$ docker run --rm --network shorty-net busybox:1.37 ping -c 1 -W 2 api
+PING api (172.19.0.4): 56 data bytes
+64 bytes from 172.19.0.4: seq=0 ttl=64 time=0.230 ms
+
+--- api ping statistics ---
+1 packets transmitted, 1 packets received, 0% packet loss
+round-trip min/avg/max = 0.230/0.230/0.230 ms
+$ docker run --rm --network shorty-net busybox:1.37 ip route
+default via 172.19.0.1 dev eth0
+172.19.0.0/16 dev eth0 scope link  src 172.19.0.5
+$ docker run --rm --network shorty-net busybox:1.37 wget -qO- -T 3 http://api:8080/healthz
+wget: can't connect to remote host (172.19.0.4): Connection refused
+$ pid=$(docker inspect -f '{{.State.Pid}}' shorty-api)
+$ nsenter -t "$pid" -n ss -lntp | grep 8080
+LISTEN         0              4096                       127.0.0.1:8080                         0.0.0.0:*             users:(("shorty",pid=20757,fd=6))
+$ nsenter -t "$pid" -n ip route
+default via 172.19.0.1 dev eth0
+172.19.0.0/16 dev eth0 proto kernel scope link src 172.19.0.4
+$ docker rm -f shorty-api >/dev/null
+$ docker run -d --name shorty-api --network shorty-net --network-alias api \
+    -p 127.0.0.1:8080:8080 \
+    -e 'SHORTY_DB_URL=postgres://shorty:shorty@postgres:5432/shorty?sslmode=disable' \
+    -e SHORTY_REDIS_ADDR=redis:6379 \
+    -e SHORTY_LISTEN=:8080 \
+    shorty:dev /out/shorty serve >/dev/null
+$ curl -fsS --retry 30 --retry-delay 1 --retry-all-errors http://127.0.0.1:8080/readyz >/dev/null
+$ docker run --rm --network shorty-net busybox:1.37 wget -qO- -T 3 http://api:8080/healthz
+ok

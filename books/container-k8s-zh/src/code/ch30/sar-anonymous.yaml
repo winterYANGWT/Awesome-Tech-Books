@@ -1,0 +1,12 @@
+# SubjectAccessReview 是"问一句"的对象：不改变集群状态，只让 apiserver 按现有授权规则裁决。
+apiVersion: authorization.k8s.io/v1
+kind: SubjectAccessReview
+spec:
+  user: system:anonymous
+  groups:
+    - system:unauthenticated
+  resourceAttributes:
+    namespace: shorty
+    verb: list
+    group: ""
+    resource: pods

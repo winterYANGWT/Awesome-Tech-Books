@@ -1,0 +1,29 @@
+$ kubectl apply --request-timeout=300s -f api-broken.yaml
+service/api-broken created
+$ kubectl -n shorty get svc api-broken
+NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
+api-broken   ClusterIP   10.96.11.13   <none>        8080/TCP   0s
+$ kubectl -n shorty get endpointslice -l kubernetes.io/service-name=api-broken
+NAME               ADDRESSTYPE   PORTS     ENDPOINTS   AGE
+api-broken-9dkqt   IPv4          <unset>   <unset>     0s
+$ kubectl -n shorty get endpointslice -l kubernetes.io/service-name=api-broken -o jsonpath='{range .items[*]}endpoints={.endpoints}{"\n"}{end}'
+endpoints=null
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api
+NAME                   READY   STATUS    RESTARTS   AGE
+api-5bf7f6544f-5vdgc   1/1     Running   0          2m4s
+api-5bf7f6544f-twfrx   1/1     Running   0          2m3s
+$ kubectl -n shorty exec client -- wget -T 3 -O- http://api-broken:8080/healthz
+Connecting to api-broken:8080 (10.96.11.13:8080)
+wget: can't connect to remote host (10.96.11.13): Connection refused
+command terminated with exit code 1
+$ kubectl -n shorty get endpoints api-broken
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+NAME         ENDPOINTS   AGE
+api-broken   <none>      2s
+$ kubectl -n shorty patch --request-timeout=300s svc api-broken --type=merge -p '{"spec":{"selector":{"app.kubernetes.io/name":"api"}}}'
+service/api-broken patched
+$ kubectl -n shorty get endpointslice -l kubernetes.io/service-name=api-broken
+NAME               ADDRESSTYPE   PORTS   ENDPOINTS                AGE
+api-broken-9dkqt   IPv4          8080    10.244.1.10,10.244.2.7   2s
+$ kubectl -n shorty exec client -- wget -qO- http://api-broken:8080/healthz
+ok

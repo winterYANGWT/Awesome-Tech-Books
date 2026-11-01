@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-local
+  namespace: shorty
+spec:
+  # 固定到没有 api 副本的节点，验证 internalTrafficPolicy: Local 的“本节点”语义。
+  nodeName: shorty-worker2
+  restartPolicy: Never
+  containers:
+    - name: client
+      image: busybox:1.37
+      imagePullPolicy: IfNotPresent
+      command: ["sleep", "3600"]

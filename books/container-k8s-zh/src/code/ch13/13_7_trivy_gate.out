@@ -1,0 +1,38 @@
+$ TRIVY="docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v /book/build/scratch/ch13/trivy-cache:/root/.cache/trivy aquasec/trivy:0.76.1"
+$ $TRIVY image --quiet --scanners vuln --severity HIGH,CRITICAL --exit-code 1 \
+  --image-src docker alpine:3.10
+Report Summary
+
+┌─────────────────────────────┬────────┬─────────────────┐
+│           Target            │  Type  │ Vulnerabilities │
+├─────────────────────────────┼────────┼─────────────────┤
+│ alpine:3.10 (alpine 3.10.9) │ alpine │        1        │
+└─────────────────────────────┴────────┴─────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+alpine:3.10 (alpine 3.10.9)
+===========================
+Total: 1 (HIGH: 0, CRITICAL: 1)
+
+┌───────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬──────────────────────────────────────────────────────────────┐
+│  Library  │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │                            Title                             │
+├───────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
+│ apk-tools │ CVE-2021-36159 │ CRITICAL │ fixed  │ 2.10.6-r0         │ 2.10.7-r0     │ libfetch: an out of boundary read while libfetch uses strtol │
+│           │                │          │        │                   │               │ to parse...                                                  │
+│           │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2021-36159                   │
+└───────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴──────────────────────────────────────────────────────────────┘
+$ $TRIVY image --quiet --scanners vuln --severity HIGH,CRITICAL --exit-code 1 \
+  --image-src docker alpine:3.22
+Report Summary
+
+┌─────────────────────────────┬────────┬─────────────────┐
+│           Target            │  Type  │ Vulnerabilities │
+├─────────────────────────────┼────────┼─────────────────┤
+│ alpine:3.22 (alpine 3.22.7) │ alpine │        0        │
+└─────────────────────────────┴────────┴─────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)

@@ -1,0 +1,112 @@
+$ docker image inspect shorty:0.1 --format '{{json .RootFS}}' \
+  | jq '{type: .Type, count: (.Layers | length), first: .Layers[0], last: .Layers[-1]}'
+{
+  "type": "layers",
+  "count": 14,
+  "first": "sha256:9486261b5a13f63ca6904b36721527ac8f19df53d300560138d69ae9b4c203de",
+  "last": "sha256:ce9c3ac59534111fe3c92ab296fd339c46754ff7eed1da81896ce45326ec8e8a"
+}
+$ docker history --no-trunc shorty:0.1
+IMAGE                                                                     CREATED        CREATED BY                                              SIZE      COMMENT
+sha256:d62c00c392ea3f2ec505eb031928810d68babea7649468ee98a830ab7a39bc8a   20 hours ago   CMD ["serve"]                                           0B        buildkit.dockerfile.v0
+<missing>                                                                 20 hours ago   ENTRYPOINT ["/shorty"]                                  0B        buildkit.dockerfile.v0
+<missing>                                                                 20 hours ago   COPY /out/shorty /shorty # buildkit                     13MB      buildkit.dockerfile.v0
+<missing>                                                                 N/A            bazel build //common:cacerts_debian13_amd64_tar         319kB
+<missing>                                                                 N/A            bazel build //common:os_release_debian13                16.4kB
+<missing>                                                                 N/A            bazel build //static:nsswitch                           12.3kB
+<missing>                                                                 N/A            bazel build //common:tmp                                8.19kB
+<missing>                                                                 N/A            bazel build //common:group                              12.3kB
+<missing>                                                                 N/A            bazel build //common:home                               16.4kB
+<missing>                                                                 N/A            bazel build //common:passwd                             12.3kB
+<missing>                                                                 N/A            bazel build //common:rootfs                             4.1kB
+<missing>                                                                 N/A            bazel build @trixie//media-types/amd64:data_statusd     160kB
+<missing>                                                                 N/A            bazel build @trixie//tzdata-legacy/amd64:data_statusd   2.15MB
+<missing>                                                                 N/A            bazel build @trixie//tzdata/amd64:data_statusd          2.24MB
+<missing>                                                                 N/A            bazel build @trixie//netbase/amd64:data_statusd         86kB
+<missing>                                                                 N/A            bazel build @trixie//base-files/amd64:data_statusd      745kB
+$ docker save shorty:0.1 -o /tmp/shorty-0.1.tar
+$ tar -tf /tmp/shorty-0.1.tar > /tmp/shorty-0.1.list
+$ head -12 /tmp/shorty-0.1.list
+blobs/
+blobs/sha256/
+blobs/sha256/152a2805372b7e29e93cbc245279a284ac12b1279ef2e4998222e5ce8bff6942
+blobs/sha256/2780920e5dbfbe103d03a583ed75345306e572ec5a48cb10361f046767d9f29a
+blobs/sha256/2cc7ee286bf3a9e6af5f71756d7fc8e22e23ce65fec9047d774511ffcef79fa8
+blobs/sha256/3214acf345c0cc6bbdb56b698a41ccdefc624a09d6beb0d38b5de0b2303ecaf4
+blobs/sha256/3b39acc1c2e43c4a43937e7dd657f8d80a06aaa525539ac2daa31fb012c853e2
+blobs/sha256/3f598d6fcd8c2f1b24d0e2f32b4f9a5a1608ecbc6bf6fcc8bea23acd5c57b750
+blobs/sha256/44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
+blobs/sha256/52630fc75a18675c530ed9eba5f55eca09b03e91bd5bc15307918bbc1a7e7296
+blobs/sha256/617b009a71d625ef77982b400cb9939dd5ed9809ebf50681a0520b7c08c0ca89
+blobs/sha256/744d5e5dc22d8c577b519c499ce64cb6b6ccf0651693f7461ee2e5658dcd4e01
+$ (
+INDEX=$(tar -xOf /tmp/shorty-0.1.tar index.json | jq -r '.manifests[0].digest')
+tar -xOf /tmp/shorty-0.1.tar "blobs/sha256/${INDEX#sha256:}" \
+  | jq '{mediaType, count: (.manifests | length), manifests: [.manifests[] | {platform, digest}]}'
+)
+{
+  "mediaType": "application/vnd.oci.image.index.v1+json",
+  "count": 2,
+  "manifests": [
+    {
+      "platform": {
+        "architecture": "amd64",
+        "os": "linux"
+      },
+      "digest": "sha256:744d5e5dc22d8c577b519c499ce64cb6b6ccf0651693f7461ee2e5658dcd4e01"
+    },
+    {
+      "platform": {
+        "architecture": "unknown",
+        "os": "unknown"
+      },
+      "digest": "sha256:3f598d6fcd8c2f1b24d0e2f32b4f9a5a1608ecbc6bf6fcc8bea23acd5c57b750"
+    }
+  ]
+}
+$ (
+INDEX=$(tar -xOf /tmp/shorty-0.1.tar index.json | jq -r '.manifests[0].digest')
+MANIFEST=$(tar -xOf /tmp/shorty-0.1.tar "blobs/sha256/${INDEX#sha256:}" | jq -r '.manifests[0].digest')
+tar -xOf /tmp/shorty-0.1.tar "blobs/sha256/${MANIFEST#sha256:}" \
+  | jq '{config: .config.digest, layer_count: (.layers | length), first_layer: .layers[0], last_layer: .layers[-1]}'
+)
+{
+  "config": "sha256:3b39acc1c2e43c4a43937e7dd657f8d80a06aaa525539ac2daa31fb012c853e2",
+  "layer_count": 14,
+  "first_layer": {
+    "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+    "digest": "sha256:2cc7ee286bf3a9e6af5f71756d7fc8e22e23ce65fec9047d774511ffcef79fa8",
+    "size": 124525
+  },
+  "last_layer": {
+    "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+    "digest": "sha256:152a2805372b7e29e93cbc245279a284ac12b1279ef2e4998222e5ce8bff6942",
+    "size": 4716672
+  }
+}
+$ (
+INDEX=$(tar -xOf /tmp/shorty-0.1.tar index.json | jq -r '.manifests[0].digest')
+MANIFEST=$(tar -xOf /tmp/shorty-0.1.tar "blobs/sha256/${INDEX#sha256:}" | jq -r '.manifests[0].digest')
+CONFIG=$(tar -xOf /tmp/shorty-0.1.tar "blobs/sha256/${MANIFEST#sha256:}" | jq -r '.config.digest')
+tar -xOf /tmp/shorty-0.1.tar "blobs/sha256/${CONFIG#sha256:}" \
+  | jq '{architecture, os, layer_count: (.rootfs.diff_ids | length), history_count: (.history | length), metadata_only: [.history[] | select(.empty_layer) | .created_by]}'
+)
+{
+  "architecture": "amd64",
+  "os": "linux",
+  "layer_count": 14,
+  "history_count": 16,
+  "metadata_only": [
+    "ENTRYPOINT [\"/shorty\"]",
+    "CMD [\"serve\"]"
+  ]
+}
+$ (
+INDEX=$(tar -xOf /tmp/shorty-0.1.tar index.json | jq -r '.manifests[0].digest')
+MANIFEST=$(tar -xOf /tmp/shorty-0.1.tar "blobs/sha256/${INDEX#sha256:}" | jq -r '.manifests[0].digest')
+LAYER=$(tar -xOf /tmp/shorty-0.1.tar "blobs/sha256/${MANIFEST#sha256:}" | jq -r '.layers[0].digest')
+printf '压缩层 sha256: '; tar -xOf /tmp/shorty-0.1.tar "blobs/sha256/${LAYER#sha256:}" | sha256sum
+printf '解压后 sha256: '; tar -xOf /tmp/shorty-0.1.tar "blobs/sha256/${LAYER#sha256:}" | gzip -dc | sha256sum
+)
+压缩层 sha256: 2cc7ee286bf3a9e6af5f71756d7fc8e22e23ce65fec9047d774511ffcef79fa8  -
+解压后 sha256: 9486261b5a13f63ca6904b36721527ac8f19df53d300560138d69ae9b4c203de  -

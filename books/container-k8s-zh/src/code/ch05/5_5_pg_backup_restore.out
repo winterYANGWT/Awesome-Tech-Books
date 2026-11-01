@@ -1,0 +1,43 @@
+$ docker exec shorty-pg sh -c 'id postgres; echo "PGDATA=$PGDATA"; grep "^postgres:" /etc/passwd; ls -ld "$PGDATA"'
+uid=70(postgres) gid=70(postgres) groups=70(postgres),70(postgres)
+PGDATA=/var/lib/postgresql/18/docker
+postgres:x:70:70::/var/lib/postgresql:/bin/sh
+drwx------   19 postgres root          4096 Oct 27 16:49 /var/lib/postgresql/18/docker
+$ docker run --rm --network container:shorty-pg \
+    -e SHORTY_DB_URL='postgres://shorty:shorty-demo-password-not-for-production@127.0.0.1:5432/shorty?sslmode=disable' \
+    shorty:0.1 migrate
+migrate: links 表与过期索引已就绪（可重复执行）
+$ docker exec shorty-pg psql -U shorty -d shorty -v ON_ERROR_STOP=1 -c \
+    "INSERT INTO links (code, url) VALUES ('abc123', 'https://example.com/a'), ('def456', 'https://example.com/b'), ('ghi789', 'https://example.com/c') ON CONFLICT (code) DO NOTHING; SELECT count(*) FROM links;"
+INSERT 0 3
+ count
+-------
+     3
+(1 row)
+$ docker volume create shorty-backup
+shorty-backup
+$ docker rm -f shorty-pg > /dev/null
+$ docker run -d --name shorty-pg \
+    -e POSTGRES_USER=shorty -e POSTGRES_DB=shorty \
+    -e POSTGRES_PASSWORD=shorty-demo-password-not-for-production \
+    -v shorty-pgdata:/var/lib/postgresql -v shorty-backup:/backup \
+    postgres:18.6-alpine > /dev/null
+$ for _ in $(seq 1 60); do
+    docker exec shorty-pg pg_isready -U shorty -d shorty > /dev/null 2>&1 && break
+    sleep 1
+done
+$ docker exec shorty-pg pg_isready -U shorty -d shorty
+/var/run/postgresql:5432 - accepting connections
+$ docker exec shorty-pg pg_dump -U shorty -d shorty -Fc -f /backup/shorty.dump
+$ docker exec shorty-pg sh -c 'ls -lh /backup/shorty.dump; head -c 5 /backup/shorty.dump; echo'
+-rw-rw-rw-    1 root     root        2.9K Oct 27 16:51 /backup/shorty.dump
+PGDMP
+$ docker exec shorty-pg psql -U shorty -d shorty -c "DROP TABLE links, keep_me;"
+DROP TABLE
+$ docker exec shorty-pg psql -U shorty -d shorty -c "SELECT count(*) FROM links;"
+ERROR:  relation "links" does not exist
+LINE 1: SELECT count(*) FROM links;
+                             ^
+$ docker exec shorty-pg pg_restore -U shorty -d shorty /backup/shorty.dump
+$ docker exec shorty-pg psql -U shorty -d shorty -tAc "SELECT count(*) FROM links;"
+3

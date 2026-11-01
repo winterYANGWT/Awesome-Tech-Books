@@ -1,0 +1,75 @@
+$ docker run -d --name registry -p 5000:5000 registry:3.0.0 >/dev/null
+$ docker buildx build --provenance=false --progress=plain \
+    --platform linux/amd64,linux/arm64 \
+    -f shorty.Dockerfile -t localhost:5000/shorty:0.1 --push ../app/api
+...（省略 43 行）
+#12 [linux/amd64 build 6/6] RUN --mount=type=cache,id=shorty-gomod,target=/go/pkg/mod     --mount=type=cache,id=shorty-gobuild,target=/root/.cache/go-build     CGO_ENABLED=0 GOOS=linux GOARCH=amd64     go build -trimpath -ldflags="-s -w -X main.version=0.1" -o /out/shorty .
+#12 CACHED
+
+#13 [linux/amd64 runtime 1/1] COPY --from=build /out/shorty /shorty
+#13 CACHED
+
+#14 [linux/amd64->arm64 build 4/6] RUN --mount=type=cache,id=shorty-gomod,target=/go/pkg/mod     go mod download
+#14 DONE 0.1s
+
+#15 [linux/amd64->arm64 build 5/6] COPY . .
+#15 DONE 0.0s
+
+#16 [linux/amd64->arm64 build 6/6] RUN --mount=type=cache,id=shorty-gomod,target=/go/pkg/mod     --mount=type=cache,id=shorty-gobuild,target=/root/.cache/go-build     CGO_ENABLED=0 GOOS=linux GOARCH=arm64     go build -trimpath -ldflags="-s -w -X main.version=0.1" -o /out/shorty .
+#16 DONE 7.4s
+
+#17 [linux/arm64 runtime 1/1] COPY --from=build /out/shorty /shorty
+#17 DONE 0.0s
+
+#18 exporting to image
+#18 exporting layers
+#18 exporting layers 0.2s done
+#18 exporting manifest sha256:491845420e34d62d8385f2090ebe5c95307207642e3fe9e9dc9a8939cd5bf1c0
+#18 exporting manifest sha256:491845420e34d62d8385f2090ebe5c95307207642e3fe9e9dc9a8939cd5bf1c0 done
+#18 exporting config sha256:6d5800d2516f810841f3b8de0cd44996b5710757540a9aba10e0506fbba8bca7 done
+#18 exporting manifest sha256:21d8904502ffecd2e689f4bef57457c38a2df0e6ed321dc7263476b2760c2053 done
+#18 exporting config sha256:5280a1a7debe187af511aa4aef64db1c162df3790e2c47267f777a1ce1332b9c done
+#18 exporting manifest list sha256:81fb5f830737f97ad5e5f4540ee755c63c276459589cd036a901223f69acd790 done
+#18 pushing layers 0.0s done
+#18 pushing manifest for localhost:5000/shorty:0.1@sha256:81fb5f830737f97ad5e5f4540ee755c63c276459589cd036a901223f69acd790 0.0s done
+#18 DONE 0.3s
+$ docker buildx build --provenance=false --progress=plain \
+    --platform linux/amd64,linux/arm64 \
+    -f shorty.Dockerfile -t shorty:multi --load ../app/api
+...（省略 62 行）
+#19 exporting layers done
+#19 exporting manifest sha256:491845420e34d62d8385f2090ebe5c95307207642e3fe9e9dc9a8939cd5bf1c0 done
+#19 exporting config sha256:6d5800d2516f810841f3b8de0cd44996b5710757540a9aba10e0506fbba8bca7 done
+#19 exporting manifest sha256:21d8904502ffecd2e689f4bef57457c38a2df0e6ed321dc7263476b2760c2053 done
+#19 exporting config sha256:5280a1a7debe187af511aa4aef64db1c162df3790e2c47267f777a1ce1332b9c done
+#19 exporting manifest list sha256:81fb5f830737f97ad5e5f4540ee755c63c276459589cd036a901223f69acd790 done
+#19 sending tarball 0.1s done
+#19 DONE 0.1s
+$ docker image ls shorty
+IMAGE              ID             DISK USAGE   CONTENT SIZE   EXTRA
+shorty:0.1         491845420e34       17.7MB         4.72MB
+shorty:cachetest   f9fd8282df59       17.7MB         4.72MB
+shorty:dev-ch10    18f7bb101edd       1.32GB          321MB
+shorty:multi       81fb5f830737         22MB         9.02MB
+shorty:secret      aff79554c0f3         15MB         4.49MB
+$ docker image ls localhost:5000/shorty
+IMAGE   ID             DISK USAGE   CONTENT SIZE   EXTRA
+$ docker buildx imagetools inspect localhost:5000/shorty:0.1
+Name:      localhost:5000/shorty:0.1
+MediaType: application/vnd.oci.image.index.v1+json
+Digest:    sha256:81fb5f830737f97ad5e5f4540ee755c63c276459589cd036a901223f69acd790
+
+Manifests:
+  Name:      localhost:5000/shorty:0.1@sha256:491845420e34d62d8385f2090ebe5c95307207642e3fe9e9dc9a8939cd5bf1c0
+  MediaType: application/vnd.oci.image.manifest.v1+json
+  Platform:  linux/amd64
+
+  Name:      localhost:5000/shorty:0.1@sha256:21d8904502ffecd2e689f4bef57457c38a2df0e6ed321dc7263476b2760c2053
+  MediaType: application/vnd.oci.image.manifest.v1+json
+  Platform:  linux/arm64
+$ docker run --rm --platform linux/amd64 localhost:5000/shorty:0.1 version
+Unable to find image 'localhost:5000/shorty:0.1' locally
+0.1: Pulling from shorty
+Digest: sha256:81fb5f830737f97ad5e5f4540ee755c63c276459589cd036a901223f69acd790
+Status: Downloaded newer image for localhost:5000/shorty:0.1
+shorty 0.1

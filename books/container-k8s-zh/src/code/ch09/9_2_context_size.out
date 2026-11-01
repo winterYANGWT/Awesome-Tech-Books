@@ -1,0 +1,74 @@
+$ rm -rf /tmp/ctx-raw /tmp/ctx-slim
+$ mkdir -p /tmp/ctx-raw/.git/objects/pack /tmp/ctx-raw/testdata /tmp/ctx-raw/node_modules
+$ printf 'shorty\n' > /tmp/ctx-raw/app.txt
+$ dd if=/dev/zero of=/tmp/ctx-raw/.git/objects/pack/pack.bin bs=1M count=12 status=none
+$ dd if=/dev/zero of=/tmp/ctx-raw/testdata/links.json bs=1M count=6 status=none
+$ dd if=/dev/zero of=/tmp/ctx-raw/node_modules/blob.bin bs=1M count=4 status=none
+$ cp -a /tmp/ctx-raw /tmp/ctx-slim
+$ cat > /tmp/ctx-raw/Dockerfile <<'EOF'
+FROM scratch
+COPY . /ctx/
+EOF
+$ cat > /tmp/ctx-slim/Dockerfile <<'EOF'
+FROM scratch
+COPY . /ctx/
+EOF
+$ cat > /tmp/ctx-slim/.dockerignore <<'EOF'
+.git
+node_modules
+testdata
+EOF
+$ docker build --progress=plain --provenance=false --no-cache -t ctx:raw /tmp/ctx-raw
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 63B done
+#1 DONE 0.1s
+
+#2 [internal] load .dockerignore
+#2 transferring context:
+#2 transferring context: 2B done
+#2 DONE 0.1s
+
+#3 [internal] load build context
+#3 transferring context: 23.07MB 0.0s done
+#3 DONE 0.1s
+
+#4 [1/1] COPY . /ctx/
+#4 DONE 0.0s
+
+#5 exporting to image
+#5 exporting layers 0.1s done
+#5 exporting manifest sha256:59963bf323c971d17d0eeae2ddd8a14f49cafdbd735a3213cd385d463c9426dd 0.0s done
+#5 exporting config sha256:fbdd18317bd01efb7c04687dd4b0216954b8fedd0bcbf0658366ba97a3aa5c8f 0.0s done
+#5 naming to docker.io/library/ctx:raw done
+#5 unpacking to docker.io/library/ctx:raw 0.1s done
+#5 DONE 0.2s
+WARNING: current commit information was not captured by the build: failed to read current commit information with git rev-parse --is-inside-work-tree
+$ docker build --progress=plain --provenance=false --no-cache -t ctx:slim /tmp/ctx-slim
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 63B done
+#1 DONE 0.0s
+
+#2 [internal] load .dockerignore
+#2 transferring context: 67B done
+#2 DONE 0.0s
+
+#3 [internal] load build context
+#3 transferring context: 175B done
+#3 DONE 0.0s
+
+#4 [1/1] COPY . /ctx/
+#4 DONE 0.0s
+
+#5 exporting to image
+#5 exporting layers 0.1s done
+#5 exporting manifest sha256:e46144cd80dfd516a22e3994100517834f29705eb9ec08c69509118c5dca6495 0.0s done
+#5 exporting config sha256:e7cf3f03b8dc214f63b7e5437b2429332d44d81989fe25dfe1acf837b4e1d93e
+#5 exporting config sha256:e7cf3f03b8dc214f63b7e5437b2429332d44d81989fe25dfe1acf837b4e1d93e 0.0s done
+#5 naming to docker.io/library/ctx:slim done
+#5 unpacking to docker.io/library/ctx:slim 0.0s done
+#5 DONE 0.1s
+WARNING: current commit information was not captured by the build: failed to read current commit information with git rev-parse --is-inside-work-tree

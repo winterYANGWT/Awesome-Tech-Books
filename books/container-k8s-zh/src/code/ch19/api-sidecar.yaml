@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: shorty
+  labels:
+    app.kubernetes.io/name: api
+    app.kubernetes.io/part-of: shorty
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: api
+        app.kubernetes.io/part-of: shorty
+    spec:
+      containers:
+        - name: api
+          image: shorty:0.1
+          imagePullPolicy: IfNotPresent
+          args: ["serve"]
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: shorty-config
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 2
+            timeoutSeconds: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+      initContainers:
+        # 原生 sidecar：写在 initContainers 里，但 restartPolicy 是 Always。
+        - name: metrics-scraper
+          image: busybox:1.37
+          restartPolicy: Always
+          command:
+            - sh
+            - -c
+            - |
+              while true; do
+                if body=$(wget -qO- http://127.0.0.1:8080/metrics); then
+                  line=$(printf '%s\n' "$body" | grep -m1 '^shorty_memory_links')
+                  echo "$(date -u +%H:%M:%S) scrape ok: ${line:-no shorty metric}"
+                  sleep 10
+                else
+                  echo "$(date -u +%H:%M:%S) scrape failed, retry"
+                  sleep 1
+                fi
+              done
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - wget -qO- http://127.0.0.1:8080/metrics > /dev/null
+            periodSeconds: 2
+            failureThreshold: 3

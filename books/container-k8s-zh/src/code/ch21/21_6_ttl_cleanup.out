@@ -1,0 +1,22 @@
+$ kubectl apply -f job-ttl.yaml
+job.batch/shorty-migrate-ttl created
+$ kubectl -n shorty wait --for=condition=complete job/shorty-migrate-ttl --timeout=120s
+job.batch/shorty-migrate-ttl condition met
+$ kubectl -n shorty get job shorty-migrate-ttl -o custom-columns=NAME:.metadata.name,COMPLETIONS:.status.succeeded,TTL:.spec.ttlSecondsAfterFinished,COMPLETIONTIME:.status.completionTime
+NAME                 COMPLETIONS   TTL   COMPLETIONTIME
+shorty-migrate-ttl   1             30    2026-10-27T17:51:12Z
+$ kubectl -n shorty logs job/shorty-migrate-ttl
+migrate: links 表与过期索引已就绪（可重复执行）
+$ start=$(date +%s)
+$ for i in $(seq 1 90); do
+  if ! kubectl -n shorty get job shorty-migrate-ttl >/dev/null 2>&1; then
+    echo "job deleted after $(( $(date +%s) - start ))s"
+    break
+  fi
+  sleep 1
+done
+job deleted after 30s
+$ kubectl -n shorty get jobs -l app.kubernetes.io/name=shorty-migrate-ttl
+No resources found in shorty namespace.
+$ kubectl -n shorty get pods -l batch.kubernetes.io/job-name=shorty-migrate-ttl
+No resources found in shorty namespace.

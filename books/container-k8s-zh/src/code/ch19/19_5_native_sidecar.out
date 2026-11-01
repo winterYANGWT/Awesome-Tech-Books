@@ -1,0 +1,23 @@
+$ kubectl -n shorty apply -f api-sidecar.yaml
+deployment.apps/api configured
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ pod=$(kubectl -n shorty get pods -l app.kubernetes.io/name=api \
+    --sort-by=.metadata.creationTimestamp -o name | tail -n 1 | cut -d/ -f2)
+$ echo "新的 Pod：$pod"
+新的 Pod：api-64f46546fd-jgrfc
+$ kubectl -n shorty get pod "$pod" -o wide
+NAME                   READY   STATUS    RESTARTS   AGE   IP            NODE                   NOMINATED NODE   READINESS GATES
+api-64f46546fd-jgrfc   2/2     Running   0          3s    10.244.0.13   shorty-control-plane   <none>           <none>
+$ kubectl -n shorty get pod "$pod" \
+    -o jsonpath='{.spec.containers[*].name} / {.spec.initContainers[*].name}{"\n"}'
+api / metrics-scraper
+$ set +o pipefail
+$ timeout 40 kubectl -n shorty logs -f -c metrics-scraper "$pod" | grep -m1 'scrape ok'
+19:31:45 scrape ok: shorty_memory_links 0
+$ set -o pipefail
+$ kubectl -n shorty logs -c metrics-scraper "$pod" --tail=2
+19:31:45 scrape ok: shorty_memory_links 0
+19:31:55 scrape ok: shorty_memory_links 0

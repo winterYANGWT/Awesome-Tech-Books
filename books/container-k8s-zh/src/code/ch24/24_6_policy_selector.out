@@ -1,0 +1,83 @@
+$ kubectl -n shorty run api-canary --image=shorty:0.1 --restart=Never \
+  --labels=app.kubernetes.io/name=api --port=8080 -- serve
+pod/api-canary created
+$ kubectl -n shorty wait --for=condition=Ready pod/api-canary --timeout=120s
+pod/api-canary condition met
+$ kubectl create namespace ingress
+namespace/ingress created
+$ kubectl -n ingress run gateway-probe --image=busybox:1.37 --restart=Never \
+  --labels=app.kubernetes.io/name=gateway -- sleep 3600
+pod/gateway-probe created
+$ kubectl -n ingress wait --for=condition=Ready pod/gateway-probe --timeout=60s
+pod/gateway-probe condition met
+$ kubectl -n shorty get networkpolicy allow-gateway -o yaml | sed -n '/^spec:/,$p'
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: ingress
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: gateway
+    ports:
+    - port: 8080
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: api
+  policyTypes:
+  - Ingress
+$ canary_ip=$(kubectl -n shorty get pod api-canary -o jsonpath='{.status.podIP}')
+$ printf 'api-canary IP: %s\n' "$canary_ip"
+api-canary IP: 10.244.199.204
+$ allowed=0
+$ for i in $(seq 1 20); do
+  if timeout 5 kubectl -n ingress exec gateway-probe -- \
+    wget -T 2 -qO- "http://$canary_ip:8080/readyz" >/dev/null 2>&1; then
+    echo "allowed: allow-gateway 选中了 api-canary"
+    allowed=1
+    break
+  fi
+  sleep 1
+done
+allowed: allow-gateway 选中了 api-canary
+$ [ "$allowed" -eq 1 ]
+$ kubectl -n shorty label pod api-canary app.kubernetes.io/name=api-old --overwrite
+pod/api-canary labeled
+$ denied=0
+$ for i in $(seq 1 20); do
+  if timeout 5 kubectl -n ingress exec gateway-probe -- \
+    wget -T 2 -qO- "http://$canary_ip:8080/readyz" >/dev/null 2>&1; then
+    sleep 1
+  else
+    echo "denied: 标签不再匹配 allow-gateway"
+    denied=1
+    break
+  fi
+done
+denied: 标签不再匹配 allow-gateway
+$ [ "$denied" -eq 1 ]
+$ kubectl -n shorty label pod api-canary app.kubernetes.io/name=api --overwrite
+pod/api-canary labeled
+$ restored=0
+$ for i in $(seq 1 20); do
+  if timeout 5 kubectl -n ingress exec gateway-probe -- \
+    wget -T 2 -qO- "http://$canary_ip:8080/readyz" >/dev/null 2>&1; then
+    echo "restored: 标签改回后再次放行"
+    restored=1
+    break
+  fi
+  sleep 1
+done
+restored: 标签改回后再次放行
+$ [ "$restored" -eq 1 ]
+$ kubectl -n shorty get pod api-canary --show-labels
+NAME         READY   STATUS    RESTARTS   AGE   LABELS
+api-canary   1/1     Running   0          4s    app.kubernetes.io/name=api
+$ kubectl -n shorty delete pod api-canary --wait=true
+pod "api-canary" deleted from shorty namespace
+$ kubectl delete namespace ingress --wait=true
+namespace "ingress" deleted
+$ kubectl delete namespace probe --wait=true
+namespace "probe" deleted

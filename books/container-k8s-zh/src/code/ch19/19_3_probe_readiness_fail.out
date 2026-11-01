@@ -1,0 +1,59 @@
+$ ready_endpoints() {
+    kubectl -n shorty get endpointslice -l kubernetes.io/service-name=api \
+        -o jsonpath='{range .items[*].endpoints[*]}{.conditions.ready}{"\n"}{end}' \
+        | grep -c true || true
+}
+$ kubectl -n shorty apply -f api-probes.yaml
+deployment.apps/api configured
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 of 1 updated replicas are available...
+deployment "api" successfully rolled out
+$ kubectl -n shorty get pod -l app.kubernetes.io/name=api
+NAME                   READY   STATUS    RESTARTS   AGE
+api-558869f4d9-kx4fj   1/1     Running   0          3s
+$ kubectl -n shorty set env deployment/api SHORTY_FAULT_NOT_READY=1
+deployment.apps/api env updated
+$ kubectl -n shorty rollout status deployment/api --timeout=20s
+Waiting for deployment "api" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 of 1 updated replicas are available...
+error: timed out waiting for the condition
+$ kubectl -n shorty get pod -l app.kubernetes.io/name=api
+NAME                   READY   STATUS    RESTARTS   AGE
+api-5fb96988fd-fh9bx   0/1     Running   0          13s
+$ echo "ready endpoints: $(ready_endpoints)"
+ready endpoints: 0
+$ kubectl -n shorty describe pod -l app.kubernetes.io/name=api | tail -n 12
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age               From               Message
+  ----     ------     ----              ----               -------
+  Normal   Scheduled  13s               default-scheduler  Successfully assigned shorty/api-5fb96988fd-fh9bx to shorty-control-plane
+  Normal   Pulled     13s               kubelet            spec.containers{api}: Container image "shorty:0.1" already present on machine and can be accessed by the pod
+  Normal   Created    13s               kubelet            spec.containers{api}: Container created
+  Normal   Started    13s               kubelet            spec.containers{api}: Container started
+  Warning  Unhealthy  0s (x6 over 10s)  kubelet            spec.containers{api}: Readiness probe failed: HTTP probe failed with statuscode: 503
+$ kubectl -n shorty set env deployment/api SHORTY_FAULT_NOT_READY-
+deployment.apps/api env updated
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment spec update to be observed...
+Waiting for deployment spec update to be observed...
+Waiting for deployment "api" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 of 1 updated replicas are available...
+deployment "api" successfully rolled out
+$ kubectl -n shorty get pod -l app.kubernetes.io/name=api
+NAME                   READY   STATUS    RESTARTS   AGE
+api-558869f4d9-znn8d   1/1     Running   0          3s
+$ echo "ready endpoints: $(ready_endpoints)"
+ready endpoints: 1

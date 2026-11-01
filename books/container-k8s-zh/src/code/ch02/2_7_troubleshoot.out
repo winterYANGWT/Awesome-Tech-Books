@@ -1,0 +1,19 @@
+$ docker buildx imagetools inspect --raw public.ecr.aws/docker/library/alpine:3.22 \
+  | jq -r '.manifests[] | select(.platform.os == "linux" and .platform.architecture == "amd64") | .digest' \
+  | tee /tmp/ch02-good-digest
+sha256:dc92f017beea8e7f43263073d717f7bc011228c95d5312e440deb4d035bb4eec
+$ GOOD=$(cat /tmp/ch02-good-digest); LAST=${GOOD: -1}; if [ "$LAST" = 0 ]; then NEW=1; else NEW=0; fi; BAD="${GOOD%?}${NEW}"
+$ echo "bad digest: $BAD"
+bad digest: sha256:dc92f017beea8e7f43263073d717f7bc011228c95d5312e440deb4d035bb4ee0
+$ docker pull "public.ecr.aws/docker/library/alpine@${BAD}"
+Error response from daemon: unknown: failed to resolve reference "public.ecr.aws/docker/library/alpine@sha256:dc92f017beea8e7f43263073d717f7bc011228c95d5312e440deb4d035bb4ee0": unexpected status from HEAD request to https://public.ecr.aws/v2/docker/library/alpine/blobs/sha256:dc92f017beea8e7f43263073d717f7bc011228c95d5312e440deb4d035bb4ee0: 401 Unauthorized
+$ docker manifest inspect "public.ecr.aws/docker/library/alpine@${BAD}"
+no such manifest: public.ecr.aws/docker/library/alpine@sha256:dc92f017beea8e7f43263073d717f7bc011228c95d5312e440deb4d035bb4ee0
+$ docker history --no-trunc ch02-commit-base:1
+IMAGE                                                                     CREATED          CREATED BY                                                                                                                             SIZE      COMMENT
+sha256:8252df570e39791d815aa4a5478f2feddbb6fd31ab0db2bd94f6f01a1edc0a12   38 seconds ago   RUN /bin/sh -c mkdir -p /app  && echo keep > /app/keep.txt  && echo old > /app/change.txt  && echo gone > /app/delete.txt # buildkit   20.5kB    buildkit.dockerfile.v0
+<missing>                                                                 6 days ago       CMD ["/bin/sh"]                                                                                                                        0B        buildkit.dockerfile.v0
+<missing>                                                                 6 days ago       ADD alpine-minirootfs-3.22.7-x86_64.tar.gz / # buildkit                                                                                8.97MB    buildkit.dockerfile.v0
+$ docker image ls -a ch02-commit-base
+IMAGE                ID             DISK USAGE   CONTENT SIZE   EXTRA
+ch02-commit-base:1   8252df570e39       12.8MB          3.8MB

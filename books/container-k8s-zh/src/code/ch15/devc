@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# lab 里没有 Node.js；用一个 node 容器执行固定版本的 Dev Containers CLI。
+set -euo pipefail
+exec docker run --rm --network host \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /book:/book \
+    -v ch15-devcontainer-cli:/cli \
+    -v /usr/local/bin/docker:/usr/local/bin/docker:ro \
+    -v /usr/local/libexec/docker/cli-plugins:/usr/local/libexec/docker/cli-plugins:ro \
+    -v ch15-gomod:/go/pkg/mod \
+    -w /book/src/code/ch15 \
+    node:22-alpine \
+    node /cli/node_modules/@devcontainers/cli/devcontainer.js "$@"

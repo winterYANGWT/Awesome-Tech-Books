@@ -1,0 +1,15 @@
+# 最小的 Installation：不提交 Calico APIServer、Goldmane、Whisker。
+# Operator 仍会生成 calico-node、kube-controllers、typha 和 CSI node driver。
+apiVersion: operator.tigera.io/v1
+kind: Installation
+metadata:
+  name: default
+spec:
+  calicoNetwork:
+    ipPools:
+      - name: default-ipv4-ippool
+        blockSize: 26
+        cidr: 10.244.0.0/16
+        encapsulation: VXLAN
+        natOutgoing: Enabled
+        nodeSelector: all()

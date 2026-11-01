@@ -1,0 +1,119 @@
+$ kubectl apply -f api-canary.yaml
+deployment.apps/api-canary created
+service/api-canary created
+$ kubectl -n shorty rollout status deploy/api-canary --timeout=180s
+Waiting for deployment spec update to be observed...
+Waiting for deployment "api-canary" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "api-canary" rollout to finish: 0 of 1 updated replicas are available...
+deployment "api-canary" successfully rolled out
+$ kubectl apply -f canary-route.yaml
+httproute.gateway.networking.k8s.io/shorty configured
+$ kubectl -n shorty get httproute shorty \
+    -o jsonpath='{range .spec.rules[0].backendRefs[*]}{.name}={.weight}{" "}{end}{"\n"}'
+api=90 api-canary=10
+$ kubectl -n shorty port-forward svc/shorty-gw-nginx 18080:80 >/tmp/ch34-gw-pf.log 2>&1 &
+$ GW_PF=$!
+$ curl -fsS --retry 30 --retry-delay 1 --retry-all-errors http://127.0.0.1:18080/healthz >/dev/null
+curl: (7) Failed to connect to 127.0.0.1:18080 after 0 ms: Could not connect to server
+$ stable=0
+$ canary=0
+$ for _ in $(seq 1 200); do
+    body=$(curl -sS --max-time 3 -X POST http://127.0.0.1:18080/api/links \
+        -H 'Content-Type: application/json' \
+        -d '{"url":"http://api:8080/","ttl_seconds":60}')
+    if printf '%s' "$body" | grep -q 'canary.shorty'; then
+        canary=$((canary + 1))
+    else
+        stable=$((stable + 1))
+    fi
+done
+$ printf 'stable=%d canary=%d total=%d\n' "$stable" "$canary" "$((stable + canary))"
+stable=182 canary=18 total=200
+$ [ "$canary" -ge 5 ] && [ "$canary" -le 50 ] && echo 'ratio ok'
+ratio ok
+$ kubectl apply -f canary-fault-pod.yaml
+pod/canary-fault created
+$ kubectl -n shorty wait --for=jsonpath='{.status.phase}'=Succeeded pod/canary-fault --timeout=60s
+pod/canary-fault condition met
+$ kubectl -n shorty logs canary-fault
+{"latency_ms":0,"error_rate":1,"leak_mb":0,"not_ready":false,"crash_after":0,"ignore_sigterm":false}
+$ fivexx=0
+$ ok=0
+$ for _ in $(seq 1 100); do
+    code=$(curl -sS --max-time 3 -o /dev/null -w '%{http_code}' \
+        -X POST http://127.0.0.1:18080/api/links \
+        -H 'Content-Type: application/json' \
+        -d '{"url":"http://api:8080/","ttl_seconds":60}')
+    if [ "$code" -ge 500 ]; then
+        fivexx=$((fivexx + 1))
+    else
+        ok=$((ok + 1))
+    fi
+done
+$ printf '5xx=%d ok=%d\n' "$fivexx" "$ok"
+5xx=10 ok=90
+$ [ "$fivexx" -gt 0 ] && echo 'canary is failing'
+canary is failing
+$ kubectl apply -f canary-route-zero.yaml
+httproute.gateway.networking.k8s.io/shorty configured
+$ kubectl -n shorty get httproute shorty \
+    -o jsonpath='{range .spec.rules[0].backendRefs[*]}{.name}={.weight}{" "}{end}{"\n"}'
+api=100 api-canary=0
+$ consecutive=0
+$ for _ in $(seq 1 60); do
+    code=$(curl -sS --max-time 3 -o /dev/null -w '%{http_code}' \
+        -X POST http://127.0.0.1:18080/api/links \
+        -H 'Content-Type: application/json' \
+        -d '{"url":"http://api:8080/","ttl_seconds":60}')
+    if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then
+        consecutive=$((consecutive + 1))
+    else
+        consecutive=0
+    fi
+    [ "$consecutive" -ge 5 ] && break
+    sleep 1
+done
+$ [ "$consecutive" -ge 5 ] && echo 'route reloaded'
+route reloaded
+$ fivexx=0
+$ canary_hits=0
+$ for _ in $(seq 1 100); do
+    resp=$(curl -sS --max-time 3 -w '\n%{http_code}' \
+        -X POST http://127.0.0.1:18080/api/links \
+        -H 'Content-Type: application/json' \
+        -d '{"url":"http://api:8080/","ttl_seconds":60}')
+    code=${resp##*$'\n'}
+    body=${resp%$'\n'*}
+    if [ "$code" -ge 500 ]; then
+        fivexx=$((fivexx + 1))
+    fi
+    if printf '%s' "$body" | grep -q 'canary.shorty'; then
+        canary_hits=$((canary_hits + 1))
+    fi
+done
+$ printf 'after rollback: 5xx=%d canary_hits=%d\n' "$fivexx" "$canary_hits"
+after rollback: 5xx=0 canary_hits=0
+$ [ "$fivexx" -eq 0 ] && [ "$canary_hits" -eq 0 ] && echo 'rollback ok'
+rollback ok
+$ kubectl -n shorty delete pod -l app.kubernetes.io/name=api-canary
+pod "api-canary-647cbd56d4-v5gjf" deleted from shorty namespace
+$ kubectl -n shorty rollout status deploy/api-canary --timeout=120s
+deployment "api-canary" successfully rolled out
+$ kubectl apply -f canary-route.yaml
+httproute.gateway.networking.k8s.io/shorty configured
+$ restored=0
+$ for _ in $(seq 1 60); do
+    body=$(curl -sS --max-time 3 -X POST http://127.0.0.1:18080/api/links \
+        -H 'Content-Type: application/json' \
+        -d '{"url":"http://api:8080/","ttl_seconds":60}')
+    if printf '%s' "$body" | grep -q 'canary.shorty'; then
+        restored=1
+        break
+    fi
+    sleep 1
+done
+$ printf 'canary_restored=%d\n' "$restored"
+canary_restored=1
+$ [ "$restored" -eq 1 ] && echo 'canary restored'
+canary restored
+$ kill "$GW_PF" 2>/dev/null || true

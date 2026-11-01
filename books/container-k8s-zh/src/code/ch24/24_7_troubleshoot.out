@@ -1,0 +1,24 @@
+$ kubectl -n calico-system get daemonset calico-node
+NAME          DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+calico-node   2         2         2       2            2           kubernetes.io/os=linux   4m26s
+$ kubectl -n calico-system get pods -l k8s-app=calico-node
+NAME                READY   STATUS    RESTARTS   AGE
+calico-node-6wq6l   1/1     Running   0          4m26s
+calico-node-kvdk5   1/1     Running   0          4m26s
+$ kubectl -n shorty get networkpolicy
+NAME                 POD-SELECTOR                                      AGE
+allow-api-db         app.kubernetes.io/name in (api,postgres,worker)   2m43s
+allow-dns            <none>                                            2m45s
+allow-gateway        app.kubernetes.io/name=api                        2m33s
+allow-worker-redis   app.kubernetes.io/name in (api,redis,worker)      2m34s
+default-deny         <none>                                            3m17s
+$ blocked=0
+$ if timeout 12 kubectl -n shorty exec deploy/worker -- \
+  python -c 'import socket; socket.create_connection(("api", 8080), timeout=3)' >/dev/null 2>&1; then
+  echo "unexpected: worker -> api:8080 仍然可通"
+else
+  echo "timeout: worker -> api:8080 没有对应的 allow 规则"
+  blocked=1
+fi
+timeout: worker -> api:8080 没有对应的 allow 规则
+$ [ "$blocked" -eq 1 ]

@@ -1,0 +1,58 @@
+$ docker compose -f compose.yaml -f compose.watch.yaml --profile watch up -d page
+ Container shorty-page-1 Creating
+ Container shorty-page-1 Created
+ Container shorty-page-1 Starting
+ Container shorty-page-1 Started
+$ for i in $(seq 1 30); do
+  curl -fsS localhost:8081/ >/dev/null 2>&1 && break
+  sleep 0.5
+done
+$ curl -fsS localhost:8081/ | grep -o '<title>.*</title>'
+<title>Shorty page v1</title>
+$ curl -fsS localhost:8081/VERSION
+v1
+$ rm -f /tmp/ch14-watch-sync.log
+$ setsid docker compose -f compose.yaml -f compose.watch.yaml --profile watch watch page > /tmp/ch14-watch-sync.log 2>&1 &
+$ wpid=$!
+$ for i in $(seq 1 40); do
+  grep -q 'Watch enabled' /tmp/ch14-watch-sync.log && break
+  sleep 0.5
+done
+$ sed -i 's/Shorty page v1/Shorty page v2/g' page/index.html
+$ for i in $(seq 1 40); do
+  curl -fsS localhost:8081/ 2>/dev/null | grep -q 'Shorty page v2' && break
+  sleep 0.5
+done
+$ kill -- -"$wpid" 2>/dev/null || true
+$ wait "$wpid" 2>/dev/null || true
+$ grep -E 'Syncing service' /tmp/ch14-watch-sync.log | tail -n 8
+Syncing service "page" after 1 changes were detected
+$ curl -fsS localhost:8081/ | grep -o '<title>.*</title>'
+<title>Shorty page v2</title>
+$ rm -f /tmp/ch14-watch-rebuild.log
+$ setsid docker compose -f compose.yaml -f compose.watch.yaml --profile watch watch page > /tmp/ch14-watch-rebuild.log 2>&1 &
+$ wpid=$!
+$ for i in $(seq 1 40); do
+  grep -q 'Watch enabled' /tmp/ch14-watch-rebuild.log && break
+  sleep 0.5
+done
+$ printf 'v2\n' > page/VERSION
+$ for i in $(seq 1 60); do
+  curl -fsS localhost:8081/VERSION 2>/dev/null | grep -qx 'v2' && break
+  sleep 0.5
+done
+$ kill -- -"$wpid" 2>/dev/null || true
+$ wait "$wpid" 2>/dev/null || true
+$ grep -E 'Rebuilding service|Recreated' /tmp/ch14-watch-rebuild.log | sort -u
+ Container shorty-page-1 Recreated
+Rebuilding service(s) ["page"] after changes were detected...
+$ curl -fsS localhost:8081/VERSION
+v2
+$ printf 'v1\n' > page/VERSION
+$ sed -i 's/Shorty page v2/Shorty page v1/g' page/index.html
+$ docker compose -f compose.yaml -f compose.watch.yaml --profile watch rm -sf page
+ Container shorty-page-1 Stopping
+ Container shorty-page-1 Stopped
+Going to remove shorty-page-1
+ Container shorty-page-1 Removing
+ Container shorty-page-1 Removed

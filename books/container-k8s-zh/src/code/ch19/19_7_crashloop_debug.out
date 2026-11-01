@@ -1,0 +1,22 @@
+$ kubectl -n shorty apply -f pod_crash.yaml
+pod/api-crash created
+$ kubectl -n shorty wait --for=jsonpath='{.status.containerStatuses[0].state.waiting.reason}'=CrashLoopBackOff \
+    pod/api-crash --timeout=120s
+pod/api-crash condition met
+$ kubectl -n shorty get pod api-crash
+NAME        READY   STATUS             RESTARTS      AGE
+api-crash   0/1     CrashLoopBackOff   1 (12s ago)   17s
+$ kubectl -n shorty describe pod api-crash | grep -A4 'Last State'
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Tue, 27 Oct 2026 19:34:42 +0000
+      Finished:     Tue, 27 Oct 2026 19:34:44 +0000
+$ kubectl -n shorty logs api-crash --previous
+{"time":"2026-10-27T19:34:42.831523263Z","level":"INFO","msg":"shorty starting","version":"dev","config":{"listen":":8080","db_url":"memory","redis_addr":"","base_url":"http://localhost:8080","shutdown_delay":"5s","log_level":"info"}}
+{"time":"2026-10-27T19:34:42.831567577Z","level":"INFO","msg":"fault switches","faults":{"latency_ms":0,"error_rate":0,"leak_mb":0,"not_ready":false,"crash_after":2,"ignore_sigterm":false}}
+{"time":"2026-10-27T19:34:42.831629213Z","level":"WARN","msg":"SHORTY_DB_URL 未设置，使用内存存储，进程退出后数据不会保留"}
+{"time":"2026-10-27T19:34:42.831711488Z","level":"INFO","msg":"HTTP 服务开始监听","addr":":8080"}
+{"time":"2026-10-27T19:34:44.832041687Z","level":"ERROR","msg":"故障开关触发退出","crash_after_seconds":2}
+$ kubectl -n shorty delete pod api-crash
+pod "api-crash" deleted from shorty namespace

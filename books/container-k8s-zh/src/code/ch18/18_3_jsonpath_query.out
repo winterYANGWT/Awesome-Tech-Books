@@ -1,0 +1,80 @@
+$ kubectl -n shorty get pods -o wide
+NAME                   READY   STATUS    RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+api-6859cf8794-8cgxh   1/1     Running   0          93s   10.244.0.5   shorty-control-plane   <none>           <none>
+$ kubectl -n shorty get pods -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.podIP}{"\t"}{.spec.nodeName}{"\t"}{.status.containerStatuses[0].restartCount}{"\n"}{end}'
+api-6859cf8794-8cgxh	10.244.0.5	shorty-control-plane	0
+$ kubectl -n shorty get pods -o custom-columns='NAME:.metadata.name,IP:.status.podIP,NODE:.spec.nodeName,RESTARTS:.status.containerStatuses[0].restartCount'
+NAME                   IP           NODE                   RESTARTS
+api-6859cf8794-8cgxh   10.244.0.5   shorty-control-plane   0
+$ kubectl get pods -A --sort-by=.metadata.name -o custom-columns='NAMESPACE:.metadata.namespace,NAME:.metadata.name' | sed -n '1,8p'
+NAMESPACE            NAME
+shorty               api-6859cf8794-8cgxh
+kube-system          coredns-559f6c778d-c656b
+kube-system          coredns-559f6c778d-wzj5s
+kube-system          etcd-shorty-control-plane
+kube-system          kindnet-9g8s4
+kube-system          kube-apiserver-shorty-control-plane
+kube-system          kube-controller-manager-shorty-control-plane
+$ kubectl api-versions | grep '^apps/'
+apps/v1
+$ kubectl api-resources --namespaced=true --verbs=list -o name | grep -E '^(deployments|pods|services)'
+pods
+services
+deployments.apps
+$ kubectl explain pod.spec.containers --recursive --max-depth=1
+KIND:       Pod
+VERSION:    v1
+
+FIELD: containers <[]Container>
+
+
+DESCRIPTION:
+    List of containers belonging to the pod. Containers cannot currently be
+    added or removed. There must be at least one container in a Pod. Cannot be
+    updated.
+    A single application container that you want to run within a pod.
+
+FIELDS:
+  args	<[]string>
+  command	<[]string>
+  env	<[]EnvVar>
+  envFrom	<[]EnvFromSource>
+  image	<string>
+  imagePullPolicy	<string>
+  enum: Always, IfNotPresent, Never
+  lifecycle	<Lifecycle>
+  livenessProbe	<Probe>
+  name	<string> -required-
+  ports	<[]ContainerPort>
+  readinessProbe	<Probe>
+  resizePolicy	<[]ContainerResizePolicy>
+  resources	<ResourceRequirements>
+  restartPolicy	<string>
+  restartPolicyRules	<[]ContainerRestartRule>
+  securityContext	<SecurityContext>
+  startupProbe	<Probe>
+  stdin	<boolean>
+  stdinOnce	<boolean>
+  terminationMessagePath	<string>
+  terminationMessagePolicy	<string>
+  enum: FallbackToLogsOnError, File
+  tty	<boolean>
+  volumeDevices	<[]VolumeDevice>
+  volumeMounts	<[]VolumeMount>
+  workingDir	<string>
+$ kubectl -n shorty get events --sort-by=.metadata.creationTimestamp -o custom-columns='TYPE:.type,REASON:.reason,OBJECT:.involvedObject.name' | tail -8
+TYPE     REASON              OBJECT
+Normal   Scheduled           api-6859cf8794-8cgxh
+Normal   Pulled              api-6859cf8794-8cgxh
+Normal   Created             api-6859cf8794-8cgxh
+Normal   Started             api-6859cf8794-8cgxh
+Normal   SuccessfulCreate    api-6859cf8794
+Normal   ScalingReplicaSet   api
+$ kubectl config current-context
+kind-shorty
+$ kubectl config set-context --current --namespace=shorty
+Context "kind-shorty" modified.
+$ kubectl config view --minify -o jsonpath='{.contexts[0].context.namespace}{"\n"}'
+shorty
+$ kubectl config set-context --current --namespace=default
+Context "kind-shorty" modified.

@@ -1,0 +1,16 @@
+# 旧教程里的写法：extensions/v1beta1，backend 用 serviceName/servicePort。
+# 这个 API 版本在 Kubernetes 1.22 起不再提供，apply 会被 apiserver 拒绝。
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: shorty
+  namespace: shorty
+spec:
+  rules:
+    - host: shorty.local
+      http:
+        paths:
+          - path: /api
+            backend:
+              serviceName: api
+              servicePort: 8080

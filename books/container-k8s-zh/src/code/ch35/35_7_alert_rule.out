@@ -1,0 +1,92 @@
+$ kubectl apply -f prometheusrule-shorty.yaml
+prometheusrule.monitoring.coreos.com/shorty created
+$ kubectl -n shorty get prometheusrule
+NAME     AGE
+shorty   0s
+$ kubectl -n monitoring port-forward svc/kps-kube-prometheus-stack-prometheus 19090:9090 \
+  >/tmp/ch35-pf-alert.log 2>&1 &
+$ PF=$!
+$ for i in $(seq 1 60); do
+  curl -sf localhost:19090/-/ready >/dev/null 2>&1 && break
+  sleep 0.5
+done
+$ for i in $(seq 1 120); do
+  STATE=$(curl -s localhost:19090/api/v1/rules \
+    | jq -r '.data.groups[] | select(.name == "shorty.rules")
+        | .rules[] | select(.name == "ShortyHigh5xx") | .state')
+  case "$STATE" in inactive|pending|firing) break ;; esac
+  sleep 1
+done
+$ curl -s localhost:19090/api/v1/rules \
+  | jq -r '.data.groups[] | select(.name == "shorty.rules")
+      | .rules[] | "\(.name) state=\(.state) health=\(.health)"'
+ShortyHigh5xx state=inactive health=ok
+$ POD=$(kubectl -n shorty get pod -l app.kubernetes.io/name=api \
+  -o jsonpath='{.items[0].metadata.name}')
+$ : >/tmp/ch35-pf-load.log
+$ FORWARDED=0
+$ for attempt in 1 2 3; do
+  kubectl -n shorty port-forward pod/$POD 18082:8080 >>/tmp/ch35-pf-load.log 2>&1 &
+  PFAPI=$!
+  for i in $(seq 1 40); do
+    if curl -sf localhost:18082/healthz >/dev/null; then FORWARDED=1; break 2; fi
+    sleep 0.5
+  done
+  kill $PFAPI 2>/dev/null || true
+  sleep 1
+done
+$ if [ "$FORWARDED" -ne 1 ]; then
+  cat /tmp/ch35-pf-load.log
+  exit 1
+fi
+$ curl -s -o /dev/null -w 'prime error_rate=1 -> %{http_code}\n' \
+  -X POST 'localhost:18082/admin/fault?error_rate=1'
+prime error_rate=1 -> 200
+$ curl -s -o /dev/null -w 'prime request -> %{http_code}\n' \
+  -X POST localhost:18082/api/links \
+  -H 'Content-Type: application/json' -d '{"url":"http://api:8080/"}'
+prime request -> 500
+$ curl -s -o /dev/null -w 'prime reset -> %{http_code}\n' \
+  -X POST 'localhost:18082/admin/fault?error_rate=0'
+prime reset -> 200
+$ for i in $(seq 1 60); do
+  V=$(curl -s --get --data-urlencode 'query=sum(shorty_http_requests_total{status="500"})' \
+    localhost:19090/api/v1/query | jq -r '.data.result[0].value[1] // "0"')
+  [ "$V" != "0" ] && break
+  sleep 1
+done
+$ echo "primed 5xx counter: $V"
+primed 5xx counter: 1
+$ curl -s -o /dev/null -w 'set error_rate=0.5 -> %{http_code}\n' \
+  -X POST 'localhost:18082/admin/fault?error_rate=0.5'
+set error_rate=0.5 -> 200
+$ N500=0
+$ for i in $(seq 1 10); do
+  for j in 1 2 3 4 5; do
+    CODE=$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:18082/api/links \
+      -H 'Content-Type: application/json' -d '{"url":"http://api:8080/"}')
+    [ "$CODE" = 500 ] && N500=$((N500 + 1))
+  done
+  sleep 1
+done
+$ echo "load: $N500/50 returned 500"
+load: 28/50 returned 500
+$ curl -s -o /dev/null -w 'set error_rate=0 -> %{http_code}\n' \
+  -X POST 'localhost:18082/admin/fault?error_rate=0'
+set error_rate=0 -> 200
+$ for i in $(seq 1 90); do
+  STATE=$(curl -s localhost:19090/api/v1/rules \
+    | jq -r '.data.groups[] | select(.name == "shorty.rules")
+        | .rules[] | select(.name == "ShortyHigh5xx") | .state')
+  [ "$STATE" = firing ] && break
+  sleep 1
+done
+$ curl -s localhost:19090/api/v1/rules \
+  | jq -r '.data.groups[] | select(.name == "shorty.rules")
+      | .rules[] | select(.name == "ShortyHigh5xx")
+      | "\(.name) state=\(.state) health=\(.health) lastError=\(.lastError // "-")"'
+ShortyHigh5xx state=firing health=ok lastError=-
+$ curl -s 'localhost:19090/api/v1/query?query=ALERTS%7Balertname%3D%22ShortyHigh5xx%22%7D' \
+  | jq -r '.data.result[] | "\(.metric.alertname) \(.metric.alertstate) \(.value[1])"'
+ShortyHigh5xx firing 1
+$ kill $PFAPI $PF 2>/dev/null || true

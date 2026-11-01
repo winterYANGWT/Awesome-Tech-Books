@@ -1,0 +1,21 @@
+$ docker run -d --name ch06-veth busybox:1.37 sleep 600 >/dev/null
+$ docker network inspect bridge --format '{{range .IPAM.Config}}subnet={{.Subnet}} gateway={{.Gateway}}{{end}}'
+subnet=172.18.0.0/16 gateway=172.18.0.1
+$ pid=$(docker inspect -f '{{.State.Pid}}' ch06-veth)
+$ printf 'container pid=%s netns=%s\n' "$pid" "$(readlink "/proc/$pid/ns/net")"
+container pid=18606 netns=net:[4026533615]
+$ ip netns list 2>/dev/null || true
+$ docker exec ch06-veth ip -o addr show eth0
+2: eth0    inet 172.18.0.4/16 brd 172.18.255.255 scope global eth0\       valid_lft forever preferred_lft forever
+$ docker exec ch06-veth ip route
+default via 172.18.0.1 dev eth0
+172.18.0.0/16 dev eth0 scope link  src 172.18.0.4
+$ host_ifindex=$(docker exec ch06-veth cat /sys/class/net/eth0/iflink)
+$ host_if=$(ip -o link | awk -F': ' -v n="$host_ifindex" '$1 + 0 == n {sub(/@.*/, "", $2); print $2}')
+$ printf 'eth0 iflink=%s host veth=%s\n' "$host_ifindex" "$host_if"
+eth0 iflink=128 host veth=veth97f71b6
+$ bridge link show dev "$host_if"
+128: veth97f71b6@eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master docker0 state forwarding priority 32 cost 2
+$ ip route | grep docker0
+172.18.0.0/16 dev docker0 proto kernel scope link src 172.18.0.1
+$ docker rm -f ch06-veth >/dev/null

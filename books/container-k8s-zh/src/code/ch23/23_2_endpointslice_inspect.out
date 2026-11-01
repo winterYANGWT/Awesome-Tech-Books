@@ -1,0 +1,30 @@
+$ kubectl -n shorty get endpointslice -l kubernetes.io/service-name=api
+NAME        ADDRESSTYPE   PORTS   ENDPOINTS               AGE
+api-t9v24   IPv4          8080    10.244.2.2,10.244.1.2   99s
+$ kubectl -n shorty get endpointslice -l kubernetes.io/service-name=api -o jsonpath='{range .items[*]}{.metadata.name}{" port="}{.ports[0].port}{"\n"}{range .endpoints[*]}  {.addresses[0]} ready={.conditions.ready} node={.nodeName}{"\n"}{end}{end}'
+api-t9v24 port=8080
+  10.244.2.2 ready=true node=shorty-worker2
+  10.244.1.2 ready=true node=shorty-worker
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api -o wide
+NAME                   READY   STATUS    RESTARTS   AGE   IP           NODE             NOMINATED NODE   READINESS GATES
+api-5bf7f6544f-dcf8k   1/1     Running   0          99s   10.244.2.2   shorty-worker2   <none>           <none>
+api-5bf7f6544f-s9b44   1/1     Running   0          99s   10.244.1.2   shorty-worker    <none>           <none>
+$ old_pod=$(kubectl -n shorty get pods -l app.kubernetes.io/name=api -o jsonpath='{.items[0].metadata.name}')
+$ old_ip=$(kubectl -n shorty get pod "$old_pod" -o jsonpath='{.status.podIP}')
+$ printf 'delete pod=%s ip=%s\n' "$old_pod" "$old_ip"
+delete pod=api-5bf7f6544f-dcf8k ip=10.244.2.2
+$ kubectl -n shorty delete pod "$old_pod" --wait=true
+pod "api-5bf7f6544f-dcf8k" deleted from shorty namespace
+$ kubectl -n shorty rollout status deployment/api --timeout=120s
+deployment "api" successfully rolled out
+$ kubectl -n shorty get endpointslice -l kubernetes.io/service-name=api -o jsonpath='{range .items[*]}{range .endpoints[*]}  {.addresses[0]} ready={.conditions.ready} node={.nodeName}{"\n"}{end}{end}'
+  10.244.1.2 ready=true node=shorty-worker
+  10.244.2.4 ready=true node=shorty-worker2
+$ printf 'old=%s still-in-slice=' "$old_ip"
+old=10.244.2.2 still-in-slice=
+$ kubectl -n shorty get endpointslice -l kubernetes.io/service-name=api -o jsonpath='{range .items[*]}{range .endpoints[*]}{.addresses[0]}{"\n"}{end}{end}' | grep -qx "$old_ip" && echo yes || echo no
+no
+$ kubectl -n shorty get endpoints api
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+NAME   ENDPOINTS                         AGE
+api    10.244.1.2:8080,10.244.2.4:8080   2m49s

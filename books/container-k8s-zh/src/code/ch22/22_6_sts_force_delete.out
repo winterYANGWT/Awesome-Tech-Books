@@ -1,0 +1,54 @@
+$ old_uid=$(kubectl -n shorty get pod postgres-0 -o jsonpath='{.metadata.uid}')
+$ old_ip=$(kubectl -n shorty get pod postgres-0 -o jsonpath='{.status.podIP}')
+$ printf 'before: uid=%s ip=%s\n' "$old_uid" "$old_ip"
+before: uid=b3d97c4c-acd8-4afa-8b50-ecaf7b3fd98f ip=10.244.0.25
+$ kubectl -n shorty delete pod postgres-0 --force --grace-period=0
+Warning: Immediate deletion does not wait for confirmation that the running resource has been terminated. The resource may continue to run on the cluster indefinitely.
+pod "postgres-0" force deleted from shorty namespace
+$ for i in $(seq 1 120); do
+  uid=$(kubectl -n shorty get pod postgres-0 -o jsonpath='{.metadata.uid}' 2>/dev/null || true)
+  [ -n "$uid" ] && [ "$uid" != "$old_uid" ] && break
+  sleep 1
+done
+$ kubectl -n shorty wait --for=condition=Ready pod/postgres-0 --timeout=180s
+pod/postgres-0 condition met
+$ new_uid=$(kubectl -n shorty get pod postgres-0 -o jsonpath='{.metadata.uid}')
+$ new_ip=$(kubectl -n shorty get pod postgres-0 -o jsonpath='{.status.podIP}')
+$ printf 'after:  uid=%s ip=%s name=postgres-0\n' "$new_uid" "$new_ip"
+after:  uid=1daaaf9d-7a76-4225-bd54-5c2a4c4d196e ip=10.244.0.31 name=postgres-0
+$ kubectl -n shorty get pod postgres-0 -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,IP:.status.podIP
+NAME         STATUS    IP
+postgres-0   Running   10.244.0.31
+$ kubectl -n shorty get pvc data-postgres-0
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+data-postgres-0   Bound    pvc-208b4a54-d82c-4fd9-8940-28fecd406ac9   1Gi        RWO            standard       <unset>                 48s
+$ kubectl apply -f pg-duplicate.yaml
+pod/pg-duplicate created
+$ for i in $(seq 1 120); do
+  if kubectl -n shorty logs pg-duplicate 2>/dev/null | grep -q 'database system is ready to accept connections'; then
+    break
+  fi
+  phase=$(kubectl -n shorty get pod pg-duplicate -o jsonpath='{.status.phase}' 2>/dev/null || true)
+  [ "$phase" = Failed ] && break
+  sleep 1
+done
+$ kubectl -n shorty get pod pg-duplicate -o wide
+NAME           READY   STATUS    RESTARTS   AGE   IP            NODE                   NOMINATED NODE   READINESS GATES
+pg-duplicate   1/1     Running   0          1s    10.244.0.32   shorty-control-plane   <none>           <none>
+$ kubectl -n shorty logs pg-duplicate --tail=40 || true
+PostgreSQL Database directory appears to contain a database; Skipping initialization
+
+2026-10-30 08:47:57.517 UTC [1] LOG:  starting PostgreSQL 18.6 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-10-30 08:47:57.517 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-10-30 08:47:57.517 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-10-30 08:47:57.519 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-10-30 08:47:57.522 UTC [39] LOG:  database system was interrupted; last known up at 2026-10-30 08:47:53 UTC
+2026-10-30 08:47:57.545 UTC [39] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-10-30 08:47:57.546 UTC [39] LOG:  redo starts at 0/1BE6728
+2026-10-30 08:47:57.546 UTC [39] LOG:  invalid record length at 0/1BE8738: expected at least 24, got 0
+2026-10-30 08:47:57.546 UTC [39] LOG:  redo done at 0/1BE6728 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+2026-10-30 08:47:57.548 UTC [37] LOG:  checkpoint starting: end-of-recovery immediate wait
+2026-10-30 08:47:57.559 UTC [37] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.003 s, total=0.012 s; sync files=3, longest=0.001 s, average=0.001 s; distance=8 kB, estimate=8 kB; lsn=0/1BE8738, redo lsn=0/1BE8738
+2026-10-30 08:47:57.561 UTC [1] LOG:  database system is ready to accept connections
+$ kubectl -n shorty delete pod pg-duplicate --wait=true
+pod "pg-duplicate" deleted from shorty namespace

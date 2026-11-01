@@ -1,0 +1,17 @@
+$ kubectl -n shorty get job shorty-migrate -o custom-columns=NAME:.metadata.name,COMPLETIONS:.spec.completions,PARALLELISM:.spec.parallelism,BACKOFF:.spec.backoffLimit,SUSPEND:.spec.suspend,ACTIVE:.status.active,SUCCEEDED:.status.succeeded,FAILED:.status.failed
+NAME             COMPLETIONS   PARALLELISM   BACKOFF   SUSPEND   ACTIVE   SUCCEEDED   FAILED
+shorty-migrate   1             1             6         false     <none>   1           <none>
+$ kubectl -n shorty get job,pod -l app.kubernetes.io/name=shorty-migrate
+NAME                       STATUS     COMPLETIONS   DURATION   AGE
+job.batch/shorty-migrate   Complete   1/1           12s        45s
+
+NAME                       READY   STATUS      RESTARTS   AGE
+pod/shorty-migrate-hfk5b   0/1     Completed   0          45s
+$ kubectl -n shorty logs job/shorty-migrate
+Defaulted container "migrate" out of: migrate, wait-for-postgres (init)
+migrate: links 表与过期索引已就绪（可重复执行）
+$ kubectl -n shorty wait --for=condition=complete job/shorty-migrate --timeout=10s
+job.batch/shorty-migrate condition met
+$ kubectl -n shorty get job shorty-migrate -o jsonpath='{range .status.conditions[*]}{.type}={.status} reason={.reason}{"\n"}{end}'
+SuccessCriteriaMet=True reason=CompletionsReached
+Complete=True reason=CompletionsReached

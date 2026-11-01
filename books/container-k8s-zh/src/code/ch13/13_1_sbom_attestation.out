@@ -1,0 +1,49 @@
+$ REG=$(cat /tmp/ch13-registry)
+$ cd ../app/api
+$ docker buildx build --sbom=true --provenance=false --push -t "$REG/shorty:0.1" .
+...（省略 66 行）
+
+#19 exporting to image
+#19 exporting layers done
+#19 exporting manifest sha256:1b8ce31d4c25f310551d9b061b007685a9f8a242fbffdb7346927a72622f1fe1 done
+#19 exporting config sha256:755f590a80e82d0ba3b0341cca2684d74790e9ff62eb013b1298909ddc3e8850 done
+#19 exporting attestation manifest sha256:3e64cba44c81f71e6656ce79094422f09f2b10bdb25a77251a61c6daf59a56ee done
+#19 exporting manifest list sha256:678fea63a962cde77bdbbb571419070892fea922086e5b992c048fd0b0826a15 done
+#19 naming to 172.18.0.1:5000/shorty:0.1 done
+#19 pushing layers 0.0s done
+#19 pushing manifest for 172.18.0.1:5000/shorty:0.1@sha256:678fea63a962cde77bdbbb571419070892fea922086e5b992c048fd0b0826a15
+#19 pushing manifest for 172.18.0.1:5000/shorty:0.1@sha256:678fea63a962cde77bdbbb571419070892fea922086e5b992c048fd0b0826a15 0.0s done
+#19 DONE 0.1s
+$ DIGEST=$(docker buildx imagetools inspect "$REG/shorty:0.1" --format '{{.Manifest.Digest}}')
+$ printf '%s\n' "$DIGEST" > /tmp/ch13-digest
+$ docker buildx imagetools inspect "$REG/shorty:0.1"
+Name:      172.18.0.1:5000/shorty:0.1
+MediaType: application/vnd.oci.image.index.v1+json
+Digest:    sha256:678fea63a962cde77bdbbb571419070892fea922086e5b992c048fd0b0826a15
+
+Manifests:
+  Name:        172.18.0.1:5000/shorty:0.1@sha256:1b8ce31d4c25f310551d9b061b007685a9f8a242fbffdb7346927a72622f1fe1
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/amd64
+
+  Name:        172.18.0.1:5000/shorty:0.1@sha256:3e64cba44c81f71e6656ce79094422f09f2b10bdb25a77251a61c6daf59a56ee
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    unknown/unknown
+  Annotations:
+    vnd.docker.reference.digest: sha256:1b8ce31d4c25f310551d9b061b007685a9f8a242fbffdb7346927a72622f1fe1
+    vnd.docker.reference.type:   attestation-manifest
+$ docker buildx imagetools inspect "$REG/shorty:0.1" --format '{{json .SBOM.SPDX}}' \
+  | jq -r '.spdxVersion, "packages: \(.packages | length)", (.packages[] | "\(.name)@\(.versionInfo)")' \
+  | head -12
+SPDX-2.3
+packages: 19
+base-files@13.8+deb13u7
+ca-certificates@20250419+deb13u1
+github.com/cespare/xxhash/v2@v2.3.0
+github.com/jackc/pgpassfile@v1.0.0
+github.com/jackc/pgservicefile@v0.0.0-20240606120523-5a60cdf6a761
+github.com/jackc/pgx/v5@v5.11.0
+github.com/jackc/puddle/v2@v2.2.2
+github.com/redis/go-redis/v9@v9.23.0
+go.uber.org/atomic@v1.12.0
+golang.org/x/sync@v0.17.0

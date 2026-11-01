@@ -1,0 +1,37 @@
+# 一次迁移 Job。generateName 让同一份清单可以连续创建多个独立的 Job，
+# 用来验证 migrate 的幂等性。
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: shorty-migrate-
+  namespace: shorty
+  labels:
+    app.kubernetes.io/name: shorty-migrate-check
+    app.kubernetes.io/part-of: shorty
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: shorty-migrate-check
+        app.kubernetes.io/part-of: shorty
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: shorty:0.1
+          imagePullPolicy: IfNotPresent
+          args: ["migrate"]
+          envFrom:
+            - configMapRef:
+                name: shorty-config
+          volumeMounts:
+            - name: db-secret
+              mountPath: /etc/shorty
+              readOnly: true
+      volumes:
+        - name: db-secret
+          secret:
+            secretName: shorty-db
+            defaultMode: 0444

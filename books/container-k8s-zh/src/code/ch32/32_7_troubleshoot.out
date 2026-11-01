@@ -1,0 +1,22 @@
+$ kubectl -n kube-bench get pods -l job-name=kube-bench -o wide
+NAME               READY   STATUS      RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+kube-bench-ljdhv   0/1     Completed   0          33s   10.244.0.5   shorty-control-plane   <none>           <none>
+$ kubectl -n kube-bench get pod -l job-name=kube-bench -o jsonpath=\
+'{.items[0].spec.hostPID}{"\n"}{range .items[0].spec.volumes[*]}{.name}={.hostPath.path}{"\n"}{end}'
+true
+etc-kubernetes=/etc/kubernetes
+var-lib-kubelet=/var/lib/kubelet
+var-lib-etcd=/var/lib/etcd
+usr-bin=/usr/bin
+kube-api-access-5fcr7=
+$ docker exec shorty-control-plane sh -c 'test -d /etc/kubernetes && echo /etc/kubernetes exists'
+/etc/kubernetes exists
+$ kubectl apply -f hostpid-in-restricted.yaml
+Error from server (Forbidden): error when creating "hostpid-in-restricted.yaml": pods "hostpid-in-restricted" is forbidden: violates PodSecurity "restricted:latest": host namespaces (hostPID=true), restricted volume types (volume "hostroot" uses restricted volume type "hostPath")
+$ docker exec shorty-control-plane grep -E 'audit-(policy-file|log-path)' \
+  /etc/kubernetes/manifests/kube-apiserver.yaml
+    - --audit-log-path=/var/log/kubernetes/audit/audit.log
+    - --audit-policy-file=/etc/kubernetes/audit-policy.yaml
+$ ls -lh /tmp/ch32-audit-log/audit.log
+-rw------- 1 root root 4.7M Oct 28 05:30 /tmp/ch32-audit-log/audit.log
+$ docker logs shorty-control-plane 2>&1 | tail -n 4

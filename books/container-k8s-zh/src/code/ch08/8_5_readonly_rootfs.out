@@ -1,0 +1,24 @@
+$ docker run -d --name ch08-ro \
+    --user 65532:65532 \
+    --cap-drop=ALL \
+    --security-opt=no-new-privileges \
+    --read-only --tmpfs /tmp \
+    -p 18082:8080 shorty:dev /out/shorty serve
+51531fed76c44830578c4d9e6eebaf30630948287f4861d560ca873471771eca
+$ until curl -fsS localhost:18082/healthz > /dev/null 2>&1; do sleep 1; done
+$ curl -fsS localhost:18082/healthz
+ok
+$ docker exec ch08-ro sh -c 'id; echo ok > /tmp/ch08-write && echo "write /tmp: ok"'
+uid=65532 gid=65532 groups=65532
+write /tmp: ok
+$ docker exec ch08-ro sh -c 'echo no > /ch08-write'
+sh: 1: cannot create /ch08-write: Read-only file system
+$ docker inspect -f 'ReadonlyRootfs={{.HostConfig.ReadonlyRootfs}} SecurityOpt={{json .HostConfig.SecurityOpt}} User={{.Config.User}}' ch08-ro
+ReadonlyRootfs=true SecurityOpt=["no-new-privileges"] User=65532:65532
+$ docker exec ch08-ro grep -E 'CapEff|NoNewPrivs' /proc/self/status
+CapEff:	0000000000000000
+NoNewPrivs:	1
+$ docker run --rm --read-only shorty:dev sh -c 'echo x > /tmp/ch08-write'
+sh: 1: cannot create /tmp/ch08-write: Read-only file system
+$ docker rm -f ch08-ro
+ch08-ro

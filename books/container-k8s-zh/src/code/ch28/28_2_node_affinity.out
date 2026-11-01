@@ -1,0 +1,30 @@
+$ kubectl label node shorty-worker shorty.example.com/pool=api --overwrite
+node/shorty-worker labeled
+$ kubectl -n shorty patch deployment api --type merge -p '{"spec":{"template":{"spec":{"affinity":{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"shorty.example.com/pool","operator":"In","values":["api"]}]}]}}}}}}}'
+deployment.apps/api patched
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ old=$(kubectl -n shorty get rs -l app.kubernetes.io/name=api -o jsonpath='{range .items[?(@.spec.replicas==0)]}{.metadata.labels.pod-template-hash}{"\n"}{end}' | head -1)
+$ [ -z "$old" ] || kubectl -n shorty wait --for=delete pod -l pod-template-hash="$old" --timeout=60s
+pod/api-5bf7f6544f-hjwt6 condition met
+pod/api-5bf7f6544f-mvwl6 condition met
+$ kubectl label node shorty-worker shorty.example.com/pool-
+node/shorty-worker unlabeled
+$ kubectl -n shorty get pod -l app.kubernetes.io/name=api -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName,STATUS:.status.phase
+NAME                  NODE            STATUS
+api-cc79cb679-4f4rt   shorty-worker   Running
+api-cc79cb679-7fcl2   shorty-worker   Running
+$ kubectl apply -f affinity-pending.yaml
+pod/affinity-pending created
+$ kubectl -n shorty wait --for=jsonpath='{.status.conditions[?(@.type=="PodScheduled")].reason}'=Unschedulable pod/affinity-pending --timeout=60s
+pod/affinity-pending condition met
+$ kubectl -n shorty describe pod affinity-pending | sed -n '/Events:/,$p' | head -8
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  0s    default-scheduler  0/3 nodes are available: 1 node(s) had untolerated taint(s), 2 node(s) didn't match Pod's node affinity/selector. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.

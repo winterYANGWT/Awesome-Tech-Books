@@ -1,0 +1,7 @@
+$ kubectl get crd -o name | grep 'snapshot.storage.k8s.io' || echo '没有 snapshot.storage.k8s.io 的 CRD'
+没有 snapshot.storage.k8s.io 的 CRD
+$ kubectl apply -f volume-snapshot.yaml
+error: resource mapping not found for name: "postgres-before-upgrade" namespace: "shorty" from "volume-snapshot.yaml": no matches for kind "VolumeSnapshot" in version "snapshot.storage.k8s.io/v1"
+ensure CRDs are installed first
+$ kubectl -n shorty get volumesnapshot
+error: the server doesn't have a resource type "volumesnapshot"

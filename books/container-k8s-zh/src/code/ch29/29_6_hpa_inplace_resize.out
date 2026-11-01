@@ -1,0 +1,72 @@
+$ pod=$(kubectl -n shorty get pods -l app.kubernetes.io/name=api -o jsonpath='{.items[0].metadata.name}')
+$ before=$(kubectl -n shorty get pod "$pod" -o jsonpath='{.status.containerStatuses[0].restartCount}')
+$ echo "pod=$pod restartCount=$before"
+pod=api-f6c986d-44q85 restartCount=0
+$ kubectl -n shorty patch pod "$pod" --subresource resize --type=strategic \
+  -p='{"spec":{"containers":[{"name":"api","resources":{"limits":{"cpu":"600m"}}}]}}'
+pod/api-f6c986d-44q85 patched
+$ for i in $(seq 1 30); do
+  status_cpu=$(kubectl -n shorty get pod "$pod" -o jsonpath='{.status.containerStatuses[0].resources.limits.cpu}')
+  echo "status.limits.cpu=$status_cpu"
+  [ "$status_cpu" = "600m" ] && break
+  sleep 2
+done
+status.limits.cpu=500m
+status.limits.cpu=600m
+$ after=$(kubectl -n shorty get pod "$pod" -o jsonpath='{.status.containerStatuses[0].restartCount}')
+$ echo "restartCount before=$before after=$after"
+restartCount before=0 after=0
+$ kubectl -n shorty describe pod "$pod" | sed -n '/Containers:/,/Conditions:/p'
+Containers:
+  api:
+    Container ID:  containerd://257d96242094cd0322122f918ffe58d81ea67575f7d568ec1388fed84db625b0
+    Image:         shorty:0.1
+    Image ID:      docker.io/library/import-2026-10-28@sha256:8ef8e9bcd68cb9079b6490ced398b4596d2282132aef61e2ec7f622aa2d7deb0
+    Port:          8080/TCP (http)
+    Host Port:     0/TCP (http)
+    Args:
+      serve
+    State:          Running
+      Started:      Wed, 28 Oct 2026 03:44:52 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     600m
+      memory:  256Mi
+    Requests:
+      cpu:     45m
+      memory:  64Mi
+    Environment Variables from:
+      shorty-config  ConfigMap  Optional: false
+    Environment:     <none>
+    Mounts:
+      /etc/shorty from db-secret (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-2sh5n (ro)
+Conditions:
+$ kubectl -n shorty patch pod "$pod" --subresource resize --type=strategic \
+  -p='{"spec":{"containers":[{"name":"api","resources":{"requests":{"cpu":"1000"},"limits":{"cpu":"1000"}}}]}}'
+Error from server (Forbidden): pods "api-f6c986d-44q85" is forbidden: node didn't have enough allocatable resources: cpu, requested: 1000000, allocatable: 32000
+$ kubectl -n shorty get pod "$pod" -o jsonpath='{.spec.containers[0].resources}{"\n"}'
+{"limits":{"cpu":"600m","memory":"256Mi"},"requests":{"cpu":"45m","memory":"64Mi"}}
+$ kubectl -n shorty get pod "$pod" -o jsonpath='{range .status.conditions[*]}{.type}={.status} {.reason}{"\n"}{end}'
+PodReadyToStartContainers=True
+Initialized=True
+Ready=True
+ContainersReady=True
+PodScheduled=True
+$ kubectl -n shorty get pod "$pod" -o jsonpath='{.status.containerStatuses[0].resources}{"\n"}'
+{"limits":{"cpu":"600m","memory":"256Mi"},"requests":{"cpu":"45m","memory":"64Mi"}}
+$ kubectl -n shorty patch pod "$pod" --subresource resize --type=strategic \
+  -p='{"spec":{"containers":[{"name":"api","resources":{"requests":{"cpu":"45m"},"limits":{"cpu":"500m"}}}]}}'
+pod/api-f6c986d-44q85 patched
+$ for i in $(seq 1 30); do
+  status_cpu=$(kubectl -n shorty get pod "$pod" -o jsonpath='{.status.containerStatuses[0].resources.limits.cpu}')
+  echo "status.limits.cpu=$status_cpu"
+  [ "$status_cpu" = "500m" ] && break
+  sleep 2
+done
+status.limits.cpu=600m
+status.limits.cpu=500m
+$ kubectl -n shorty get pod "$pod"
+NAME                READY   STATUS    RESTARTS   AGE
+api-f6c986d-44q85   1/1     Running   0          5m35s

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ch08-root-privileged
+  namespace: ch08-restricted
+  labels:
+    app: ch08-root-privileged
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ch08-root-privileged
+  template:
+    metadata:
+      labels:
+        app: ch08-root-privileged
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          command: ["sleep", "3600"]
+          securityContext:
+            privileged: true
+            runAsUser: 0
+            runAsNonRoot: false
+            allowPrivilegeEscalation: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+            seccompProfile:
+              type: Unconfined

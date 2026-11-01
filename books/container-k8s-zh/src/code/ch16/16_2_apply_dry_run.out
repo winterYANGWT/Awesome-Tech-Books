@@ -1,0 +1,49 @@
+$ kubectl -n shorty get deployment api -o json \
+  | jq '{spec_replicas: .spec.replicas, status_replicas: .status.replicas, ready: .status.readyReplicas, available: .status.availableReplicas}'
+{
+  "spec_replicas": 2,
+  "status_replicas": 2,
+  "ready": 2,
+  "available": 2
+}
+$ kubectl -n shorty get deployment api --show-managed-fields -o json \
+  | jq -r '[.metadata.managedFields[] | .manager + " " + .operation] | unique[]'
+kube-controller-manager Update
+kubectl-client-side-apply Update
+$ kubectl -n shorty get deployment api -o json \
+  | jq -r '.metadata.annotations["kubectl.kubernetes.io/last-applied-configuration"] | fromjson | {kind, name: .metadata.name, replicas: .spec.replicas}'
+{
+  "kind": "Deployment",
+  "name": "api",
+  "replicas": 2
+}
+$ kubectl apply --dry-run=server -f api-2-replicas.yaml
+namespace/shorty unchanged (server dry run)
+deployment.apps/api unchanged (server dry run)
+$ kubectl diff -f api-2-replicas.yaml
+$ echo "无差异时 kubectl diff 的退出码：$?"
+无差异时 kubectl diff 的退出码：0
+$ sed 's/^  replicas: 2$/  replicas: 3/' api-2-replicas.yaml > /tmp/ch16-api-3.yaml
+$ kubectl diff -f /tmp/ch16-api-3.yaml
+--- /tmp/LIVE-155787592/apps.v1.Deployment.shorty.api
++++ /tmp/MERGED-612882752/apps.v1.Deployment.shorty.api
+@@ -6,7 +6,7 @@
+     kubectl.kubernetes.io/last-applied-configuration: |
+       {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app.kubernetes.io/name":"api"},"name":"api","namespace":"shorty"},"spec":{"replicas":2,"selector":{"matchLabels":{"app.kubernetes.io/name":"api"}},"template":{"metadata":{"labels":{"app.kubernetes.io/name":"api"}},"spec":{"containers":[{"args":["serve"],"image":"shorty:0.1","imagePullPolicy":"IfNotPresent","name":"api","ports":[{"containerPort":8080,"name":"http"}]}]}}}}
+   creationTimestamp: "2026-10-28T12:39:18Z"
+-  generation: 1
++  generation: 2
+   labels:
+     app.kubernetes.io/name: api
+   name: api
+@@ -15,7 +15,7 @@
+   uid: de2bc9ab-6cc3-4fdd-8b6c-e21c234dd901
+ spec:
+   progressDeadlineSeconds: 600
+-  replicas: 2
++  replicas: 3
+   revisionHistoryLimit: 10
+   selector:
+     matchLabels:
+$ kubectl apply --dry-run=server -f api-bad-field.yaml
+The request is invalid: patch: Invalid value: "map[metadata:map[annotations:map[kubectl.kubernetes.io/last-applied-configuration:{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"name\":\"api\",\"namespace\":\"shorty\"},\"spec\":{\"replicasCount\":3,\"selector\":{\"matchLabels\":{\"app.kubernetes.io/name\":\"api\"}},\"template\":{\"metadata\":{\"labels\":{\"app.kubernetes.io/name\":\"api\"}},\"spec\":{\"containers\":[{\"args\":[\"serve\"],\"image\":\"shorty:0.1\",\"name\":\"api\"}]}}}}\n] labels:<nil>] spec:map[replicas:<nil> replicasCount:3 template:map[spec:map[]]]]": strict decoding error: unknown field "spec.replicasCount"

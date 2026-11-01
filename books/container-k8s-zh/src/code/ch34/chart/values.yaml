@@ -1,0 +1,22 @@
+# 默认值面向本地 lab；生产环境用 -f 覆盖，不要把环境差异写死在这里。
+replicaCount: 2
+
+image:
+  repository: localhost:5000/shorty
+  tag: "0.1"
+  pullPolicy: IfNotPresent
+
+# shorty 用它拼 short_url；不同环境换域名，不动镜像。
+baseURL: http://shorty.shorty-helm.svc.cluster.local:8080
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi

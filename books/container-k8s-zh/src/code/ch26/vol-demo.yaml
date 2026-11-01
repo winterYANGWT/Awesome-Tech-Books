@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vol-demo
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: keep-data
+  namespace: vol-demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cache-pod
+  namespace: vol-demo
+spec:
+  containers:
+    - name: shell
+      image: busybox:1.37
+      command: ["sleep", "3600"]
+      volumeMounts:
+        - name: cache
+          mountPath: /data
+  volumes:
+    - name: cache
+      emptyDir: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: keep-pod
+  namespace: vol-demo
+spec:
+  containers:
+    - name: shell
+      image: busybox:1.37
+      command: ["sleep", "3600"]
+      volumeMounts:
+        - name: keep
+          mountPath: /data
+  volumes:
+    - name: keep
+      persistentVolumeClaim:
+        claimName: keep-data

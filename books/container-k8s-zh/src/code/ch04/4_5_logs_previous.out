@@ -1,0 +1,40 @@
+$ docker run -d --name shorty-crash -e SHORTY_FAULT_CRASH_AFTER=2 shorty:ch04 > /dev/null
+$ docker wait shorty-crash
+1
+$ docker ps -a --filter name=shorty-crash --format 'table {{.Names}}\t{{.Status}}'
+NAMES          STATUS
+shorty-crash   Exited (1) Less than a second ago
+$ docker logs shorty-crash
+{"time":"2026-10-28T11:04:37.201410047Z","level":"INFO","msg":"shorty starting","version":"dev","config":{"listen":":8080","db_url":"memory","redis_addr":"","base_url":"http://localhost:8080","shutdown_delay":"5s","log_level":"info"}}
+{"time":"2026-10-28T11:04:37.201804229Z","level":"INFO","msg":"fault switches","faults":{"latency_ms":0,"error_rate":0,"leak_mb":0,"not_ready":false,"crash_after":2,"ignore_sigterm":false}}
+{"time":"2026-10-28T11:04:37.201846659Z","level":"WARN","msg":"SHORTY_DB_URL 未设置，使用内存存储，进程退出后数据不会保留"}
+{"time":"2026-10-28T11:04:37.201969961Z","level":"INFO","msg":"HTTP 服务开始监听","addr":":8080"}
+{"time":"2026-10-28T11:04:39.202282577Z","level":"ERROR","msg":"故障开关触发退出","crash_after_seconds":2}
+$ docker inspect -f 'driver={{.HostConfig.LogConfig.Type}} config={{json .HostConfig.LogConfig.Config}} path={{.LogPath}}' shorty-crash
+driver=json-file config={} path=/var/lib/docker/containers/28bd984c75a540c1203dfd7f6365c0e3a5ae6ffeece19999a513c3a18150a63c/28bd984c75a540c1203dfd7f6365c0e3a5ae6ffeece19999a513c3a18150a63c-json.log
+$ LOG=$(docker inspect -f '{{.LogPath}}' shorty-crash)
+$ tail -n 1 "$LOG" | jq '{log, stream, time}'
+{
+  "log": "{\"time\":\"2026-10-28T11:04:39.202282577Z\",\"level\":\"ERROR\",\"msg\":\"故障开关触发退出\",\"crash_after_seconds\":2}\n",
+  "stream": "stdout",
+  "time": "2026-10-28T11:04:39.202477684Z"
+}
+$ docker logs --tail 2 shorty-crash
+{"time":"2026-10-28T11:04:37.201969961Z","level":"INFO","msg":"HTTP 服务开始监听","addr":":8080"}
+{"time":"2026-10-28T11:04:39.202282577Z","level":"ERROR","msg":"故障开关触发退出","crash_after_seconds":2}
+$ docker logs -t --tail 2 shorty-crash | cut -c1-120
+2026-10-28T11:04:37.202048359Z {"time":"2026-10-28T11:04:37.201969961Z","level":"INFO","msg":"HTTP 服务开始监听","addr":":8080
+2026-10-28T11:04:39.202477684Z {"time":"2026-10-28T11:04:39.202282577Z","level":"ERROR","msg":"故障开关触发退出","crash_after_se
+$ docker logs --since 10m --tail 2 shorty-crash
+{"time":"2026-10-28T11:04:37.201969961Z","level":"INFO","msg":"HTTP 服务开始监听","addr":":8080"}
+{"time":"2026-10-28T11:04:39.202282577Z","level":"ERROR","msg":"故障开关触发退出","crash_after_seconds":2}
+$ docker run -d --name shorty-rotate --log-opt max-size=1k --log-opt max-file=2 busybox:1.37 \
+  sh -c 'i=0; while [ $i -lt 300 ]; do echo "line $i 012345678901234567890123456789"; i=$((i+1)); done' > /dev/null
+$ docker wait shorty-rotate
+0
+$ docker inspect -f '{{json .HostConfig.LogConfig.Config}}' shorty-rotate
+{"max-file":"2","max-size":"1k"}
+$ find "$(dirname "$(docker inspect -f '{{.LogPath}}' shorty-rotate)")" -maxdepth 1 -name '*-json.log*' -printf '%f\n' | sort
+d0c1dc193736dcbcbfc90ed6295c78a2a334c7637bce1abac7c44a7c28c00cd4-json.log
+d0c1dc193736dcbcbfc90ed6295c78a2a334c7637bce1abac7c44a7c28c00cd4-json.log.1
+$ docker rm -f shorty-crash shorty-rotate > /dev/null

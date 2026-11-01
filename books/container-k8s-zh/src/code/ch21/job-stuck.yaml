@@ -1,0 +1,26 @@
+# 一个永远不会自己退出的脚本：Job 会一直保持 active，不会有 Complete/Failed。
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: shorty-stuck
+  namespace: shorty
+  labels:
+    app.kubernetes.io/name: shorty-stuck
+    app.kubernetes.io/part-of: shorty
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: shorty-stuck
+        app.kubernetes.io/part-of: shorty
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: script
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - 'echo "migration script started, but never exits"; sleep 600'

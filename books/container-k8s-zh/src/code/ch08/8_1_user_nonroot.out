@@ -1,0 +1,29 @@
+$ docker run --rm shorty:dev id
+uid=0(root) gid=0(root) groups=0(root)
+$ docker volume create ch08-userdata
+ch08-userdata
+$ docker run --rm -v ch08-userdata:/data shorty:dev sh -c 'echo from-root > /data/root.txt'
+$ stat -c '%u:%g %a %n' "$(docker volume inspect -f '{{.Mountpoint}}' ch08-userdata)" "$(docker volume inspect -f '{{.Mountpoint}}' ch08-userdata)/root.txt"
+0:0 755 /var/lib/docker/volumes/ch08-userdata/_data
+0:0 644 /var/lib/docker/volumes/ch08-userdata/_data/root.txt
+$ docker run -d --name ch08-user --user 65532:65532 -p 18081:8080 shorty:dev /out/shorty serve
+f101925dd0563ced07594922501109d6d1a6275b6c1cabdeaf288c5c3581e0cb
+$ docker inspect -f '{{.Config.User}}' ch08-user
+65532:65532
+$ until curl -fsS localhost:18081/healthz > /dev/null 2>&1; do sleep 1; done
+$ curl -fsS localhost:18081/healthz
+ok
+$ docker exec ch08-user sh -c 'id; echo ok > /tmp/ch08-write && echo "write /tmp: ok"'
+uid=65532 gid=65532 groups=65532
+write /tmp: ok
+$ docker exec ch08-user sh -c 'echo no > /ch08-write'
+sh: 1: cannot create /ch08-write: Permission denied
+$ docker run --rm --user 0:0 -v ch08-userdata:/data shorty:dev sh -c 'id'
+uid=0(root) gid=0(root) groups=0(root)
+$ stat -c '%u:%g %a %n' "$(docker volume inspect -f '{{.Mountpoint}}' ch08-userdata)" "$(docker volume inspect -f '{{.Mountpoint}}' ch08-userdata)/root.txt"
+0:0 755 /var/lib/docker/volumes/ch08-userdata/_data
+0:0 644 /var/lib/docker/volumes/ch08-userdata/_data/root.txt
+$ docker rm -f ch08-user
+ch08-user
+$ docker volume rm ch08-userdata
+ch08-userdata

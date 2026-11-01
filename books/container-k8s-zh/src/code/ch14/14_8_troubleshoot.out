@@ -1,0 +1,263 @@
+$ docker compose down -v --remove-orphans
+$ docker compose -f compose.yaml -f compose.unhealthy.yaml up -d
+ Network shorty_default Creating
+ Network shorty_default Creating
+ Volume shorty_pgdata Creating
+ Volume shorty_pgdata Creating
+ Volume shorty_pgdata Created
+ Volume shorty_pgdata Created
+ Network shorty_default Created
+ Network shorty_default Created
+ Container shorty-redis-1 Creating
+ Container shorty-postgres-1 Creating
+ Container shorty-postgres-1 Created
+ Container shorty-migrate-1 Creating
+ Container shorty-redis-1 Created
+ Container shorty-migrate-1 Created
+ Container shorty-worker-1 Creating
+ Container shorty-api-1 Creating
+ Container shorty-worker-1 Created
+ Container shorty-api-1 Created
+ Container shorty-redis-1 Starting
+ Container shorty-postgres-1 Starting
+ Container shorty-redis-1 Started
+ Container shorty-postgres-1 Started
+ Container shorty-postgres-1 Waiting
+ Container shorty-postgres-1 Error dependency postgres failed to start
+dependency failed to start: container shorty-postgres-1 is unhealthy
+$ docker compose -f compose.yaml -f compose.unhealthy.yaml ps -a --format json | jq -sr '.[] | [.Service, .State, (.Health // "-")] | @tsv' | sort
+api	created
+migrate	created
+postgres	running	unhealthy
+redis	running	healthy
+worker	created
+$ docker compose -f compose.yaml -f compose.unhealthy.yaml ps -q postgres | xargs docker inspect --format '{{range .State.Health.Log}}{{println .ExitCode .Output}}{{end}}' | tail -n 6
+2 /var/run/postgresql:6543 - no response
+
+2 /var/run/postgresql:6543 - no response
+$ docker compose -f compose.yaml -f compose.unhealthy.yaml down -v
+ Container shorty-worker-1 Stopping
+ Container shorty-api-1 Stopping
+ Container shorty-worker-1 Stopped
+ Container shorty-worker-1 Removing
+ Container shorty-api-1 Stopped
+ Container shorty-api-1 Removing
+ Container shorty-worker-1 Removed
+ Container shorty-api-1 Removed
+ Container shorty-migrate-1 Stopping
+ Container shorty-redis-1 Stopping
+ Container shorty-migrate-1 Stopped
+ Container shorty-migrate-1 Removing
+ Container shorty-migrate-1 Removed
+ Container shorty-postgres-1 Stopping
+ Container shorty-postgres-1 Stopped
+ Container shorty-postgres-1 Removing
+ Container shorty-postgres-1 Removed
+ Container shorty-redis-1 Stopped
+ Container shorty-redis-1 Removing
+ Container shorty-redis-1 Removed
+ Volume shorty_pgdata Removing
+ Network shorty_default Removing
+ Volume shorty_pgdata Removed
+ Network shorty_default Removed
+$ docker compose up -d
+ Volume shorty_pgdata Creating
+ Network shorty_default Creating
+ Volume shorty_pgdata Creating
+ Network shorty_default Creating
+ Volume shorty_pgdata Created
+ Volume shorty_pgdata Created
+ Network shorty_default Created
+ Network shorty_default Created
+ Container shorty-redis-1 Creating
+ Container shorty-postgres-1 Creating
+ Container shorty-redis-1 Created
+ Container shorty-postgres-1 Created
+ Container shorty-migrate-1 Creating
+ Container shorty-migrate-1 Created
+ Container shorty-worker-1 Creating
+ Container shorty-api-1 Creating
+ Container shorty-worker-1 Created
+ Container shorty-api-1 Created
+ Container shorty-redis-1 Starting
+ Container shorty-postgres-1 Starting
+ Container shorty-redis-1 Started
+ Container shorty-postgres-1 Started
+ Container shorty-postgres-1 Waiting
+ Container shorty-postgres-1 Healthy
+ Container shorty-migrate-1 Starting
+ Container shorty-migrate-1 Started
+ Container shorty-redis-1 Waiting
+ Container shorty-migrate-1 Waiting
+ Container shorty-postgres-1 Waiting
+ Container shorty-migrate-1 Waiting
+ Container shorty-postgres-1 Waiting
+ Container shorty-redis-1 Waiting
+ Container shorty-migrate-1 Exited
+ Container shorty-postgres-1 Healthy
+ Container shorty-postgres-1 Healthy
+ Container shorty-redis-1 Healthy
+ Container shorty-migrate-1 Exited
+ Container shorty-api-1 Starting
+ Container shorty-redis-1 Healthy
+ Container shorty-worker-1 Starting
+ Container shorty-api-1 Started
+ Container shorty-worker-1 Started
+$ for i in $(seq 1 120); do
+  if curl -fsS localhost:8080/readyz >/dev/null 2>&1; then
+    break
+  fi
+  sleep 1
+done
+$ curl -fsS localhost:8080/readyz
+ok
+$ docker compose down -v
+ Container shorty-api-1 Stopping
+ Container shorty-worker-1 Stopping
+ Container shorty-api-1 Stopped
+ Container shorty-api-1 Removing
+ Container shorty-api-1 Removed
+ Container shorty-worker-1 Stopped
+ Container shorty-worker-1 Removing
+ Container shorty-worker-1 Removed
+ Container shorty-migrate-1 Stopping
+ Container shorty-redis-1 Stopping
+ Container shorty-migrate-1 Stopped
+ Container shorty-migrate-1 Removing
+ Container shorty-migrate-1 Removed
+ Container shorty-postgres-1 Stopping
+ Container shorty-redis-1 Stopped
+ Container shorty-redis-1 Removing
+ Container shorty-redis-1 Removed
+ Container shorty-postgres-1 Stopped
+ Container shorty-postgres-1 Removing
+ Container shorty-postgres-1 Removed
+ Volume shorty_pgdata Removing
+ Network shorty_default Removing
+ Volume shorty_pgdata Removed
+ Network shorty_default Removed
+$ docker run -d --name ch14-port-hog -p 8080:80 nginx:1.29-alpine >/dev/null
+$ ss -ltn 'sport = :8080' | tail -n +2
+LISTEN               0                    4096                                       0.0.0.0:8080                                    0.0.0.0:*
+LISTEN               0                    4096                                          [::]:8080                                       [::]:*
+$ docker compose up -d
+ Volume shorty_pgdata Creating
+ Network shorty_default Creating
+ Volume shorty_pgdata Creating
+ Network shorty_default Creating
+ Volume shorty_pgdata Created
+ Volume shorty_pgdata Created
+ Network shorty_default Created
+ Network shorty_default Created
+ Container shorty-redis-1 Creating
+ Container shorty-postgres-1 Creating
+ Container shorty-postgres-1 Created
+ Container shorty-migrate-1 Creating
+ Container shorty-redis-1 Created
+ Container shorty-migrate-1 Created
+ Container shorty-worker-1 Creating
+ Container shorty-api-1 Creating
+ Container shorty-worker-1 Created
+ Container shorty-api-1 Created
+ Container shorty-redis-1 Starting
+ Container shorty-postgres-1 Starting
+ Container shorty-redis-1 Started
+ Container shorty-postgres-1 Started
+ Container shorty-postgres-1 Waiting
+ Container shorty-postgres-1 Healthy
+ Container shorty-migrate-1 Starting
+ Container shorty-migrate-1 Started
+ Container shorty-migrate-1 Waiting
+ Container shorty-postgres-1 Waiting
+ Container shorty-redis-1 Waiting
+ Container shorty-postgres-1 Waiting
+ Container shorty-redis-1 Waiting
+ Container shorty-migrate-1 Waiting
+ Container shorty-migrate-1 Exited
+ Container shorty-postgres-1 Healthy
+ Container shorty-redis-1 Healthy
+ Container shorty-postgres-1 Healthy
+ Container shorty-worker-1 Starting
+ Container shorty-redis-1 Healthy
+ Container shorty-migrate-1 Exited
+ Container shorty-api-1 Starting
+ Container shorty-worker-1 Started
+Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint shorty-api-1 (78c61b5519cf09d9d0c017be5fa60d3512a00db52a8041e34f0cf0b27831e8ea): Bind for :::8080 failed: port is already allocated
+$ docker rm -f ch14-port-hog >/dev/null
+$ for i in $(seq 1 30); do
+  ss -ltn 'sport = :8080' | grep -q ':8080' || break
+  sleep 1
+done
+$ docker compose down
+ Container shorty-worker-1 Stopping
+ Container shorty-api-1 Stopping
+ Container shorty-api-1 Stopped
+ Container shorty-api-1 Removing
+ Container shorty-api-1 Removed
+ Container shorty-worker-1 Stopped
+ Container shorty-worker-1 Removing
+ Container shorty-worker-1 Removed
+ Container shorty-migrate-1 Stopping
+ Container shorty-redis-1 Stopping
+ Container shorty-migrate-1 Stopped
+ Container shorty-migrate-1 Removing
+ Container shorty-migrate-1 Removed
+ Container shorty-postgres-1 Stopping
+ Container shorty-redis-1 Stopped
+ Container shorty-redis-1 Removing
+ Container shorty-redis-1 Removed
+ Container shorty-postgres-1 Stopped
+ Container shorty-postgres-1 Removing
+ Container shorty-postgres-1 Removed
+ Network shorty_default Removing
+ Network shorty_default Removed
+$ docker compose up -d
+ Network shorty_default Creating
+ Network shorty_default Creating
+ Network shorty_default Created
+ Network shorty_default Created
+ Container shorty-postgres-1 Creating
+ Container shorty-redis-1 Creating
+ Container shorty-redis-1 Created
+ Container shorty-postgres-1 Created
+ Container shorty-migrate-1 Creating
+ Container shorty-migrate-1 Created
+ Container shorty-worker-1 Creating
+ Container shorty-api-1 Creating
+ Container shorty-worker-1 Created
+ Container shorty-api-1 Created
+ Container shorty-redis-1 Starting
+ Container shorty-postgres-1 Starting
+ Container shorty-redis-1 Started
+ Container shorty-postgres-1 Started
+ Container shorty-postgres-1 Waiting
+ Container shorty-postgres-1 Healthy
+ Container shorty-migrate-1 Starting
+ Container shorty-migrate-1 Started
+ Container shorty-redis-1 Waiting
+ Container shorty-migrate-1 Waiting
+ Container shorty-postgres-1 Waiting
+ Container shorty-postgres-1 Waiting
+ Container shorty-redis-1 Waiting
+ Container shorty-migrate-1 Waiting
+ Container shorty-migrate-1 Exited
+ Container shorty-redis-1 Healthy
+ Container shorty-redis-1 Healthy
+ Container shorty-migrate-1 Exited
+ Container shorty-postgres-1 Healthy
+ Container shorty-api-1 Starting
+ Container shorty-postgres-1 Healthy
+ Container shorty-worker-1 Starting
+ Container shorty-api-1 Started
+ Container shorty-worker-1 Started
+$ for i in $(seq 1 120); do
+  if curl -fsS localhost:8080/readyz >/dev/null 2>&1; then
+    break
+  fi
+  sleep 1
+done
+$ docker compose ps --format json | jq -sr '.[] | [.Service, .State, (.Health // "-")] | @tsv' | sort
+api	running
+postgres	running	healthy
+redis	running	healthy
+worker	running

@@ -1,0 +1,28 @@
+$ kubectl apply -f vol-demo.yaml
+namespace/vol-demo created
+persistentvolumeclaim/keep-data created
+pod/cache-pod created
+pod/keep-pod created
+$ kubectl -n vol-demo wait --for=condition=Ready pod/cache-pod pod/keep-pod --timeout=120s
+pod/cache-pod condition met
+pod/keep-pod condition met
+$ kubectl -n vol-demo exec cache-pod -- sh -c 'echo cache-first-run > /data/marker'
+$ kubectl -n vol-demo exec keep-pod -- sh -c 'echo pvc-first-run > /data/marker'
+$ kubectl -n vol-demo get pvc keep-data -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,VOLUME:.spec.volumeName,CAPACITY:.status.capacity.storage,CLASS:.spec.storageClassName
+NAME        STATUS   VOLUME                                     CAPACITY   CLASS
+keep-data   Bound    pvc-5b4aeca1-b954-44af-bb26-6735568dc047   1Gi        standard
+$ kubectl -n vol-demo delete pod cache-pod keep-pod --wait=true
+pod "cache-pod" deleted from vol-demo namespace
+pod "keep-pod" deleted from vol-demo namespace
+$ kubectl apply -f vol-demo.yaml
+namespace/vol-demo unchanged
+persistentvolumeclaim/keep-data unchanged
+pod/cache-pod created
+pod/keep-pod created
+$ kubectl -n vol-demo wait --for=condition=Ready pod/cache-pod pod/keep-pod --timeout=120s
+pod/cache-pod condition met
+pod/keep-pod condition met
+$ printf 'cache-pod: '; kubectl -n vol-demo exec cache-pod -- sh -c 'test -f /data/marker && cat /data/marker || echo missing'
+cache-pod: missing
+$ printf 'keep-pod:  '; kubectl -n vol-demo exec keep-pod -- sh -c 'test -f /data/marker && cat /data/marker || echo missing'
+keep-pod:  pvc-first-run

@@ -1,0 +1,16 @@
+# 这条策略故意把 Pod 当成有 spec.replicas 的对象。创建不会失败，
+# 类型检查的结果写在 status.typeChecking.expressionWarnings 里。
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: demo-typecheck-pod
+spec:
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+  validations:
+    - expression: "object.spec.replicas > 1"
+      message: "replicas must be greater than 1"

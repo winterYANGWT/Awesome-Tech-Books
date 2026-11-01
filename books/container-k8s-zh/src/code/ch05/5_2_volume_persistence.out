@@ -1,0 +1,43 @@
+$ docker volume create shorty-pgdata
+shorty-pgdata
+$ docker volume inspect shorty-pgdata --format 'Name={{.Name}} Driver={{.Driver}} Scope={{.Scope}} Mountpoint={{.Mountpoint}}'
+Name=shorty-pgdata Driver=local Scope=local Mountpoint=/var/lib/docker/volumes/shorty-pgdata/_data
+$ docker volume create ch05-scratch > /dev/null
+$ docker volume rm ch05-scratch
+ch05-scratch
+$ docker run -d --name shorty-pg \
+    -e POSTGRES_USER=shorty -e POSTGRES_DB=shorty \
+    -e POSTGRES_PASSWORD=shorty-demo-password-not-for-production \
+    --mount type=volume,src=shorty-pgdata,dst=/var/lib/postgresql \
+    postgres:18.6-alpine > /dev/null
+$ for _ in $(seq 1 60); do
+    docker exec shorty-pg pg_isready -U shorty -d shorty > /dev/null 2>&1 && break
+    sleep 1
+done
+$ docker exec shorty-pg pg_isready -U shorty -d shorty
+/var/run/postgresql:5432 - accepting connections
+$ docker exec shorty-pg psql -U shorty -d shorty -v ON_ERROR_STOP=1 -c \
+    "CREATE TABLE keep_me (id integer PRIMARY KEY, note text); INSERT INTO keep_me VALUES (1, 'survives'); SELECT * FROM keep_me;"
+CREATE TABLE
+INSERT 0 1
+ id |   note
+----+----------
+  1 | survives
+(1 row)
+$ docker rm -f shorty-pg > /dev/null
+$ docker run -d --name shorty-pg \
+    -e POSTGRES_USER=shorty -e POSTGRES_DB=shorty \
+    -e POSTGRES_PASSWORD=shorty-demo-password-not-for-production \
+    -v shorty-pgdata:/var/lib/postgresql \
+    postgres:18.6-alpine > /dev/null
+$ for _ in $(seq 1 60); do
+    docker exec shorty-pg pg_isready -U shorty -d shorty > /dev/null 2>&1 && break
+    sleep 1
+done
+$ docker exec shorty-pg psql -U shorty -d shorty -c "SELECT * FROM keep_me;"
+ id |   note
+----+----------
+  1 | survives
+(1 row)
+$ docker inspect shorty-pg --format '{{json .Mounts}}'
+[{"Type":"volume","Name":"shorty-pgdata","Source":"/var/lib/docker/volumes/shorty-pgdata/_data","Destination":"/var/lib/postgresql","Driver":"local","Mode":"z","RW":true,"Propagation":""}]

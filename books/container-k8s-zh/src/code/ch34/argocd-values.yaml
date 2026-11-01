@@ -1,0 +1,42 @@
+# 精简 Argo CD：不要 UI（server）、Dex 和通知；chart 仍会带一个
+# applicationset-controller。示例用 kubectl 看 Application 状态。
+server:
+  enabled: false
+
+dex:
+  enabled: false
+
+notifications:
+  enabled: false
+
+controller:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 384Mi
+
+repoServer:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 384Mi
+
+redis:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+configs:
+  cm:
+    # 默认 120s 加最多 60s 抖动；示例里缩短到 10s，Git 提交后不用等几分钟。
+    timeout.reconciliation: 10s

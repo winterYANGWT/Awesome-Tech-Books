@@ -1,0 +1,41 @@
+# 故意把 SQL 写错：表不存在，psql 以非 0 退出。Job 会按 backoffLimit 重试。
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: shorty-fail-sql
+  namespace: shorty
+  labels:
+    app.kubernetes.io/name: shorty-fail-sql
+    app.kubernetes.io/part-of: shorty
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: shorty-fail-sql
+        app.kubernetes.io/part-of: shorty
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: psql
+          image: postgres:18.6-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - psql
+            - -h
+            - postgres
+            - -U
+            - shorty
+            - -d
+            - shorty
+            - -v
+            - ON_ERROR_STOP=1
+            - -c
+            - "SELECT * FROM table_that_does_not_exist"
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shorty-db
+                  key: db_password

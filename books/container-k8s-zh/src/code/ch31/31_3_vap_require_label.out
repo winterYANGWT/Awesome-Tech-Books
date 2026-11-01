@@ -1,0 +1,17 @@
+$ kubectl apply -f vap-require-team-label.yaml
+validatingadmissionpolicy.admissionregistration.k8s.io/require-team-label created
+$ kubectl wait --for=jsonpath='{.status.observedGeneration}'=1 validatingadmissionpolicy/require-team-label --timeout=60s
+validatingadmissionpolicy.admissionregistration.k8s.io/require-team-label condition met
+$ kubectl apply -f vap-require-team-label-binding.yaml
+validatingadmissionpolicybinding.admissionregistration.k8s.io/require-team-label-binding created
+$ kubectl apply -f vap-no-label.yaml
+The pods "vap-no-label" is invalid: : ValidatingAdmissionPolicy 'require-team-label' with binding 'require-team-label-binding' denied request: 'team' label is required
+$ kubectl apply -f vap-with-label.yaml
+pod/vap-with-label created
+$ kubectl -n shorty wait --for=condition=Ready pod/vap-with-label --timeout=60s
+pod/vap-with-label condition met
+$ kubectl -n shorty get pod vap-with-label --show-labels
+NAME             READY   STATUS    RESTARTS   AGE   LABELS
+vap-with-label   1/1     Running   0          1s    app=vap-with-label,team=shorty
+$ kubectl -n shorty delete pod vap-with-label
+pod "vap-with-label" deleted from shorty namespace

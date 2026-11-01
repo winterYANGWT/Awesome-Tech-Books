@@ -1,0 +1,9 @@
+services:
+  postgres:
+    # 故意查一个没有监听的端口，让健康检查一直失败。
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shorty -d shorty -p 6543"]
+      interval: 1s
+      timeout: 2s
+      retries: 2
+      start_period: 1s

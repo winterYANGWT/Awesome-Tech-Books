@@ -1,0 +1,19 @@
+$ docker buildx build -q --sbom=true --push \
+    -t localhost:5000/shorty:0.1-sbom -f shorty.Dockerfile ../app/api
+sha256:7267f279a944d007e821d53bc1931b03d732f1c14c7afb7fb73de4a16ae17341
+$ docker buildx imagetools inspect localhost:5000/shorty:0.1-sbom
+Name:      localhost:5000/shorty:0.1-sbom
+MediaType: application/vnd.oci.image.index.v1+json
+Digest:    sha256:7267f279a944d007e821d53bc1931b03d732f1c14c7afb7fb73de4a16ae17341
+
+Manifests:
+  Name:        localhost:5000/shorty:0.1-sbom@sha256:efd9726d6163be4fef8f7b210faf32c13b84b103eb9fdce9e0edb76de8d91632
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    linux/amd64
+
+  Name:        localhost:5000/shorty:0.1-sbom@sha256:b114fa3673fd514ce172e3d8fd7776dd1bc72d78fa2f1b487e22cef6c5488a04
+  MediaType:   application/vnd.oci.image.manifest.v1+json
+  Platform:    unknown/unknown
+  Annotations:
+    vnd.docker.reference.digest: sha256:efd9726d6163be4fef8f7b210faf32c13b84b103eb9fdce9e0edb76de8d91632
+    vnd.docker.reference.type:   attestation-manifest

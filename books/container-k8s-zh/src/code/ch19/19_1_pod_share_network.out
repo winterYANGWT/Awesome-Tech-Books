@@ -1,0 +1,43 @@
+$ kubectl -n shorty apply -f pod_share_network.yaml
+pod/share-net created
+$ kubectl -n shorty wait --for=condition=Ready pod/share-net --timeout=120s
+pod/share-net condition met
+$ kubectl -n shorty get pod share-net -o wide
+NAME        READY   STATUS    RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+share-net   2/2     Running   0          1s    10.244.0.6   shorty-control-plane   <none>           <none>
+$ for c in server client; do
+    printf '%-8s hostname: ' "$c"
+    kubectl -n shorty exec share-net -c "$c" -- hostname
+done
+server   hostname: share-net
+client   hostname: share-net
+$ kubectl -n shorty exec share-net -c client -- wget -qO- http://localhost:8080/
+hello from share-net
+$ for c in server client; do
+    echo "--- $c"
+    kubectl -n shorty exec share-net -c "$c" -- ps -o pid,args
+done
+--- server
+PID   COMMAND
+    1 httpd -f -p 8080 -h /srv
+   23 ps -o pid,args
+--- client
+PID   COMMAND
+    1 sleep 3600
+   26 ps -o pid,args
+$ node=shorty-control-plane
+$ pod_id=$(docker exec "$node" crictl pods --name share-net -q)
+$ sandbox_pid=$(docker exec "$node" crictl inspectp -o go-template --template '{{.info.pid}}' "$pod_id")
+$ sandbox_net=$(docker exec "$node" readlink "/proc/$sandbox_pid/ns/net")
+$ printf 'sandbox  pid=%-6s netns=%s\n' "$sandbox_pid" "$sandbox_net"
+sandbox  pid=2393   netns=net:[4026534038]
+$ for c in server client; do
+    cid=$(docker exec "$node" crictl ps --pod "$pod_id" --name "^$c$" -q)
+    pid=$(docker exec "$node" crictl inspect -o go-template --template '{{.info.pid}}' "$cid")
+    net=$(docker exec "$node" readlink "/proc/$pid/ns/net")
+    printf '%-8s pid=%-6s netns=%s\n' "$c" "$pid" "$net"
+done
+server   pid=2418   netns=net:[4026534038]
+client   pid=2453   netns=net:[4026534038]
+$ [ "$sandbox_net" = "$net" ] && echo "sandbox 与两个容器在同一个 network namespace"
+sandbox 与两个容器在同一个 network namespace

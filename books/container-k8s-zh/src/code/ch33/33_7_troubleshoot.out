@@ -1,0 +1,59 @@
+$ kubectl -n shorty scale deployment/shorty-operator --replicas=0
+deployment.apps/shorty-operator scaled
+$ kubectl -n shorty rollout status deployment/shorty-operator --timeout=120s
+deployment "shorty-operator" successfully rolled out
+$ kubectl -n shorty apply -f shorty-backup-late.yaml
+shortybackup.shorty.example.com/shorty-backup-late created
+$ kubectl -n shorty get shortybackup.v1.shorty.example.com shorty-backup-late -o jsonpath='finalizers={.metadata.finalizers} phase={.status.phase}{"\n"}'
+finalizers= phase=
+$ kubectl -n shorty get job shorty-backup-late-pgdump
+Error from server (NotFound): jobs.batch "shorty-backup-late-pgdump" not found
+$ kubectl -n shorty delete shortybackup.v1.shorty.example.com shorty-backup-2 --wait=false
+shortybackup.shorty.example.com "shorty-backup-2" deleted from shorty namespace
+$ kubectl -n shorty get shortybackup.v1.shorty.example.com shorty-backup-2 -o jsonpath='deletionTimestamp={.metadata.deletionTimestamp}{"\n"}finalizers={.metadata.finalizers[*]}{"\n"}'
+deletionTimestamp=2026-10-28T07:37:54Z
+finalizers=shorty.example.com/backup-cleanup
+$ kubectl -n shorty get job shorty-backup-2-pgdump
+NAME                     STATUS     COMPLETIONS   DURATION   AGE
+shorty-backup-2-pgdump   Complete   1/1           7s         109s
+$ kubectl -n shorty scale deployment/shorty-operator --replicas=2
+deployment.apps/shorty-operator scaled
+$ kubectl -n shorty rollout status deployment/shorty-operator --timeout=180s
+Waiting for deployment "shorty-operator" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "shorty-operator" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "shorty-operator" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "shorty-operator" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "shorty-operator" rollout to finish: 1 of 2 updated replicas are available...
+deployment "shorty-operator" successfully rolled out
+$ kubectl -n shorty wait --for=delete shortybackup.v1.shorty.example.com/shorty-backup-2 --timeout=120s
+shortybackup.shorty.example.com/shorty-backup-2 condition met
+$ kubectl -n shorty wait --for=jsonpath='{.status.phase}'=Completed shortybackup.v1.shorty.example.com/shorty-backup-late --timeout=120s
+shortybackup.shorty.example.com/shorty-backup-late condition met
+$ kubectl -n shorty get job shorty-backup-late-pgdump
+NAME                        STATUS     COMPLETIONS   DURATION   AGE
+shorty-backup-late-pgdump   Complete   1/1           6s         6s
+$ kubectl apply -f operator-rbac-readonly.yaml
+role.rbac.authorization.k8s.io/shorty-operator configured
+$ kubectl -n shorty apply -f shorty-backup-denied.yaml
+shortybackup.shorty.example.com/shorty-backup-denied created
+$ kubectl -n shorty wait --for=jsonpath='{.status.conditions[?(@.type=="Ready")].reason}'=JobCreateFailed shortybackup.v1.shorty.example.com/shorty-backup-denied --timeout=60s
+shortybackup.shorty.example.com/shorty-backup-denied condition met
+$ kubectl -n shorty get shortybackup.v1.shorty.example.com shorty-backup-denied -o jsonpath='phase={.status.phase} reason={.status.conditions[?(@.type=="Ready")].reason}{"\n"}'
+phase=Failed reason=JobCreateFailed
+$ grep -m1 'create job shorty-backup-denied-pgdump failed' /tmp/ch33-operator.log
+[pod/shorty-operator-694d66cbd8-wqg8x/operator] 2026-10-28 07:38:18,519 ERROR create job shorty-backup-denied-pgdump failed: (403)
+$ kubectl apply -f operator-rbac.yaml
+serviceaccount/shorty-operator unchanged
+role.rbac.authorization.k8s.io/shorty-operator configured
+rolebinding.rbac.authorization.k8s.io/shorty-operator unchanged
+$ kubectl -n shorty wait --for=jsonpath='{.status.phase}'=Completed shortybackup.v1.shorty.example.com/shorty-backup-denied --timeout=120s
+shortybackup.shorty.example.com/shorty-backup-denied condition met
+$ kubectl -n shorty get job shorty-backup-denied-pgdump
+NAME                          STATUS     COMPLETIONS   DURATION   AGE
+shorty-backup-denied-pgdump   Complete   1/1           6s         6s
+$ kubectl -n shorty delete shortybackup.v1.shorty.example.com shorty-backup-late shorty-backup-denied --wait=false
+shortybackup.shorty.example.com "shorty-backup-late" deleted from shorty namespace
+shortybackup.shorty.example.com "shorty-backup-denied" deleted from shorty namespace
+$ kubectl -n shorty get shortybackups.v1.shorty.example.com
+NAME            DATABASE   PHASE       AGE
+shorty-backup   postgres   Completed   3m14s

@@ -1,0 +1,27 @@
+# 同样的 Pod 模板放进 Deployment。PSA 的 enforce 不作用于 Deployment 本身，
+# 所以 apply 会成功，真正的拒绝发生在 ReplicaSet 创建 Pod 的时候。
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psa-root-demo
+  namespace: shorty
+  labels:
+    app: psa-root-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: psa-root-demo
+  template:
+    metadata:
+      labels:
+        app: psa-root-demo
+    spec:
+      containers:
+        - name: demo
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          command: ["sleep", "3600"]
+          securityContext:
+            runAsUser: 0
+            privileged: true

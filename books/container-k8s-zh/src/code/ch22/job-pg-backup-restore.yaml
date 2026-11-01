@@ -1,0 +1,42 @@
+# 从备份卷恢复，并把恢复耗时（RTO）打出来。
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pg-backup-restore
+  namespace: shorty
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pg-backup-restore
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: pg-restore
+          image: postgres:18.6-alpine
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -eu
+              export PGPASSWORD="$(cat /etc/shorty/db_password)"
+              start=$(date +%s)
+              pg_restore -h postgres -U shorty -d shorty --no-owner /backup/shorty-backup.dump
+              echo -n 'links rows after restore: '
+              psql -h postgres -U shorty -d shorty -tAc 'SELECT count(*) FROM links'
+              end=$(date +%s)
+              echo "RTO: $((end - start))s"
+          volumeMounts:
+            - name: backup
+              mountPath: /backup
+            - name: db-secret
+              mountPath: /etc/shorty
+              readOnly: true
+      volumes:
+        - name: backup
+          persistentVolumeClaim:
+            claimName: postgres-backup
+        - name: db-secret
+          secret:
+            secretName: shorty-db

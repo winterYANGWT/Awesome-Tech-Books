@@ -1,0 +1,24 @@
+$ kubectl apply -f psp-old.yaml
+error: resource mapping not found for name: "restricted-psp" namespace: "" from "psp-old.yaml": no matches for kind "PodSecurityPolicy" in version "policy/v1beta1"
+ensure CRDs are installed first
+$ kubectl get psp
+error: the server doesn't have a resource type "psp"
+$ kubectl create namespace psp-demo
+namespace/psp-demo created
+$ kubectl label namespace psp-demo pod-security.kubernetes.io/enforce=baseline
+namespace/psp-demo labeled
+$ kubectl -n psp-demo run psp-root --image=busybox:1.37 --restart=Never -- sleep 3600
+pod/psp-root created
+$ kubectl -n psp-demo wait --for=condition=Ready pod/psp-root --timeout=60s
+pod/psp-root condition met
+$ kubectl -n psp-demo get pod psp-root
+NAME       READY   STATUS    RESTARTS   AGE
+psp-root   1/1     Running   0          1s
+$ kubectl -n psp-demo delete pod psp-root
+pod "psp-root" deleted from psp-demo namespace
+$ kubectl label --overwrite namespace psp-demo pod-security.kubernetes.io/enforce=restricted
+namespace/psp-demo labeled
+$ kubectl -n psp-demo run psp-root --image=busybox:1.37 --restart=Never -- sleep 3600
+Error from server (Forbidden): pods "psp-root" is forbidden: violates PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "psp-root" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "psp-root" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "psp-root" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "psp-root" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+$ kubectl delete namespace psp-demo
+namespace "psp-demo" deleted

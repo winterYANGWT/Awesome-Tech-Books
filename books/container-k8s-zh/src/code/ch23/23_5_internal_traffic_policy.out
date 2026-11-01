@@ -1,0 +1,39 @@
+$ kubectl -n shorty patch --request-timeout=300s deployment api --type=merge -p '{"spec":{"template":{"spec":{"nodeSelector":{"kubernetes.io/hostname":"shorty-worker"}}}}}'
+deployment.apps/api patched
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment spec update to be observed...
+Waiting for deployment "api" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 2 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ kubectl apply --request-timeout=300s -f client-on-worker2.yaml
+pod/client-local created
+$ kubectl -n shorty wait --for=condition=Ready pod/client-local --timeout=120s
+pod/client-local condition met
+$ kubectl -n shorty get endpointslice -l kubernetes.io/service-name=api -o jsonpath='{range .items[*]}{range .endpoints[*]}  {.addresses[0]} node={.nodeName}{"\n"}{end}{end}'
+  10.244.1.8 node=shorty-worker
+  10.244.1.9 node=shorty-worker
+$ kubectl -n shorty patch --request-timeout=300s svc api --type=merge -p '{"spec":{"internalTrafficPolicy":"Local"}}'
+service/api patched
+$ kubectl -n shorty exec client-local -- wget -T 3 -O- http://api:8080/healthz
+Connecting to api:8080 (10.96.124.53:8080)
+wget: download timed out
+command terminated with exit code 1
+$ kubectl -n shorty patch --request-timeout=300s svc api --type=merge -p '{"spec":{"internalTrafficPolicy":"Cluster"}}'
+service/api patched
+$ kubectl -n shorty exec client-local -- wget -qO- http://api:8080/healthz
+ok
+$ kubectl -n shorty patch --request-timeout=300s deployment api --type=json -p '[{"op":"remove","path":"/spec/template/spec/nodeSelector"}]'
+deployment.apps/api patched
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ kubectl -n shorty delete pod client-local --wait=true
+pod "client-local" deleted from shorty namespace

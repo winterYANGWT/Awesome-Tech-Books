@@ -1,0 +1,39 @@
+$ kubectl apply -f error-pods.yaml
+configmap/perm-config created
+secret/shorty-db-wrongkey created
+pod/missing-secret created
+pod/wrong-key created
+pod/perm-check created
+pod/perm-no-fsgroup created
+$ kubectl -n shorty wait --for=jsonpath='{.status.containerStatuses[0].state.waiting.reason}'=CreateContainerConfigError pod/missing-secret --timeout=120s
+pod/missing-secret condition met
+$ kubectl -n shorty wait --for=jsonpath='{.status.containerStatuses[0].state.waiting.reason}'=CreateContainerConfigError pod/wrong-key --timeout=120s
+pod/wrong-key condition met
+$ kubectl -n shorty get pod missing-secret wrong-key
+NAME             READY   STATUS                       RESTARTS   AGE
+missing-secret   0/1     CreateContainerConfigError   0          1s
+wrong-key        0/1     CreateContainerConfigError   0          1s
+$ kubectl -n shorty describe pod missing-secret | grep -E 'Error:|Failed' | tail -n 2
+  Warning  Failed     0s (x2 over 0s)  kubelet            spec.containers{app}: Error: secret "shorty-db-missing" not found
+$ kubectl -n shorty describe pod wrong-key | grep -E "couldn't find key|Error:" | tail -n 2
+  Warning  Failed     0s (x2 over 0s)  kubelet            spec.containers{app}: Error: couldn't find key db_password in Secret shorty/shorty-db-wrongkey
+$ kubectl -n shorty get secret shorty-db-wrongkey -o jsonpath='{.data}'
+{"password":"ZGVtbw=="}
+$ kubectl -n shorty create secret generic shorty-db-missing --from-literal=db_password=demo
+secret/shorty-db-missing created
+$ kubectl -n shorty wait --for=condition=Ready pod/missing-secret --timeout=120s
+pod/missing-secret condition met
+$ kubectl -n shorty patch secret shorty-db-wrongkey --type=merge -p '{"data":{"db_password":"ZGVtbw=="}}'
+secret/shorty-db-wrongkey patched
+$ kubectl -n shorty wait --for=condition=Ready pod/wrong-key --timeout=120s
+pod/wrong-key condition met
+$ kubectl -n shorty wait --for=condition=Ready pod/perm-check pod/perm-no-fsgroup --timeout=120s
+pod/perm-check condition met
+pod/perm-no-fsgroup condition met
+$ kubectl -n shorty exec perm-check -- sh -c 'id; ls -lL /etc/perm/app.conf; cat /etc/perm/app.conf'
+uid=65532 gid=65532 groups=65532
+-r--r-----    1 root     65532           10 Oct 28 04:54 /etc/perm/app.conf
+mode=prod
+$ kubectl -n shorty exec perm-no-fsgroup -- cat /etc/perm/app.conf
+cat: can't open '/etc/perm/app.conf': Permission denied
+command terminated with exit code 1

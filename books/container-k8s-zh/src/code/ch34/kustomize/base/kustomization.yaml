@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+
+# 生成的对象名后面会带内容 hash，Deployment 里对它的引用由 Kustomize 改写。
+configMapGenerator:
+  - name: shorty-runtime
+    literals:
+      - SHORTY_LOG_LEVEL=info
+      - SHORTY_BASE_URL=http://api:8080
+
+# 用 labels 而不是 commonLabels：后者会把标签写进 selector，已有 Deployment
+# 的 selector 不可变，apply 会直接被 apiserver 拒绝。
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: shorty
+      app.kubernetes.io/managed-by: kustomize
+    includeSelectors: false

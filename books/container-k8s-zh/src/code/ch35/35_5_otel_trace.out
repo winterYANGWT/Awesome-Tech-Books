@@ -1,0 +1,65 @@
+$ kubectl apply -f otel-collector.yaml
+configmap/otel-collector created
+deployment.apps/otel-collector created
+service/otel-collector created
+$ kubectl -n monitoring rollout status deployment/otel-collector --timeout=180s
+Waiting for deployment "otel-collector" rollout to finish: 0 of 1 updated replicas are available...
+deployment "otel-collector" successfully rolled out
+$ kubectl -n monitoring get deploy,svc otel-collector
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/otel-collector   1/1     1            1           1s
+
+NAME                     TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)             AGE
+service/otel-collector   ClusterIP   10.96.37.152   <none>        4317/TCP,4318/TCP   1s
+$ POD=$(kubectl -n monitoring get pod -l app=otel-collector \
+  -o jsonpath='{.items[0].metadata.name}')
+$ : >/tmp/ch35-pf-otel.log
+$ FORWARDED=0
+$ for attempt in 1 2 3; do
+  kubectl -n monitoring port-forward pod/$POD 14318:4318 >>/tmp/ch35-pf-otel.log 2>&1 &
+  PF=$!
+  for i in $(seq 1 40); do
+    if curl -s -o /dev/null localhost:14318/; then FORWARDED=1; break 2; fi
+    sleep 0.5
+  done
+  kill $PF 2>/dev/null || true
+  sleep 1
+done
+$ curl -sS -X POST localhost:14318/v1/traces \
+  -H 'Content-Type: application/json' --data-binary @otel-span.json
+{"partialSuccess":{}}
+$ echo
+$ for i in $(seq 1 30); do
+  kubectl -n monitoring logs deploy/otel-collector --tail=60 | grep -q 'POST /api/links' && break
+  sleep 1
+done
+$ kubectl -n monitoring logs deploy/otel-collector --tail=28
+2026-10-28T10:27:00.313Z	info	Traces	{"resource": {"service.instance.id": "0131d685-fe34-475d-a0d2-353ed002b05b", "service.name": "otelcol-contrib", "service.version": "0.155.0"}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "traces", "resource spans": 1, "spans": 1}
+2026-10-28T10:27:00.316Z	info	ResourceSpans #0
+Resource SchemaURL:
+Resource attributes:
+     -> service.name: Str(shorty)
+     -> service.version: Str(0.1)
+     -> deployment.environment: Str(lab)
+ScopeSpans #0
+ScopeSpans SchemaURL:
+InstrumentationScope shorty/api 0.1
+Span #0
+    Trace ID       : 4bf92f3577b34da6a3ce929d0e0e4736
+    Parent ID      :
+    ID             : 00f067aa0ba902b7
+    Name           : POST /api/links
+    Kind           : Server
+    Start time     : 2026-10-28 08:00:00 +0000 UTC
+    End time       : 2026-10-28 08:00:00.012 +0000 UTC
+    Status code    : Ok
+    Status message :
+    DroppedAttributesCount: 0
+    DroppedEventsCount: 0
+    DroppedLinksCount: 0
+Attributes:
+     -> http.request.method: Str(POST)
+     -> url.path: Str(/api/links)
+     -> http.response.status_code: Int(201)
+	{"resource": {"service.instance.id": "0131d685-fe34-475d-a0d2-353ed002b05b", "service.name": "otelcol-contrib", "service.version": "0.155.0"}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "traces"}
+$ kill $PF

@@ -1,0 +1,63 @@
+$ rm -rf /tmp/shorty-copyfail
+$ cp -a ../app/api /tmp/shorty-copyfail
+$ printf 'go.sum\n' >> /tmp/shorty-copyfail/.dockerignore
+$ ls -l /tmp/shorty-copyfail/go.sum
+-rw-r--r-- 1 root root 3383 Oct 27 13:20 /tmp/shorty-copyfail/go.sum
+$ docker build --progress=plain --provenance=false -f first.Dockerfile -t shorty:copyfail /tmp/shorty-copyfail
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from first.Dockerfile
+#1 transferring dockerfile: 255B done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 0.5s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+#3 resolve docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e 0.0s done
+#3 CACHED
+
+#4 [internal] load metadata for docker.io/library/golang:1.27.3-trixie
+#4 DONE 0.5s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 87B done
+#5 DONE 0.0s
+
+#6 [1/6] FROM docker.io/library/golang:1.27.3-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385
+#6 resolve docker.io/library/golang:1.27.3-trixie@sha256:c65ecfe613b539ac74c62a4c3b2c27e8f8a6076384c8f27e8a3c0f3be17cc385 0.0s done
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 23.07kB done
+#7 DONE 0.0s
+
+#8 [2/6] WORKDIR /src
+#8 CACHED
+
+#9 [3/6] COPY go.mod go.sum ./
+#9 ERROR: failed to calculate checksum of ref p6gdgpnf9vtjikhaza0x0vqjd::w2gg3ymugo0c7ktkvwqh8dxgi: "/go.sum": not found
+------
+ > [3/6] COPY go.mod go.sum ./:
+------
+
+ 1 warning found (use docker --debug to expand):
+ - CopyIgnoredFile: Attempting to Copy file "go.sum" that is excluded by .dockerignore (line 6)
+first.Dockerfile:6
+--------------------
+   4 |     WORKDIR /src
+   5 |
+   6 | >>> COPY go.mod go.sum ./
+   7 |     RUN go mod download
+   8 |
+--------------------
+ERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref p6gdgpnf9vtjikhaza0x0vqjd::w2gg3ymugo0c7ktkvwqh8dxgi: "/go.sum": not found
+$ sed -i '/^go\.sum$/d' /tmp/shorty-copyfail/.dockerignore
+$ docker build --progress=plain --provenance=false -f first.Dockerfile -t shorty:copyfail /tmp/shorty-copyfail
+...（省略 44 行）
+#13 exporting layers done
+#13 exporting manifest sha256:91f1290c6f45213d15a35d70a28f7a8e8119eac2007b19ff0ac876a3ba4aee33 done
+#13 exporting config sha256:91835ee3436fdc05aa0a1e14ce807b3d430cc4da9fae052c560a47564c74e35b done
+#13 naming to docker.io/library/shorty:copyfail done
+#13 unpacking to docker.io/library/shorty:copyfail done
+#13 DONE 0.0s

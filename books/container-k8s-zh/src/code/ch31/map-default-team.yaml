@@ -1,0 +1,24 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: default-team
+spec:
+  failurePolicy: Fail
+  # 每个绑定在一次准入里最多调用一次，避免被其他控制器反复触发。
+  reinvocationPolicy: Never
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        # 只写 team 一个键，labels 里的其他键由服务端合并保留。
+        expression: |
+          Object{
+            metadata: Object.metadata{
+              labels: {"team": "unknown"}
+            }
+          }

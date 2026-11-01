@@ -1,0 +1,112 @@
+$ rm -rf /tmp/ch16-bridge
+$ docker compose -f ../app/compose.yaml bridge convert \
+  -t docker/compose-bridge-kubernetes@sha256:8520c84287a5c051d6e8eba03fc51c1d7cdc08ac12d5dd2a0fb63078eb6272b4 \
+  -o /tmp/ch16-bridge -y
+Kubernetes resource api-deployment.yaml created
+Kubernetes resource migrate-deployment.yaml created
+Kubernetes resource postgres-deployment.yaml created
+Kubernetes resource redis-deployment.yaml created
+Kubernetes resource worker-deployment.yaml created
+Kubernetes resource api-expose.yaml created
+Kubernetes resource postgres-expose.yaml created
+Kubernetes resource redis-expose.yaml created
+Kubernetes resource 0-shorty-namespace.yaml created
+Kubernetes resource default-network-policy.yaml created
+Kubernetes resource postgres-pgdata-persistentVolumeClaim.yaml created
+Kubernetes resource db_password-secret.yaml created
+Kubernetes resource api-service.yaml created
+Kubernetes resource kustomization.yaml created
+Kubernetes resource postgres-pgdata-persistentVolumeClaim.yaml created
+Kubernetes resource api-service.yaml created
+Kubernetes resource kustomization.yaml created
+$ find /tmp/ch16-bridge -maxdepth 2 -type f -name '*.yaml' -printf '%P\n' | sort
+base/0-shorty-namespace.yaml
+base/api-deployment.yaml
+base/api-expose.yaml
+base/api-service.yaml
+base/db_password-secret.yaml
+base/default-network-policy.yaml
+base/kustomization.yaml
+base/migrate-deployment.yaml
+base/postgres-deployment.yaml
+base/postgres-expose.yaml
+base/postgres-pgdata-persistentVolumeClaim.yaml
+base/redis-deployment.yaml
+base/redis-expose.yaml
+base/worker-deployment.yaml
+$ kubectl apply -f namespace.yaml
+namespace/shorty created
+$ kubectl apply --dry-run=server \
+  -f /tmp/ch16-bridge/base/0-shorty-namespace.yaml \
+  -f /tmp/ch16-bridge/base/api-deployment.yaml \
+  -f /tmp/ch16-bridge/base/api-service.yaml
+namespace/shorty configured (server dry run)
+deployment.apps/api created (server dry run)
+service/api-published created (server dry run)
+$ kubectl apply --dry-run=server -f /tmp/ch16-bridge/base/migrate-deployment.yaml
+The Deployment "migrate" is invalid: spec.template.spec.restartPolicy: Unsupported value: "Never": supported values: "Always"
+$ for f in /tmp/ch16-bridge/base/api-expose.yaml api-service.yaml; do
+  echo "--- $f"
+  kubectl create --dry-run=client -o json -f "$f" \
+    | jq '{name: .metadata.name, type: (.spec.type // "ClusterIP"), selector: .spec.selector, ports: [.spec.ports[] | {port, targetPort}]}'
+done
+--- /tmp/ch16-bridge/base/api-expose.yaml
+{
+  "name": "api",
+  "type": "ClusterIP",
+  "selector": {
+    "com.docker.compose.project": "shorty",
+    "com.docker.compose.service": "api"
+  },
+  "ports": [
+    {
+      "port": 8080,
+      "targetPort": "api-8080"
+    }
+  ]
+}
+--- api-service.yaml
+{
+  "name": "api",
+  "type": "ClusterIP",
+  "selector": {
+    "app.kubernetes.io/name": "api"
+  },
+  "ports": [
+    {
+      "port": 8080,
+      "targetPort": "http"
+    }
+  ]
+}
+$ for f in /tmp/ch16-bridge/base/api-deployment.yaml api-deployment.yaml; do
+  echo "--- $f"
+  kubectl create --dry-run=client -o json -f "$f" \
+    | jq '{name: .metadata.name, replicas: .spec.replicas, strategy: (.spec.strategy.type // "RollingUpdate"), env: [.spec.template.spec.containers[0].env[]?.name], mountPaths: [.spec.template.spec.containers[0].volumeMounts[]?.mountPath]}'
+done
+--- /tmp/ch16-bridge/base/api-deployment.yaml
+{
+  "name": "api",
+  "replicas": 1,
+  "strategy": "Recreate",
+  "env": [
+    "SHORTY_BASE_URL",
+    "SHORTY_DB_PASSWORD_FILE",
+    "SHORTY_DB_URL",
+    "SHORTY_LISTEN",
+    "SHORTY_LOG_LEVEL",
+    "SHORTY_REDIS_ADDR",
+    "SHORTY_SHUTDOWN_DELAY"
+  ],
+  "mountPaths": [
+    "/run/secrets/db_password"
+  ]
+}
+--- api-deployment.yaml
+{
+  "name": "api",
+  "replicas": 1,
+  "strategy": "RollingUpdate",
+  "env": [],
+  "mountPaths": []
+}

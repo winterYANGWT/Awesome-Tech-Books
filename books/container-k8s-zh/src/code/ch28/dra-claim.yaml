@@ -1,0 +1,11 @@
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaim
+metadata:
+  name: gpu-claim
+  namespace: shorty
+spec:
+  devices:
+    requests:
+      - name: gpu
+        exactly:
+          deviceClassName: nvidia.example.com

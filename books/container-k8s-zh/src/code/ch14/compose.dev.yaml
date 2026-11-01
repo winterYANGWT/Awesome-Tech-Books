@@ -1,0 +1,5 @@
+services:
+  api:
+    environment:
+      SHORTY_LOG_LEVEL: debug
+      SHORTY_BASE_URL: http://shorty.localhost

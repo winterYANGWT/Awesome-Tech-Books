@@ -1,0 +1,25 @@
+$ kubectl apply -f operator-rbac.yaml
+serviceaccount/shorty-operator created
+role.rbac.authorization.k8s.io/shorty-operator created
+rolebinding.rbac.authorization.k8s.io/shorty-operator created
+$ kubectl apply -f operator-networkpolicy.yaml
+networkpolicy.networking.k8s.io/allow-shorty-operator created
+$ kubectl apply -f operator-deployment.yaml
+deployment.apps/shorty-operator created
+$ kubectl -n shorty rollout status deployment/shorty-operator --timeout=180s
+Waiting for deployment "shorty-operator" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "shorty-operator" rollout to finish: 0 of 1 updated replicas are available...
+deployment "shorty-operator" successfully rolled out
+$ kubectl -n shorty apply -f shorty-backup.yaml
+shortybackup.shorty.example.com/shorty-backup created
+$ kubectl -n shorty wait --for=jsonpath='{.status.phase}'=Completed shortybackup/shorty-backup --timeout=180s
+shortybackup.shorty.example.com/shorty-backup condition met
+$ kubectl -n shorty get job shorty-backup-pgdump
+NAME                   STATUS     COMPLETIONS   DURATION   AGE
+shorty-backup-pgdump   Complete   1/1           8s         10s
+$ kubectl -n shorty get pvc shorty-backup-data
+NAME                 STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+shorty-backup-data   Bound    pvc-dff64550-5bbb-4ec7-90a6-267b54decccc   1Gi        RWO            standard       <unset>                 10s
+$ kubectl -n shorty logs job/shorty-backup-pgdump --tail=5
+dumping database shorty
+1608 /backup/shorty.sql

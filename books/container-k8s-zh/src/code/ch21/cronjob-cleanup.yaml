@@ -1,0 +1,49 @@
+# 每分钟执行一次 shorty cleanup。Forbid 表示上一次没跑完就跳过这一分钟；
+# 历史只保留最近 2 个成功 Job 和 1 个失败 Job。
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: shorty-cleanup
+  namespace: shorty
+  labels:
+    app.kubernetes.io/name: shorty-cleanup
+    app.kubernetes.io/part-of: shorty
+spec:
+  schedule: "* * * * *"
+  timeZone: "Etc/UTC"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 30
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      labels:
+        app.kubernetes.io/name: shorty-cleanup
+        app.kubernetes.io/part-of: shorty
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 60
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: shorty-cleanup
+            app.kubernetes.io/part-of: shorty
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: cleanup
+              image: shorty:0.1
+              imagePullPolicy: IfNotPresent
+              args: ["cleanup"]
+              envFrom:
+                - configMapRef:
+                    name: shorty-config
+              volumeMounts:
+                - name: db-secret
+                  mountPath: /etc/shorty
+                  readOnly: true
+          volumes:
+            - name: db-secret
+              secret:
+                secretName: shorty-db
+                defaultMode: 0444

@@ -1,0 +1,56 @@
+$ kubectl -n shorty get svc api \
+  -o jsonpath='{.spec.selector}{"\n"}{range .spec.ports[*]}{.name}: {.port} -> {.targetPort}{"\n"}{end}'
+{"app.kubernetes.io/name":"api"}
+http: 8080 -> http
+$ kubectl apply -f servicemonitor-shorty.yaml
+servicemonitor.monitoring.coreos.com/shorty created
+$ kubectl -n shorty get servicemonitor
+NAME     AGE
+shorty   0s
+$ kubectl -n monitoring port-forward svc/kps-kube-prometheus-stack-prometheus 19090:9090 \
+  >/tmp/ch35-pf-prom.log 2>&1 &
+$ PF=$!
+$ for i in $(seq 1 60); do
+  curl -sf localhost:19090/-/ready >/dev/null 2>&1 && break
+  sleep 0.5
+done
+$ curl -s localhost:19090/-/ready
+Prometheus Server is Ready.
+$ for i in $(seq 1 180); do
+  H=$(curl -s localhost:19090/api/v1/targets \
+    | jq -r '.data.activeTargets[] | select(.labels.namespace=="shorty") | .health' | head -1)
+  [ "$H" = down ] && break
+  sleep 1
+done
+$ curl -s localhost:19090/api/v1/targets \
+  | jq -r '.data.activeTargets[] | select(.labels.namespace=="shorty")
+      | "\(.scrapeUrl) health=\(.health) \(.lastError // "-")"'
+http://10.244.0.14:8080/metrics health=down Get "http://10.244.0.14:8080/metrics": context deadline exceeded
+http://10.244.0.15:8080/metrics health=unknown
+$ kubectl -n shorty get endpointslice -l kubernetes.io/service-name=api \
+  -o jsonpath='{range .items[*].endpoints[*]}{.addresses[0]}{" ready="}{.conditions.ready}{"\n"}{end}'
+10.244.0.14 ready=true
+10.244.0.15 ready=true
+$ kubectl apply -f allow-prometheus-networkpolicy.yaml
+networkpolicy.networking.k8s.io/allow-prometheus created
+$ for i in $(seq 1 180); do
+  H=$(curl -s localhost:19090/api/v1/targets \
+    | jq -r '.data.activeTargets[] | select(.labels.namespace=="shorty") | .health' | head -1)
+  [ "$H" = up ] && break
+  sleep 1
+done
+$ curl -s localhost:19090/api/v1/targets \
+  | jq -r '.data.activeTargets[] | select(.labels.namespace=="shorty")
+      | "\(.scrapeUrl) health=\(.health) \(.lastError // "-")"'
+http://10.244.0.14:8080/metrics health=up
+http://10.244.0.15:8080/metrics health=up
+$ curl -s 'localhost:19090/api/v1/query?query=shorty_http_requests_total' \
+  | jq -r '.data.result[] | "\(.metric.route) \(.metric.status) \(.value[1])"'
+/admin/fault 200 2
+GET /healthz 200 28
+GET /readyz 200 46
+GET /readyz 503 7
+GET /healthz 200 26
+GET /readyz 200 49
+GET /readyz 503 2
+$ kill $PF

@@ -1,0 +1,31 @@
+$ kubectl get apiservice v1beta1.metrics.k8s.io
+NAME                     SERVICE                      AVAILABLE   AGE
+v1beta1.metrics.k8s.io   kube-system/metrics-server   True        11m
+$ kubectl top pods -n shorty -l app.kubernetes.io/name=api
+NAME                CPU(cores)   MEMORY(bytes)
+api-f6c986d-44q85   1m           5Mi
+api-f6c986d-t4ktj   1m           5Mi
+$ kubectl get hpa api -n shorty
+NAME   REFERENCE        TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+api    Deployment/api   cpu: 2%/50%   2         5         2          10m
+$ kubectl -n shorty describe hpa api | sed -n '/Conditions:/,$p'
+Conditions:
+  Type            Status  Reason            Message
+  ----            ------  ------            -------
+  AbleToScale     True    ReadyForNewScale  recommended size matches current size
+  ScalingActive   True    ValidMetricFound  the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)
+  ScalingLimited  True    TooFewReplicas    the desired replica count is less than the minimum replica count
+  ScaledToZero    False   NotScaledToZero   the HPA controller did not scale the workload to zero
+Events:
+  Type     Reason                        Age                    From                       Message
+  ----     ------                        ----                   ----                       -------
+  Normal   SuccessfulRescale             10m                    horizontal-pod-autoscaler  New size: 3; reason: cpu resource utilization (percentage of request) above target
+  Warning  FailedGetResourceMetric       7m52s                  horizontal-pod-autoscaler  failed to get cpu utilization: missing request for cpu in container api of Pod api-68d6cfff8b-kcsdq
+  Warning  FailedComputeMetricsReplicas  7m52s                  horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: missing request for cpu in container api of Pod api-68d6cfff8b-kcsdq
+  Warning  FailedGetResourceMetric       7m37s (x2 over 8m7s)   horizontal-pod-autoscaler  failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Warning  FailedComputeMetricsReplicas  7m35s (x2 over 8m7s)   horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Normal   SuccessfulRescale             6m5s (x2 over 9m7s)    horizontal-pod-autoscaler  New size: 4; reason: cpu resource utilization (percentage of request) above target
+  Normal   SuccessfulRescale             3m50s (x2 over 6m47s)  horizontal-pod-autoscaler  New size: 3; reason: All metrics below target
+  Normal   SuccessfulRescale             3m20s                  horizontal-pod-autoscaler  New size: 2; reason: All metrics below target
+$ kubectl -n shorty get deployment api -o jsonpath='{.spec.template.spec.containers[0].resources}{"\n"}'
+{"limits":{"cpu":"500m","memory":"256Mi"},"requests":{"cpu":"45m","memory":"64Mi"}}

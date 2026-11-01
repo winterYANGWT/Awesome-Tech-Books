@@ -1,0 +1,14 @@
+$ docker run --rm --name shorty-api-dup -p 8080:8080 --network shorty-net \
+    shorty:dev /out/shorty serve
+docker: Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint shorty-api-dup (089f7ea8de3ea48996b3cf7c04b4e6f929d26a3cc9759fc3ae4025fab226ce48): Bind for 127.0.0.1:8080 failed: port is already allocated
+
+Run 'docker run --help' for more information
+$ docker ps --filter publish=8080 --format '{{.Names}} {{.Ports}}'
+shorty-api 127.0.0.1:8080->8080/tcp
+$ ss -lntp | grep ':8080'
+LISTEN        0              4096                       127.0.0.1:8080                      0.0.0.0:*            users:(("docker-proxy",pid=21270,fd=8))
+$ docker run -d --name shorty-api-alt -p 8081:8080 --network shorty-net \
+    -e SHORTY_LISTEN=:8080 shorty:dev /out/shorty serve >/dev/null
+$ curl -fsS --retry 30 --retry-delay 1 --retry-all-errors http://localhost:8081/healthz
+ok
+$ docker rm -f shorty-api-alt >/dev/null

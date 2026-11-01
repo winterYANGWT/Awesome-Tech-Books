@@ -1,0 +1,62 @@
+$ kubectl apply -f hpa-api.yaml
+horizontalpodautoscaler.autoscaling/api created
+$ kubectl wait --for=condition=ScalingActive hpa/api -n shorty --timeout=120s
+horizontalpodautoscaler.autoscaling/api condition met
+$ kubectl get hpa api -n shorty
+NAME   REFERENCE        TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+api    Deployment/api   cpu: 2%/50%   2         5         2          0s
+$ kubectl delete job loadgen -n shorty --ignore-not-found
+$ kubectl apply -f loadgen-job.yaml
+job.batch/loadgen created
+$ kubectl -n shorty wait --for=condition=Ready pod -l app.kubernetes.io/name=loadgen --timeout=120s
+pod/loadgen-tlgbn condition met
+$ start=$SECONDS
+$ for i in $(seq 1 24); do
+  read -r current desired cpu < <(kubectl -n shorty get hpa api \
+    -o jsonpath='{.status.currentReplicas} {.status.desiredReplicas} {.status.currentMetrics[0].resource.current.averageUtilization}')
+  printf 't=%02ds current=%s desired=%s cpu=%s%%\n' "$((SECONDS - start))" "$current" "$desired" "${cpu:-unknown}"
+  [ "$current" = "4" ] && break
+  sleep 5
+done
+t=00s current=2 desired=2 cpu=2%
+t=05s current=2 desired=2 cpu=2%
+t=10s current=2 desired=2 cpu=2%
+t=15s current=2 desired=2 cpu=2%
+t=20s current=2 desired=2 cpu=2%
+t=25s current=2 desired=2 cpu=2%
+t=30s current=2 desired=3 cpu=56%
+t=35s current=2 desired=3 cpu=56%
+t=40s current=2 desired=3 cpu=56%
+t=45s current=3 desired=3 cpu=83%
+t=50s current=3 desired=3 cpu=83%
+t=55s current=3 desired=3 cpu=83%
+t=60s current=3 desired=3 cpu=31%
+t=65s current=3 desired=3 cpu=31%
+t=70s current=3 desired=3 cpu=31%
+t=75s current=3 desired=3 cpu=17%
+t=80s current=3 desired=3 cpu=17%
+t=85s current=3 desired=3 cpu=17%
+t=91s current=3 desired=3 cpu=39%
+t=96s current=3 desired=3 cpu=39%
+t=101s current=3 desired=3 cpu=39%
+t=106s current=3 desired=4 cpu=57%
+t=111s current=3 desired=4 cpu=57%
+t=116s current=3 desired=4 cpu=57%
+$ kubectl get hpa api -n shorty
+NAME   REFERENCE        TARGETS        MINPODS   MAXPODS   REPLICAS   AGE
+api    Deployment/api   cpu: 54%/50%   2         5         4          2m2s
+$ kubectl get deployment api -n shorty
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+api    4/4     4            4           4m27s
+$ for i in $(seq 1 15); do
+  [ "$(kubectl top pods -n shorty -l app.kubernetes.io/name=api --no-headers 2>/dev/null | wc -l)" -eq 4 ] && break
+  sleep 2
+done
+$ kubectl top pods -n shorty -l app.kubernetes.io/name=api
+NAME                CPU(cores)   MEMORY(bytes)
+api-f6c986d-6csg4   9m           12Mi
+api-f6c986d-d9sjq   14m          16Mi
+api-f6c986d-ff5wx   5m           16Mi
+api-f6c986d-ghg2v   6m           10Mi
+$ kubectl delete job loadgen -n shorty --wait=true
+job.batch "loadgen" deleted from shorty namespace

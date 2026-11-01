@@ -1,0 +1,26 @@
+$ docker inspect -f '{{index .RepoTags 0}} Entrypoint={{json .Config.Entrypoint}} Cmd={{json .Config.Cmd}}' \
+  shorty:ch04 shorty:ch04-shell
+shorty:ch04 Entrypoint=["/shorty"] Cmd=["serve"]
+shorty:ch04-shell Entrypoint=null Cmd=["/bin/sh","-c","/shorty serve"]
+$ docker run -d --name shorty-shell shorty:ch04-shell > /dev/null
+$ docker exec shorty-shell sh -c "cat /proc/1/cmdline | tr '\\0' ' '; echo"
+/bin/sh -c /shorty serve
+$ docker stop -t 3 shorty-shell
+shorty-shell
+$ docker inspect -f 'ExitCode={{.State.ExitCode}} OOMKilled={{.State.OOMKilled}}' shorty-shell
+ExitCode=137 OOMKilled=false
+$ docker logs shorty-shell 2>&1 | grep '收到退出信号' || echo '没有 shutdown 日志'
+没有 shutdown 日志
+$ docker run -d --name shorty-exec shorty:ch04 > /dev/null
+$ docker exec shorty-exec sh -c "cat /proc/1/cmdline | tr '\\0' ' '; echo"
+/shorty serve
+$ docker stop -t 10 shorty-exec
+shorty-exec
+$ docker inspect -f 'ExitCode={{.State.ExitCode}} OOMKilled={{.State.OOMKilled}}' shorty-exec
+ExitCode=0 OOMKilled=false
+$ docker logs shorty-exec 2>&1 | tail -n 4
+{"time":"2026-10-28T11:02:30.440746926Z","level":"INFO","msg":"收到退出信号，readiness 置为失败","signal":"terminated","delay":"5s"}
+{"time":"2026-10-28T11:02:35.441646913Z","level":"INFO","msg":"开始关闭 HTTP 服务"}
+{"time":"2026-10-28T11:02:35.441800142Z","level":"INFO","msg":"HTTP 服务已关闭"}
+{"time":"2026-10-28T11:02:35.441805923Z","level":"INFO","msg":"shorty 退出"}
+$ docker rm -f shorty-shell shorty-exec > /dev/null

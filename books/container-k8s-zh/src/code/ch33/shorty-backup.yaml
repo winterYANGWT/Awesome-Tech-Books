@@ -1,0 +1,8 @@
+apiVersion: shorty.example.com/v1alpha1
+kind: ShortyBackup
+metadata:
+  name: shorty-backup
+  namespace: shorty
+spec:
+  database: postgres
+  retentionDays: 3

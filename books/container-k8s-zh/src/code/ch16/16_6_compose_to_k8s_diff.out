@@ -1,0 +1,49 @@
+$ compose_projection=$(docker compose -f ../app/compose.yaml config --format json \
+  | jq -S '{
+      dependencies: ((.services.api.depends_on // {}) | keys | sort | join(",")),
+      healthcheck: (if .services.api.healthcheck then "configured" else "none" end),
+      published_port: ((.services.api.ports // []) | map("\(.published):\(.target)") | join(",")),
+      replicas: (.services.api.deploy.replicas // 1),
+      restart: (.services.api.restart // "no"),
+      secret_mount: ((.services.api.secrets // []) | map(.target) | join(",")),
+      workload: "service"
+    }')
+$ k8s_projection=$(kubectl -n shorty get deployment/api service/api -o json \
+  | jq -S '
+      (.items[] | select(.kind == "Deployment")) as $d
+    | (.items[] | select(.kind == "Service")) as $s
+    | {
+        dependencies: "",
+        healthcheck: (if (($d.spec.template.spec.containers[0].livenessProbe // null) != null
+                       or ($d.spec.template.spec.containers[0].readinessProbe // null) != null)
+                      then "configured" else "none" end),
+        published_port: (if $s.spec.type == "ClusterIP"
+                         then "cluster-internal:\($s.spec.ports[0].port)"
+                         else "\($s.spec.type):\($s.spec.ports[0].port)" end),
+        replicas: ($d.spec.replicas // 1),
+        restart: $d.spec.template.spec.restartPolicy,
+        secret_mount: ([$d.spec.template.spec.containers[0].volumeMounts[]?.mountPath
+                        | select(startswith("/run/secrets"))] | join(",")),
+        workload: "Deployment+Service"
+      }')
+$ printf '%s\n' "$compose_projection" > /tmp/ch16-compose-api.json
+$ printf '%s\n' "$k8s_projection" > /tmp/ch16-k8s-api.json
+$ diff -u --label "Compose: api" --label "Kubernetes: Deployment+Service api" \
+  /tmp/ch16-compose-api.json /tmp/ch16-k8s-api.json
+--- Compose: api
++++ Kubernetes: Deployment+Service api
+@@ -1,9 +1,9 @@
+ {
+-  "dependencies": "migrate,postgres,redis",
++  "dependencies": "",
+   "healthcheck": "none",
+-  "published_port": "8080:8080",
++  "published_port": "cluster-internal:8080",
+   "replicas": 1,
+-  "restart": "no",
+-  "secret_mount": "/run/secrets/db_password",
+-  "workload": "service"
++  "restart": "Always",
++  "secret_mount": "",
++  "workload": "Deployment+Service"
+ }

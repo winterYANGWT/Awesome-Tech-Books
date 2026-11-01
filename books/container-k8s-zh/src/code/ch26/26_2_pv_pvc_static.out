@@ -1,0 +1,18 @@
+$ kubectl apply -f manual-pv-pvc.yaml
+namespace/storage-demo created
+persistentvolume/manual-pv created
+persistentvolumeclaim/manual-pvc created
+$ kubectl -n storage-demo wait --for=jsonpath='{.status.phase}'=Bound pvc/manual-pvc --timeout=60s
+persistentvolumeclaim/manual-pvc condition met
+$ kubectl get pv,pvc -n storage-demo
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                     STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+persistentvolume/manual-pv                                  1Gi        RWO            Retain           Bound    storage-demo/manual-pvc   manual         <unset>                          1s
+persistentvolume/pvc-5b4aeca1-b954-44af-bb26-6735568dc047   1Gi        RWO            Delete           Bound    vol-demo/keep-data        standard       <unset>                          64s
+persistentvolume/pvc-74b0b8c3-18cd-4f4d-b787-a8a0becd91df   1Gi        RWO            Delete           Bound    shorty/data-postgres-0    standard       <unset>                          112s
+
+NAME                               STATUS   VOLUME      CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/manual-pvc   Bound    manual-pv   1Gi        RWO            manual         <unset>                 1s
+$ kubectl get pv manual-pv -o jsonpath='phase={.status.phase} claim={.spec.claimRef.namespace}/{.spec.claimRef.name} reclaim={.spec.persistentVolumeReclaimPolicy} mode={.spec.volumeMode}{"\n"}'
+phase=Bound claim=storage-demo/manual-pvc reclaim=Retain mode=Filesystem
+$ kubectl -n storage-demo get pvc manual-pvc -o jsonpath='phase={.status.phase} request={.spec.resources.requests.storage} capacity={.status.capacity.storage} class={.spec.storageClassName}{"\n"}'
+phase=Bound request=800Mi capacity=1Gi class=manual

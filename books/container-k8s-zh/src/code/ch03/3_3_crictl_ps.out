@@ -1,0 +1,48 @@
+$ kubectl create namespace shorty
+namespace/shorty created
+$ kubectl apply -f shorty-deployment.yaml
+deployment.apps/shorty created
+$ kubectl rollout status deployment/shorty -n shorty --timeout=120s
+Waiting for deployment "shorty" rollout to finish: 0 of 1 updated replicas are available...
+deployment "shorty" successfully rolled out
+$ kubectl get pods -n shorty -o wide
+NAME                      READY   STATUS    RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+shorty-66886646dc-7gsbh   1/1     Running   0          1s    10.244.0.5   shorty-control-plane   <none>           <none>
+$ NODE=$(kind get nodes --name shorty)
+$ docker exec "$NODE" crictl pods --namespace shorty
+POD ID              CREATED                  STATE               NAME                      NAMESPACE           ATTEMPT             RUNTIME
+fc4dc319eb1a1       Less than a second ago   Ready               shorty-66886646dc-7gsbh   shorty              0                   (default)
+$ pod_id=$(docker exec "$NODE" crictl pods --namespace shorty -q)
+$ docker exec "$NODE" crictl ps --pod "$pod_id"
+CONTAINER           IMAGE               CREATED                  STATE               NAME                ATTEMPT             POD ID              POD                       NAMESPACE
+2a242b4ba7a50       3b39acc1c2e43       Less than a second ago   Running             app                 0                   fc4dc319eb1a1       shorty-66886646dc-7gsbh   shorty
+$ docker exec "$NODE" crictl images | grep -E 'IMAGE|pause'
+IMAGE                                           TAG                  IMAGE ID            SIZE
+registry.k8s.io/pause                           3.10                 873ed75102791       320kB
+$ docker exec "$NODE" crictl inspectp "$pod_id" \
+  | jq '{id: .status.id, state: .status.state, metadata: .status.metadata,
+         runtimeHandler: .status.runtimeHandler}'
+{
+  "id": "fc4dc319eb1a118d148cf180db1cbe0ebfcf02b21e89a65e4cead1af24d065ca",
+  "state": "SANDBOX_READY",
+  "metadata": {
+    "attempt": 0,
+    "name": "shorty-66886646dc-7gsbh",
+    "namespace": "shorty",
+    "uid": "0d5a2c8c-c971-41cf-bf6a-e64ee9175586"
+  },
+  "runtimeHandler": ""
+}
+$ docker exec "$NODE" ps -eo pid,ppid,comm | grep -E 'containerd|kubelet' | sed -n '1,12p'
+    133       1 containerd
+    331       1 containerd-shim
+    332       1 containerd-shim
+    357       1 containerd-shim
+    381       1 containerd-shim
+    860       1 kubelet
+   2984       1 containerd-shim
+   3004       1 containerd-shim
+   6957       1 containerd-shim
+   6989       1 containerd-shim
+   7009       1 containerd-shim
+   7476       1 containerd-shim

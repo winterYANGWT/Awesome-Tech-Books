@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: shorty-quota
+  namespace: shorty
+spec:
+  hard:
+    # 非终止状态的 Pod 总数上限。
+    pods: "10"
+    # 所有非终止 Pod 的 CPU 请求之和上限。
+    requests.cpu: "2"

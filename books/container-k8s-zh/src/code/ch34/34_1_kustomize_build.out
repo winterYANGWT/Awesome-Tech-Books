@@ -1,0 +1,58 @@
+$ kubectl kustomize kustomize/overlays/prod | yq eval-all -r 'select(.kind == "Deployment") | "deployment=\(.metadata.name) replicas=\(.spec.replicas) image=\(.spec.template.spec.containers[0].image) cpu=\(.spec.template.spec.containers[0].resources.requests.cpu) memory=\(.spec.template.spec.containers[0].resources.requests.memory)"'
+deployment=api replicas=2 image=localhost:5000/shorty:0.1 cpu=100m memory=128Mi
+$ kubectl kustomize kustomize/overlays/prod | yq eval-all -r 'select(.kind == "ConfigMap") | "configmap=\(.metadata.name) baseURL=\(.data.SHORTY_BASE_URL)"'
+configmap=shorty-runtime-2bk4tht27t baseURL=https://shorty.example
+$ for env in dev prod; do
+    kubectl kustomize "kustomize/overlays/$env" \
+        | yq 'select(.kind == "Deployment" or .kind == "ConfigMap")' \
+        | sed -E 's/shorty-runtime-[a-z0-9]+/shorty-runtime-HASH/g' \
+        > "/tmp/ch34-$env.yaml"
+done
+$ diff -u /tmp/ch34-dev.yaml /tmp/ch34-prod.yaml || true
+--- /tmp/ch34-dev.yaml
++++ /tmp/ch34-prod.yaml
+@@ -1,6 +1,6 @@
+ apiVersion: v1
+ data:
+-  SHORTY_BASE_URL: http://dev.shorty.example
++  SHORTY_BASE_URL: https://shorty.example
+   SHORTY_LOG_LEVEL: info
+ kind: ConfigMap
+ metadata:
+@@ -20,7 +20,7 @@
+   name: api
+   namespace: shorty
+ spec:
+-  replicas: 1
++  replicas: 2
+   revisionHistoryLimit: 5
+   selector:
+     matchLabels:
+@@ -63,11 +63,11 @@
+             periodSeconds: 5
+           resources:
+             limits:
+-              cpu: 250m
+-              memory: 128Mi
++              cpu: 500m
++              memory: 256Mi
+             requests:
+-              cpu: 25m
+-              memory: 32Mi
++              cpu: 100m
++              memory: 128Mi
+           securityContext:
+             allowPrivilegeEscalation: false
+             capabilities:
+$ kubectl apply -k kustomize/overlays/prod --dry-run=server
+configmap/shorty-runtime-2bk4tht27t created (server dry run)
+service/api configured (server dry run)
+deployment.apps/api configured (server dry run)
+$ kubectl kustomize kustomize/commonlabels | yq eval-all -r 'select(.kind == "Deployment") | "selector=\(.spec.selector.matchLabels)"'
+# Warning: 'commonLabels' is deprecated. Please use 'labels' instead. Run 'kustomize edit fix' to update your Kustomization automatically.
+selector=app.kubernetes.io/managed-by: kustomize
+app.kubernetes.io/name: api
+app.kubernetes.io/part-of: shorty
+$ kubectl kustomize kustomize/commonlabels | kubectl apply --dry-run=server -f -
+# Warning: 'commonLabels' is deprecated. Please use 'labels' instead. Run 'kustomize edit fix' to update your Kustomization automatically.
+The Deployment "api" is invalid: spec.selector: Invalid value: {"matchLabels":{"app.kubernetes.io/managed-by":"kustomize","app.kubernetes.io/name":"api","app.kubernetes.io/part-of":"shorty"}}: field is immutable

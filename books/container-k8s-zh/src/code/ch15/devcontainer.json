@@ -1,0 +1,20 @@
+{
+  "name": "shorty-api-dev",
+  "build": {
+    "dockerfile": "../app/api/Dockerfile",
+    "context": "../app/api",
+    "target": "build"
+  },
+  "mounts": [
+    "source=ch15-gomod,target=/go/pkg/mod,type=volume",
+    "source=ch15-gocache,target=/root/.cache/go-build,type=volume"
+  ],
+  "forwardPorts": [
+    8080
+  ],
+  "postCreateCommand": "go mod download",
+  "remoteUser": "root",
+  "containerEnv": {
+    "GOMAXPROCS": "2"
+  }
+}

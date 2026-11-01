@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-bench
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kube-bench
+  namespace: kube-bench
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: kube-bench
+    spec:
+      # 控制面的检查项只存在于控制面节点上，必须显式调度过去并容忍污点。
+      nodeSelector:
+        kubernetes.io/hostname: shorty-control-plane
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      # kube-bench 要读宿主机的进程表和配置文件。
+      hostPID: true
+      restartPolicy: Never
+      containers:
+        - name: kube-bench
+          image: aquasec/kube-bench:v0.16.0
+          imagePullPolicy: IfNotPresent
+          command: ["kube-bench", "run", "--targets", "master,node", "--noremediations"]
+          volumeMounts:
+            - name: etc-kubernetes
+              mountPath: /etc/kubernetes
+              readOnly: true
+            - name: var-lib-kubelet
+              mountPath: /var/lib/kubelet
+              readOnly: true
+            - name: var-lib-etcd
+              mountPath: /var/lib/etcd
+              readOnly: true
+            - name: usr-bin
+              mountPath: /usr/local/mount-from-host/bin
+              readOnly: true
+      volumes:
+        - name: etc-kubernetes
+          hostPath:
+            path: /etc/kubernetes
+            type: Directory
+        - name: var-lib-kubelet
+          hostPath:
+            path: /var/lib/kubelet
+            type: Directory
+        - name: var-lib-etcd
+          hostPath:
+            path: /var/lib/etcd
+            type: DirectoryOrCreate
+        - name: usr-bin
+          hostPath:
+            path: /usr/bin
+            type: Directory

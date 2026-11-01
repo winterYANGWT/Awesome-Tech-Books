@@ -1,0 +1,89 @@
+$ PG_NODE=$(kubectl -n shorty get pod -l app.kubernetes.io/name=postgres \
+  -o jsonpath='{.items[0].spec.nodeName}')
+$ if [ "$PG_NODE" = shorty-worker ]; then TARGET=shorty-worker2; else TARGET=shorty-worker; fi
+$ echo "postgres 在 $PG_NODE，停 $TARGET"
+postgres 在 shorty-worker，停 shorty-worker2
+$ docker exec "$TARGET" sh -c \
+  'grep -E "shutdownGracePeriod|failSwapOn|memorySwap" /var/lib/kubelet/config.yaml'
+failSwapOn: false
+memorySwap: {}
+shutdownGracePeriod: 0s
+shutdownGracePeriodCriticalPods: 0s
+$ kubectl apply -f maintenance-demo.yaml
+deployment.apps/maintenance-demo created
+$ kubectl -n shorty rollout status deployment/maintenance-demo --timeout=120s
+Waiting for deployment "maintenance-demo" rollout to finish: 0 of 4 updated replicas are available...
+Waiting for deployment "maintenance-demo" rollout to finish: 1 of 4 updated replicas are available...
+Waiting for deployment "maintenance-demo" rollout to finish: 2 of 4 updated replicas are available...
+Waiting for deployment "maintenance-demo" rollout to finish: 3 of 4 updated replicas are available...
+deployment "maintenance-demo" successfully rolled out
+$ kubectl -n shorty get pods -o wide | grep -E 'NAME|maintenance-demo'
+NAME                                READY   STATUS    RESTARTS   AGE     IP            NODE             NOMINATED NODE   READINESS GATES
+maintenance-demo-66df8df744-5jb9w   1/1     Running   0          4s      10.244.2.12   shorty-worker2   <none>           <none>
+maintenance-demo-66df8df744-b5tqv   1/1     Running   0          4s      10.244.2.13   shorty-worker2   <none>           <none>
+maintenance-demo-66df8df744-m29r8   1/1     Running   0          4s      10.244.2.11   shorty-worker2   <none>           <none>
+maintenance-demo-66df8df744-wthv5   1/1     Running   0          4s      10.244.2.14   shorty-worker2   <none>           <none>
+$ docker stop "$TARGET"
+shorty-worker2
+$ for i in $(seq 1 60); do
+  STATE=$(kubectl get node "$TARGET" \
+    -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
+  if [ "$STATE" != True ]; then break; fi
+  sleep 2
+done
+$ echo "Ready condition: $STATE"
+Ready condition: Unknown
+$ kubectl get node "$TARGET"
+NAME             STATUS     ROLES    AGE     VERSION
+shorty-worker2   NotReady   <none>   6m48s   v1.37.0
+$ kubectl -n shorty get pods -o wide --field-selector "spec.nodeName=$TARGET"
+NAME                                READY   STATUS    RESTARTS   AGE   IP            NODE             NOMINATED NODE   READINESS GATES
+maintenance-demo-66df8df744-5jb9w   1/1     Running   0          49s   10.244.2.12   shorty-worker2   <none>           <none>
+maintenance-demo-66df8df744-b5tqv   1/1     Running   0          49s   10.244.2.13   shorty-worker2   <none>           <none>
+maintenance-demo-66df8df744-m29r8   1/1     Running   0          49s   10.244.2.11   shorty-worker2   <none>           <none>
+maintenance-demo-66df8df744-wthv5   1/1     Running   0          49s   10.244.2.14   shorty-worker2   <none>           <none>
+$ kubectl taint node "$TARGET" node.kubernetes.io/out-of-service=nodeshutdown:NoExecute
+node/shorty-worker2 tainted
+$ kubectl -n shorty rollout status deployment/api --timeout=120s
+deployment "api" successfully rolled out
+$ kubectl -n shorty rollout status deployment/maintenance-demo --timeout=120s
+Waiting for deployment "maintenance-demo" rollout to finish: 2 out of 4 new replicas have been updated...
+Waiting for deployment "maintenance-demo" rollout to finish: 2 out of 4 new replicas have been updated...
+Waiting for deployment "maintenance-demo" rollout to finish: 0 of 4 updated replicas are available...
+Waiting for deployment "maintenance-demo" rollout to finish: 1 of 4 updated replicas are available...
+Waiting for deployment "maintenance-demo" rollout to finish: 2 of 4 updated replicas are available...
+Waiting for deployment "maintenance-demo" rollout to finish: 3 of 4 updated replicas are available...
+deployment "maintenance-demo" successfully rolled out
+$ for i in $(seq 1 60); do
+  LEFT=$(kubectl -n shorty get pods --field-selector "spec.nodeName=$TARGET" \
+    --no-headers 2>/dev/null | wc -l)
+  if [ "$LEFT" -eq 0 ]; then break; fi
+  sleep 2
+done
+$ echo "原节点上剩余 Pod: $LEFT"
+原节点上剩余 Pod: 0
+$ kubectl -n shorty get pods -o wide
+NAME                                READY   STATUS    RESTARTS   AGE     IP            NODE            NOMINATED NODE   READINESS GATES
+api-547fc786f9-8452l                1/1     Running   0          5m22s   10.244.1.7    shorty-worker   <none>           <none>
+api-547fc786f9-ntf74                1/1     Running   0          118s    10.244.1.14   shorty-worker   <none>           <none>
+maintenance-demo-66df8df744-9nsxv   1/1     Running   0          1s      10.244.1.19   shorty-worker   <none>           <none>
+maintenance-demo-66df8df744-tdqkm   1/1     Running   0          1s      10.244.1.18   shorty-worker   <none>           <none>
+maintenance-demo-66df8df744-xvzmt   1/1     Running   0          1s      10.244.1.21   shorty-worker   <none>           <none>
+maintenance-demo-66df8df744-z649p   1/1     Running   0          1s      10.244.1.20   shorty-worker   <none>           <none>
+postgres-0                          1/1     Running   0          5m22s   10.244.1.8    shorty-worker   <none>           <none>
+redis-789b85c667-n8grr              1/1     Running   0          118s    10.244.1.13   shorty-worker   <none>           <none>
+shorty-gw-nginx-7667b66f67-fw5x6    0/1     Running   0          118s    10.244.1.12   shorty-worker   <none>           <none>
+worker-7f977dd6bf-hfhk9             1/1     Running   0          5m22s   10.244.1.5    shorty-worker   <none>           <none>
+$ docker start "$TARGET"
+shorty-worker2
+$ kubectl wait --for=condition=Ready node/"$TARGET" --timeout=180s
+node/shorty-worker2 condition met
+$ kubectl taint node "$TARGET" node.kubernetes.io/out-of-service-
+node/shorty-worker2 untainted
+$ kubectl get nodes
+NAME                   STATUS   ROLES           AGE     VERSION
+shorty-control-plane   Ready    control-plane   7m4s    v1.37.0
+shorty-worker          Ready    <none>          6m51s   v1.37.0
+shorty-worker2         Ready    <none>          6m51s   v1.37.0
+$ kubectl -n shorty delete deployment maintenance-demo
+deployment.apps "maintenance-demo" deleted from shorty namespace

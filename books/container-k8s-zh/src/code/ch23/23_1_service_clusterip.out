@@ -1,0 +1,28 @@
+$ kubectl -n shorty run client --image=busybox:1.37 --image-pull-policy=IfNotPresent --restart=Never --command -- sleep 3600
+pod/client created
+$ kubectl -n shorty wait --for=condition=Ready pod/client --timeout=120s
+pod/client condition met
+$ kubectl -n shorty get svc api -o wide
+NAME   TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE   SELECTOR
+api    ClusterIP   10.96.124.53   <none>        8080/TCP   54s   app.kubernetes.io/name=api
+$ kubectl -n shorty exec client -- wget -qO- http://api:8080/healthz
+ok
+$ kubectl -n shorty exec client -- ping -c 1 -W 2 api
+PING api (10.96.124.53): 56 data bytes
+
+--- api ping statistics ---
+1 packets transmitted, 0 packets received, 100% packet loss
+command terminated with exit code 1
+$ kubectl apply --request-timeout=300s -f api-nodeport.yaml
+service/api-nodeport created
+$ kubectl apply --request-timeout=300s -f api-lb.yaml
+service/api-lb created
+$ kubectl -n shorty get svc api api-nodeport api-lb
+NAME           TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+api            ClusterIP      10.96.124.53   <none>        8080/TCP         69s
+api-nodeport   NodePort       10.96.143.53   <none>        8080:30080/TCP   13s
+api-lb         LoadBalancer   10.96.87.87    172.19.0.5    8080:32221/TCP   13s
+$ printf 'loadbalancer=%s\n' "$lb_ip"
+loadbalancer=172.19.0.5
+$ curl -sS --max-time 5 "http://$lb_ip:8080/healthz"
+ok

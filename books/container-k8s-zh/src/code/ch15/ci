@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# 本地模拟 CI：先构建并冒烟测试，再 push，同时把 BuildKit 缓存写进 registry。
+set -euo pipefail
+
+sha=${1:?usage: ci <git-sha>}
+builder=${CI_BUILDER:-ch15ci}
+image="localhost:5000/shorty:ci-${sha}"
+cache="localhost:5000/shorty:buildcache"
+context=$(cd "$(dirname "$0")/../app/api" && pwd)
+
+if ! docker buildx inspect "$builder" >/dev/null 2>&1; then
+    docker buildx create --name "$builder" --driver docker-container \
+        --driver-opt network=host >/dev/null
+fi
+
+# 1. 拉到本地 Docker，先跑起来验证；这一步失败就不 push。
+docker buildx build --builder "$builder" --load \
+    --build-arg VERSION="$sha" \
+    --cache-from "type=registry,ref=$cache" \
+    -t "$image" "$context" >/dev/null
+
+version=$(docker run --rm "$image" version)
+if [ "$version" != "shorty $sha" ]; then
+    printf 'smoke test failed: version=%s want=shorty %s\n' "$version" "$sha" >&2
+    exit 1
+fi
+printf 'smoke: %s\n' "$version"
+
+# 2. 用同一个 builder 再构建一次并 push，缓存以 max 模式导出到 registry。
+docker buildx build --builder "$builder" --push \
+    --build-arg VERSION="$sha" \
+    --cache-from "type=registry,ref=$cache" \
+    --cache-to "type=registry,ref=$cache,mode=max" \
+    --progress=plain \
+    -t "$image" "$context"

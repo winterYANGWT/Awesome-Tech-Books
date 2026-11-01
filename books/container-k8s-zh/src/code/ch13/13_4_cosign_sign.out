@@ -1,0 +1,27 @@
+$ REG=$(cat /tmp/ch13-registry)
+$ DIGEST=$(cat /tmp/ch13-digest)
+$ cd /tmp/ch13-keys
+$ rm -f cosign.key cosign.pub
+$ export COSIGN_PASSWORD=ch13-lab-password
+$ cosign generate-key-pair
+Private key written to cosign.key
+Public key written to cosign.pub
+$ cosign sign --key cosign.key --yes --tlog-upload=false "$REG/shorty@$DIGEST"
+Pushing signature to: 172.18.0.1:5000/shorty
+$ cosign verify --key cosign.pub --insecure-ignore-tlog "$REG/shorty@$DIGEST" \
+  | jq -r 'if type=="array" then .[0] else . end | .critical.image["docker-manifest-digest"], .critical.identity["docker-reference"]'
+WARNING: Skipping tlog verification is an insecure practice that lacks of transparency and auditability verification for the signature.
+
+Verification for 172.18.0.1:5000/shorty@sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29 --
+The following checks were performed on each of these signatures:
+  - The cosign claims were validated
+  - The signatures were verified against the specified public key
+sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29
+172.18.0.1:5000/shorty
+$ cosign tree "$REG/shorty@$DIGEST"
+📦 Supply Chain Security Related artifacts for an image: 172.18.0.1:5000/shorty@sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29
+└── 💾 Attestations for an image tag: 172.18.0.1:5000/shorty:sha256-905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29.att
+   ├── 🍒 sha256:39eace7f74156542db9250f4b4f7a41ca17046c2d794fbabf8c903c1ac7d5246
+   └── 🍒 sha256:80f3490b32a5b44090a7a5d8e834c2ee54bb5a9307cdd248960ad94fce424315
+└── 🔐 Signatures for an image tag: 172.18.0.1:5000/shorty:sha256-905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29.sig
+   └── 🍒 sha256:205f82c51a671e0e2894c6dd03cf4ad8cb5895ac44998f54ff32a42751861523

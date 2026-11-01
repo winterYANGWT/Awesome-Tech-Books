@@ -1,0 +1,11 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: shorty
+spec:
+  # 空 selector 选中 shorty 里的所有 Pod。
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress

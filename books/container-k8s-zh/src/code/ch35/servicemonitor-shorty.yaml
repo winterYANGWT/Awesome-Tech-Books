@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: shorty
+  namespace: shorty
+  labels:
+    # kube-prometheus-stack 的 Prometheus CR 默认只选带 release=<release> 标签的 ServiceMonitor。
+    release: kps
+    app.kubernetes.io/part-of: shorty
+spec:
+  selector:
+    matchLabels:
+      # 选 Service，不是直接选 Pod；端口名要和 Service 的 ports[].name 对上。
+      app.kubernetes.io/name: api
+  namespaceSelector:
+    matchNames:
+      - shorty
+  endpoints:
+    - port: http
+      path: /metrics
+      # lab 用 5s，10 秒的故障至少能被扫到两次；生产用 15–30s。
+      interval: 5s

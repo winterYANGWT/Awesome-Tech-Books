@@ -1,0 +1,3 @@
+# 同一个镜像，只把默认停止信号改成 SIGINT，用来观察 STOPSIGNAL。
+FROM shorty:ch04
+STOPSIGNAL SIGINT

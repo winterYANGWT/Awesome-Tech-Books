@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: api-waiter-ok
+  namespace: shorty
+  labels:
+    app.kubernetes.io/part-of: shorty
+spec:
+  initContainers:
+    - name: wait-api
+      image: busybox:1.37
+      # Service api 存在，解析成功，init 容器退出码 0，主容器才会启动。
+      command: ["sh", "-c", "nslookup api.shorty.svc.cluster.local."]
+  containers:
+    - name: api
+      image: shorty:0.1
+      imagePullPolicy: IfNotPresent
+      args: ["serve"]
+      ports:
+        - name: http
+          containerPort: 8080
+      envFrom:
+        - configMapRef:
+            name: shorty-config

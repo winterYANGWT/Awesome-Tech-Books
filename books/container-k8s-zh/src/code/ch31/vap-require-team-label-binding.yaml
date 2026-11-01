@@ -1,0 +1,12 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: require-team-label-binding
+spec:
+  policyName: require-team-label
+  validationActions: ["Deny"]
+  # 只把这个绑定作用在 shorty；其他 namespace 不受这条策略影响。
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: shorty

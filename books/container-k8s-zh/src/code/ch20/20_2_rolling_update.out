@@ -1,0 +1,60 @@
+$ kubectl -n shorty scale deployment api --replicas=2
+deployment.apps/api scaled
+$ kubectl -n shorty wait --for=jsonpath='{.status.readyReplicas}'=2 deployment/api --timeout=120s
+deployment.apps/api condition met
+$ kubectl -n shorty get deployment api
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+api    2/2     2            2           81s
+$ kubectl -n shorty get deployment api -o jsonpath='strategy={.spec.strategy.type} maxSurge={.spec.strategy.rollingUpdate.maxSurge} maxUnavailable={.spec.strategy.rollingUpdate.maxUnavailable} minReadySeconds={.spec.minReadySeconds} progressDeadlineSeconds={.spec.progressDeadlineSeconds}{"\n"}'
+strategy=RollingUpdate maxSurge=1 maxUnavailable=1 minReadySeconds=5 progressDeadlineSeconds=30
+$ kubectl -n shorty run client --image=busybox:1.37 --image-pull-policy=IfNotPresent --restart=Never --command -- sleep 3600
+pod/client created
+$ kubectl -n shorty wait --for=condition=Ready pod/client --timeout=120s
+pod/client condition met
+$ OLDHASH=$(kubectl -n shorty get pod -l app.kubernetes.io/name=api -o jsonpath='{.items[0].metadata.labels.pod-template-hash}')
+$ echo "OLDHASH=$OLDHASH"
+OLDHASH=685ff46f8f
+$ kubectl -n shorty exec client -- sh -c 'rm -f /tmp/stop; i=0; while [ ! -f /tmp/stop ]; do if wget -q -O /dev/null -T 1 http://api:8080/healthz; then echo ok; else echo fail; fi; i=$((i+1)); sleep 0.1; done; echo "requests=$i"' > /tmp/ch20_rolling.log 2>&1 &
+$ LOOP=$!
+$ kubectl -n shorty annotate deployment/api kubernetes.io/change-cause="rolling update to shorty:0.2" --overwrite
+deployment.apps/api annotated
+$ kubectl -n shorty set image deployment/api api=shorty:0.2
+deployment.apps/api image updated
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ kubectl -n shorty exec client -- touch /tmp/stop
+$ wait "$LOOP"
+$ awk '/^ok$/{ok++} /^fail$/{fail++} END{printf "ok=%d fail=%d\n", ok, fail}' /tmp/ch20_rolling.log
+ok=55 fail=0
+$ kubectl -n shorty wait --for=delete pod -l pod-template-hash="$OLDHASH" --timeout=60s
+pod/api-685ff46f8f-56984 condition met
+pod/api-685ff46f8f-xcc8j condition met
+$ kubectl -n shorty get rs
+NAME             DESIRED   CURRENT   READY   AGE
+api-6859cf8794   0         0         0       93s
+api-685ff46f8f   0         0         0       91s
+api-86d97f5f58   2         2         2       11s
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api --show-labels
+NAME                   READY   STATUS    RESTARTS   AGE   LABELS
+api-86d97f5f58-6j845   1/1     Running   0          11s   app.kubernetes.io/name=api,app.kubernetes.io/part-of=shorty,pod-template-hash=86d97f5f58
+api-86d97f5f58-94s5q   1/1     Running   0          11s   app.kubernetes.io/name=api,app.kubernetes.io/part-of=shorty,pod-template-hash=86d97f5f58
+$ kubectl -n shorty describe deployment api | sed -n '/^Events:/,$p'
+Events:
+  Type    Reason             Age                From                   Message
+  ----    ------             ----               ----                   -------
+  Normal  ScalingReplicaSet  93s                deployment-controller  Scaled up replica set api-6859cf8794 from 0 to 1
+  Normal  ScalingReplicaSet  91s                deployment-controller  Scaled up replica set api-685ff46f8f from 0 to 1
+  Normal  ScalingReplicaSet  91s                deployment-controller  Scaled down replica set api-6859cf8794 from 1 to 0
+  Normal  ScalingReplicaSet  45s (x2 over 51s)  deployment-controller  Scaled up replica set api-685ff46f8f from 1 to 4
+  Normal  ScalingReplicaSet  12s                deployment-controller  Scaled down replica set api-685ff46f8f from 4 to 2
+  Normal  ScalingReplicaSet  11s                deployment-controller  Scaled up replica set api-86d97f5f58 from 0 to 1
+  Normal  ScalingReplicaSet  11s                deployment-controller  Scaled down replica set api-685ff46f8f from 2 to 1
+  Normal  ScalingReplicaSet  11s                deployment-controller  Scaled up replica set api-86d97f5f58 from 1 to 2
+  Normal  ScalingReplicaSet  5s                 deployment-controller  Scaled down replica set api-685ff46f8f from 1 to 0

@@ -1,0 +1,38 @@
+$ docker run -d --name shorty-cpu --network none --cpus 0.5 busybox:1.37 sh -c 'while :; do :; done' > /dev/null
+$ pid=$(docker inspect -f '{{.State.Pid}}' shorty-cpu)
+$ cg=$(awk -F: '{print $3}' "/proc/$pid/cgroup")
+$ for _ in $(seq 1 50); do
+    n=$(awk '$1 == "nr_throttled" {print $2}' "/sys/fs/cgroup$cg/cpu.stat")
+    [ "${n:-0}" -gt 0 ] && break
+    sleep 0.2
+done
+$ printf 'cpu.max: %s\n' "$(cat "/sys/fs/cgroup$cg/cpu.max")"
+cpu.max: 50000 100000
+$ awk '$1 ~ /^(nr_periods|nr_throttled|throttled_usec)$/' "/sys/fs/cgroup$cg/cpu.stat"
+nr_periods 2
+nr_throttled 1
+throttled_usec 47654
+$ docker stats --no-stream shorty-cpu
+CONTAINER ID   NAME         CPU %     MEM USAGE / LIMIT    MEM %     NET I/O   BLOCK I/O     PIDS
+0307e5dcbb52   shorty-cpu   50.18%    3.574MiB / 14.3GiB   0.02%     0B / 0B   2.93MB / 0B   1
+$ docker run -d --name shorty-shares --network none --cpu-shares 512 busybox:1.37 sh -c 'while :; do :; done' > /dev/null
+$ pid=$(docker inspect -f '{{.State.Pid}}' shorty-shares)
+$ cg=$(awk -F: '{print $3}' "/proc/$pid/cgroup")
+$ for _ in $(seq 1 50); do
+    n=$(awk '$1 == "usage_usec" {print $2}' "/sys/fs/cgroup$cg/cpu.stat")
+    [ "${n:-0}" -gt 1000000 ] && break
+    sleep 0.2
+done
+$ printf 'cpu.max: %s\n' "$(cat "/sys/fs/cgroup$cg/cpu.max")"
+cpu.max: max 100000
+$ awk '$1 ~ /^(nr_periods|nr_throttled|throttled_usec)$/' "/sys/fs/cgroup$cg/cpu.stat"
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+$ docker stats --no-stream shorty-shares
+CONTAINER ID   NAME            CPU %     MEM USAGE / LIMIT   MEM %     NET I/O   BLOCK I/O   PIDS
+624ff327b87d   shorty-shares   100.43%   472KiB / 14.3GiB    0.00%     0B / 0B   0B / 0B     1
+$ docker inspect -f 'shorty-cpu NanoCpus={{.HostConfig.NanoCpus}} CpuShares={{.HostConfig.CpuShares}}' shorty-cpu
+shorty-cpu NanoCpus=500000000 CpuShares=0
+$ docker inspect -f 'shorty-shares NanoCpus={{.HostConfig.NanoCpus}} CpuShares={{.HostConfig.CpuShares}}' shorty-shares
+shorty-shares NanoCpus=0 CpuShares=512

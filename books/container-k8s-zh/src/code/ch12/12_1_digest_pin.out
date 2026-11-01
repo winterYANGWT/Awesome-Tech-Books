@@ -1,0 +1,25 @@
+$ docker tag shorty:0.1 localhost:5000/shorty:0.1
+$ docker push localhost:5000/shorty:0.1 2>&1 | tail -2
+fcbca52d170d: Pushed
+0.1: digest: sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c size: 856
+$ docker image inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' localhost:5000/shorty:0.1
+shorty@sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c
+localhost:5000/shorty@sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c
+$ digest=$(docker image inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' localhost:5000/shorty:0.1 | awk -F@ 'NF == 2 {print $2; exit}')
+$ printf 'digest=%s\n' "$digest"
+digest=sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c
+$ docker run --rm "localhost:5000/shorty@$digest" version
+shorty dev
+$ docker build -q --build-arg VERSION=0.2 -t localhost:5000/shorty:0.1 ../app/api
+sha256:a0f6efddb0a0dda967c4e92cff550a0b0432b897e5165b43da74c95ad181f823
+$ docker push localhost:5000/shorty:0.1 2>&1 | tail -2
+075a31fd85c2: Pushed
+0.1: digest: sha256:a0f6efddb0a0dda967c4e92cff550a0b0432b897e5165b43da74c95ad181f823 size: 856
+$ docker run --rm "localhost:5000/shorty@$digest" version
+Unable to find image 'localhost:5000/shorty@sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c' locally
+localhost:5000/shorty@sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c: Pulling from shorty
+Digest: sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c
+Status: Downloaded newer image for localhost:5000/shorty@sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c
+shorty dev
+$ docker run --rm localhost:5000/shorty:0.1 version
+shorty 0.2

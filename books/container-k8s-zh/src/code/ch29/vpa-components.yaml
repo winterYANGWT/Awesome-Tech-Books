@@ -1,0 +1,169 @@
+# 本书实验用的精简 VPA 安装：只装 Recommender，不装 Updater 和 Admission Controller。
+# CRD 只保留对象外壳，生产环境请使用 VPA 仓库 release 里的完整 CRD 和三个组件。
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: verticalpodautoscalers.autoscaling.k8s.io
+  annotations:
+    api-approved.kubernetes.io: https://github.com/kubernetes/kubernetes/pull/63797
+spec:
+  group: autoscaling.k8s.io
+  names:
+    kind: VerticalPodAutoscaler
+    listKind: VerticalPodAutoscalerList
+    plural: verticalpodautoscalers
+    shortNames:
+      - vpa
+    singular: verticalpodautoscaler
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Mode
+          type: string
+          jsonPath: .spec.updatePolicy.updateMode
+        - name: CPU
+          type: string
+          jsonPath: .status.recommendation.containerRecommendations[0].target.cpu
+        - name: Memory
+          type: string
+          jsonPath: .status.recommendation.containerRecommendations[0].target.memory
+        - name: Provided
+          type: string
+          jsonPath: .status.conditions[?(@.type=="RecommendationProvided")].status
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
+      schema:
+        openAPIV3Schema:
+          type: object
+          x-kubernetes-preserve-unknown-fields: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: verticalpodautoscalercheckpoints.autoscaling.k8s.io
+  annotations:
+    api-approved.kubernetes.io: https://github.com/kubernetes/kubernetes/pull/63797
+spec:
+  group: autoscaling.k8s.io
+  names:
+    kind: VerticalPodAutoscalerCheckpoint
+    listKind: VerticalPodAutoscalerCheckpointList
+    plural: verticalpodautoscalercheckpoints
+    shortNames:
+      - vpacheckpoint
+    singular: verticalpodautoscalercheckpoint
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          x-kubernetes-preserve-unknown-fields: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vpa-recommender
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:vpa-recommender
+rules:
+  - apiGroups: [""]
+    resources: [pods, nodes, limitranges, replicationcontrollers, events]
+    verbs: [get, list, watch, create, patch, update]
+  - apiGroups: [apps]
+    resources: [deployments, replicasets, statefulsets, daemonsets]
+    verbs: [get, list, watch]
+  - apiGroups: [batch]
+    resources: [jobs, cronjobs]
+    verbs: [get, list, watch]
+  - apiGroups: ["*"]
+    resources: ["*/scale"]
+    verbs: [get, watch]
+  - apiGroups: [autoscaling.k8s.io]
+    resources: [verticalpodautoscalers, verticalpodautoscalercheckpoints]
+    verbs: [get, list, watch, create, patch, update, delete]
+  - apiGroups: [autoscaling.k8s.io]
+    resources: [verticalpodautoscalers/status]
+    verbs: [get, patch, update]
+  - apiGroups: [metrics.k8s.io]
+    resources: [pods, nodes]
+    verbs: [get, list]
+  - apiGroups: [coordination.k8s.io]
+    resources: [leases]
+    verbs: [get, list, watch, create, update]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:vpa-recommender
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:vpa-recommender
+subjects:
+  - kind: ServiceAccount
+    name: vpa-recommender
+    namespace: kube-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpa-recommender
+  namespace: kube-system
+  labels:
+    app: vpa-recommender
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpa-recommender
+  template:
+    metadata:
+      labels:
+        app: vpa-recommender
+        app.kubernetes.io/component: recommender
+        app.kubernetes.io/name: vertical-pod-autoscaler
+    spec:
+      serviceAccountName: vpa-recommender
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      containers:
+        - name: recommender
+          image: registry.k8s.io/autoscaling/vpa-recommender:1.8.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: prometheus
+              containerPort: 8942
+          readinessProbe:
+            httpGet:
+              path: /health-check
+              port: prometheus
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health-check
+              port: prometheus
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi

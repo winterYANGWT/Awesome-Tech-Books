@@ -1,0 +1,98 @@
+$ kubectl apply -f pdb-demo.yaml
+deployment.apps/pdb-demo created
+poddisruptionbudget.policy/pdb-demo created
+$ kubectl -n shorty rollout status deployment/pdb-demo --timeout=120s
+Waiting for deployment "pdb-demo" rollout to finish: 0 of 1 updated replicas are available...
+deployment "pdb-demo" successfully rolled out
+$ PDB_NODE=$(kubectl -n shorty get pod -l app=pdb-demo \
+  -o jsonpath='{.items[0].spec.nodeName}')
+$ echo "pdb-demo 在 $PDB_NODE"
+pdb-demo 在 shorty-worker2
+$ kubectl drain "$PDB_NODE" --ignore-daemonsets --delete-emptydir-data --timeout=15s
+node/shorty-worker2 cordoned
+Warning: ignoring DaemonSet-managed Pods: kube-system/kindnet-4ssjq, kube-system/kube-proxy-7fszm
+evicting pod shorty/pdb-demo-78479c46f8-rg8sk
+error when evicting pods/"pdb-demo-78479c46f8-rg8sk" -n "shorty" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+evicting pod shorty/pdb-demo-78479c46f8-rg8sk
+error when evicting pods/"pdb-demo-78479c46f8-rg8sk" -n "shorty" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+evicting pod shorty/pdb-demo-78479c46f8-rg8sk
+error when evicting pods/"pdb-demo-78479c46f8-rg8sk" -n "shorty" (will retry after 5s): Cannot evict pod as it would violate the pod's disruption budget.
+evicting pod shorty/pdb-demo-78479c46f8-rg8sk
+There are pending pods in node "shorty-worker2" when an error occurred: error when evicting pods/"pdb-demo-78479c46f8-rg8sk" -n "shorty": global timeout reached: 15s
+pod/pdb-demo-78479c46f8-rg8sk
+error: unable to drain node "shorty-worker2" due to error: error when evicting pods/"pdb-demo-78479c46f8-rg8sk" -n "shorty": global timeout reached: 15s, continuing command...
+There are pending nodes to be drained:
+ shorty-worker2
+error when evicting pods/"pdb-demo-78479c46f8-rg8sk" -n "shorty": global timeout reached: 15s
+$ kubectl -n shorty get pdb pdb-demo
+NAME       MIN AVAILABLE   MAX UNAVAILABLE   ALLOWED DISRUPTIONS   AGE
+pdb-demo   1               N/A               0                     15s
+$ kubectl -n shorty get deployment pdb-demo
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+pdb-demo   1/1     1            1           15s
+$ kubectl -n shorty patch pdb pdb-demo --type=merge -p '{"spec":{"minAvailable":0}}'
+poddisruptionbudget.policy/pdb-demo patched
+$ kubectl drain "$PDB_NODE" --ignore-daemonsets --delete-emptydir-data --timeout=120s
+node/shorty-worker2 already cordoned
+Warning: ignoring DaemonSet-managed Pods: kube-system/kindnet-4ssjq, kube-system/kube-proxy-7fszm
+evicting pod shorty/pdb-demo-78479c46f8-rg8sk
+pod/pdb-demo-78479c46f8-rg8sk evicted
+node/shorty-worker2 drained
+$ kubectl uncordon "$PDB_NODE"
+node/shorty-worker2 uncordoned
+$ kubectl -n shorty delete -f pdb-demo.yaml
+deployment.apps "pdb-demo" deleted from shorty namespace
+poddisruptionbudget.policy "pdb-demo" deleted from shorty namespace
+$ kubectl drain "$PDB_NODE" --delete-emptydir-data --timeout=15s
+node/shorty-worker2 cordoned
+error: unable to drain node "shorty-worker2" due to error: cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore): kube-system/kindnet-4ssjq, kube-system/kube-proxy-7fszm, continuing command...
+There are pending nodes to be drained:
+ shorty-worker2
+cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore): kube-system/kindnet-4ssjq, kube-system/kube-proxy-7fszm
+$ kubectl uncordon "$PDB_NODE"
+node/shorty-worker2 uncordoned
+$ PG_NODE=$(kubectl -n shorty get pod -l app.kubernetes.io/name=postgres \
+  -o jsonpath='{.items[0].spec.nodeName}')
+$ if [ "$PG_NODE" = shorty-worker ]; then TARGET=shorty-worker2; else TARGET=shorty-worker; fi
+$ kubectl apply -f emptydir-demo.yaml
+deployment.apps/emptydir-demo created
+$ kubectl -n shorty patch deployment emptydir-demo --type=merge \
+  -p "{\"spec\":{\"template\":{\"spec\":{\"nodeSelector\":{\"kubernetes.io/hostname\":\"$TARGET\"}}}}}"
+deployment.apps/emptydir-demo patched
+$ kubectl -n shorty rollout status deployment/emptydir-demo --timeout=120s
+Waiting for deployment "emptydir-demo" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "emptydir-demo" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "emptydir-demo" rollout to finish: 1 old replicas are pending termination...
+deployment "emptydir-demo" successfully rolled out
+$ kubectl drain "$TARGET" --ignore-daemonsets --timeout=15s
+node/shorty-worker2 cordoned
+error: unable to drain node "shorty-worker2" due to error: cannot delete Pods with local storage (use --delete-emptydir-data to override): shorty/emptydir-demo-77995d87d8-9jr5g, continuing command...
+There are pending nodes to be drained:
+ shorty-worker2
+cannot delete Pods with local storage (use --delete-emptydir-data to override): shorty/emptydir-demo-77995d87d8-9jr5g
+$ kubectl drain "$TARGET" --ignore-daemonsets --delete-emptydir-data --timeout=120s
+node/shorty-worker2 already cordoned
+Warning: ignoring DaemonSet-managed Pods: kube-system/kindnet-4ssjq, kube-system/kube-proxy-7fszm
+evicting pod shorty/emptydir-demo-77995d87d8-9jr5g
+pod/emptydir-demo-77995d87d8-9jr5g evicted
+node/shorty-worker2 drained
+$ kubectl uncordon "$TARGET"
+node/shorty-worker2 uncordoned
+$ kubectl -n shorty rollout status deployment/emptydir-demo --timeout=120s
+Waiting for deployment "emptydir-demo" rollout to finish: 0 of 1 updated replicas are available...
+deployment "emptydir-demo" successfully rolled out
+$ kubectl -n shorty delete -f emptydir-demo.yaml
+deployment.apps "emptydir-demo" deleted from shorty namespace
+$ ETCD_ID=$(docker exec shorty-control-plane crictl ps --name etcd -q)
+$ docker exec shorty-control-plane crictl exec "$ETCD_ID" \
+  /usr/local/bin/etcdutl --data-dir /var/lib/etcd \
+  snapshot restore /etc/kubernetes/pki/etcd/snapshot.db
+Error: data-dir "/var/lib/etcd" not empty or could not be read
+time="2026-10-28T10:12:24Z" level=fatal msg="execing command in container ce94fd6dd9c1fe5953d5737fb7b2921214609d282951362ffe0dad4a94abc7f6: command terminated with exit code 1"
+$ docker exec shorty-control-plane sh -c '
+  grep -E "etcd-servers|etcd-cafile|etcd-certfile" /etc/kubernetes/manifests/kube-apiserver.yaml
+  ls -ld /var/lib/etcd'
+    - --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt
+    - --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt
+    - --etcd-servers=https://127.0.0.1:2379
+drwx------ 4 root root 4096 Oct 28 10:08 /var/lib/etcd

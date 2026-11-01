@@ -1,0 +1,74 @@
+$ kubectl -n shorty create configmap post-snapshot-marker \
+  --from-literal=created=after-snapshot
+configmap/post-snapshot-marker created
+$ ETCD_ID=$(docker exec shorty-control-plane crictl ps --name etcd -q)
+$ PEER=$(docker exec shorty-control-plane \
+  grep -m1 -- '--initial-cluster=' /etc/kubernetes/manifests/etcd.yaml | sed 's/.*=//')
+$ echo "$PEER"
+https://172.19.0.2:2380
+$ docker exec shorty-control-plane sh -c '
+  mkdir -p /tmp/ch36-manifests
+  mv /etc/kubernetes/manifests/kube-apiserver.yaml \
+     /etc/kubernetes/manifests/kube-controller-manager.yaml \
+     /etc/kubernetes/manifests/kube-scheduler.yaml \
+     /tmp/ch36-manifests/'
+$ for i in $(seq 1 30); do
+  if [ -z "$(docker exec shorty-control-plane crictl ps --name kube-apiserver -q)" ]; then break; fi
+  sleep 2
+done
+$ docker exec shorty-control-plane crictl ps --name kube-apiserver
+CONTAINER           IMAGE               CREATED             STATE               NAME                ATTEMPT             POD ID              POD                 NAMESPACE
+$ docker exec shorty-control-plane crictl exec "$ETCD_ID" \
+  /usr/local/bin/etcdutl \
+  --data-dir /var/lib/etcd/restored \
+  --name shorty-control-plane \
+  --initial-cluster "shorty-control-plane=$PEER" \
+  --initial-advertise-peer-urls "$PEER" \
+  snapshot restore /etc/kubernetes/pki/etcd/snapshot.db 2>&1 | grep 'restored snapshot'
+2026-10-28T10:08:28Z	info	snapshot/v3_snapshot.go:334	restored snapshot	{"path": "/etc/kubernetes/pki/etcd/snapshot.db", "wal-dir": "/var/lib/etcd/restored/member/wal", "data-dir": "/var/lib/etcd/restored", "snap-dir": "/var/lib/etcd/restored/member/snap", "initial-memory-map-size": 10737418240}
+$ docker exec shorty-control-plane sh -c '
+  mv /etc/kubernetes/manifests/etcd.yaml /tmp/ch36-manifests/'
+$ for i in $(seq 1 30); do
+  if [ -z "$(docker exec shorty-control-plane crictl ps --name etcd -q)" ]; then break; fi
+  sleep 2
+done
+$ docker exec shorty-control-plane sh -c '
+  sed -i "s#path: /var/lib/etcd\$#path: /var/lib/etcd/restored#" /tmp/ch36-manifests/etcd.yaml
+  grep "path: /var/lib/etcd" /tmp/ch36-manifests/etcd.yaml'
+      path: /var/lib/etcd/restored
+$ docker exec shorty-control-plane sh -c '
+  mv /tmp/ch36-manifests/etcd.yaml /etc/kubernetes/manifests/'
+$ for i in $(seq 1 60); do
+  if [ -n "$(docker exec shorty-control-plane crictl ps --name etcd -q)" ]; then break; fi
+  sleep 2
+done
+$ docker exec shorty-control-plane crictl ps --name etcd
+CONTAINER           IMAGE               CREATED             STATE               NAME                ATTEMPT             POD ID              POD                         NAMESPACE
+ce94fd6dd9c1f       270fbeb697171       1 second ago        Running             etcd                0                   3ad5a9f3e412a       etcd-shorty-control-plane   kube-system
+$ docker exec shorty-control-plane sh -c '
+  mv /tmp/ch36-manifests/kube-apiserver.yaml \
+     /tmp/ch36-manifests/kube-controller-manager.yaml \
+     /tmp/ch36-manifests/kube-scheduler.yaml \
+     /etc/kubernetes/manifests/'
+$ for i in $(seq 1 90); do
+  if kubectl get --raw=/readyz >/dev/null 2>&1; then break; fi
+  sleep 2
+done
+$ kubectl get --raw=/readyz; echo
+ok
+$ kubectl get nodes
+NAME                   STATUS   ROLES           AGE     VERSION
+shorty-control-plane   Ready    control-plane   4m34s   v1.37.0
+shorty-worker          Ready    <none>          4m21s   v1.37.0
+shorty-worker2         Ready    <none>          4m21s   v1.37.0
+$ kubectl -n shorty get configmap post-snapshot-marker
+Error from server (NotFound): configmaps "post-snapshot-marker" not found
+$ kubectl -n shorty get pods -o wide
+NAME                               READY   STATUS      RESTARTS   AGE     IP           NODE             NOMINATED NODE   READINESS GATES
+api-547fc786f9-8452l               1/1     Running     0          2m53s   10.244.1.7   shorty-worker    <none>           <none>
+api-547fc786f9-n7kf7               1/1     Running     0          2m53s   10.244.2.6   shorty-worker2   <none>           <none>
+postgres-0                         1/1     Running     0          2m53s   10.244.1.8   shorty-worker    <none>           <none>
+redis-789b85c667-62lb9             1/1     Running     0          2m53s   10.244.2.3   shorty-worker2   <none>           <none>
+shorty-gw-nginx-7667b66f67-4kx5g   1/1     Running     0          2m53s   10.244.2.5   shorty-worker2   <none>           <none>
+shorty-migrate-vd4pc               0/1     Completed   0          2m53s   10.244.2.4   shorty-worker2   <none>           <none>
+worker-7f977dd6bf-hfhk9            1/1     Running     0          2m53s   10.244.1.5   shorty-worker    <none>           <none>

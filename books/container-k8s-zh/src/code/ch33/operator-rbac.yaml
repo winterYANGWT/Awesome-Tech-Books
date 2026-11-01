@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: shorty-operator
+  namespace: shorty
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: shorty-operator
+  namespace: shorty
+rules:
+  - apiGroups: ["shorty.example.com"]
+    resources: ["shortybackups", "shortybackups/status", "shortybackups/finalizers"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: shorty-operator
+  namespace: shorty
+subjects:
+  - kind: ServiceAccount
+    name: shorty-operator
+    namespace: shorty
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: shorty-operator

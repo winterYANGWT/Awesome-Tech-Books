@@ -1,0 +1,29 @@
+$ docker run -d --name shorty-broken shorty:ch04-shell > /dev/null
+$ docker exec shorty-broken sh -c "cat /proc/1/cmdline | tr '\\0' ' '; echo"
+/bin/sh -c /shorty serve
+$ START=$(date +%s%N)
+$ docker stop shorty-broken
+shorty-broken
+$ echo "waited $(( ($(date +%s%N) - START) / 1000000000 ))s"
+waited 10s
+$ docker inspect -f 'ExitCode={{.State.ExitCode}} OOMKilled={{.State.OOMKilled}}' shorty-broken
+ExitCode=137 OOMKilled=false
+$ docker logs shorty-broken 2>&1 | grep '收到退出信号' || echo '没有 shutdown 日志'
+没有 shutdown 日志
+$ docker inspect -f 'Entrypoint={{json .Config.Entrypoint}} Cmd={{json .Config.Cmd}}' shorty-broken
+Entrypoint=null Cmd=["/bin/sh","-c","/shorty serve"]
+$ docker rm -f shorty-broken > /dev/null
+$ docker run -d --name shorty-fixed shorty:ch04 > /dev/null
+$ docker exec shorty-fixed sh -c "cat /proc/1/cmdline | tr '\\0' ' '; echo"
+/shorty serve
+$ docker stop -t 10 shorty-fixed
+shorty-fixed
+$ docker inspect -f 'ExitCode={{.State.ExitCode}}' shorty-fixed
+ExitCode=0
+$ docker rm -f shorty-fixed > /dev/null
+$ docker run -d --name shorty-silent --log-driver none shorty:ch04 > /dev/null
+$ docker logs shorty-silent
+Error response from daemon: configured logging driver does not support reading
+$ docker inspect -f 'driver={{.HostConfig.LogConfig.Type}} path={{.LogPath}}' shorty-silent
+driver=none path=
+$ docker rm -f shorty-silent > /dev/null

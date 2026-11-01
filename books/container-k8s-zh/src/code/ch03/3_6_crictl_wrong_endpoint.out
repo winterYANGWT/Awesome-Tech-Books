@@ -1,0 +1,51 @@
+$ NODE=$(kind get nodes --name shorty)
+$ docker exec "$NODE" crictl --runtime-endpoint unix:///run/containerd/containerd.sock.bak ps
+time="2026-10-27T15:19:50Z" level=fatal msg="validate service connection: validate CRI v1 runtime API for endpoint \"unix:///run/containerd/containerd.sock.bak\": rpc error: code = Unavailable desc = connection error: desc = \"transport: Error while dialing: dial unix /run/containerd/containerd.sock.bak: connect: no such file or directory\""
+$ docker exec "$NODE" crictl --runtime-endpoint unix:///dev/null ps
+time="2026-10-27T15:19:50Z" level=fatal msg="validate service connection: validate CRI v1 runtime API for endpoint \"unix:///dev/null\": rpc error: code = Unavailable desc = connection error: desc = \"transport: Error while dialing: dial unix /dev/null: connect: connection refused\""
+$ docker exec "$NODE" crictl --runtime-endpoint unix:///run/containerd/containerd.sock ps | sed -n "1,4p"
+CONTAINER           IMAGE               CREATED              STATE               NAME                      ATTEMPT             POD ID              POD                                            NAMESPACE
+2a242b4ba7a50       3b39acc1c2e43       About a minute ago   Running             app                       0                   fc4dc319eb1a1       shorty-66886646dc-7gsbh                        shorty
+c88125cefe10a       c82008e2cd018       About a minute ago   Running             local-path-provisioner    0                   e2966d27c1d86       local-path-provisioner-75f7fc7dc5-9nbbb        local-path-storage
+c9c2077d28147       520212b8b0fcd       About a minute ago   Running             coredns                   0                   8fa5b4c6f7b58       coredns-559f6c778d-gq2t7                       kube-system
+$ docker exec "$NODE" crictl info | jq '{defaultRuntime: .config.containerd.defaultRuntimeName,
+  handlers: (.config.containerd.runtimes | keys),
+  runcType: .config.containerd.runtimes.runc.runtimeType}'
+{
+  "defaultRuntime": "runc",
+  "handlers": [
+    "runc",
+    "test-handler"
+  ],
+  "runcType": "io.containerd.runc.v2"
+}
+$ pod_id=$(docker exec "$NODE" crictl pods --namespace shorty -q)
+$ cid=$(docker exec "$NODE" crictl ps --pod "$pod_id" -q)
+$ docker exec "$NODE" crictl inspect "$cid" \
+  | jq '{state: .status.state, exitCode: .status.exitCode}'
+{
+  "state": "CONTAINER_RUNNING",
+  "exitCode": 0
+}
+$ docker exec "$NODE" crictl stats "$cid"
+CONTAINER           NAME                CPU %               MEM                 DISK                INODES              SWAP
+2a242b4ba7a50       app                 0.01                2.347MB             40.96kB             12                  0B
+$ docker exec "$NODE" crictl logs --tail=3 "$cid"
+{"time":"2026-10-27T15:18:19.128662139Z","level":"INFO","msg":"fault switches","faults":{"latency_ms":0,"error_rate":0,"leak_mb":0,"not_ready":false,"crash_after":0,"ignore_sigterm":false}}
+{"time":"2026-10-27T15:18:19.128716351Z","level":"WARN","msg":"SHORTY_DB_URL 未设置，使用内存存储，进程退出后数据不会保留"}
+{"time":"2026-10-27T15:18:19.128930425Z","level":"INFO","msg":"HTTP 服务开始监听","addr":":8080"}
+$ docker exec "$NODE" systemctl status containerd --no-pager | sed -n "1,8p"
+● containerd.service - containerd container runtime
+     Loaded: loaded (/etc/systemd/system/containerd.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-10-27 15:17:47 UTC; 2min 4s ago
+ Invocation: 20a2392eecf7410da6eb128c34ba015e
+       Docs: https://containerd.io
+   Main PID: 133 (containerd)
+      Tasks: 141
+     Memory: 450.8M (peak: 589.7M)
+$ docker exec "$NODE" journalctl -u containerd -n 5 --no-pager
+Oct 27 15:19:20 shorty-control-plane containerd[133]: time="2026-10-27T15:19:20.151189098Z" level=error msg="RunPodSandbox for name:\"gvisor-demo\"  uid:\"e66e1631-752d-4dbc-9f32-accfdc0eb80e\"  namespace:\"shorty\" failed, error" error="rpc error: code = Unknown desc = unable to get OCI runtime for sandbox \"cfe2615ac1c48469e3071f9cfdbd19b130fc268fb67a5c4fd3adf906bd48ab85\": no runtime for \"runsc\" is configured"
+Oct 27 15:19:32 shorty-control-plane containerd[133]: time="2026-10-27T15:19:32.101979086Z" level=info msg="RunPodSandbox for name:\"gvisor-demo\"  uid:\"e66e1631-752d-4dbc-9f32-accfdc0eb80e\"  namespace:\"shorty\""
+Oct 27 15:19:32 shorty-control-plane containerd[133]: time="2026-10-27T15:19:32.106963842Z" level=error msg="RunPodSandbox for name:\"gvisor-demo\"  uid:\"e66e1631-752d-4dbc-9f32-accfdc0eb80e\"  namespace:\"shorty\" failed, error" error="rpc error: code = Unknown desc = unable to get OCI runtime for sandbox \"ad489496cb00afe8b781475514b756ecfacee2211d3126ebb6ec301716b1c049\": no runtime for \"runsc\" is configured"
+Oct 27 15:19:45 shorty-control-plane containerd[133]: time="2026-10-27T15:19:45.102855291Z" level=info msg="RunPodSandbox for name:\"gvisor-demo\"  uid:\"e66e1631-752d-4dbc-9f32-accfdc0eb80e\"  namespace:\"shorty\""
+Oct 27 15:19:45 shorty-control-plane containerd[133]: time="2026-10-27T15:19:45.106980479Z" level=error msg="RunPodSandbox for name:\"gvisor-demo\"  uid:\"e66e1631-752d-4dbc-9f32-accfdc0eb80e\"  namespace:\"shorty\" failed, error" error="rpc error: code = Unknown desc = unable to get OCI runtime for sandbox \"13d63e7ad97d18d1bcd8c7b908f562f8c593187d160496b26d56d93a7b703d11\": no runtime for \"runsc\" is configured"

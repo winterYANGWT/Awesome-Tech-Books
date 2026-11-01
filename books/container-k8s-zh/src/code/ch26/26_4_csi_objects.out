@@ -1,0 +1,25 @@
+$ kubectl api-resources --api-group=storage.k8s.io
+NAME                      SHORTNAMES   APIVERSION          NAMESPACED   KIND
+csidrivers                             storage.k8s.io/v1   false        CSIDriver
+csinodes                               storage.k8s.io/v1   false        CSINode
+csistoragecapacities                   storage.k8s.io/v1   true         CSIStorageCapacity
+storageclasses            sc           storage.k8s.io/v1   false        StorageClass
+volumeattachments                      storage.k8s.io/v1   false        VolumeAttachment
+volumeattributesclasses   vac          storage.k8s.io/v1   false        VolumeAttributesClass
+$ kubectl get csidriver
+No resources found
+$ kubectl get csinode
+NAME                   DRIVERS   AGE
+shorty-control-plane   0         3m38s
+$ kubectl get volumeattachment
+No resources found
+$ kubectl get sc standard -o jsonpath='provisioner={.provisioner}{"\n"}'
+provisioner=rancher.io/local-path
+$ kubectl get pv -o jsonpath='{range .items[*]}{.metadata.name}{" provisioned-by="}{.metadata.annotations.pv\.kubernetes\.io/provisioned-by}{"\n"}{end}'
+manual-pv provisioned-by=
+pvc-53e46658-478e-452f-9549-c03e994d68ad provisioned-by=rancher.io/local-path
+pvc-5b4aeca1-b954-44af-bb26-6735568dc047 provisioned-by=rancher.io/local-path
+pvc-74b0b8c3-18cd-4f4d-b787-a8a0becd91df provisioned-by=rancher.io/local-path
+$ auto_pv=$(kubectl -n dynamic-demo get pvc auto-pvc -o jsonpath='{.spec.volumeName}')
+$ kubectl get pv "$auto_pv" -o jsonpath='pv={.metadata.name} hostPath={.spec.hostPath.path} csi={.spec.csi.driver}{"\n"}'
+pv=pvc-53e46658-478e-452f-9549-c03e994d68ad hostPath=/var/local-path-provisioner/pvc-53e46658-478e-452f-9549-c03e994d68ad_dynamic-demo_auto-pvc csi=

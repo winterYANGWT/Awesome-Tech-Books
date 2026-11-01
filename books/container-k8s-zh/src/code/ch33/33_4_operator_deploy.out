@@ -1,0 +1,41 @@
+$ kubectl -n shorty scale deployment/shorty-operator --replicas=0
+deployment.apps/shorty-operator scaled
+$ kubectl -n shorty rollout status deployment/shorty-operator --timeout=120s
+deployment "shorty-operator" successfully rolled out
+$ kubectl -n shorty delete lease shorty-operator-lock --ignore-not-found
+lease.coordination.k8s.io "shorty-operator-lock" deleted from shorty namespace
+$ kubectl -n shorty scale deployment/shorty-operator --replicas=2
+deployment.apps/shorty-operator scaled
+$ kubectl -n shorty rollout status deployment/shorty-operator --timeout=180s
+Waiting for deployment "shorty-operator" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "shorty-operator" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "shorty-operator" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "shorty-operator" rollout to finish: 1 of 2 updated replicas are available...
+deployment "shorty-operator" successfully rolled out
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=shorty-operator --field-selector=status.phase=Running
+NAME                               READY   STATUS    RESTARTS   AGE
+shorty-operator-694d66cbd8-fkjvt   1/1     Running   0          2s
+shorty-operator-694d66cbd8-t8dgv   1/1     Running   0          2s
+$ kubectl -n shorty wait --for=create lease/shorty-operator-lock --timeout=60s
+lease.coordination.k8s.io/shorty-operator-lock condition met
+$ kubectl -n shorty get lease shorty-operator-lock -o jsonpath='{.spec.holderIdentity}{"\n"}'
+shorty-operator-694d66cbd8-t8dgv
+$ kubectl -n shorty apply -f shorty-backup-2.yaml
+shortybackup.shorty.example.com/shorty-backup-2 created
+$ kubectl -n shorty wait --for=jsonpath='{.status.phase}'=Completed shortybackup/shorty-backup-2 --timeout=180s
+shortybackup.shorty.example.com/shorty-backup-2 condition met
+$ kubectl -n shorty get job shorty-backup-2-pgdump
+NAME                     STATUS     COMPLETIONS   DURATION   AGE
+shorty-backup-2-pgdump   Complete   1/1           7s         8s
+$ kubectl -n shorty logs -l app.kubernetes.io/name=shorty-operator --prefix --tail=200 | grep -E 'started|became leader|standby' | sort
+[pod/shorty-operator-694d66cbd8-fkjvt/operator] 2026-10-28 07:36:03,656 INFO shorty-operator started namespace=shorty identity=shorty-operator-694d66cbd8-fkjvt
+[pod/shorty-operator-694d66cbd8-fkjvt/operator] 2026-10-28 07:36:03,735 INFO standby: leader is shorty-operator-694d66cbd8-t8dgv
+[pod/shorty-operator-694d66cbd8-t8dgv/operator] 2026-10-28 07:36:03,560 INFO shorty-operator started namespace=shorty identity=shorty-operator-694d66cbd8-t8dgv
+[pod/shorty-operator-694d66cbd8-t8dgv/operator] 2026-10-28 07:36:03,662 INFO became leader shorty-operator-694d66cbd8-t8dgv
+$ kubectl -n shorty logs -l app.kubernetes.io/name=shorty-operator --prefix --tail=200 | grep 'shorty-backup-2' | tail -6
+[pod/shorty-operator-694d66cbd8-t8dgv/operator] 2026-10-28 07:36:05,688 INFO added finalizer to shorty-backup-2
+[pod/shorty-operator-694d66cbd8-t8dgv/operator] 2026-10-28 07:36:05,694 INFO created pvc shorty-backup-2-data
+[pod/shorty-operator-694d66cbd8-t8dgv/operator] 2026-10-28 07:36:05,700 INFO created job shorty-backup-2-pgdump for shorty-backup-2
+[pod/shorty-operator-694d66cbd8-t8dgv/operator] 2026-10-28 07:36:05,704 INFO reconcile shorty/shorty-backup-2 generation=1 phase=Running
+[pod/shorty-operator-694d66cbd8-t8dgv/operator] 2026-10-28 07:36:07,723 INFO reconcile shorty/shorty-backup-2 generation=1 phase=Running
+[pod/shorty-operator-694d66cbd8-t8dgv/operator] 2026-10-28 07:36:13,762 INFO reconcile shorty/shorty-backup-2 generation=1 phase=Completed

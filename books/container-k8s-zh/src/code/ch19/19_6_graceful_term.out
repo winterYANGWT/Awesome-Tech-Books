@@ -1,0 +1,55 @@
+$ kubectl -n shorty scale deployment/api --replicas=0
+deployment.apps/api scaled
+$ kubectl -n shorty wait --for=delete pod -l app.kubernetes.io/name=api --timeout=120s
+pod/api-64f46546fd-jgrfc condition met
+$ kubectl -n shorty apply -f api-graceful.yaml
+deployment.apps/api configured
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "api" rollout to finish: 1 of 2 updated replicas are available...
+deployment "api" successfully rolled out
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api -o wide
+NAME                 READY   STATUS    RESTARTS   AGE   IP            NODE                   NOMINATED NODE   READINESS GATES
+api-56fc9768-t9gjh   2/2     Running   0          6s    10.244.0.15   shorty-control-plane   <none>           <none>
+api-56fc9768-zxg4t   2/2     Running   0          6s    10.244.0.14   shorty-control-plane   <none>           <none>
+$ kubectl -n shorty apply -f grace-client.yaml
+pod/grace-client created
+$ kubectl -n shorty wait --for=condition=Ready pod/grace-client --timeout=60s
+pod/grace-client condition met
+$ victim=$(kubectl -n shorty get pods -l app.kubernetes.io/name=api \
+    --sort-by=.metadata.creationTimestamp -o name | tail -n 1 | cut -d/ -f2)
+$ echo "准备删除 $victim"
+准备删除 api-56fc9768-zxg4t
+$ kubectl -n shorty logs -c api "$victim" > /tmp/terminating.log
+$ kubectl -n shorty logs -f -c api "$victim" >> /tmp/terminating.log 2>&1 &
+$ logpid=$!
+$ kubectl -n shorty delete pod "$victim"
+pod "api-56fc9768-zxg4t" deleted from shorty namespace
+$ wait "$logpid"
+$ grep -E '收到退出信号|开始关闭 HTTP|HTTP 服务已关闭' /tmp/terminating.log
+{"time":"2026-10-27T19:33:03.532929443Z","level":"INFO","msg":"收到退出信号，readiness 置为失败","signal":"terminated","delay":"10s"}
+{"time":"2026-10-27T19:33:13.534021937Z","level":"INFO","msg":"开始关闭 HTTP 服务"}
+{"time":"2026-10-27T19:33:15.637539625Z","level":"INFO","msg":"HTTP 服务已关闭"}
+$ kubectl -n shorty wait --for=jsonpath='{.status.phase}'=Succeeded pod/grace-client --timeout=120s
+pod/grace-client condition met
+$ kubectl -n shorty logs grace-client
+requests=15 ok=15 fail=0
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api -o wide
+NAME                 READY   STATUS    RESTARTS   AGE   IP            NODE                   NOMINATED NODE   READINESS GATES
+api-56fc9768-t9gjh   2/2     Running   0          38s   10.244.0.15   shorty-control-plane   <none>           <none>
+api-56fc9768-xx7ss   2/2     Running   0          31s   10.244.0.17   shorty-control-plane   <none>           <none>
+$ kubectl -n shorty scale deployment/api --replicas=0
+deployment.apps/api scaled
+$ kubectl -n shorty wait --for=delete pod -l app.kubernetes.io/name=api --timeout=120s
+pod/api-56fc9768-t9gjh condition met
+pod/api-56fc9768-xx7ss condition met
+$ kubectl -n shorty apply -f api-sidecar.yaml
+deployment.apps/api configured
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 0 of 1 updated replicas are available...
+deployment "api" successfully rolled out
+$ kubectl -n shorty delete pod grace-client
+pod "grace-client" deleted from shorty namespace
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api
+NAME                   READY   STATUS    RESTARTS   AGE
+api-64f46546fd-r78kh   2/2     Running   0          3s

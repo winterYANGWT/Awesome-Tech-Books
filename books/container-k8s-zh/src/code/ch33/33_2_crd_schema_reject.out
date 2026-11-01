@@ -1,0 +1,15 @@
+$ kubectl apply -f cr-bad-extra.yaml
+Error from server (BadRequest): error when creating "cr-bad-extra.yaml": ShortyBackup in version "v1alpha1" cannot be handled as a ShortyBackup: strict decoding error: unknown field "spec.compress"
+$ kubectl apply -f cr-bad-type.yaml
+The ShortyBackup "shorty-backup-bad" is invalid: spec.retentionDays: Invalid value: "string": spec.retentionDays in body must be of type integer: "string"
+$ kubectl apply -f crd-v1alpha1-compress.yaml
+customresourcedefinition.apiextensions.k8s.io/shortybackups.shorty.example.com configured
+$ kubectl apply -f cr-compress.yaml
+shortybackup.shorty.example.com/shorty-backup-bad created
+$ kubectl -n shorty get shortybackup shorty-backup-bad -o jsonpath='retentionDays={.spec.retentionDays} compress={.spec.compress}{"\n"}'
+retentionDays=7 compress=true
+$ kubectl -n shorty get shortybackup shorty-backup-bad
+NAME                DATABASE   PHASE   AGE
+shorty-backup-bad   postgres           0s
+$ kubectl -n shorty delete shortybackup shorty-backup-bad
+shortybackup.shorty.example.com "shorty-backup-bad" deleted from shorty namespace

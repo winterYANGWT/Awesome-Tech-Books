@@ -1,0 +1,64 @@
+$ docker run --rm -v ch11-trivy-cache:/root/.cache/trivy \
+    aquasec/trivy:0.76.1 version
+Version: 0.76.1
+Vulnerability DB:
+  Version: 2
+  UpdatedAt: 2026-10-27 13:12:49.474279883 +0000 UTC
+  NextUpdate: 2026-10-28 13:12:49.474279763 +0000 UTC
+  DownloadedAt: 2026-10-27 19:08:20.018845179 +0000 UTC
+$ docker run --rm -e NO_COLOR=1 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v ch11-trivy-cache:/root/.cache/trivy \
+    aquasec/trivy:0.76.1 image --scanners vuln \
+    --severity HIGH,CRITICAL --skip-db-update --exit-code 0 shorty:0.1
+2026-10-27T19:10:33Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-10-27T19:10:33Z	INFO	Number of language-specific files	num=1
+2026-10-27T19:10:33Z	INFO	[gobinary] Detecting vulnerabilities...
+2026-10-27T19:10:33Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.76/guide/scanner/vulnerability#severity-selection for details.
+
+Report Summary
+
+┌────────┬──────────┬─────────────────┐
+│ Target │   Type   │ Vulnerabilities │
+├────────┼──────────┼─────────────────┤
+│ shorty │ gobinary │        2        │
+└────────┴──────────┴─────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+shorty (gobinary)
+=================
+Total: 2 (HIGH: 2, CRITICAL: 0)
+
+┌───────────────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬─────────────────────────────────────────────────────────────┐
+│      Library      │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │                            Title                            │
+├───────────────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼─────────────────────────────────────────────────────────────┤
+│ golang.org/x/text │ CVE-2026-56851 │ HIGH     │ fixed  │ v0.29.0           │ 0.41.0        │ golang.org/x/text: golang.org/x/text: Denial of Service via │
+│                   │                │          │        │                   │               │ out-of-bounds slice error in Nickname profile...            │
+│                   │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-56851                  │
+│                   ├────────────────┤          │        │                   ├───────────────┼─────────────────────────────────────────────────────────────┤
+│                   │ CVE-2026-56852 │          │        │                   │ 0.39.0        │ golang.org/x/text: golang.org/x/text: Denial of Service via │
+│                   │                │          │        │                   │               │ invalid UTF-8 input                                         │
+│                   │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-56852                  │
+└───────────────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴─────────────────────────────────────────────────────────────┘
+$ docker run --rm -e NO_COLOR=1 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v ch11-trivy-cache:/root/.cache/trivy \
+    aquasec/trivy:0.76.1 image --scanners vuln \
+    --severity HIGH,CRITICAL --skip-db-update --exit-code 0 shorty-worker:0.1 \
+    2>&1 | grep -E '^(shorty|Python|Total:)' | head -20
+shorty-worker:0.1 (debian 13.7)
+Total: 44 (HIGH: 44, CRITICAL: 0)
+Python (python-pkg)
+Total: 4 (HIGH: 4, CRITICAL: 0)
+$ docker image inspect --format '{{index .RepoDigests 0}}' python:3.15.2-slim-trixie
+python@sha256:197f6622a70b727a4e61bdac13a73b4e2b914b896aa5a729ceb1f45a09bde5fa
+$ docker run --rm -e NO_COLOR=1 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v ch11-trivy-cache:/root/.cache/trivy \
+    aquasec/trivy:0.76.1 image --scanners vuln \
+    --severity HIGH,CRITICAL --skip-db-update --exit-code 1 shorty-worker:0.1 \
+    >/dev/null 2>&1; echo "trivy exit=$?"
+trivy exit=1

@@ -1,0 +1,12 @@
+$ kubectl -n shorty create serviceaccount shorty-deployer
+serviceaccount/shorty-deployer created
+$ kubectl apply -f role-rolebinding-creator.yaml -f rolebinding-rolebinding-creator.yaml
+role.rbac.authorization.k8s.io/shorty-rolebinding-creator created
+rolebinding.rbac.authorization.k8s.io/shorty-rolebinding-creator created
+$ kubectl auth can-i create rolebindings \
+  --as=system:serviceaccount:shorty:shorty-deployer -n shorty
+yes
+$ kubectl -n shorty --as=system:serviceaccount:shorty:shorty-deployer create rolebinding pwn --clusterrole=cluster-admin --serviceaccount=shorty:shorty-deployer
+error: failed to create rolebinding: rolebindings.rbac.authorization.k8s.io "pwn" is forbidden: user "system:serviceaccount:shorty:shorty-deployer" (groups=["system:serviceaccounts" "system:serviceaccounts:shorty" "system:authenticated"]) is attempting to grant RBAC permissions not currently held:
+{APIGroups:["*"], Resources:["*"], Verbs:["*"]}
+{NonResourceURLs:["*"], Verbs:["*"]}

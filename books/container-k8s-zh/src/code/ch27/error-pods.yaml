@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: perm-config
+  namespace: shorty
+data:
+  app.conf: |
+    mode=prod
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: shorty-db-wrongkey
+  namespace: shorty
+type: Opaque
+stringData:
+  password: demo
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: missing-secret
+  namespace: shorty
+spec:
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sh", "-c", "sleep 3600"]
+      env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: shorty-db-missing
+              key: db_password
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: wrong-key
+  namespace: shorty
+spec:
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sh", "-c", "sleep 3600"]
+      env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: shorty-db-wrongkey
+              key: db_password
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: perm-check
+  namespace: shorty
+spec:
+  securityContext:
+    runAsUser: 65532
+    runAsGroup: 65532
+    fsGroup: 65532
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sh", "-c", "sleep 3600"]
+      volumeMounts:
+        - name: perm
+          mountPath: /etc/perm
+          readOnly: true
+  volumes:
+    - name: perm
+      configMap:
+        name: perm-config
+        defaultMode: 0440
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: perm-no-fsgroup
+  namespace: shorty
+spec:
+  securityContext:
+    runAsUser: 65532
+    runAsGroup: 65532
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sh", "-c", "sleep 3600"]
+      volumeMounts:
+        - name: perm
+          mountPath: /etc/perm
+          readOnly: true
+  volumes:
+    - name: perm
+      configMap:
+        name: perm-config
+        defaultMode: 0440

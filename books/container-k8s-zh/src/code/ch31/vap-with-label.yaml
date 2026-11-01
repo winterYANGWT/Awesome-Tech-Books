@@ -1,0 +1,25 @@
+# 与 vap-no-label 相同，只多一个 team 标签；用来验证策略放行合规对象。
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vap-with-label
+  namespace: shorty
+  labels:
+    app: vap-with-label
+    team: shorty
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: demo
+      image: busybox:1.37
+      imagePullPolicy: IfNotPresent
+      command: ["sleep", "3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL

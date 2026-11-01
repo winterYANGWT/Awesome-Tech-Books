@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spread-demo
+  namespace: shorty
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: spread-demo
+  template:
+    metadata:
+      labels:
+        app: spread-demo
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: shorty.example.com/role
+                    operator: In
+                    values: ["worker"]
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          nodeAffinityPolicy: Honor
+          nodeTaintsPolicy: Honor
+          labelSelector:
+            matchLabels:
+              app: spread-demo
+      containers:
+        - name: app
+          image: alpine:3.22
+          command: ["sleep", "3600"]

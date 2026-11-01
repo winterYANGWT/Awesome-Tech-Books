@@ -1,0 +1,11 @@
+$ kubectl -n shorty apply -f pod_minimal.yaml
+pod/api-pod created
+$ kubectl -n shorty wait --for=condition=Ready pod/api-pod --timeout=120s
+pod/api-pod condition met
+$ kubectl -n shorty get pod api-pod -o wide
+NAME      READY   STATUS    RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+api-pod   1/1     Running   0          0s    10.244.0.7   shorty-control-plane   <none>           <none>
+$ kubectl -n shorty delete pod api-pod
+pod "api-pod" deleted from shorty namespace
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api-pod
+No resources found in shorty namespace.

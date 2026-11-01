@@ -1,0 +1,8 @@
+apiVersion: shorty.example.com/v1
+kind: ShortyBackup
+metadata:
+  name: shorty-backup-denied
+  namespace: shorty
+spec:
+  database: postgres
+  retentionDays: 2

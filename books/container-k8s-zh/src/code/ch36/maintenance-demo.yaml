@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-demo
+  namespace: shorty
+  labels:
+    app: maintenance-demo
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: maintenance-demo
+  template:
+    metadata:
+      labels:
+        app: maintenance-demo
+    spec:
+      terminationGracePeriodSeconds: 0
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        podAntiAffinity:
+          # 软反亲和：优先躲开 postgres 所在的节点，但节点被 cordon 后仍可调度过去。
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: postgres
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: sleep
+          image: alpine:3.22
+          imagePullPolicy: IfNotPresent
+          command: ["sleep", "3600"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

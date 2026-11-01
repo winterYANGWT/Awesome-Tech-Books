@@ -1,0 +1,15 @@
+$ kubectl apply -f qos-pods.yaml
+namespace/ch28-qos created
+pod/guaranteed created
+pod/burstable created
+pod/besteffort created
+$ kubectl -n ch28-qos wait --for=condition=Ready pod/guaranteed pod/burstable pod/besteffort --timeout=120s
+pod/guaranteed condition met
+pod/burstable condition met
+pod/besteffort condition met
+$ kubectl -n ch28-qos get pod -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.qosClass}{"\n"}{end}' | sort
+besteffort BestEffort
+burstable Burstable
+guaranteed Guaranteed
+$ kubectl -n ch28-qos get pod guaranteed -o jsonpath='{.spec.containers[0].resources}{"\n"}'
+{"limits":{"cpu":"100m","memory":"64Mi"},"requests":{"cpu":"100m","memory":"64Mi"}}

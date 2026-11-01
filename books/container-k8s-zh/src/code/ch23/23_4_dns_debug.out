@@ -1,0 +1,35 @@
+$ kubectl -n kube-system get deployment coredns
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+coredns   2/2     2            2           4m34s
+$ kubectl -n kube-system get svc kube-dns
+NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
+kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   4m34s
+$ kubectl -n shorty run dnsutils --image=busybox:1.37 --image-pull-policy=IfNotPresent --restart=Never --command -- sleep 3600
+pod/dnsutils created
+$ kubectl -n shorty wait --for=condition=Ready pod/dnsutils --timeout=120s
+pod/dnsutils condition met
+$ kubectl -n shorty exec dnsutils -- cat /etc/resolv.conf
+search shorty.svc.cluster.local svc.cluster.local cluster.local tail9fe2ea.ts.net
+nameserver 10.96.0.10
+options ndots:5
+$ kubectl -n shorty exec dnsutils -- nslookup api.shorty.svc.cluster.local
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+Name:	api.shorty.svc.cluster.local
+Address: 10.96.124.53
+$ kubectl -n shorty exec dnsutils -- nslookup api 2>&1 | grep -A1 '^Name:' || true
+Name:	api.shorty.svc.cluster.local
+Address: 10.96.124.53
+$ kubectl -n shorty exec dnsutils -- nslookup api.nope.svc.cluster.local
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+** server can't find api.nope.svc.cluster.local: NXDOMAIN
+
+** server can't find api.nope.svc.cluster.local: NXDOMAIN
+
+command terminated with exit code 1
+$ kubectl -n shorty delete pod dnsutils --wait=true
+pod "dnsutils" deleted from shorty namespace

@@ -1,0 +1,12 @@
+$ kubectl --server=https://127.0.0.1:1 get pods
+E1030 08:52:10.241193   34009 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:1/api?timeout=32s\": dial tcp 127.0.0.1:1: connect: connection refused"
+E1030 08:52:10.241365   34009 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:1/api?timeout=32s\": dial tcp 127.0.0.1:1: connect: connection refused"
+E1030 08:52:10.242496   34009 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:1/api?timeout=32s\": dial tcp 127.0.0.1:1: connect: connection refused"
+E1030 08:52:10.242558   34009 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:1/api?timeout=32s\": dial tcp 127.0.0.1:1: connect: connection refused"
+E1030 08:52:10.243684   34009 memcache.go:381] "Couldn't get current server API group list" err="Get \"https://127.0.0.1:1/api?timeout=32s\": dial tcp 127.0.0.1:1: connect: connection refused"
+The connection to the server 127.0.0.1:1 was refused - did you specify the right host or port?
+$ kind get clusters
+shorty
+$ docker ps --filter name=shorty-control-plane --format '{{.Names}}  {{.Status}}'
+shorty-control-plane  Up 4 minutes
+$ docker logs shorty-control-plane --tail 8

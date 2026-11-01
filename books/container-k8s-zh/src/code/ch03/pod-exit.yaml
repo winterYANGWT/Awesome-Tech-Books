@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: exit-demo
+  namespace: shorty
+spec:
+  restartPolicy: Never
+  containers:
+    - name: app
+      image: busybox:1.37
+      imagePullPolicy: IfNotPresent
+      command: ["sh", "-c", "exit 7"]

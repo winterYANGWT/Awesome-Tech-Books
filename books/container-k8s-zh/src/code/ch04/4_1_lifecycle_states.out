@@ -1,0 +1,50 @@
+$ docker create --name shorty-states -e SHORTY_SHUTDOWN_DELAY=1 shorty:ch04 > /dev/null
+$ docker ps -a --filter name=shorty-states --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'
+NAMES           STATUS    IMAGE
+shorty-states   Created   shorty:ch04
+$ docker start shorty-states
+shorty-states
+$ docker ps --filter name=shorty-states --format 'table {{.Names}}\t{{.Status}}'
+NAMES           STATUS
+shorty-states   Up Less than a second
+$ docker pause shorty-states
+shorty-states
+$ docker ps -a --filter name=shorty-states --format 'table {{.Names}}\t{{.Status}}'
+NAMES           STATUS
+shorty-states   Up Less than a second (Paused)
+$ docker unpause shorty-states
+shorty-states
+$ docker stop shorty-states
+shorty-states
+$ docker ps -a --filter name=shorty-states --format 'table {{.Names}}\t{{.Status}}'
+NAMES           STATUS
+shorty-states   Exited (0) Less than a second ago
+$ docker inspect shorty-states --format '{{json .State}}' \
+  | jq '{Status, ExitCode, OOMKilled, Error, StartedAt, FinishedAt}'
+{
+  "Status": "exited",
+  "ExitCode": 0,
+  "OOMKilled": false,
+  "Error": "",
+  "StartedAt": "2026-10-28T11:01:53.449616728Z",
+  "FinishedAt": "2026-10-28T11:01:54.662441069Z"
+}
+$ docker start shorty-states
+shorty-states
+$ docker ps --filter name=shorty-states --format 'table {{.Names}}\t{{.Status}}'
+NAMES           STATUS
+shorty-states   Up Less than a second
+$ docker rm -f shorty-states
+shorty-states
+$ docker run -d --name shorty-term busybox:1.37 \
+  sh -c 'trap "exit 143" TERM; echo ready; while :; do sleep 1; done' > /dev/null
+$ docker stop shorty-term
+shorty-term
+$ docker inspect -f 'ExitCode={{.State.ExitCode}} OOMKilled={{.State.OOMKilled}}' shorty-term
+ExitCode=143 OOMKilled=false
+$ docker run -d --name shorty-kill busybox:1.37 sleep 1000 > /dev/null
+$ docker kill -s KILL shorty-kill
+shorty-kill
+$ docker inspect -f 'ExitCode={{.State.ExitCode}} OOMKilled={{.State.OOMKilled}}' shorty-kill
+ExitCode=137 OOMKilled=false
+$ docker rm shorty-term shorty-kill > /dev/null

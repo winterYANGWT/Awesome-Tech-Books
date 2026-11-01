@@ -1,0 +1,24 @@
+$ kubectl apply -f net-demo.yaml
+namespace/net-demo created
+pod/net-server created
+pod/net-client created
+$ kubectl -n net-demo wait --for=condition=Ready pod/net-server pod/net-client --timeout=120s
+pod/net-server condition met
+pod/net-client condition met
+$ kubectl -n net-demo get pods -o wide
+NAME         READY   STATUS    RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+net-client   1/1     Running   0          1s    10.244.1.9   shorty-worker          <none>           <none>
+net-server   1/1     Running   0          1s    10.244.0.5   shorty-control-plane   <none>           <none>
+$ server_ip=$(kubectl -n net-demo get pod net-server -o jsonpath='{.status.podIP}')
+$ printf 'net-server IP: %s\n' "$server_ip"
+net-server IP: 10.244.0.5
+$ kubectl -n net-demo exec net-client -- ping -c 2 "$server_ip"
+PING 10.244.0.5 (10.244.0.5): 56 data bytes
+64 bytes from 10.244.0.5: seq=0 ttl=62 time=0.110 ms
+64 bytes from 10.244.0.5: seq=1 ttl=62 time=0.075 ms
+
+--- 10.244.0.5 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max = 0.075/0.092/0.110 ms
+$ kubectl -n net-demo exec net-client -- wget -qO- "http://$server_ip/" | grep -o '<title>.*</title>'
+<title>Welcome to nginx!</title>

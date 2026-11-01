@@ -1,0 +1,31 @@
+$ REG=$(cat /tmp/ch13-registry)
+$ DIGEST=$(cat /tmp/ch13-digest)
+$ cd /tmp/ch13-keys
+$ rm -f attest.key attest.pub
+$ export COSIGN_PASSWORD=ch13-lab-password
+$ cosign generate-key-pair --output-key-prefix attest
+Private key written to attest.key
+Public key written to attest.pub
+$ docker buildx imagetools inspect "$REG/shorty:0.1" \
+  --format '{{json .SBOM.SPDX}}' > /tmp/ch13-sbom.json
+$ cosign attest --key attest.key --yes --tlog-upload=false \
+  --type slsaprovenance --predicate /tmp/ch13-slsa.json "$REG/shorty@$DIGEST"
+Using payload from: /tmp/ch13-slsa.json
+$ cosign attest --key attest.key --yes --tlog-upload=false \
+  --type spdxjson --predicate /tmp/ch13-sbom.json "$REG/shorty@$DIGEST"
+Using payload from: /tmp/ch13-sbom.json
+$ cosign verify-attestation --key attest.pub --insecure-ignore-tlog \
+  --type slsaprovenance "$REG/shorty@$DIGEST" \
+  |  jq -r 'if type=="array" then .[0].payload else .payload end' | base64 -d | jq -r '.predicate.builder.id'
+WARNING: Skipping tlog verification is an insecure practice that lacks of transparency and auditability verification for the attestation.
+
+Verification for 172.18.0.1:5000/shorty@sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29 --
+The following checks were performed on each of these signatures:
+  - The cosign claims were validated
+  - The signatures were verified against the specified public key
+https://build.shorty.example/ci/run-42
+$ cosign verify-attestation --key attest.pub --insecure-ignore-tlog \
+  --type slsaprovenance "$REG/shorty:unsigned"
+WARNING: Skipping tlog verification is an insecure practice that lacks of transparency and auditability verification for the attestation.
+Error: no matching attestations:
+main.go:74: error during command execution: no matching attestations:

@@ -1,0 +1,20 @@
+$ kubectl apply -v=6 -f trace-pod.yaml 2>&1 \
+  | grep -E 'GET.*/pods/trace-demo|POST.*/pods|trace-demo created'
+I1030 08:49:47.429030   33310 round_trippers.go:632] "Response" verb="GET" url="https://127.0.0.1:44625/api/v1/namespaces/shorty/pods/trace-demo" status="404 Not Found" milliseconds=1
+I1030 08:49:47.437866   33310 round_trippers.go:632] "Response" verb="POST" url="https://127.0.0.1:44625/api/v1/namespaces/shorty/pods?fieldManager=kubectl-client-side-apply&fieldValidation=Strict" status="201 Created" milliseconds=7
+pod/trace-demo created
+$ kubectl wait --for=condition=Ready pod/trace-demo -n shorty --timeout=60s
+pod/trace-demo condition met
+$ kubectl get pod trace-demo -n shorty -o wide
+NAME         READY   STATUS    RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+trace-demo   1/1     Running   0          0s    10.244.0.6   shorty-control-plane   <none>           <none>
+$ kubectl get events -n shorty --field-selector involvedObject.name=trace-demo \
+  --sort-by=.lastTimestamp \
+  -o custom-columns='TIME:.lastTimestamp,TYPE:.type,REASON:.reason,SOURCE:.source.component,MESSAGE:.message'
+TIME                   TYPE     REASON      SOURCE              MESSAGE
+2026-10-30T08:49:47Z   Normal   Scheduled   default-scheduler   Successfully assigned shorty/trace-demo to shorty-control-plane
+2026-10-30T08:49:47Z   Normal   Pulled      kubelet             Container image "shorty:0.1" already present on machine and can be accessed by the pod
+2026-10-30T08:49:47Z   Normal   Created     kubelet             Container created
+2026-10-30T08:49:47Z   Normal   Started     kubelet             Container started
+$ kubectl delete pod trace-demo -n shorty
+pod "trace-demo" deleted from shorty namespace

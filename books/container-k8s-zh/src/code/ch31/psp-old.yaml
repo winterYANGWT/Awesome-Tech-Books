@@ -1,0 +1,24 @@
+# 1.25 之前的 PodSecurityPolicy 清单。policy/v1beta1 这个 API 已经随 PSP 一起移除，
+# 现在 apply 它只会在客户端做 REST 映射时失败。
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: restricted-psp
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  runAsUser:
+    rule: MustRunAsNonRoot
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  fsGroup:
+    rule: RunAsAny
+  volumes:
+    - configMap
+    - emptyDir
+    - secret
+    - persistentVolumeClaim

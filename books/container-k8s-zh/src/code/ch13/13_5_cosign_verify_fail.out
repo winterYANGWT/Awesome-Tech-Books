@@ -1,0 +1,26 @@
+$ REG=$(cat /tmp/ch13-registry)
+$ SIGNED=$(cat /tmp/ch13-digest)
+$ UNSIGNED=$(docker buildx imagetools inspect "$REG/shorty:unsigned" --format '{{.Manifest.Digest}}')
+$ cd /tmp/ch13-keys
+$ printf 'signed:   %s\nunsigned: %s\n' "$SIGNED" "$UNSIGNED"
+signed:   sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29
+unsigned: sha256:6f64a01cf14a39a460ca96dd469c0ed78bff1dcca34472dfefc622acda8734d6
+$ docker buildx imagetools create -t "$REG/shorty:0.1" "$REG/shorty@$UNSIGNED"
+#1 [internal] pushing 172.18.0.1:5000/shorty
+#1 0.000 copying sha256:1b8ce31d4c25f310551d9b061b007685a9f8a242fbffdb7346927a72622f1fe1 from 172.18.0.1:5000/shorty@sha256:6f64a01cf14a39a460ca96dd469c0ed78bff1dcca34472dfefc622acda8734d6 to 172.18.0.1:5000/shorty
+#1 0.000 copying sha256:6d8488835caa5cf9adab2de7f9dafc996bf46a6f3d0793811602321b3b15a343 from 172.18.0.1:5000/shorty@sha256:6f64a01cf14a39a460ca96dd469c0ed78bff1dcca34472dfefc622acda8734d6 to 172.18.0.1:5000/shorty
+#1 0.004 pushing sha256:6f64a01cf14a39a460ca96dd469c0ed78bff1dcca34472dfefc622acda8734d6 to 172.18.0.1:5000/shorty:0.1
+#1 DONE 0.0s
+$ cosign verify --key cosign.pub --insecure-ignore-tlog "$REG/shorty:0.1"
+WARNING: Skipping tlog verification is an insecure practice that lacks of transparency and auditability verification for the signature.
+Error: no signatures found
+main.go:69: error during command execution: no signatures found
+$ docker buildx imagetools create -t "$REG/shorty:0.1" "$REG/shorty@$SIGNED"
+#1 [internal] pushing 172.18.0.1:5000/shorty
+#1 0.000 copying sha256:b771513059eabb89cbadd0696ca56baa987575cde296d95306406bec71ed4704 from 172.18.0.1:5000/shorty@sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29 to 172.18.0.1:5000/shorty
+#1 0.000 copying sha256:1b8ce31d4c25f310551d9b061b007685a9f8a242fbffdb7346927a72622f1fe1 from 172.18.0.1:5000/shorty@sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29 to 172.18.0.1:5000/shorty
+#1 0.004 pushing sha256:905f57220ab759343f569f82bfff1941a902c66cd5d9c520605b5aefeca29d29 to 172.18.0.1:5000/shorty:0.1
+#1 DONE 0.0s
+$ cosign verify --key cosign.pub --insecure-ignore-tlog "$REG/shorty@$SIGNED" >/dev/null 2>&1 \
+  && echo "digest 仍然验签通过"
+digest 仍然验签通过

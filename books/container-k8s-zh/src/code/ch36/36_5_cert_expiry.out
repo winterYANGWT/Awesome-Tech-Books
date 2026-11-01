@@ -1,0 +1,55 @@
+$ docker exec shorty-control-plane kubeadm certs check-expiration
+[check-expiration] Reading configuration from the "kubeadm-config" ConfigMap in namespace "kube-system"...
+[check-expiration] Use 'kubeadm init phase upload-config kubeadm --config your-config-file' to re-upload it.
+
+CERTIFICATE                EXPIRES                  RESIDUAL TIME   CERTIFICATE AUTHORITY   EXTERNALLY MANAGED
+admin.conf                 Oct 28, 2027 10:03 UTC   364d            ca                      no
+apiserver                  Oct 28, 2027 10:03 UTC   364d            ca                      no
+apiserver-etcd-client      Oct 28, 2027 10:03 UTC   364d            etcd-ca                 no
+apiserver-kubelet-client   Oct 28, 2027 10:03 UTC   364d            ca                      no
+controller-manager.conf    Oct 28, 2027 10:03 UTC   364d            ca                      no
+etcd-healthcheck-client    Oct 28, 2027 10:03 UTC   364d            etcd-ca                 no
+etcd-peer                  Oct 28, 2027 10:03 UTC   364d            etcd-ca                 no
+etcd-server                Oct 28, 2027 10:03 UTC   364d            etcd-ca                 no
+front-proxy-client         Oct 28, 2027 10:03 UTC   364d            front-proxy-ca          no
+scheduler.conf             Oct 28, 2027 10:03 UTC   364d            ca                      no
+super-admin.conf           Oct 28, 2027 10:03 UTC   364d            ca                      no
+
+CERTIFICATE AUTHORITY   EXPIRES                  RESIDUAL TIME   EXTERNALLY MANAGED
+ca                      Oct 25, 2036 10:03 UTC   9y              no
+etcd-ca                 Oct 25, 2036 10:03 UTC   9y              no
+front-proxy-ca          Oct 25, 2036 10:03 UTC   9y              no
+$ docker exec shorty-control-plane kubeadm certs check-expiration 2>/dev/null \
+  | awk 'NR>1 && $3 ~ /^[0-9]+d$/ {d=$3; sub("d","",d); if (d+0 <= 30) {print; n++}} END {printf "30 天内到期: %d 项\n", n+0}'
+30 天内到期: 0 项
+$ docker exec shorty-control-plane openssl x509 -in /etc/kubernetes/pki/apiserver.crt \
+  -noout -serial -enddate
+serial=7B5C6CE73C2C9BF4
+notAfter=Oct 28 10:03:57 2027 GMT
+$ docker exec shorty-control-plane kubeadm certs renew all
+[renew] Reading configuration from the "kubeadm-config" ConfigMap in namespace "kube-system"...
+[renew] Use 'kubeadm init phase upload-config kubeadm --config your-config-file' to re-upload it.
+
+certificate embedded in the kubeconfig file for the admin to use and for kubeadm itself renewed
+certificate for serving the Kubernetes API renewed
+certificate the apiserver uses to access etcd renewed
+certificate for the API server to connect to kubelet renewed
+certificate embedded in the kubeconfig file for the controller manager to use renewed
+certificate for liveness probes to healthcheck etcd renewed
+certificate for etcd nodes to communicate with each other renewed
+certificate for serving etcd renewed
+certificate for the front proxy client renewed
+certificate embedded in the kubeconfig file for the scheduler manager to use renewed
+certificate embedded in the kubeconfig file for the super-admin renewed
+
+Done renewing certificates. You must restart the kube-apiserver, kube-controller-manager, kube-scheduler and etcd, so that they can use the new certificates.
+$ docker exec shorty-control-plane openssl x509 -in /etc/kubernetes/pki/apiserver.crt \
+  -noout -serial -enddate
+serial=1427E040A1775EA6
+notAfter=Oct 28 10:09:44 2027 GMT
+$ docker exec shorty-control-plane kubeadm certs check-expiration 2>/dev/null \
+  | grep -E '^(apiserver|admin.conf)'
+admin.conf                 Oct 28, 2027 10:09 UTC   364d            ca                      no
+apiserver                  Oct 28, 2027 10:09 UTC   364d            ca                      no
+apiserver-etcd-client      Oct 28, 2027 10:09 UTC   364d            etcd-ca                 no
+apiserver-kubelet-client   Oct 28, 2027 10:09 UTC   364d            ca                      no

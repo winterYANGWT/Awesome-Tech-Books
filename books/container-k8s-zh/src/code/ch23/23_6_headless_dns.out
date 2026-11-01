@@ -1,0 +1,29 @@
+$ kubectl -n shorty get svc postgres -o custom-columns=NAME:.metadata.name,CLUSTERIP:.spec.clusterIP,IPFAMILIES:.spec.ipFamilies,IPFAMILYPOLICY:.spec.ipFamilyPolicy
+NAME       CLUSTERIP   IPFAMILIES   IPFAMILYPOLICY
+postgres   None        [IPv4]       SingleStack
+$ kubectl -n shorty get svc -o wide
+NAME           TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE     SELECTOR
+api            ClusterIP      10.96.124.53    <none>        8080/TCP         6m7s    app.kubernetes.io/name=api
+api-lb         LoadBalancer   10.96.87.87     172.19.0.5    8080:32221/TCP   5m11s   app.kubernetes.io/name=api
+api-nodeport   NodePort       10.96.143.53    <none>        8080:30080/TCP   5m11s   app.kubernetes.io/name=api
+postgres       ClusterIP      None            <none>        5432/TCP         6m7s    app.kubernetes.io/name=postgres
+redis          ClusterIP      10.96.163.237   <none>        6379/TCP         6m7s    app.kubernetes.io/name=redis
+$ kubectl -n shorty run dnsutils --image=busybox:1.37 --image-pull-policy=IfNotPresent --restart=Never --command -- sleep 3600
+pod/dnsutils created
+$ kubectl -n shorty wait --for=condition=Ready pod/dnsutils --timeout=120s
+pod/dnsutils condition met
+$ kubectl -n shorty exec dnsutils -- nslookup postgres-0.postgres.shorty.svc.cluster.local.
+Server:		10.96.0.10
+Address:	10.96.0.10:53
+
+
+Name:	postgres-0.postgres.shorty.svc.cluster.local
+Address: 10.244.1.6
+$ kubectl -n shorty get pod postgres-0 -o wide
+NAME         READY   STATUS    RESTARTS   AGE    IP           NODE            NOMINATED NODE   READINESS GATES
+postgres-0   1/1     Running   0          6m8s   10.244.1.6   shorty-worker   <none>           <none>
+$ kubectl -n shorty exec dnsutils -- nslookup postgres 2>&1 | grep -A1 '^Name:' || true
+Name:	postgres.shorty.svc.cluster.local
+Address: 10.244.1.6
+$ kubectl -n shorty delete pod dnsutils --wait=true
+pod "dnsutils" deleted from shorty namespace

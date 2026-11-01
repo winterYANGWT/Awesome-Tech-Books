@@ -1,0 +1,14 @@
+$ docker run --rm shorty:dev grep -E 'Seccomp|Seccomp_filters' /proc/self/status
+Seccomp:	2
+Seccomp_filters:	1
+$ docker run --rm --security-opt seccomp=seccomp-deny-uname.json shorty:dev uname -a
+uname: cannot get system name: Operation not permitted
+$ docker run --rm shorty:dev uname -a
+Linux a7334ac29d4b 7.0.0-38-generic #38-Ubuntu SMP PREEMPT_DYNAMIC Fri Sep  4 09:10:14 UTC 2026 x86_64 GNU/Linux
+$ docker run --rm --security-opt seccomp=unconfined shorty:dev grep -E 'Seccomp|Seccomp_filters' /proc/self/status
+Seccomp:	0
+Seccomp_filters:	0
+$ docker info --format '{{json .SecurityOptions}}'
+["name=apparmor,profile=default","name=seccomp,profile=builtin","name=cgroupns"]
+$ docker run --rm shorty:dev cat /proc/self/attr/current
+unconfined

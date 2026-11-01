@@ -1,0 +1,29 @@
+$ docker exec shorty-control-plane kubeadm certs check-expiration
+[check-expiration] Reading configuration from the "kubeadm-config" ConfigMap in namespace "kube-system"...
+[check-expiration] Use 'kubeadm init phase upload-config kubeadm --config your-config-file' to re-upload it.
+
+CERTIFICATE                EXPIRES                  RESIDUAL TIME   CERTIFICATE AUTHORITY   EXTERNALLY MANAGED
+admin.conf                 Oct 28, 2027 05:23 UTC   364d            ca                      no
+apiserver                  Oct 28, 2027 05:23 UTC   364d            ca                      no
+apiserver-etcd-client      Oct 28, 2027 05:23 UTC   364d            etcd-ca                 no
+apiserver-kubelet-client   Oct 28, 2027 05:23 UTC   364d            ca                      no
+controller-manager.conf    Oct 28, 2027 05:23 UTC   364d            ca                      no
+etcd-healthcheck-client    Oct 28, 2027 05:23 UTC   364d            etcd-ca                 no
+etcd-peer                  Oct 28, 2027 05:23 UTC   364d            etcd-ca                 no
+etcd-server                Oct 28, 2027 05:23 UTC   364d            etcd-ca                 no
+front-proxy-client         Oct 28, 2027 05:23 UTC   364d            front-proxy-ca          no
+scheduler.conf             Oct 28, 2027 05:23 UTC   364d            ca                      no
+super-admin.conf           Oct 28, 2027 05:23 UTC   364d            ca                      no
+
+CERTIFICATE AUTHORITY   EXPIRES                  RESIDUAL TIME   EXTERNALLY MANAGED
+ca                      Oct 25, 2036 05:23 UTC   9y              no
+etcd-ca                 Oct 25, 2036 05:23 UTC   9y              no
+front-proxy-ca          Oct 25, 2036 05:23 UTC   9y              no
+$ docker exec shorty-worker sh -c \
+  'grep -E "rotateCertificates|serverTLSBootstrap" /var/lib/kubelet/config.yaml; ls -l /var/lib/kubelet/pki'
+rotateCertificates: true
+total 12
+-rw------- 1 root root 1118 Oct 28 05:23 kubelet-client-2026-10-28-05-23-49.pem
+lrwxrwxrwx 1 root root   59 Oct 28 05:23 kubelet-client-current.pem -> /var/lib/kubelet/pki/kubelet-client-2026-10-28-05-23-49.pem
+-rw-r--r-- 1 root root 2303 Oct 28 05:23 kubelet.crt
+-rw------- 1 root root 1675 Oct 28 05:23 kubelet.key

@@ -1,0 +1,24 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+# 请求刚到时先记一条、响应完成时再记一条，同一请求会出现两次；
+# 只保留 ResponseComplete/Panic，日志量小一半。
+omitStages:
+  - RequestReceived
+rules:
+  # Secret 只记元数据，不把请求或响应体写进日志。
+  - level: Metadata
+    resources:
+      - group: ""
+        resources: ["secrets"]
+  # 改配置和 Deployment 时记请求体，出事后能还原改了什么。
+  - level: Request
+    verbs: ["create", "update", "patch", "delete"]
+    resources:
+      - group: ""
+        resources: ["configmaps", "serviceaccounts"]
+      - group: "apps"
+        resources: ["deployments", "statefulsets"]
+      - group: "rbac.authorization.k8s.io"
+        resources: ["roles", "rolebindings"]
+  # 其余请求只记元数据。
+  - level: Metadata

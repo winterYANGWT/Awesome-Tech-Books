@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: shorty
+  namespace: shorty
+  labels:
+    # 和 ServiceMonitor 一样，Prometheus CR 默认只选 release=kps 的规则。
+    release: kps
+    app.kubernetes.io/part-of: shorty
+spec:
+  groups:
+    - name: shorty.rules
+      rules:
+        - alert: ShortyHigh5xx
+          # 只看 5xx 占全部请求的比例，不看单个 Pod：这是用户能感知到的症状。
+          expr: |
+            sum(rate(shorty_http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(shorty_http_requests_total[5m])) > 0.05
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "shorty 的 5xx 比例超过 5%"
+            description: "过去 5 分钟 5xx 占比 {{ $value | humanizePercentage }}"
+            runbook_url: "https://example.com/runbooks/shorty-high-5xx"

@@ -1,0 +1,83 @@
+$ rm -rf /tmp/ch03-runc
+$ mkdir -p /tmp/ch03-runc/rootfs
+$ cid=$(docker create busybox:1.37)
+$ docker export "$cid" | tar -C /tmp/ch03-runc/rootfs -xf -
+$ docker rm "$cid" >/dev/null
+$ ls /tmp/ch03-runc/rootfs
+bin
+dev
+etc
+home
+lib
+lib64
+proc
+root
+sys
+tmp
+usr
+var
+$ cd /tmp/ch03-runc
+$ runc spec
+$ jq '{args: .process.args, terminal: .process.terminal,
+     root: .root,
+     namespaces: [.linux.namespaces[].type],
+     cgroupsPath: .linux.cgroupsPath}' config.json
+{
+  "args": [
+    "sh"
+  ],
+  "terminal": true,
+  "root": {
+    "path": "rootfs",
+    "readonly": true
+  },
+  "namespaces": [
+    "pid",
+    "network",
+    "ipc",
+    "uts",
+    "mount",
+    "cgroup"
+  ],
+  "cgroupsPath": null
+}
+$ jq '.process.args=["/bin/echo","hello from runc"] | .process.terminal=false' \
+  config.json > config.tmp && mv config.tmp config.json
+$ runc run ch03-oneshot
+hello from runc
+$ runc list
+ID          PID         STATUS      BUNDLE      CREATED     OWNER
+$ jq '.process.args=["/bin/sleep","60"] | .process.terminal=false
+    | .linux.cgroupsPath="ch03-runc"' config.json > config.tmp && mv config.tmp config.json
+$ runc create ch03-runc
+$ runc state ch03-runc | jq '{id, pid, status, bundle, rootfs}'
+{
+  "id": "ch03-runc",
+  "pid": 6484,
+  "status": "created",
+  "bundle": "/tmp/ch03-runc",
+  "rootfs": "/tmp/ch03-runc/rootfs"
+}
+$ runc start ch03-runc
+$ runc state ch03-runc | jq '{id, pid, status, bundle, rootfs}'
+{
+  "id": "ch03-runc",
+  "pid": 6484,
+  "status": "running",
+  "bundle": "/tmp/ch03-runc",
+  "rootfs": "/tmp/ch03-runc/rootfs"
+}
+$ runc exec ch03-runc /bin/echo inside-runc
+inside-runc
+$ runc kill ch03-runc KILL
+$ runc state ch03-runc | jq '{id, pid, status}'
+{
+  "id": "ch03-runc",
+  "pid": 0,
+  "status": "stopped"
+}
+$ runc delete ch03-runc
+$ runc list
+ID          PID         STATUS      BUNDLE      CREATED     OWNER
+$ cd /
+$ rm -rf /tmp/ch03-runc

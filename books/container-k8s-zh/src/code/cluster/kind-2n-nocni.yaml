@@ -1,0 +1,9 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: shorty
+networking:
+  # 第 24 章先看没有 CNI 时节点 NotReady，再装 Calico。
+  disableDefaultCNI: true
+nodes:
+  - role: control-plane
+  - role: worker

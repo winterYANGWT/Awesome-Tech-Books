@@ -1,0 +1,10 @@
+$ docker run -d --name shorty-api -p 18080:8080 shorty:0.1 serve >/dev/null
+$ docker exec shorty-api sh; echo "docker exec 退出码=$?"
+docker exec 退出码=127
+$ docker inspect --format 'Entrypoint={{json .Config.Entrypoint}} Cmd={{json .Config.Cmd}}' shorty-api
+Entrypoint=["/shorty"] Cmd=["serve"]
+$ curl -fsS --retry 30 --retry-all-errors --retry-delay 1 localhost:18080/healthz
+ok
+$ docker cp shorty-api:/shorty /tmp/shorty-api
+$ ls -l /tmp/shorty-api
+-rwxr-xr-x 1 root root 12951712 Oct 27 18:16 /tmp/shorty-api

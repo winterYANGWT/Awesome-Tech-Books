@@ -1,0 +1,25 @@
+$ docker build -q --target alpine -f base-compare.Dockerfile -t shorty:alpine ../app/api >/dev/null
+$ docker build -q --target slim -f base-compare.Dockerfile -t shorty:slim ../app/api >/dev/null
+$ docker build -q --target minimal -f base-compare.Dockerfile -t shorty:scratch ../app/api >/dev/null
+$ for image in shorty:alpine shorty:slim shorty:scratch; do
+    docker image inspect --format '{{index .RepoTags 0}} {{.Size}}' "$image"
+done | awk '{printf "%-18s %6.1f MB\n", $1, $2/1000000}'
+shorty:alpine        30.4 MB
+shorty:slim         202.3 MB
+shorty:scratch       20.3 MB
+$ docker run --rm --entrypoint sh shorty:alpine -c 'echo shell=yes; command -v apk'
+shell=yes
+/sbin/apk
+$ docker run --rm --entrypoint sh shorty:slim -c 'echo shell=yes; command -v apt-get'
+shell=yes
+/usr/bin/apt-get
+$ docker run --rm --entrypoint sh shorty:alpine -c 'ls /lib/ld-musl-*'
+/lib/ld-musl-x86_64.so.1
+$ docker run --rm --entrypoint sh shorty:slim -c 'ldd --version | head -1'
+ldd (Debian GLIBC 2.41-12+deb13u4) 2.41
+$ docker run --rm --entrypoint sh shorty:scratch -c 'echo shell=yes'
+docker: Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: exec: "sh": executable file not found in $PATH
+
+Run 'docker run --help' for more information
+$ docker run --rm shorty:scratch version
+shorty 0.1

@@ -1,0 +1,11 @@
+$ docker run -d --name ch05-writable shorty:dev sleep 300 > /dev/null
+$ docker exec ch05-writable sh -c 'echo "saved in container" > /data.txt; mkdir -p /var/lib/shorty; echo cache > /var/lib/shorty/cache.txt'
+$ docker diff ch05-writable
+A /data.txt
+C /var
+C /var/lib
+A /var/lib/shorty
+A /var/lib/shorty/cache.txt
+$ docker rm -f ch05-writable > /dev/null
+$ docker run --rm shorty:dev sh -c 'ls -l /data.txt'
+ls: cannot access '/data.txt': No such file or directory

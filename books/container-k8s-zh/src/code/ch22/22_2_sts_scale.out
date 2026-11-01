@@ -1,0 +1,32 @@
+$ kubectl -n sts-demo get pod -o custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[0].ready,CREATED:.metadata.creationTimestamp
+NAME         READY   CREATED
+postgres-0   true    2026-10-30T08:43:18Z
+$ kubectl -n sts-demo scale statefulset postgres --replicas=2
+statefulset.apps/postgres scaled
+$ kubectl -n sts-demo rollout status statefulset/postgres --timeout=120s
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 2 new pods have been updated...
+$ kubectl -n sts-demo get pod -o custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[0].ready,CREATED:.metadata.creationTimestamp
+NAME         READY   CREATED
+postgres-0   true    2026-10-30T08:43:18Z
+postgres-1   true    2026-10-30T08:43:49Z
+$ kubectl -n sts-demo get pvc -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,VOLUME:.spec.volumeName
+NAME              STATUS   VOLUME
+data-postgres-0   Bound    pvc-c5ce773a-4ee7-4574-bb99-dafd168d7d06
+data-postgres-1   Bound    pvc-c6c5c2b0-e60c-4953-b841-50872aa5f76a
+$ kubectl -n sts-demo scale statefulset postgres --replicas=1
+statefulset.apps/postgres scaled
+$ kubectl -n sts-demo wait --for=delete pod/postgres-1 --timeout=120s
+pod/postgres-1 condition met
+$ kubectl -n sts-demo wait --for=jsonpath='{.status.readyReplicas}'=1 statefulset/postgres --timeout=60s
+statefulset.apps/postgres condition met
+$ kubectl -n sts-demo get pod,pvc
+NAME             READY   STATUS    RESTARTS   AGE
+pod/postgres-0   1/1     Running   0          67s
+
+NAME                                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/data-postgres-0   Bound    pvc-c5ce773a-4ee7-4574-bb99-dafd168d7d06   1Gi        RWO            standard       <unset>                 102s
+persistentvolumeclaim/data-postgres-1   Bound    pvc-c6c5c2b0-e60c-4953-b841-50872aa5f76a   1Gi        RWO            standard       <unset>                 36s
+$ kubectl -n sts-demo get statefulset postgres -o custom-columns=NAME:.metadata.name,REPLICAS:.spec.replicas,CURRENT:.status.currentReplicas,READY:.status.readyReplicas,STRATEGY:.spec.updateStrategy.type
+NAME       REPLICAS   CURRENT   READY   STRATEGY
+postgres   1          1         1       RollingUpdate

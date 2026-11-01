@@ -1,0 +1,18 @@
+$ kubectl apply -f spread-demo.yaml
+deployment.apps/spread-demo created
+$ kubectl -n shorty rollout status deployment/spread-demo --timeout=180s
+Waiting for deployment "spread-demo" rollout to finish: 0 out of 4 new replicas have been updated...
+Waiting for deployment "spread-demo" rollout to finish: 0 of 4 updated replicas are available...
+Waiting for deployment "spread-demo" rollout to finish: 1 of 4 updated replicas are available...
+Waiting for deployment "spread-demo" rollout to finish: 2 of 4 updated replicas are available...
+Waiting for deployment "spread-demo" rollout to finish: 3 of 4 updated replicas are available...
+deployment "spread-demo" successfully rolled out
+$ kubectl -n shorty get pod -l app=spread-demo -o wide
+NAME                          READY   STATUS    RESTARTS   AGE   IP            NODE             NOMINATED NODE   READINESS GATES
+spread-demo-589ffb74d-7l6j9   1/1     Running   0          1s    10.244.1.11   shorty-worker    <none>           <none>
+spread-demo-589ffb74d-9clj5   1/1     Running   0          1s    10.244.2.10   shorty-worker2   <none>           <none>
+spread-demo-589ffb74d-9pr4r   1/1     Running   0          1s    10.244.2.9    shorty-worker2   <none>           <none>
+spread-demo-589ffb74d-r4mpv   1/1     Running   0          1s    10.244.1.12   shorty-worker    <none>           <none>
+$ kubectl -n shorty get pod -l app=spread-demo -o custom-columns=NODE:.spec.nodeName --no-headers | sort | uniq -c
+      2 shorty-worker
+      2 shorty-worker2

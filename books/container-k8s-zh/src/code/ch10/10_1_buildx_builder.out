@@ -1,0 +1,36 @@
+$ docker buildx ls
+NAME/NODE     DRIVER/ENDPOINT   STATUS    BUILDKIT   PLATFORMS
+default*      docker
+ \_ default    \_ default       running   v0.34.0    linux/amd64 (+4)
+$ docker buildx create --name ch10 --driver docker-container --driver-opt network=host --use
+ch10
+$ docker buildx inspect --bootstrap ch10
+#1 [internal] booting buildkit
+#1 pulling image moby/buildkit:buildx-stable-1
+#1 pulling image moby/buildkit:buildx-stable-1 10.8s done
+#1 creating container buildx_buildkit_ch100
+#1 creating container buildx_buildkit_ch100 0.3s done
+#1 DONE 11.1s
+Name:          ch10
+Driver:        docker-container
+Last Activity: 2026-10-30 08:59:56 +0000 UTC
+
+Nodes:
+Name:                  ch100
+Endpoint:              unix:///var/run/docker.sock
+Driver Options:        network="host"
+Status:                running
+BuildKit daemon flags: --allow-insecure-entitlement=network.host
+BuildKit version:      v0.33.1
+Platforms:             linux/amd64, linux/amd64/v2, linux/amd64/v3, linux/amd64/v4, linux/386
+Labels:
+ org.mobyproject.buildkit.worker.executor:         oci
+ org.mobyproject.buildkit.worker.hostname:         cbook-lab
+ org.mobyproject.buildkit.worker.network:          host
+...（省略 24 行）
+$ docker buildx ls
+NAME/NODE     DRIVER/ENDPOINT                   STATUS    BUILDKIT   PLATFORMS
+ch10*         docker-container
+ \_ ch100      \_ unix:///var/run/docker.sock   running   v0.33.1    linux/amd64 (+4), linux/386
+default       docker
+ \_ default    \_ default                       running   v0.34.0    linux/amd64 (+4)

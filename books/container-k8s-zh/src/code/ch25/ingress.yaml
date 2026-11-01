@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shorty
+  namespace: shorty
+  annotations:
+    # 这两条注解是 ingress-nginx 自己的约定，Gateway API 没有对应字段。
+    nginx.ingress.kubernetes.io/proxy-body-size: "8m"
+    nginx.ingress.kubernetes.io/limit-rps: "10"
+spec:
+  ingressClassName: nginx
+  # TLS 从 25.5 起由 Gateway 提供，这里的 tls 段留给 25.6 的转换对比。
+  tls:
+    - hosts:
+        - shorty.local
+      secretName: shorty-tls
+  rules:
+    - host: shorty.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 80

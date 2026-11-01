@@ -1,0 +1,22 @@
+# 只补 securityContext，Deployment 的其他字段保持 s3-stateful 里的样子。
+# runAsUser/runAsGroup 与 distroless nonroot 镜像里的 65532 对齐；
+# fsGroup 让 Secret 卷和后面挂的卷归到这个组，fsGroupChangePolicy 避免每次挂载都递归 chown。
+spec:
+  template:
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL

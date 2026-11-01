@@ -1,0 +1,14 @@
+[book]
+title = "容器与 Kubernetes 实践"
+description = "从进程讲到集群：按主题重新组织 Docker 与 Kubernetes 的知识，以官方文档为依据、Kubernetes 1.37 和 Docker 29 为基准；每个示例都在实验环境里实际运行过，故障场景附真实输出。"
+authors = ["winterYANGWT"]
+language = "zh-CN"
+src = "src"
+
+[output.html]
+additional-css = ["theme/custom.css"]
+git-repository-url = "https://github.com/winterYANGWT/Awesome-Tech-Books/tree/main/books/container-k8s-zh"
+no-section-label = true
+
+[output.html.search]
+use-boolean-and = true

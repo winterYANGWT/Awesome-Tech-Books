@@ -1,0 +1,14 @@
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+      - secrets
+    providers:
+      # 第一个 provider 用来加密新写入的数据；KMS v2 的插件通过 UNIX socket 访问。
+      - kms:
+          apiVersion: v2
+          name: shorty-kms
+          endpoint: unix:///var/run/kmsplugin/socket.sock
+          timeout: 3s
+      # 回退：读取还没有被 KMS 加密的旧数据；切换到 KMS 后不能省。
+      - identity: {}

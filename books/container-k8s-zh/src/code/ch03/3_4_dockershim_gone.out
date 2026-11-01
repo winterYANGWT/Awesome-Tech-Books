@@ -1,0 +1,19 @@
+$ docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
+NAMES                  IMAGE                  STATUS
+shorty-control-plane   kindest/node:v1.37.0   Up About a minute
+$ NODE=$(kind get nodes --name shorty)
+$ docker exec "$NODE" sh -c 'command -v docker || echo "docker: not found"'
+docker: not found
+$ docker image ls shorty
+IMAGE        ID             DISK USAGE   CONTENT SIZE   EXTRA
+shorty:0.1   fca529b57790       24.3MB         5.58MB
+$ docker exec "$NODE" crictl images | grep -E 'IMAGE|shorty'
+IMAGE                                           TAG                  IMAGE ID            SIZE
+docker.io/library/shorty                        0.1                  3b39acc1c2e43       5.58MB
+$ pod_id=$(docker exec "$NODE" crictl pods --namespace shorty -q)
+$ docker exec "$NODE" crictl ps --pod "$pod_id"
+CONTAINER           IMAGE               CREATED             STATE               NAME                ATTEMPT             POD ID              POD                       NAMESPACE
+2a242b4ba7a50       3b39acc1c2e43       30 seconds ago      Running             app                 0                   fc4dc319eb1a1       shorty-66886646dc-7gsbh   shorty
+$ kubectl get nodes -o wide
+NAME                   STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                       KERNEL-VERSION             CONTAINER-RUNTIME
+shorty-control-plane   Ready    control-plane   57s   v1.37.0   172.19.0.2    <none>        Debian GNU/Linux 13 (trixie)   7.0.0-38-generic (amd64)   containerd://2.3.4

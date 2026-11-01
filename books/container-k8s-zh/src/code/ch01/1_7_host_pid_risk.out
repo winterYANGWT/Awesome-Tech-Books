@@ -1,0 +1,49 @@
+$ docker run --rm lab/busybox:1.37 grep CapEff /proc/self/status
+CapEff:	00000000a80425fb
+$ SHORTY_LISTEN=127.0.0.1:18082 /tmp/ch01-shorty serve >/tmp/ch01-shorty-net.log 2>&1 &
+$ srv=$!
+$ for _ in $(seq 1 50); do
+    curl -fsS http://127.0.0.1:18082/healthz >/dev/null 2>&1 && break
+done
+$ docker run -d --name host-risk --pid=host --network=host lab/busybox:1.37 sleep 600 >/dev/null
+$ echo '--- 容器里看到的进程（宿主 PID namespace）---'
+--- 容器里看到的进程（宿主 PID namespace）---
+$ docker exec host-risk ps -eo pid,ppid,comm | head -12
+PID   PPID  COMMAND
+    1     0 docker-init
+   32     1 dockerd
+ 9327     0 bash
+ 9415  9327 ch01-shorty
+ 9449     1 containerd-shim
+ 9473  9449 sleep
+ 9486  9327 docker
+ 9487  9327 head
+ 9503  9449 runc
+ 9515  9503 ps
+$ echo '--- 容器里的 PID 1 ---'
+--- 容器里的 PID 1 ---
+$ docker exec host-risk cat /proc/1/cmdline | tr '\0' ' '
+docker-init -- dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375
+$ echo
+$ echo '--- 容器里看到 lab 的监听端口 ---'
+--- 容器里看到 lab 的监听端口 ---
+$ docker exec host-risk netstat -ltn | grep 18082
+tcp        0      0 127.0.0.1:18082         0.0.0.0:*               LISTEN
+$ echo '--- 容器直接访问 127.0.0.1:18082 ---'
+--- 容器直接访问 127.0.0.1:18082 ---
+$ docker exec host-risk wget -qO- http://127.0.0.1:18082/healthz
+ok
+$ echo
+$ docker inspect -f 'PidMode={{.HostConfig.PidMode}} NetworkMode={{.HostConfig.NetworkMode}}' host-risk
+PidMode=host NetworkMode=host
+$ echo '--- host-pid 容器的 CapEff ---'
+--- host-pid 容器的 CapEff ---
+$ docker exec host-risk grep CapEff /proc/self/status
+CapEff:	00000000a80425fb
+$ echo '--- --privileged 容器的 CapEff ---'
+--- --privileged 容器的 CapEff ---
+$ docker run --rm --privileged lab/busybox:1.37 grep CapEff /proc/self/status
+CapEff:	000001ffffffffff
+$ docker rm -f host-risk >/dev/null
+$ kill "$srv"
+$ wait "$srv" 2>/dev/null || true

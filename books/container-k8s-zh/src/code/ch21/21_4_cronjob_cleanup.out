@@ -1,0 +1,30 @@
+$ kubectl -n shorty exec -i deploy/postgres -- sh -c 'PGPASSWORD=$(cat /etc/shorty/db_password) psql -U shorty -d shorty' <<'SQL'
+INSERT INTO links (code, url, expires_at)
+VALUES ('expired-demo', 'http://example.com', now() - interval '1 hour')
+ON CONFLICT (code) DO UPDATE SET expires_at = EXCLUDED.expires_at;
+SQL
+INSERT 0 1
+$ kubectl apply -f cronjob-cleanup.yaml
+cronjob.batch/shorty-cleanup created
+$ kubectl -n shorty create job --from=cronjob/shorty-cleanup shorty-cleanup-manual
+job.batch/shorty-cleanup-manual created
+$ kubectl -n shorty wait --for=condition=complete job/shorty-cleanup-manual --timeout=120s
+job.batch/shorty-cleanup-manual condition met
+$ kubectl -n shorty logs job/shorty-cleanup-manual
+cleanup: 删除了 1 条过期链接
+$ for i in $(seq 1 120); do
+  scheduled=$(kubectl -n shorty get jobs -l app.kubernetes.io/name=shorty-cleanup -o name 2>/dev/null \
+    | grep -v 'shorty-cleanup-manual' || true)
+  [ -n "$scheduled" ] && break
+  sleep 1
+done
+$ kubectl -n shorty wait --for=condition=complete "$scheduled" --timeout=120s
+job.batch/shorty-cleanup-29885390 condition met
+$ kubectl -n shorty get cronjob shorty-cleanup -o custom-columns=NAME:.metadata.name,SCHEDULE:.spec.schedule,TIMEZONE:.spec.timeZone,CONCURRENCY:.spec.concurrencyPolicy,DEADLINE:.spec.startingDeadlineSeconds,SUSPEND:.spec.suspend,LASTSCHEDULE:.status.lastScheduleTime
+NAME             SCHEDULE    TIMEZONE   CONCURRENCY   DEADLINE   SUSPEND   LASTSCHEDULE
+shorty-cleanup   * * * * *   Etc/UTC    Forbid        30         false     2026-10-27T17:50:00Z
+$ kubectl -n shorty get jobs -l app.kubernetes.io/name=shorty-cleanup -o json \
+  | jq -r '((["NAME","TRIGGER","OWNER"]), (.items | sort_by(.metadata.name)[] | [.metadata.name, (.metadata.annotations["cronjob.kubernetes.io/instantiate"] // "scheduled"), .metadata.ownerReferences[0].kind])) | @tsv'
+NAME	TRIGGER	OWNER
+shorty-cleanup-29885390	scheduled	CronJob
+shorty-cleanup-manual	manual	CronJob

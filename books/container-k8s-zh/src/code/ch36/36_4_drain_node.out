@@ -1,0 +1,69 @@
+$ kubectl apply -f maintenance-demo.yaml
+deployment.apps/maintenance-demo created
+$ kubectl -n shorty rollout status deployment/maintenance-demo --timeout=120s
+Waiting for deployment "maintenance-demo" rollout to finish: 0 of 4 updated replicas are available...
+Waiting for deployment "maintenance-demo" rollout to finish: 1 of 4 updated replicas are available...
+Waiting for deployment "maintenance-demo" rollout to finish: 2 of 4 updated replicas are available...
+Waiting for deployment "maintenance-demo" rollout to finish: 3 of 4 updated replicas are available...
+deployment "maintenance-demo" successfully rolled out
+$ kubectl -n shorty get pods -o wide | grep -E 'NAME|maintenance-demo'
+NAME                                READY   STATUS      RESTARTS   AGE     IP            NODE             NOMINATED NODE   READINESS GATES
+maintenance-demo-66df8df744-2zxsw   1/1     Running     0          0s      10.244.2.7    shorty-worker2   <none>           <none>
+maintenance-demo-66df8df744-z489b   1/1     Running     0          0s      10.244.2.9    shorty-worker2   <none>           <none>
+maintenance-demo-66df8df744-z87wq   1/1     Running     0          0s      10.244.2.8    shorty-worker2   <none>           <none>
+maintenance-demo-66df8df744-z9q9k   1/1     Running     0          0s      10.244.2.10   shorty-worker2   <none>           <none>
+$ PG_NODE=$(kubectl -n shorty get pod -l app.kubernetes.io/name=postgres \
+  -o jsonpath='{.items[0].spec.nodeName}')
+$ if [ "$PG_NODE" = shorty-worker ]; then TARGET=shorty-worker2; else TARGET=shorty-worker; fi
+$ echo "postgres 在 $PG_NODE，维护 $TARGET"
+postgres 在 shorty-worker，维护 shorty-worker2
+$ kubectl drain "$TARGET" --ignore-daemonsets --delete-emptydir-data --timeout=180s
+node/shorty-worker2 cordoned
+Warning: ignoring DaemonSet-managed Pods: kube-system/kindnet-4ssjq, kube-system/kube-proxy-7fszm
+evicting pod kube-system/metrics-server-84c99cb944-rbnpc
+evicting pod shorty/shorty-migrate-vd4pc
+evicting pod shorty/maintenance-demo-66df8df744-z87wq
+evicting pod shorty/maintenance-demo-66df8df744-z9q9k
+evicting pod shorty/maintenance-demo-66df8df744-2zxsw
+evicting pod shorty/maintenance-demo-66df8df744-z489b
+evicting pod shorty/shorty-gw-nginx-7667b66f67-4kx5g
+evicting pod shorty/redis-789b85c667-62lb9
+evicting pod shorty/api-547fc786f9-n7kf7
+pod/shorty-migrate-vd4pc evicted
+pod/maintenance-demo-66df8df744-z87wq evicted
+pod/maintenance-demo-66df8df744-z489b evicted
+pod/maintenance-demo-66df8df744-2zxsw evicted
+pod/maintenance-demo-66df8df744-z9q9k evicted
+pod/shorty-gw-nginx-7667b66f67-4kx5g evicted
+pod/redis-789b85c667-62lb9 evicted
+pod/metrics-server-84c99cb944-rbnpc evicted
+pod/api-547fc786f9-n7kf7 evicted
+node/shorty-worker2 drained
+$ kubectl get nodes
+NAME                   STATUS                     ROLES           AGE     VERSION
+shorty-control-plane   Ready                      control-plane   5m11s   v1.37.0
+shorty-worker          Ready                      <none>          4m58s   v1.37.0
+shorty-worker2         Ready,SchedulingDisabled   <none>          4m58s   v1.37.0
+$ kubectl -n shorty get pods -o wide | grep -E 'NAME|maintenance-demo'
+NAME                                READY   STATUS            RESTARTS   AGE     IP            NODE            NOMINATED NODE   READINESS GATES
+maintenance-demo-66df8df744-ccgw9   1/1     Running           0          6s      10.244.1.10   shorty-worker   <none>           <none>
+maintenance-demo-66df8df744-gnbnp   1/1     Running           0          6s      10.244.1.15   shorty-worker   <none>           <none>
+maintenance-demo-66df8df744-kl6rr   1/1     Running           0          6s      10.244.1.16   shorty-worker   <none>           <none>
+maintenance-demo-66df8df744-pdfvv   1/1     Running           0          6s      10.244.1.17   shorty-worker   <none>           <none>
+$ kubectl -n shorty get pods --field-selector "spec.nodeName=$TARGET"
+No resources found in shorty namespace.
+$ kubectl uncordon "$TARGET"
+node/shorty-worker2 uncordoned
+$ kubectl get nodes
+NAME                   STATUS   ROLES           AGE     VERSION
+shorty-control-plane   Ready    control-plane   5m11s   v1.37.0
+shorty-worker          Ready    <none>          4m58s   v1.37.0
+shorty-worker2         Ready    <none>          4m58s   v1.37.0
+$ kubectl -n shorty get pods -o wide | grep -E 'NAME|maintenance-demo'
+NAME                                READY   STATUS            RESTARTS   AGE     IP            NODE            NOMINATED NODE   READINESS GATES
+maintenance-demo-66df8df744-ccgw9   1/1     Running           0          7s      10.244.1.10   shorty-worker   <none>           <none>
+maintenance-demo-66df8df744-gnbnp   1/1     Running           0          7s      10.244.1.15   shorty-worker   <none>           <none>
+maintenance-demo-66df8df744-kl6rr   1/1     Running           0          7s      10.244.1.16   shorty-worker   <none>           <none>
+maintenance-demo-66df8df744-pdfvv   1/1     Running           0          7s      10.244.1.17   shorty-worker   <none>           <none>
+$ kubectl -n shorty delete deployment maintenance-demo
+deployment.apps "maintenance-demo" deleted from shorty namespace

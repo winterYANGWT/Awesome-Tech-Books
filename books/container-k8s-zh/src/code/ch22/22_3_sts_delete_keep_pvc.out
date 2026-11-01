@@ -1,0 +1,10 @@
+$ kubectl -n sts-demo delete statefulset postgres --wait=true
+statefulset.apps "postgres" deleted from sts-demo namespace
+$ kubectl -n sts-demo wait --for=delete pod/postgres-0 --timeout=60s
+pod/postgres-0 condition met
+$ kubectl -n sts-demo get pvc
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+data-postgres-0   Bound    pvc-c5ce773a-4ee7-4574-bb99-dafd168d7d06   1Gi        RWO            standard       <unset>                 2m43s
+data-postgres-1   Bound    pvc-c6c5c2b0-e60c-4953-b841-50872aa5f76a   1Gi        RWO            standard       <unset>                 97s
+$ kubectl -n sts-demo get statefulset
+No resources found in sts-demo namespace.

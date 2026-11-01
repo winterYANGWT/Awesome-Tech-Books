@@ -1,0 +1,43 @@
+$ curl -fsS -X POST 'localhost:8080/admin/fault?latency_ms=500' > /dev/null
+$ for _ in 1 2 3; do
+    curl -sS -o /dev/null -w '%{http_code} %{time_total}\n' http://localhost:8080/healthz
+done
+200 0.501485
+200 0.501407
+200 0.501076
+$ curl -fsS -X POST 'localhost:8080/admin/fault?latency_ms=0' > /dev/null
+$ for _ in 1 2 3; do
+    curl -sS -o /dev/null -w '%{http_code} %{time_total}\n' http://localhost:8080/healthz
+done
+200 0.000403
+200 0.000279
+200 0.000354
+$ curl -fsS -X POST 'localhost:8080/admin/fault?error_rate=1' > /dev/null
+$ for _ in 1 2 3; do
+    curl -sS -o /dev/null -w '%{http_code}\n' http://localhost:8080/healthz
+done
+500
+500
+500
+$ curl -fsS -X POST 'localhost:8080/admin/fault?error_rate=0' > /dev/null
+$ pid=$(docker inspect -f '{{.State.Pid}}' shorty-api)
+$ cg=$(awk -F: '{print $3}' "/proc/$pid/cgroup")
+$ before=$(cat "/sys/fs/cgroup$cg/memory.current")
+$ curl -fsS -X POST 'localhost:8080/admin/fault?leak_mb=1' > /dev/null
+$ curl -fsS -o /dev/null http://localhost:8080/
+$ after=$(cat "/sys/fs/cgroup$cg/memory.current")
+$ echo "memory.current: $before -> $after (+$((after - before)) bytes)"
+memory.current: 19156992 -> 20205568 (+1048576 bytes)
+$ curl -fsS -X POST 'localhost:8080/admin/fault?leak_mb=0' > /dev/null
+$ docker restart shorty-api > /dev/null
+$ for _ in $(seq 1 60); do
+    curl -fsS localhost:8080/readyz > /dev/null 2>&1 && break
+    sleep 1
+done
+$ curl -fsS localhost:8080/admin/fault
+{"latency_ms":0,"error_rate":0,"leak_mb":0,"not_ready":false,"crash_after":0,"ignore_sigterm":false}
+$ docker exec shorty-pg psql -U shorty -d shorty -tAc 'select count(*) from links' | sed 's/^/links=/'
+links=1
+$ code=$(docker exec shorty-pg psql -U shorty -d shorty -tAc 'select code from links order by created_at limit 1' | tr -d '[:space:]')
+$ curl -sS -o /dev/null -w "GET /r/$code -> %{http_code}\n" "localhost:8080/r/$code"
+GET /r/jn7spqm -> 302

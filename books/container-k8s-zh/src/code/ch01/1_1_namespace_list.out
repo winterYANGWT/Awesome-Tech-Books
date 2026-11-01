@@ -1,0 +1,42 @@
+$ docker run -d --name ns-demo lab/busybox:1.37 sleep 600 >/dev/null
+$ pid=$(docker inspect -f '{{.State.Pid}}' ns-demo)
+$ echo "容器里的 PID 1 在宿主上是 PID $pid"
+容器里的 PID 1 在宿主上是 PID 8511
+$ printf '%-6s %-12s %-12s %-12s %s\n' ns container host-same-pid host-init result
+ns     container    host-same-pid host-init    result
+$ for ns in pid mnt uts ipc net user; do
+    container=$(docker exec ns-demo stat -Lc %i "/proc/1/ns/$ns")
+    host=$(stat -Lc %i "/proc/$pid/ns/$ns")
+    init=$(stat -Lc %i /proc/1/ns/$ns)
+    if [ "$container" = "$init" ]; then
+        result="shared with host init"
+    else
+        result="separate from host init"
+    fi
+    printf '%-6s %-12s %-12s %-12s %s\n' "$ns" "$container" "$host" "$init" "$result"
+done
+pid    4026533742   4026533742   4026533320   separate from host init
+mnt    4026533439   4026533439   4026533316   separate from host init
+uts    4026533440   4026533440   4026533317   separate from host init
+ipc    4026533633   4026533633   4026533319   separate from host init
+net    4026533744   4026533744   4026533322   separate from host init
+user   4026531837   4026531837   4026531837   shared with host init
+$ echo '--- 容器里看 /proc/1/status ---'
+--- 容器里看 /proc/1/status ---
+$ docker exec ns-demo cat /proc/1/status | grep -E '^(NSpid|CapEff)'
+NSpid:	1
+CapEff:	00000000a80425fb
+$ echo '--- 宿主看同一个进程的 /proc/'"$pid"'/status ---'
+--- 宿主看同一个进程的 /proc/8511/status ---
+$ cat "/proc/$pid/status" | grep -E '^(NSpid|CapEff)'
+NSpid:	8511	1
+CapEff:	00000000a80425fb
+$ echo '--- 容器里的 uname -a ---'
+--- 容器里的 uname -a ---
+$ docker exec ns-demo uname -a
+Linux 565f6a339a01 7.0.0-38-generic #38-Ubuntu SMP PREEMPT_DYNAMIC Fri Sep  4 09:10:14 UTC 2026 x86_64 Linux
+$ echo '--- 宿主的 uname -a ---'
+--- 宿主的 uname -a ---
+$ uname -a
+Linux cbook-lab2 7.0.0-38-generic #38-Ubuntu SMP PREEMPT_DYNAMIC Fri Sep  4 09:10:14 UTC 2026 x86_64 GNU/Linux
+$ docker rm -f ns-demo >/dev/null

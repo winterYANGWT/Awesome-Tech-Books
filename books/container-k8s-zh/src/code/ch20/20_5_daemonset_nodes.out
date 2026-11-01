@@ -1,0 +1,22 @@
+$ kubectl -n shorty apply -f node-agent.yaml
+daemonset.apps/node-agent created
+$ kubectl -n shorty rollout status daemonset/node-agent --timeout=180s
+Waiting for daemon set "node-agent" rollout to finish: 0 of 3 updated pods are available...
+Waiting for daemon set "node-agent" rollout to finish: 1 of 3 updated pods are available...
+daemon set "node-agent" successfully rolled out
+$ kubectl -n shorty get daemonset node-agent
+NAME         DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+node-agent   3         3         3       3            3           <none>          0s
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=node-agent -o wide
+NAME               READY   STATUS    RESTARTS   AGE   IP            NODE                   NOMINATED NODE   READINESS GATES
+node-agent-9b829   1/1     Running   0          0s    10.244.1.9    shorty-worker2         <none>           <none>
+node-agent-jjmmt   1/1     Running   0          0s    10.244.0.5    shorty-control-plane   <none>           <none>
+node-agent-jnkh7   1/1     Running   0          0s    10.244.2.13   shorty-worker          <none>           <none>
+$ kubectl -n shorty get daemonset node-agent -o jsonpath='updateStrategy={.spec.updateStrategy.type} maxUnavailable={.spec.updateStrategy.rollingUpdate.maxUnavailable}{"\n"}'
+updateStrategy=RollingUpdate maxUnavailable=1
+$ kubectl -n shorty get daemonset node-agent -o jsonpath='{.spec.template.spec.tolerations}{"\n"}'
+[{"effect":"NoSchedule","key":"node-role.kubernetes.io/control-plane","operator":"Exists"}]
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=node-agent -o jsonpath='{range .items[*]}{.spec.nodeName}{" scheduler="}{.spec.schedulerName}{" affinity="}{.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchFields[0].key}{"="}{.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchFields[0].values[0]}{"\n"}{end}'
+shorty-worker2 scheduler=default-scheduler affinity=metadata.name=shorty-worker2
+shorty-control-plane scheduler=default-scheduler affinity=metadata.name=shorty-control-plane
+shorty-worker scheduler=default-scheduler affinity=metadata.name=shorty-worker

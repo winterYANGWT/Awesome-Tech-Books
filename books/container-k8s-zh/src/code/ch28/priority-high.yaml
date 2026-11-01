@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: high-priority
+  namespace: shorty
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: shorty-worker2
+  priorityClassName: shorty-api
+  containers:
+    - name: app
+      image: alpine:3.22
+      command: ["sleep", "3600"]
+      resources:
+        requests:
+          cpu: 300m

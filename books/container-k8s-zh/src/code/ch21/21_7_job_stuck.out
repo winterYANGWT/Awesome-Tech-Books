@@ -1,0 +1,20 @@
+$ kubectl apply -f job-stuck.yaml
+job.batch/shorty-stuck created
+$ kubectl -n shorty wait --for=condition=Ready pod -l batch.kubernetes.io/job-name=shorty-stuck --timeout=60s
+pod/shorty-stuck-cqrzq condition met
+$ kubectl -n shorty get job shorty-stuck -o custom-columns=NAME:.metadata.name,ACTIVE:.status.active,SUCCEEDED:.status.succeeded,FAILED:.status.failed
+NAME           ACTIVE   SUCCEEDED   FAILED
+shorty-stuck   1        <none>      <none>
+$ kubectl -n shorty get job shorty-stuck -o jsonpath='conditions={.status.conditions}{"\n"}'
+conditions=
+$ kubectl -n shorty describe job shorty-stuck | sed -n '/^Pods Statuses:/p;/^Conditions:/,/^Events:/p'
+Pods Statuses:    1 Active (0 Ready) / 0 Succeeded / 0 Failed
+$ kubectl -n shorty describe job shorty-stuck | sed -n '/^Events:/,$p' | tail -n 4
+Events:
+  Type    Reason            Age   From            Message
+  ----    ------            ----  ----            -------
+  Normal  SuccessfulCreate  0s    job-controller  Created pod: shorty-stuck-cqrzq
+$ sed -e 's/name: shorty-stuck/name: shorty-stuck-always/' -e 's/restartPolicy: Never/restartPolicy: Always/' job-stuck.yaml | kubectl apply -f -
+The Job "shorty-stuck-always" is invalid: spec.template.spec.restartPolicy: Required value: valid values: "OnFailure", "Never"
+$ kubectl -n shorty delete job shorty-stuck --wait=true
+job.batch "shorty-stuck" deleted from shorty namespace

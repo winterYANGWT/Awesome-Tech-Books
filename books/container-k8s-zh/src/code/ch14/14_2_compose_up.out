@@ -1,0 +1,42 @@
+$ docker compose up -d --build --quiet-build
+...（省略 26 行）
+ Container shorty-postgres-1 Waiting
+ Container shorty-postgres-1 Healthy
+ Container shorty-migrate-1 Starting
+ Container shorty-migrate-1 Started
+ Container shorty-redis-1 Waiting
+ Container shorty-migrate-1 Waiting
+ Container shorty-postgres-1 Waiting
+ Container shorty-migrate-1 Waiting
+ Container shorty-postgres-1 Waiting
+ Container shorty-redis-1 Waiting
+ Container shorty-redis-1 Healthy
+ Container shorty-postgres-1 Healthy
+ Container shorty-migrate-1 Exited
+ Container shorty-redis-1 Healthy
+ Container shorty-migrate-1 Exited
+ Container shorty-worker-1 Starting
+ Container shorty-postgres-1 Healthy
+ Container shorty-api-1 Starting
+ Container shorty-worker-1 Started
+ Container shorty-api-1 Started
+$ for i in $(seq 1 120); do
+  if curl -fsS localhost:8080/readyz >/dev/null 2>&1; then
+    break
+  fi
+  sleep 1
+done
+$ curl -fsS localhost:8080/readyz
+ok
+$ docker compose ps -a --format json | jq -sr '.[] | [.Service, .State, (.Health // "-"), (.ExitCode | tostring)] | @tsv' | sort
+api	running		0
+migrate	exited		0
+postgres	running	healthy	0
+redis	running	healthy	0
+worker	running		0
+$ docker compose logs migrate | tail -n 6
+migrate-1  | migrate: links 表与过期索引已就绪（可重复执行）
+$ docker volume ls --format '{{.Name}}' | grep pgdata
+shorty_pgdata
+$ docker volume inspect shorty_pgdata --format '{{.Name}} driver={{.Driver}}'
+shorty_pgdata driver=local

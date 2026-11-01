@@ -1,0 +1,34 @@
+$ kind load docker-image --name shorty shorty:0.1
+Image: "shorty:0.1" with ID "sha256:9ef3dbf542a41d2c9e1fe098d336d1f1cacdcfb3ff2504f29f943c6f019fa381" not yet present on node "shorty-control-plane", loading...
+$ kubectl apply -f namespace.yaml -f api-deployment.yaml -f api-service.yaml
+namespace/shorty unchanged
+deployment.apps/api created
+service/api created
+$ kubectl -n shorty rollout status deployment/api --timeout=120s
+Waiting for deployment "api" rollout to finish: 0 of 1 updated replicas are available...
+deployment "api" successfully rolled out
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api -o wide
+NAME                   READY   STATUS    RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+api-696cbf7b55-ndbpv   1/1     Running   0          1s    10.244.0.5   shorty-control-plane   <none>           <none>
+$ kubectl -n shorty get service api -o wide
+NAME   TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE   SELECTOR
+api    ClusterIP   10.96.34.96   <none>        8080/TCP   1s    app.kubernetes.io/name=api
+$ kubectl -n shorty get endpointslice -l kubernetes.io/service-name=api
+NAME        ADDRESSTYPE   PORTS   ENDPOINTS    AGE
+api-v6875   IPv4          8080    10.244.0.5   1s
+$ kubectl -n shorty port-forward service/api 18080:8080 >/tmp/ch16-port-forward.log 2>&1 &
+$ pf_pid=$!
+$ cleanup() {
+  kill "$pf_pid" 2>/dev/null || true
+  wait "$pf_pid" 2>/dev/null || true
+}
+$ trap cleanup EXIT
+$ curl -fs --retry 30 --retry-all-errors --retry-delay 1 http://127.0.0.1:18080/healthz
+ok
+$ curl -fsS http://127.0.0.1:18080/ | grep -o '<title>[^<]*</title>'
+<title>Shorty</title>
+$ cleanup
+$ trap - EXIT
+$ kubectl -n shorty get deployment api \
+  -o jsonpath='desired={.spec.replicas} ready={.status.readyReplicas}{"\n"}'
+desired=1 ready=1

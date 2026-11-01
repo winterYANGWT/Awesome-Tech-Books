@@ -1,0 +1,23 @@
+$ docker tag alpine:3.22 ch02-tag:demo
+$ docker image inspect ch02-tag:demo --format 'tag -> {{.Descriptor.digest}} {{.Os}}/{{.Architecture}}'
+tag -> sha256:2e0b81d60597f449baa56dc25d355367869d2dca4cd57e866f1e2b52af3eb55f linux/amd64
+$ docker tag busybox:1.37 ch02-tag:demo
+$ docker image inspect ch02-tag:demo --format 'tag -> {{.Descriptor.digest}} {{.Os}}/{{.Architecture}}'
+tag -> sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e linux/amd64
+$ docker run -d --name ch02-pin "alpine@$(docker image inspect alpine:3.22 --format '{{.Descriptor.digest}}')" sleep 300
+a851003c1799f27020925ae8aba9a9476a8a3b4b8042eece0ed4e8a2d8781dbe
+$ docker tag busybox:1.37 ch02-tag:demo
+$ docker image inspect ch02-tag:demo --format 'now tag -> {{.Descriptor.digest}}'
+now tag -> sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+$ docker exec ch02-pin cat /etc/alpine-release
+3.22.7
+$ docker inspect ch02-pin --format 'container uses {{.Config.Image}}'
+container uses alpine@sha256:2e0b81d60597f449baa56dc25d355367869d2dca4cd57e866f1e2b52af3eb55f
+$ docker rm -f ch02-pin
+ch02-pin
+$ docker image ls --digests shorty
+REPOSITORY   TAG       DIGEST                                                                    IMAGE ID       CREATED         SIZE
+shorty       dev       sha256:358fdb8fd02a1efda2e0527bd4cc0d5c430f404536cde739e16dd24c52004a4a   358fdb8fd02a   2 minutes ago   1.32GB
+shorty       0.1       sha256:d62c00c392ea3f2ec505eb031928810d68babea7649468ee98a830ab7a39bc8a   d62c00c392ea   20 hours ago    24.3MB
+$ docker run --rm "shorty@$(docker image inspect shorty:0.1 --format '{{.Descriptor.digest}}')" version
+shorty dev

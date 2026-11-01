@@ -1,0 +1,26 @@
+$ rm -rf /tmp/ch15-perm
+$ mkdir -p /tmp/ch15-perm
+$ echo secret > /tmp/ch15-perm/secret.txt
+$ chmod 600 /tmp/ch15-perm/secret.txt
+$ chown 1000:1000 /tmp/ch15-perm/secret.txt
+$ docker run --rm --user 65534:65534 -v /tmp/ch15-perm:/data:ro \
+  busybox:1.37 cat /data/secret.txt
+cat: can't open '/data/secret.txt': Permission denied
+$ docker run --rm --user 1000:1000 -v /tmp/ch15-perm:/data:ro \
+  busybox:1.37 cat /data/secret.txt
+secret
+$ kind delete cluster --name shorty >/dev/null 2>&1 || true
+$ docker run --rm \
+  -e DOCKER_HOST=unix:///tmp/ch15-no-such.sock \
+  -e TESTCONTAINERS_RYUK_DISABLED=true \
+  -v "$PWD/testcontainers:/src:ro" \
+  -v ch15-gomod:/go/pkg/mod \
+  -w /src \
+  golang:1.27.3-trixie \
+  go test -mod=readonly -run TestDockerEnvironment ./...
+--- FAIL: TestDockerEnvironment (0.00s)
+    repo_test.go:106: start container with DOCKER_HOST=unix:///tmp/ch15-no-such.sock: generic container: get provider: check host "unix:///tmp/ch15-no-such.sock": docker info: failed to connect to the docker API at unix:///tmp/ch15-no-such.sock; check if the path is correct and if the daemon is running: dial unix /tmp/ch15-no-such.sock: connect: no such file or directory
+        rootless Docker not found, failed to create Docker provider
+FAIL
+FAIL	shortytest	0.007s
+FAIL

@@ -1,0 +1,80 @@
+$ rm -rf /tmp/ch15-watch
+$ mkdir -p /tmp/ch15-watch/html
+$ cat > /tmp/ch15-watch/compose.yaml <<'YAML'
+services:
+  web:
+    build: .
+    image: ch15-watch-web
+    ports:
+      - "18081:80"
+    develop:
+      watch:
+        - action: sync
+          path: ./html
+          target: /usr/share/nginx/html
+          ignore:
+            - "*.tmp"
+YAML
+$ cat > /tmp/ch15-watch/Dockerfile <<'DOCKER'
+FROM nginx:1.29-alpine
+COPY html/ /usr/share/nginx/html/
+DOCKER
+$ cat > /tmp/ch15-watch/html/index.html <<'HTML'
+<!doctype html>
+<html lang="zh-CN">
+  <head><meta charset="utf-8"><title>Shorty watch</title></head>
+  <body><h1>Version 1</h1></body>
+</html>
+HTML
+$ cd /tmp/ch15-watch
+$ docker compose up -d --build
+...（省略 40 行）
+
+#9 resolving provenance for metadata file
+#9 DONE 0.0s
+ Image ch15-watch-web Built
+ Network ch15-watch_default Creating
+ Network ch15-watch_default Creating
+ Network ch15-watch_default Created
+ Network ch15-watch_default Created
+ Container ch15-watch-web-1 Creating
+ Container ch15-watch-web-1 Created
+ Container ch15-watch-web-1 Starting
+ Container ch15-watch-web-1 Started
+$ (
+  set -e
+  docker compose watch --no-up > watch.log 2>&1 &
+  watch_pid=$!
+  trap 'kill $watch_pid 2>/dev/null || true' EXIT
+  for _ in $(seq 1 60); do
+    grep -q 'Watch enabled' watch.log && break
+    sleep 1
+  done
+  grep -q 'Watch enabled' watch.log
+  echo 'watch: enabled'
+  echo ignored > html/ignored.tmp
+  sed -i 's/Version 1/Version 2/' html/index.html
+  for _ in $(seq 1 60); do
+    curl -fsS http://localhost:18081/ 2>/dev/null | grep -q 'Version 2' && break
+    sleep 1
+  done
+  curl -fsS http://localhost:18081/ | grep -o 'Version 2'
+  docker compose exec -T web ls /usr/share/nginx/html
+  kill "$watch_pid"
+  wait "$watch_pid" 2>/dev/null || true
+  trap - EXIT
+  tail -n 10 watch.log
+)
+watch: enabled
+Version 2
+50x.html
+index.html
+Watch enabled
+Syncing service "web" after 2 changes were detected
+$ docker compose down
+ Container ch15-watch-web-1 Stopping
+ Container ch15-watch-web-1 Stopped
+ Container ch15-watch-web-1 Removing
+ Container ch15-watch-web-1 Removed
+ Network ch15-watch_default Removing
+ Network ch15-watch_default Removed

@@ -1,0 +1,20 @@
+$ kubectl apply -f configmap-hot.yaml
+configmap/shorty-runtime created
+pod/cm-dir created
+pod/cm-subpath created
+$ kubectl -n shorty wait --for=condition=Ready pod/cm-dir pod/cm-subpath --timeout=120s
+pod/cm-dir condition met
+pod/cm-subpath condition met
+$ kubectl -n shorty exec cm-dir -- sh -c 'echo "dir file: $(cat /etc/shorty-runtime/app.properties | tr "\n" ",")"; echo "dir env: $(printenv GREETING)"'
+dir file: mode=v1,build=1,
+dir env: hello-v1
+$ kubectl -n shorty exec cm-subpath -- sh -c 'echo "subPath file: $(cat /etc/shorty-runtime/app.properties | tr "\n" ",")"'
+subPath file: mode=v1,build=1,
+$ kubectl -n shorty patch configmap shorty-runtime --type=merge \
+  -p '{"data":{"GREETING":"hello-v2","app.properties":"mode=v2\nbuild=2\n"}}'
+configmap/shorty-runtime patched
+$ kubectl -n shorty exec cm-dir -- sh -c 'echo "dir file: $(cat /etc/shorty-runtime/app.properties | tr "\n" ",")"; echo "dir env: $(printenv GREETING)"'
+dir file: mode=v2,build=2,
+dir env: hello-v1
+$ kubectl -n shorty exec cm-subpath -- sh -c 'echo "subPath file: $(cat /etc/shorty-runtime/app.properties | tr "\n" ",")"'
+subPath file: mode=v1,build=1,

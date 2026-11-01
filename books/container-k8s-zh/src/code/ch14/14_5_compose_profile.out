@@ -1,0 +1,58 @@
+$ docker compose ps -a --services | sort
+api
+migrate
+postgres
+redis
+worker
+$ docker compose --profile tools config --services | sort
+api
+migrate
+postgres
+redis
+tools
+worker
+$ docker compose --profile tools up -d
+...（省略 20 行）
+ Container shorty-migrate-1 Waiting
+ Container shorty-migrate-1 Exited
+ Container shorty-redis-1 Healthy
+ Container shorty-postgres-1 Healthy
+ Container shorty-migrate-1 Exited
+ Container shorty-postgres-1 Healthy
+ Container shorty-redis-1 Healthy
+ Container shorty-tools-1 Started
+$ docker compose --profile tools ps -a --services | sort
+api
+migrate
+postgres
+redis
+tools
+worker
+$ docker compose --profile tools run --rm tools sh -c 'PGPASSWORD=$(cat /run/secrets/db_password) psql -h postgres -U shorty -d shorty -tAc "select count(*) from links"'
+ Container shorty-postgres-1 Running
+ Container shorty-redis-1 Running
+ Container shorty-postgres-1 Waiting
+ Container shorty-redis-1 Waiting
+ Container shorty-redis-1 Healthy
+ Container shorty-postgres-1 Healthy
+ Container shorty-tools-run-529482cb17db Creating
+ Container shorty-tools-run-529482cb17db Created
+0
+$ docker compose -f compose.yaml -f compose.dev.yaml config --format json | jq '.services.api.environment | {SHORTY_LOG_LEVEL, SHORTY_BASE_URL, SHORTY_LISTEN}'
+{
+  "SHORTY_LOG_LEVEL": "debug",
+  "SHORTY_BASE_URL": "http://shorty.localhost",
+  "SHORTY_LISTEN": ":8080"
+}
+$ docker compose --profile tools rm -sf tools
+ Container shorty-tools-1 Stopping
+ Container shorty-tools-1 Stopped
+Going to remove shorty-tools-1
+ Container shorty-tools-1 Removing
+ Container shorty-tools-1 Removed
+$ docker compose ps -a --services | sort
+api
+migrate
+postgres
+redis
+worker

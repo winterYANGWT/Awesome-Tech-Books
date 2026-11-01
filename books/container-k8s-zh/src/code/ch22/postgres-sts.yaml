@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: shorty
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: shorty
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/part-of: shorty
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:18.6-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: shorty
+            - name: POSTGRES_DB
+              value: shorty
+            - name: POSTGRES_PASSWORD_FILE
+              value: /etc/shorty/db_password
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "shorty", "-d", "shorty"]
+            initialDelaySeconds: 2
+            periodSeconds: 3
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql
+            - name: db-secret
+              mountPath: /etc/shorty
+              readOnly: true
+      volumes:
+        - name: db-secret
+          secret:
+            secretName: shorty-db
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

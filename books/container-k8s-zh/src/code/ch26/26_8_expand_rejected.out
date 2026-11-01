@@ -1,0 +1,10 @@
+$ kubectl -n dynamic-demo get pvc auto-pvc -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,REQUEST:.spec.resources.requests.storage,CAPACITY:.status.capacity.storage
+NAME       STATUS   REQUEST   CAPACITY
+auto-pvc   Bound    1Gi       1Gi
+$ kubectl get sc standard -o custom-columns=NAME:.metadata.name,PROVISIONER:.provisioner,ALLOWVOLUMEEXPANSION:.allowVolumeExpansion
+NAME       PROVISIONER             ALLOWVOLUMEEXPANSION
+standard   rancher.io/local-path   <none>
+$ kubectl -n dynamic-demo patch pvc auto-pvc --type=merge -p '{"spec":{"resources":{"requests":{"storage":"2Gi"}}}}'
+Error from server (Forbidden): persistentvolumeclaims "auto-pvc" is forbidden: only dynamically provisioned pvc can be resized and the storageclass that provisions the pvc must support resize
+$ kubectl -n dynamic-demo get pvc auto-pvc -o jsonpath='request={.spec.resources.requests.storage} capacity={.status.capacity.storage}{"\n"}'
+request=1Gi capacity=1Gi

@@ -1,0 +1,57 @@
+$ kind delete cluster --name shorty
+Deleting cluster "shorty" ...
+Deleted nodes: ["shorty-control-plane"]
+$ kind create cluster --name shorty --image "$KIND_NODE_IMAGE" --wait 120s
+Creating cluster "shorty" ...
+ • Ensuring node image (kindest/node:v1.37.0) 🖼️  ...
+ ✓ Ensuring node image (kindest/node:v1.37.0) 🖼️
+ • Preparing nodes 📦   ...
+ ✓ Preparing nodes 📦
+ • Writing configuration 📜  ...
+ ✓ Writing configuration 📜
+ • Starting control-plane 🕹️  ...
+ ✓ Starting control-plane 🕹️
+ • Installing CNI 🔌  ...
+ ✓ Installing CNI 🔌
+ • Installing StorageClass 💾  ...
+ ✓ Installing StorageClass 💾
+ • Waiting ≤ 2m0s for control-plane = Ready ⏳  ...
+ ✓ Waiting ≤ 2m0s for control-plane = Ready ⏳
+ • Ready after 16s 💚
+Set kubectl context to "kind-shorty"
+You can now use your cluster with:
+
+kubectl cluster-info --context kind-shorty
+
+Have a nice day! 👋
+$ kind export kubeconfig --name shorty
+Set kubectl context to "kind-shorty"
+$ kubectl config current-context
+kind-shorty
+$ kubectl cluster-info
+Kubernetes control plane is running at https://127.0.0.1:45765
+CoreDNS is running at https://127.0.0.1:45765/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+$ kubectl get nodes -o wide
+NAME                   STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                       KERNEL-VERSION             CONTAINER-RUNTIME
+shorty-control-plane   Ready    control-plane   20s   v1.37.0   172.19.0.2    <none>        Debian GNU/Linux 13 (trixie)   7.0.0-38-generic (amd64)   containerd://2.3.4
+$ NODE=$(kind get nodes --name shorty)
+$ echo "节点容器：$NODE"
+节点容器：shorty-control-plane
+$ docker inspect --format '{{.Config.Image}}' "$NODE"
+kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+$ docker exec "$NODE" systemctl is-active containerd kubelet
+active
+active
+$ docker exec "$NODE" crictl info | jq -r '.config.containerd.defaultRuntimeName, .config.containerd.runtimes.runc.runtimeType'
+runc
+io.containerd.runc.v2
+$ if docker exec "$NODE" test -S /var/run/docker.sock; then
+  echo "节点里有 Docker socket"
+else
+  echo "节点里没有 Docker daemon socket"
+fi
+节点里没有 Docker daemon socket
+$ docker stats --no-stream --format '{{.Name}}  {{.MemUsage}}' "$NODE"
+shorty-control-plane  766.9MiB / 14.3GiB

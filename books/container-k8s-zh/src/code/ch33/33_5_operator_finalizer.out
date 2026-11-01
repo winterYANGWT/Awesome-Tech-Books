@@ -1,0 +1,20 @@
+$ kubectl -n shorty apply -f shorty-backup-temp.yaml
+shortybackup.shorty.example.com/shorty-backup-temp created
+$ kubectl -n shorty wait --for=jsonpath='{.status.phase}'=Completed shortybackup/shorty-backup-temp --timeout=180s
+shortybackup.shorty.example.com/shorty-backup-temp condition met
+$ kubectl -n shorty get shortybackup shorty-backup-temp -o jsonpath='{.metadata.finalizers[*]}{"\n"}'
+shorty.example.com/backup-cleanup
+$ kubectl -n shorty delete shortybackup shorty-backup-temp --wait=false
+shortybackup.shorty.example.com "shorty-backup-temp" deleted from shorty namespace
+$ kubectl -n shorty wait --for=delete shortybackup/shorty-backup-temp --timeout=60s
+shortybackup.shorty.example.com/shorty-backup-temp condition met
+$ kubectl -n shorty get job shorty-backup-temp-pgdump
+Error from server (NotFound): jobs.batch "shorty-backup-temp-pgdump" not found
+$ kubectl -n shorty get pvc shorty-backup-temp-data
+Error from server (NotFound): persistentvolumeclaims "shorty-backup-temp-data" not found
+$ kubectl -n shorty logs -l app.kubernetes.io/name=shorty-operator --prefix --tail=100 | grep 'cleanup shorty-backup-temp' | tail -2
+[pod/shorty-operator-694d66cbd8-t8dgv/operator] 2026-10-28 07:36:54,137 INFO cleanup shorty-backup-temp: deleted job and pvc, removed finalizer
+$ kubectl -n shorty get shortybackups
+NAME              DATABASE   PHASE       AGE
+shorty-backup     postgres   Completed   100s
+shorty-backup-2   postgres   Completed   50s

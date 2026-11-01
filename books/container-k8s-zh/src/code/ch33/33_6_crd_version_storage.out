@@ -1,0 +1,12 @@
+$ kubectl apply -f crd-v1.yaml
+customresourcedefinition.apiextensions.k8s.io/shortybackups.shorty.example.com configured
+$ kubectl get crd shortybackups.shorty.example.com -o jsonpath='{range .spec.versions[*]}{.name} served={.served} storage={.storage}{"\n"}{end}'
+v1alpha1 served=true storage=false
+v1 served=true storage=true
+$ kubectl get crd shortybackups.shorty.example.com -o jsonpath='{.status.storedVersions}{"\n"}'
+["v1alpha1","v1"]
+$ kubectl --cache-dir=/tmp/ch33-kube-cache-$$ -n shorty get shortybackup shorty-backup -o jsonpath='{.apiVersion} phase={.status.phase}{"\n"}'
+shorty.example.com/v1 phase=Completed
+$ kubectl --cache-dir=/tmp/ch33-kube-cache-$$ -n shorty get shortybackup.v1alpha1.shorty.example.com shorty-backup -o jsonpath='{.apiVersion} phase={.status.phase}{"\n"}'
+Warning: shorty.example.com/v1alpha1 ShortyBackup 已弃用，请改用 shorty.example.com/v1。
+shorty.example.com/v1alpha1 phase=Completed

@@ -1,0 +1,56 @@
+$ kubectl apply -f web-v2.yaml
+configmap/shorty-web-v2 created
+deployment.apps/web-v2 created
+service/web-v2 created
+$ kubectl -n shorty rollout status deployment/web-v2 --timeout=120s
+Waiting for deployment "web-v2" rollout to finish: 0 of 1 updated replicas are available...
+deployment "web-v2" successfully rolled out
+$ kubectl apply -f httproute-weight-90-10.yaml
+httproute.gateway.networking.k8s.io/shorty configured
+$ kubectl -n shorty wait \
+  --for=jsonpath='{.status.parents[0].conditions[?(@.type=="Accepted")].status}'=True \
+  httproute/shorty --timeout=60s
+httproute.gateway.networking.k8s.io/shorty condition met
+$ kubectl -n shorty get httproute
+NAME     HOSTNAMES          AGE
+shorty   ["shorty.local"]   111s
+$ kubectl -n shorty port-forward svc/shorty-gw-nginx 18080:80 >/tmp/ch25-pf-weight.log 2>&1 & PF=$!
+$ for i in $(seq 1 50); do
+  curl -fsS -H 'Host: shorty.local' http://127.0.0.1:18080/canary >/dev/null 2>&1 && break
+  sleep 0.2
+done
+$ for i in $(seq 1 50); do
+  t=$(curl -sS -H 'Host: shorty.local' http://127.0.0.1:18080/canary | sed -n 's:.*<title>\(.*\)</title>.*:\1:p')
+  [ "$t" = "Shorty frontend v2" ] && break
+  sleep 0.2
+done
+$ v1=0; v2=0
+$ for i in $(seq 1 100); do
+  t=$(curl -sS -H 'Host: shorty.local' http://127.0.0.1:18080/canary | sed -n 's:.*<title>\(.*\)</title>.*:\1:p')
+  if [ "$t" = "Shorty frontend v2" ]; then v2=$((v2+1))
+  elif [ "$t" = "Shorty frontend" ]; then v1=$((v1+1)); fi
+done
+$ printf 'v1=%d v2=%d total=%d\n' "$v1" "$v2" "$((v1+v2))"
+v1=89 v2=11 total=100
+$ kubectl apply -f httproute-weight-0-100.yaml
+httproute.gateway.networking.k8s.io/shorty configured
+$ kubectl -n shorty wait \
+  --for=jsonpath='{.status.parents[0].conditions[?(@.type=="Accepted")].status}'=True \
+  httproute/shorty --timeout=60s
+httproute.gateway.networking.k8s.io/shorty condition met
+$ ok=0
+$ for i in $(seq 1 100); do
+  t=$(curl -sS -H 'Host: shorty.local' http://127.0.0.1:18080/canary | sed -n 's:.*<title>\(.*\)</title>.*:\1:p')
+  if [ "$t" = "Shorty frontend v2" ]; then ok=$((ok+1)); else ok=0; fi
+  [ "$ok" -ge 10 ] && break
+  sleep 0.1
+done
+$ v2=0
+$ for i in $(seq 1 20); do
+  t=$(curl -sS -H 'Host: shorty.local' http://127.0.0.1:18080/canary | sed -n 's:.*<title>\(.*\)</title>.*:\1:p')
+  [ "$t" = "Shorty frontend v2" ] && v2=$((v2+1))
+done
+$ echo "v2=$v2/20"
+v2=20/20
+$ kill "$PF"
+$ wait "$PF" 2>/dev/null || true

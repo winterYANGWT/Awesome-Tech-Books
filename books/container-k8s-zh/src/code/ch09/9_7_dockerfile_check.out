@@ -1,0 +1,54 @@
+$ docker build --check -f check.Dockerfile .
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from check.Dockerfile
+#1 transferring dockerfile: 232B done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 0.6s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+#3 resolve docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e 0.0s done
+#3 CACHED
+
+#4 [internal] load metadata for docker.io/library/ubuntu:latest
+#4 DONE 0.8s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 2B done
+#5 DONE 0.0s
+Check complete, 3 warnings have been found!
+
+WARNING: SecretsUsedInArgOrEnv - https://docs.docker.com/go/dockerfile/rule/secrets-used-in-arg-or-env/
+Do not use ARG or ENV instructions for sensitive data (ENV "TOKEN")
+check.Dockerfile:3
+--------------------
+   1 |     # syntax=docker/dockerfile:1
+   2 |     FROM ubuntu:latest
+   3 | >>> ENV TOKEN=shorty-demo-token
+   4 |     ARG PASSWORD=hunter2
+   5 |     MAINTAINER someone@example.com
+--------------------
+
+WARNING: SecretsUsedInArgOrEnv - https://docs.docker.com/go/dockerfile/rule/secrets-used-in-arg-or-env/
+Do not use ARG or ENV instructions for sensitive data (ARG "PASSWORD")
+check.Dockerfile:4
+--------------------
+   2 |     FROM ubuntu:latest
+   3 |     ENV TOKEN=shorty-demo-token
+   4 | >>> ARG PASSWORD=hunter2
+   5 |     MAINTAINER someone@example.com
+   6 |     RUN apt-get update && apt-get install -y curl
+--------------------
+
+WARNING: MaintainerDeprecated - https://docs.docker.com/go/dockerfile/rule/maintainer-deprecated/
+Maintainer instruction is deprecated in favor of using label
+check.Dockerfile:5
+--------------------
+   3 |     ENV TOKEN=shorty-demo-token
+   4 |     ARG PASSWORD=hunter2
+   5 | >>> MAINTAINER someone@example.com
+   6 |     RUN apt-get update && apt-get install -y curl
+   7 |     CMD ["bash"]
+--------------------

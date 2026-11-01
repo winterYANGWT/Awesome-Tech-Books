@@ -1,0 +1,62 @@
+$ kubectl apply -f hpa-api-behavior.yaml
+horizontalpodautoscaler.autoscaling/api configured
+$ kubectl -n shorty get hpa api -o yaml | sed -n '/^  behavior:/,/^  metrics:/p'
+  behavior:
+    scaleDown:
+      policies:
+      - periodSeconds: 30
+        type: Pods
+        value: 1
+      selectPolicy: Max
+      stabilizationWindowSeconds: 120
+    scaleUp:
+      policies:
+      - periodSeconds: 15
+        type: Pods
+        value: 4
+      - periodSeconds: 15
+        type: Percent
+        value: 100
+      selectPolicy: Max
+      stabilizationWindowSeconds: 0
+  maxReplicas: 5
+  metrics:
+$ kubectl -n shorty scale deployment api --replicas=2
+deployment.apps/api scaled
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+deployment "api" successfully rolled out
+$ kubectl delete job loadgen -n shorty --ignore-not-found
+$ kubectl apply -f loadgen-job.yaml
+job.batch/loadgen created
+$ kubectl -n shorty wait --for=condition=Ready pod -l app.kubernetes.io/name=loadgen --timeout=120s
+pod/loadgen-hgqwt condition met
+$ for i in $(seq 1 24); do
+  current=$(kubectl -n shorty get hpa api -o jsonpath='{.status.currentReplicas}')
+  echo "scale-up current=$current"
+  [ "$current" = "4" ] && break
+  sleep 5
+done
+scale-up current=4
+$ kubectl delete job loadgen -n shorty --wait=true
+job.batch "loadgen" deleted from shorty namespace
+$ start=$SECONDS
+$ for i in $(seq 1 14); do
+  read -r current desired cpu < <(kubectl -n shorty get hpa api \
+    -o jsonpath='{.status.currentReplicas} {.status.desiredReplicas} {.status.currentMetrics[0].resource.current.averageUtilization}')
+  printf 't=%03ds current=%s desired=%s cpu=%s%%\n' "$((SECONDS - start))" "$current" "$desired" "${cpu:-unknown}"
+  [ "$current" = "2" ] && break
+  sleep 20
+done
+t=000s current=4 desired=4 cpu=74%
+t=020s current=4 desired=4 cpu=16%
+t=040s current=4 desired=4 cpu=8%
+t=060s current=4 desired=4 cpu=2%
+t=080s current=4 desired=4 cpu=2%
+t=100s current=4 desired=4 cpu=2%
+t=120s current=4 desired=3 cpu=2%
+t=140s current=3 desired=3 cpu=2%
+t=160s current=3 desired=2 cpu=2%
+t=180s current=2 desired=2 cpu=2%
+$ kubectl get hpa api -n shorty
+NAME   REFERENCE        TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+api    Deployment/api   cpu: 2%/50%   2         5         2          8m6s

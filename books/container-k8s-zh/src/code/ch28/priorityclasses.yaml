@@ -1,0 +1,15 @@
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: shorty-low
+value: -10
+globalDefault: false
+description: "低优先级的可抢占实验负载，只用于第 28 章。"
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: shorty-api
+value: 1000
+globalDefault: false
+description: "shorty api 的优先级；低于系统组件的 2000000000 级别。"

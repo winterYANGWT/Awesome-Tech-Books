@@ -1,0 +1,20 @@
+$ docker exec shorty-control-plane grep -E 'audit-(policy-file|log-path|log-maxage|log-maxbackup|log-maxsize)' \
+  /etc/kubernetes/manifests/kube-apiserver.yaml
+    - --audit-log-maxage=1
+    - --audit-log-maxbackup=2
+    - --audit-log-maxsize=50
+    - --audit-log-path=/var/log/kubernetes/audit/audit.log
+    - --audit-policy-file=/etc/kubernetes/audit-policy.yaml
+$ ls -l /tmp/ch32-audit-log/audit.log
+-rw------- 1 root root 3773695 Oct 28 05:27 /tmp/ch32-audit-log/audit.log
+$ kubectl -n shorty get secret shorty-db -o jsonpath='{.metadata.name}{"\n"}'
+shorty-db
+$ jq -c 'select(.objectRef.resource == "secrets" and .objectRef.name == "shorty-db")
+       | {user: .user.username, verb, resource: .objectRef.resource,
+          name: .objectRef.name, code: .responseStatus.code}' \
+  /tmp/ch32-audit-log/audit.log | tail -n 1
+{"user":"kubernetes-admin","verb":"get","resource":"secrets","name":"shorty-db","code":200}
+$ jq -c 'select(.objectRef.resource == "secrets" and .objectRef.name == "shorty-db")
+       | {level, hasRequest: (.requestObject != null), hasResponse: (.responseObject != null)}' \
+  /tmp/ch32-audit-log/audit.log | tail -n 1
+{"level":"Metadata","hasRequest":false,"hasResponse":false}

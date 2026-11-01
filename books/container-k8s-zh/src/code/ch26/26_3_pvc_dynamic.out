@@ -1,0 +1,35 @@
+$ kubectl get sc
+NAME                 PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+standard (default)   rancher.io/local-path   Delete          WaitForFirstConsumer   false                  2m59s
+$ kubectl get sc standard -o custom-columns=NAME:.metadata.name,PROVISIONER:.provisioner,RECLAIM:.reclaimPolicy,BINDING:.volumeBindingMode,EXPANSION:.allowVolumeExpansion
+NAME       PROVISIONER             RECLAIM   BINDING                EXPANSION
+standard   rancher.io/local-path   Delete    WaitForFirstConsumer   <none>
+$ kubectl get sc standard -o jsonpath='{.metadata.annotations}{"\n"}'
+{"kubectl.kubernetes.io/last-applied-configuration":"{\"apiVersion\":\"storage.k8s.io/v1\",\"kind\":\"StorageClass\",\"metadata\":{\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"true\"},\"name\":\"standard\"},\"provisioner\":\"rancher.io/local-path\",\"reclaimPolicy\":\"Delete\",\"volumeBindingMode\":\"WaitForFirstConsumer\"}\n","storageclass.kubernetes.io/is-default-class":"true"}
+$ kubectl apply -f dynamic-pvc.yaml
+namespace/dynamic-demo created
+persistentvolumeclaim/auto-pvc created
+$ kubectl -n dynamic-demo get pvc auto-pvc -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,VOLUME:.spec.volumeName,CLASS:.spec.storageClassName
+NAME       STATUS    VOLUME   CLASS
+auto-pvc   Pending   <none>   standard
+$ kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                     STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+manual-pv                                  1Gi        RWO            Retain           Bound    storage-demo/manual-pvc   manual         <unset>                          31s
+pvc-5b4aeca1-b954-44af-bb26-6735568dc047   1Gi        RWO            Delete           Bound    vol-demo/keep-data        standard       <unset>                          94s
+pvc-74b0b8c3-18cd-4f4d-b787-a8a0becd91df   1Gi        RWO            Delete           Bound    shorty/data-postgres-0    standard       <unset>                          2m22s
+$ kubectl apply -f dynamic-pod.yaml
+pod/auto-pod created
+$ kubectl -n dynamic-demo wait --for=condition=Ready pod/auto-pod --timeout=120s
+pod/auto-pod condition met
+$ kubectl -n dynamic-demo get pvc auto-pvc -o custom-columns=NAME:.metadata.name,STATUS:.status.phase,VOLUME:.spec.volumeName,CAPACITY:.status.capacity.storage,CLASS:.spec.storageClassName
+NAME       STATUS   VOLUME                                     CAPACITY   CLASS
+auto-pvc   Bound    pvc-53e46658-478e-452f-9549-c03e994d68ad   1Gi        standard
+$ kubectl get sc,pv,pvc
+NAME                                             PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+storageclass.storage.k8s.io/standard (default)   rancher.io/local-path   Delete          WaitForFirstConsumer   false                  3m4s
+
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                     STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+persistentvolume/manual-pv                                  1Gi        RWO            Retain           Bound    storage-demo/manual-pvc   manual         <unset>                          36s
+persistentvolume/pvc-53e46658-478e-452f-9549-c03e994d68ad   1Gi        RWO            Delete           Bound    dynamic-demo/auto-pvc     standard       <unset>                          2s
+persistentvolume/pvc-5b4aeca1-b954-44af-bb26-6735568dc047   1Gi        RWO            Delete           Bound    vol-demo/keep-data        standard       <unset>                          99s
+persistentvolume/pvc-74b0b8c3-18cd-4f4d-b787-a8a0becd91df   1Gi        RWO            Delete           Bound    shorty/data-postgres-0    standard       <unset>                          2m27s

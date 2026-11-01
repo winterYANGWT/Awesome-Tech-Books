@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: api-pod
+  namespace: shorty
+  labels:
+    app.kubernetes.io/name: api-pod
+    app.kubernetes.io/part-of: shorty
+spec:
+  containers:
+    - name: api
+      image: shorty:0.1
+      imagePullPolicy: IfNotPresent
+      args: ["serve"]
+      ports:
+        - name: http
+          containerPort: 8080
+      envFrom:
+        - configMapRef:
+            name: shorty-config

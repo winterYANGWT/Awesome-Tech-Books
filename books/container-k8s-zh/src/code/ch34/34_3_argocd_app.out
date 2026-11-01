@@ -1,0 +1,91 @@
+$ helm repo add argo https://argoproj.github.io/argo-helm >/dev/null
+$ helm upgrade --install argocd argo/argo-cd --version 10.11.6 \
+    -n argocd --create-namespace -f argocd-values.yaml --wait --timeout 480s
+Release "argocd" does not exist. Installing it now.
+NAME: argocd
+LAST DEPLOYED: Wed Oct 28 09:59:23 2026
+NAMESPACE: argocd
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+Argo CD server is disabled (Argo CD Core installation): there is no UI or API server.
+Use the CLI in core mode against the cluster instead:
+
+  kubectl config set-context --current --namespace=argocd
+  argocd login --core
+  argocd app list
+
+See https://argo-cd.readthedocs.io/en/stable/operator-manual/core/
+$ kubectl -n argocd get deploy,statefulset,pod
+NAME                                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/argocd-applicationset-controller   1/1     1            1           13s
+deployment.apps/argocd-redis                       1/1     1            1           13s
+deployment.apps/argocd-repo-server                 1/1     1            1           13s
+
+NAME                                             READY   AGE
+statefulset.apps/argocd-application-controller   1/1     13s
+
+NAME                                                    READY   STATUS      RESTARTS   AGE
+pod/argocd-application-controller-0                     1/1     Running     0          13s
+pod/argocd-applicationset-controller-644d9d97cf-7z26n   1/1     Running     0          13s
+pod/argocd-redis-7654d65475-7m8gr                       1/1     Running     0          13s
+pod/argocd-redis-secret-init-zxgsv                      0/1     Completed   0          16s
+pod/argocd-repo-server-6648ddcb94-twg4d                 1/1     Running     0          13s
+$ kubectl apply -f gitea.yaml
+namespace/git created
+deployment.apps/gitea created
+service/gitea created
+$ kubectl -n git rollout status deploy/gitea --timeout=180s
+Waiting for deployment "gitea" rollout to finish: 0 of 1 updated replicas are available...
+deployment "gitea" successfully rolled out
+$ kubectl -n git get pods
+NAME                     READY   STATUS    RESTARTS   AGE
+gitea-85fff7664c-gnxbm   1/1     Running   0          5s
+$ kubectl -n git exec deploy/gitea -- su-exec git gitea admin user create \
+    --admin --username git --password shorty-git \
+    --email git@shorty.local --must-change-password=false
+New user 'git' has been successfully created!
+$ REPO=/book/build/scratch/ch34/repo
+$ rm -rf "$REPO"
+$ mkdir -p "$REPO"
+$ cp -r kustomize/base kustomize/overlays "$REPO/"
+$ git -C "$REPO" init -b main >/dev/null
+$ git -C "$REPO" add -A
+$ git -C "$REPO" -c user.name=book -c user.email=book@example.com \
+    commit -q -m "shorty: base + dev/prod overlay"
+$ kubectl -n git port-forward svc/gitea 3000:3000 >/tmp/ch34-gitea-pf.log 2>&1 &
+$ GITEA_PF=$!
+$ curl -fsS --retry 60 --retry-delay 1 --retry-all-errors \
+    http://127.0.0.1:3000/api/healthz >/dev/null 2>&1
+$ curl -fsS -u git:shorty-git -H 'Content-Type: application/json' \
+    -d '{"name":"shorty-deploy","private":false,"auto_init":false}' \
+    http://127.0.0.1:3000/api/v1/user/repos | jq -r '.full_name'
+git/shorty-deploy
+$ git -C "$REPO" push -q \
+    http://git:shorty-git@127.0.0.1:3000/git/shorty-deploy.git main
+$ kill "$GITEA_PF" 2>/dev/null || true
+$ kubectl apply -f argocd-project.yaml
+appproject.argoproj.io/default created
+$ kubectl apply -f application.yaml
+application.argoproj.io/shorty created
+$ kubectl -n argocd wait --for=jsonpath='{.status.sync.status}'=Synced application/shorty --timeout=240s
+application.argoproj.io/shorty condition met
+$ kubectl -n shorty rollout status deploy/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "api" rollout to finish: 1 old replicas are pending termination...
+deployment "api" successfully rolled out
+$ kubectl -n argocd annotate application shorty argocd.argoproj.io/refresh=normal --overwrite >/dev/null
+$ kubectl -n argocd wait --for=jsonpath='{.status.health.status}'=Healthy application/shorty --timeout=120s
+application.argoproj.io/shorty condition met
+$ kubectl -n argocd get application shorty \
+    -o custom-columns=NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status
+NAME     SYNC     HEALTH
+shorty   Synced   Healthy
+$ kubectl -n shorty get deploy api \
+    -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+localhost:5000/shorty:0.1

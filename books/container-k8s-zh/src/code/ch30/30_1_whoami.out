@@ -1,0 +1,33 @@
+$ kubectl auth whoami
+ATTRIBUTE                                           VALUE
+Username                                            kubernetes-admin
+Groups                                              [kubeadm:cluster-admins system:authenticated]
+Extra: authentication.kubernetes.io/credential-id   [X509SHA256=3227ed599bc3bcda296acc1feb272cd141bec8dbfecbe0821e50cc5d089dfc48]
+$ kubectl config view --minify
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://127.0.0.1:37969
+  name: kind-shorty
+contexts:
+- context:
+    cluster: kind-shorty
+    user: kind-shorty
+  name: kind-shorty
+current-context: kind-shorty
+kind: Config
+users:
+- name: kind-shorty
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED
+$ kubectl get clusterrolebinding kubeadm:cluster-admins \
+  -o jsonpath='{.roleRef.name}{"\n"}{.subjects[0].kind}/{.subjects[0].name}{"\n"}'
+cluster-admin
+Group/kubeadm:cluster-admins
+$ kubectl auth can-i '*' '*' --all-namespaces
+yes
+$ kubectl create -f sar-anonymous.yaml \
+  -o jsonpath='{.status.allowed}{"\n"}'
+false

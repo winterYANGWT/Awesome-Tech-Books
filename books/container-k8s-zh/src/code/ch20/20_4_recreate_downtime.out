@@ -1,0 +1,29 @@
+$ kubectl -n shorty patch deployment api --type=json -p='[{"op":"replace","path":"/spec/strategy/type","value":"Recreate"},{"op":"remove","path":"/spec/strategy/rollingUpdate"}]'
+deployment.apps/api patched
+$ kubectl -n shorty get deployment api -o jsonpath='strategy={.spec.strategy.type}{"\n"}'
+strategy=Recreate
+$ kubectl -n shorty exec client -- sh -c 'rm -f /tmp/stop; i=0; while [ ! -f /tmp/stop ]; do if wget -q -O /dev/null -T 1 http://api:8080/healthz; then echo ok; else echo fail; fi; i=$((i+1)); sleep 0.1; done; echo "requests=$i"' > /tmp/ch20_recreate.log 2>&1 &
+$ LOOP=$!
+$ kubectl -n shorty set image deployment/api api=shorty:0.1
+deployment.apps/api image updated
+$ kubectl -n shorty rollout status deployment/api --timeout=180s
+Waiting for deployment "api" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 out of 2 new replicas have been updated...
+Waiting for deployment "api" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "api" rollout to finish: 0 of 2 updated replicas are available...
+Waiting for deployment "api" rollout to finish: 0 of 2 updated replicas are available...
+deployment "api" successfully rolled out
+$ kubectl -n shorty exec client -- touch /tmp/stop
+$ wait "$LOOP"
+$ awk '/^ok$/{ok++} /^fail$/{fail++} END{printf "ok=%d fail=%d\n", ok, fail}' /tmp/ch20_recreate.log
+ok=84 fail=2
+$ kubectl -n shorty get pods -l app.kubernetes.io/name=api
+NAME                   READY   STATUS    RESTARTS   AGE
+api-6f96d65cbd-59vx6   1/1     Running   0          6s
+api-6f96d65cbd-pwhcp   1/1     Running   0          6s
+$ kubectl -n shorty patch deployment api --type=json -p='[{"op":"replace","path":"/spec/strategy/type","value":"RollingUpdate"},{"op":"add","path":"/spec/strategy/rollingUpdate","value":{"maxSurge":1,"maxUnavailable":1}}]'
+deployment.apps/api patched
+$ kubectl -n shorty get deployment api -o jsonpath='strategy={.spec.strategy.type} maxSurge={.spec.strategy.rollingUpdate.maxSurge} maxUnavailable={.spec.strategy.rollingUpdate.maxUnavailable}{"\n"}'
+strategy=RollingUpdate maxSurge=1 maxUnavailable=1

@@ -1,0 +1,40 @@
+# 迁移前写入固定的几行数据，方便对比迁移前后的行数。
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pg-seed
+  namespace: shorty
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pg-seed
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: psql
+          image: postgres:18.6-alpine
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -eu
+              export PGPASSWORD="$(cat /etc/shorty/db_password)"
+              psql -h postgres -U shorty -d shorty -v ON_ERROR_STOP=1 <<'SQL'
+              INSERT INTO links (code, url, clicks, title, created_at)
+              VALUES ('mig-001', 'http://api:8080/', 1, 'Shorty', now()),
+                     ('mig-002', 'http://api:8080/', 2, 'Shorty', now()),
+                     ('mig-003', 'http://api:8080/', 3, 'Shorty', now())
+              ON CONFLICT (code) DO NOTHING;
+              SQL
+              echo -n 'links rows: '
+              psql -h postgres -U shorty -d shorty -tAc 'SELECT count(*) FROM links'
+          volumeMounts:
+            - name: db-secret
+              mountPath: /etc/shorty
+              readOnly: true
+      volumes:
+        - name: db-secret
+          secret:
+            secretName: shorty-db

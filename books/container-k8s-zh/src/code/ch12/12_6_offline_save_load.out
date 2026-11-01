@@ -1,0 +1,20 @@
+$ before=$(docker image inspect --format '{{.Id}}' shorty:0.1)
+$ printf 'before=%s\n' "$before"
+before=sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c
+$ docker save -o /tmp/shorty-0.1.tar shorty:0.1
+$ printf 'tar 已生成\n'
+tar 已生成
+$ docker image rm shorty:0.1
+Untagged: shorty:0.1
+$ docker load -i /tmp/shorty-0.1.tar
+Loaded image: shorty:0.1
+$ after=$(docker image inspect --format '{{.Id}}' shorty:0.1)
+$ printf 'after=%s\n' "$after"
+after=sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c
+$ [ "$before" = "$after" ] && echo 'digest 相同'
+digest 相同
+$ docker image ls --format '{{.Repository}}:{{.Tag}}' shorty
+shorty:0.1
+$ docker image inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' shorty:0.1
+shorty@sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c
+localhost:5000/shorty@sha256:2369837baf58b7bfcfc2a481a8a9846a03578a7a5b8e987445e85feee22a416c

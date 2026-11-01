@@ -1,0 +1,30 @@
+$ kubectl apply -f job-fail-sql.yaml
+job.batch/shorty-fail-sql created
+$ kubectl -n shorty wait --for=condition=failed job/shorty-fail-sql --timeout=150s
+job.batch/shorty-fail-sql condition met
+$ kubectl -n shorty get job shorty-fail-sql -o 'custom-columns=NAME:.metadata.name,ACTIVE:.status.active,SUCCEEDED:.status.succeeded,FAILED:.status.failed,CONDITION:.status.conditions[?(@.type=="Failed")].reason'
+NAME              ACTIVE   SUCCEEDED   FAILED   CONDITION
+shorty-fail-sql   <none>   <none>      3        BackoffLimitExceeded
+$ kubectl -n shorty get pods -l batch.kubernetes.io/job-name=shorty-fail-sql -o custom-columns=NAME:.metadata.name,PHASE:.status.phase,RESTARTS:.status.containerStatuses[0].restartCount,EXITCODE:.status.containerStatuses[0].state.terminated.exitCode
+NAME                    PHASE    RESTARTS   EXITCODE
+shorty-fail-sql-b2ftv   Failed   0          1
+shorty-fail-sql-tsrfb   Failed   0          1
+shorty-fail-sql-zd4gh   Failed   0          1
+$ kubectl -n shorty describe job shorty-fail-sql | sed -n '/^Events:/,$p' | tail -n 10
+Events:
+  Type     Reason                Age   From            Message
+  ----     ------                ----  ----            -------
+  Normal   SuccessfulCreate      33s   job-controller  Created pod: shorty-fail-sql-tsrfb
+  Normal   SuccessfulCreate      22s   job-controller  Created pod: shorty-fail-sql-b2ftv
+  Normal   SuccessfulCreate      2s    job-controller  Created pod: shorty-fail-sql-zd4gh
+  Warning  BackoffLimitExceeded  0s    job-controller  Job has reached the specified backoff limit
+$ kubectl -n shorty logs -l batch.kubernetes.io/job-name=shorty-fail-sql --tail=4 --prefix
+[pod/shorty-fail-sql-b2ftv/psql] ERROR:  relation "table_that_does_not_exist" does not exist
+[pod/shorty-fail-sql-b2ftv/psql] LINE 1: SELECT * FROM table_that_does_not_exist
+[pod/shorty-fail-sql-b2ftv/psql]                       ^
+[pod/shorty-fail-sql-tsrfb/psql] ERROR:  relation "table_that_does_not_exist" does not exist
+[pod/shorty-fail-sql-tsrfb/psql] LINE 1: SELECT * FROM table_that_does_not_exist
+[pod/shorty-fail-sql-tsrfb/psql]                       ^
+[pod/shorty-fail-sql-zd4gh/psql] ERROR:  relation "table_that_does_not_exist" does not exist
+[pod/shorty-fail-sql-zd4gh/psql] LINE 1: SELECT * FROM table_that_does_not_exist
+[pod/shorty-fail-sql-zd4gh/psql]                       ^
