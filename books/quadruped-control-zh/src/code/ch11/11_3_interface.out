@@ -1,0 +1,21 @@
+=== 话题统计 ===
+仿真时长 2.0 s，控制周期 2 ms，看门狗 0.50 s
+/odom          发布 101 帧，中位间隔  20.00 ms，约  50.0 Hz
+/tf            发布 101 帧，中位间隔  20.00 ms，约  50.0 Hz
+/cmd_vel       发布  29 帧，中位间隔  50.00 ms，约  20.0 Hz
+/joint_states  发布 201 帧，中位间隔  10.00 ms，约 100.0 Hz
+/scan          发布  21 帧，中位间隔 100.00 ms，约  10.0 Hz
+=== 看门狗 ===
+最后一条 /cmd_vel 在 0.95 s，暂停 0.60 s
+清零事件 [1.456]，恢复到 0.30 m/s 的指令在 1.60 s
+=== TF 链 ===
+链 odom -> base -> front_cam：base 在 (0.60, 0.04)，yaw 0.20 rad
+base -> front_cam 平移 0.250 m，yaw 0.00 rad
+断裂测试：点云 frame_id=camera_link，可用链 front_cam；lookup(base, camera_link) = None
+断裂帧数 20（10 Hz × 2 s 应全断）
+修正后 frame_id=front_cam：lookup 成功，平移 0.250 m
+=== joint_states ===
+关节数 12，名称匹配 URDF：12/12
+故意写错第一个名字为 FR_hip：未知关节 ['FR_hip']
+/scan 时间戳年龄：均值 40.0 ms，最大 40.0 ms
+图 11-5 导航—控制器接口的 TF 树与发布时序
