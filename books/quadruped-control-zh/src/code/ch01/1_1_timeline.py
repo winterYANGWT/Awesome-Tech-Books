@@ -1,5 +1,5 @@
 # expect: 样本机型数: 12
-# expect: 电机驱动占比: 10/12 = 83.3%
+# expect: 电机驱动占比: 9/12 = 75.0%
 # expect: 开源机型数: 1
 """Draw the 2013-2024 quadruped timeline and the drive/form comparison.
 
@@ -28,7 +28,7 @@ from matplotlib.lines import Line2D
 MACHINES = [
     (2013, "Boston Dynamics", "Atlas", "hydraulic", "biped", False, "液压双足"),
     (2015, "IIT", "HyQ2Max", "hydraulic", "quadruped", False, "液压四足"),
-    (2015, "Boston Dynamics", "Spot", "electric", "quadruped", False, "场景测试"),
+    (2015, "Boston Dynamics", "Spot", "hydraulic", "quadruped", False, "液压原型"),
     (2016, "ETH", "ANYmal", "electric", "quadruped", False, "工业巡检"),
     (2017, "Unitree", "Laikago", "electric", "quadruped", False, "公开零售"),
     (2018, "MIT", "Cheetah 3", "electric", "quadruped", False, "高动态"),
