@@ -2,6 +2,8 @@
 # Assemble the whole GitHub Pages site into one directory.
 # Books under books/<name>/ are mdBook sources and are built to <name>/;
 # everything else (index.html, rust-book-zh/) is copied as committed.
+# The shared reader/ assets are then copied in and injected into every
+# reading page.
 # Used by .github/workflows/pages.yml; also works locally for a preview.
 #   usage: scripts/build-site.sh [out-dir]   (default _site; needs mdbook on PATH)
 set -euo pipefail
@@ -27,5 +29,9 @@ for book in "$ROOT"/books/*/; do
     # The licence texts travel with the book, as its copyright page promises.
     cp "$book"LICENSE* "$OUT/$name/"
 done
+
+# Shared reader assets: copy them in and inject them into every content page.
+cp -r "$ROOT/reader" "$OUT/reader"
+python3 "$ROOT/scripts/inject-reader.py" "$OUT"
 
 echo "==> site written to $OUT ($(find "$OUT" -type f | wc -l) files, $(du -sh "$OUT" | cut -f1))"

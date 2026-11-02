@@ -1,0 +1,93 @@
+/* Reading width controls and visited-page markers. */
+
+.atb-reader-panel {
+    position: fixed;
+    top: var(--menu-bar-height);
+    inset-inline-end: 15px;
+    z-index: 1000;
+    box-sizing: border-box;
+    width: min(26rem, calc(100vw - 3rem));
+    padding: 1.2rem 1.4rem 1.4rem;
+    color: var(--fg);
+    background: var(--theme-popup-bg);
+    border: 1px solid var(--theme-popup-border);
+    border-radius: 4px;
+    font-size: 1.4rem;
+    line-height: 1.5;
+}
+
+.atb-reader-panel[hidden] {
+    display: none;
+}
+
+.atb-reader-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.atb-reader-row label {
+    font-weight: 600;
+}
+
+.atb-reader-panel output {
+    color: var(--icons);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.atb-reader-range {
+    display: block;
+    width: 100%;
+    margin: 1rem 0 1.2rem;
+    accent-color: var(--links);
+}
+
+.atb-reader-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.atb-reader-reset {
+    padding: 0.35em 0.8em;
+    color: var(--fg);
+    background: var(--theme-popup-bg);
+    border: 1px solid var(--theme-popup-border);
+    border-radius: 4px;
+    font: inherit;
+    cursor: pointer;
+}
+
+.atb-reader-reset:hover {
+    background: var(--theme-hover);
+}
+
+.atb-reader-toggle:focus-visible,
+.atb-reader-range:focus-visible,
+.atb-reader-reset:focus-visible {
+    outline: 2px solid var(--links);
+    outline-offset: 2px;
+}
+
+#mdbook-sidebar a.atb-visited::after {
+    content: "✓";
+    margin-inline-start: 0.4em;
+    font-size: 0.85em;
+    opacity: 0.55;
+}
+
+@media only screen and (min-width: 1081px) {
+    #mdbook-sidebar-toggle-anchor:not(:checked) ~ .page-wrapper .content main { max-width: min(var(--content-max-width), calc(100% - 220px)); }
+}
+
+@media only screen and (min-width: 1381px) {
+    #mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper .content main { max-width: min(var(--content-max-width), calc(100% - 220px)); }
+}
+
+@media print {
+    .atb-reader-toggle,
+    .atb-reader-panel {
+        display: none !important;
+    }
+}

@@ -24,9 +24,17 @@
 index.html                   站点首页，每本书一张卡片
 rust-book-zh/                Rust 书：已构建好的 HTML，原样发布
 books/<name>/                mdBook 源码（book.toml、src/、LICENSE* 等），构建到站点的 <name>/
+reader/                      各书共用的阅读器：内容宽度设置、阅读记录
 scripts/build-site.sh        把首页和各书组装成完整站点
+scripts/inject-reader.py     构建时把 reader/ 注入各书的阅读页
 .github/workflows/pages.yml  推送到 main 时构建站点并发布到 GitHub Pages
 ```
+
+## 阅读功能
+
+所有书的阅读页都能调内容宽度（菜单栏右侧的设置按钮），并记录看过的页面和每页的位置：再次进入一本书时回到上次的页面和位置，目录里看过的页面带 ✓。这些数据只保存在读者自己浏览器的 localStorage 里，不会上传，换设备或浏览器不同步。
+
+这些功能在构建时注入，所以 `mdbook build` 单独构建一本书时没有，要用 `scripts/build-site.sh` 预览。
 
 ## 构建与发布
 
