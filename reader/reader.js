@@ -169,7 +169,7 @@
     function findPageLink(pageKey) {
         var sidebar = document.getElementById('mdbook-sidebar');
         if (!sidebar) return null;
-        var links = sidebar.querySelectorAll('a[href]');
+        var links = sidebar.querySelectorAll('.sidebar-scrollbox a[href]');
         var fallback = null;
 
         for (var i = 0; i < links.length; i++) {
@@ -210,6 +210,24 @@
         }
     }
 
+    function addHomeLink() {
+        var sidebar = document.getElementById('mdbook-sidebar');
+        if (!sidebar) return;
+
+        var link = document.createElement('a');
+        link.className = 'atb-home-link';
+        link.href = new URL('../', rootUrl).href;
+        link.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" ' +
+            'viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" ' +
+            'focusable="false">' +
+            '<path d="M12 3 3 11h3v9h5v-6h2v6h5v-9h3z"/>' +
+            '</svg>' +
+            '<span>回到首页</span>';
+        sidebar.appendChild(link);
+        sidebar.classList.add('atb-has-home');
+    }
+
     var resumeFlag = readResumeFlag();
 
     prepareResume();
@@ -218,6 +236,7 @@
 
     function init() {
         if (resumePendingPage()) return;
+        addHomeLink();
         var menu = document.getElementById('mdbook-menu-bar');
         var main = document.querySelector('#mdbook-content > main');
         if (menu) initSettings(menu, main);
@@ -467,7 +486,7 @@
         if (!sidebar) return;
         var data = readStore();
         var pages = data.pages;
-        var links = sidebar.querySelectorAll('a[href]');
+        var links = sidebar.querySelectorAll('.sidebar-scrollbox a[href]');
 
         Array.prototype.forEach.call(links, function (link) {
             var href = link.getAttribute('href');
