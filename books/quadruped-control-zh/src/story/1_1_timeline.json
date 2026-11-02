@@ -1,0 +1,125 @@
+{
+  "machines": [
+    {
+      "year": 2013,
+      "team": "Boston Dynamics",
+      "name": "Atlas",
+      "drive": "hydraulic",
+      "form": "biped",
+      "open": false,
+      "note": "液压双足",
+      "slug": "atlas"
+    },
+    {
+      "year": 2015,
+      "team": "IIT",
+      "name": "HyQ2Max",
+      "drive": "hydraulic",
+      "form": "quadruped",
+      "open": false,
+      "note": "液压四足",
+      "slug": "hyq2max"
+    },
+    {
+      "year": 2015,
+      "team": "Boston Dynamics",
+      "name": "Spot",
+      "drive": "hydraulic",
+      "form": "quadruped",
+      "open": false,
+      "note": "液压原型",
+      "slug": "spot"
+    },
+    {
+      "year": 2016,
+      "team": "ETH",
+      "name": "ANYmal",
+      "drive": "electric",
+      "form": "quadruped",
+      "open": false,
+      "note": "工业巡检",
+      "slug": "anymal"
+    },
+    {
+      "year": 2017,
+      "team": "Unitree",
+      "name": "Laikago",
+      "drive": "electric",
+      "form": "quadruped",
+      "open": false,
+      "note": "公开零售",
+      "slug": "laikago"
+    },
+    {
+      "year": 2018,
+      "team": "MIT",
+      "name": "Cheetah 3",
+      "drive": "electric",
+      "form": "quadruped",
+      "open": false,
+      "note": "高动态",
+      "slug": "cheetah-3"
+    },
+    {
+      "year": 2019,
+      "team": "MIT",
+      "name": "Mini Cheetah",
+      "drive": "electric",
+      "form": "quadruped",
+      "open": true,
+      "note": "后空翻/开源",
+      "slug": "mini-cheetah"
+    },
+    {
+      "year": 2019,
+      "team": "Unitree",
+      "name": "Aliengo",
+      "drive": "electric",
+      "form": "quadruped",
+      "open": false,
+      "note": "中型平台",
+      "slug": "aliengo"
+    },
+    {
+      "year": 2020,
+      "team": "Unitree",
+      "name": "A1",
+      "drive": "electric",
+      "form": "quadruped",
+      "open": false,
+      "note": "本书仿真",
+      "slug": "a1"
+    },
+    {
+      "year": 2021,
+      "team": "Unitree",
+      "name": "Go1",
+      "drive": "electric",
+      "form": "quadruped",
+      "open": false,
+      "note": "教育版",
+      "slug": "go1"
+    },
+    {
+      "year": 2023,
+      "team": "Unitree",
+      "name": "Go2",
+      "drive": "electric",
+      "form": "quadruped",
+      "open": false,
+      "note": "量产",
+      "slug": "go2"
+    },
+    {
+      "year": 2024,
+      "team": "Unitree",
+      "name": "B2-W",
+      "drive": "electric",
+      "form": "wheeled",
+      "open": false,
+      "note": "轮足",
+      "slug": "b2-w"
+    }
+  ],
+  "images": []
+}

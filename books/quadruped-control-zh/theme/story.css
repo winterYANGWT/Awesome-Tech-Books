@@ -1,0 +1,1478 @@
+/* 1.1 动态时间线的样式。
+ *
+ * 颜色全部走 mdBook 的主题变量；只有三个语义色（液压橙、电机蓝、开源金）
+ * 在本文件里定义，并给 coal / navy / ayu 三个深色主题各一组亮一些的值。
+ * 内容宽度沿用 --content-max-width（750px），窄屏只换行，不产生横向滚动。
+ */
+
+/* mdBook 0.5 的 .content 带 overflow-y:auto，会拦掉 position:sticky。
+   只在含本章交互页的页面上放开它，别的章节不受影响。 */
+.content:has(.qh-story) {
+    overflow-y: visible;
+}
+
+.qh-story,
+.qh-story *,
+.qh-story *::before,
+.qh-story *::after {
+    box-sizing: border-box;
+}
+
+.qh-story {
+    --qh-hydraulic: #b45309;
+    --qh-electric: #1d5f9e;
+    --qh-open: #966a00;
+    --qh-rule: var(--table-border-color);
+    --qh-card: var(--table-alternate-bg);
+    --qh-soft: var(--quote-bg);
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+html.coal .qh-story {
+    --qh-hydraulic: #ff9d63;
+    --qh-electric: #74bdff;
+    --qh-open: #f4cf6a;
+}
+
+html.navy .qh-story {
+    --qh-hydraulic: #ff9d63;
+    --qh-electric: #7cc4ff;
+    --qh-open: #f4cf6a;
+}
+
+html.ayu .qh-story {
+    --qh-hydraulic: #ff9d63;
+    --qh-electric: #7cc4ff;
+    --qh-open: #f4cf6a;
+}
+
+@media (prefers-color-scheme: dark) {
+    html:not(.js) .qh-story {
+        --qh-hydraulic: #ff9d63;
+        --qh-electric: #7cc4ff;
+        --qh-open: #f4cf6a;
+    }
+}
+
+.qh-story [hidden] {
+    display: none !important;
+}
+
+/* ------------------------------------------------------------------ *
+ * 吸顶时间尺
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-rail:empty {
+    display: none;
+}
+
+.qh-story .qh-rail {
+    position: sticky;
+    top: var(--menu-bar-height);
+    z-index: 30;
+    margin: 1.4rem -2px 1.8rem;
+    padding: 2px 8px 6px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--qh-rule);
+    box-shadow: 0 10px 14px -14px var(--fg);
+}
+
+.qh-story .qh-ruler {
+    position: relative;
+    height: 48px;
+    margin: 0 24px;
+}
+
+.qh-story .qh-axis {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 31px;
+    height: 2px;
+    background: var(--qh-rule);
+}
+
+.qh-story .qh-tick {
+    position: absolute;
+    top: 36px;
+    transform: translateX(-50%);
+    font-size: 10px;
+    line-height: 1;
+    color: var(--fg);
+    opacity: 0.62;
+    pointer-events: none;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.qh-story .qh-dot {
+    position: absolute;
+    top: 32px;
+    width: 10px;
+    height: 10px;
+    margin: 0;
+    padding: 0;
+    transform: translate(-50%, -50%);
+    border: 2px solid var(--icons);
+    border-radius: 50%;
+    background: var(--bg);
+    cursor: pointer;
+}
+
+.qh-story .qh-dot:hover {
+    border-color: var(--links);
+}
+
+.qh-story .qh-dot.qh-on {
+    background: var(--links);
+    border-color: var(--links);
+    box-shadow: 0 0 0 3px var(--qh-soft);
+}
+
+.qh-story .qh-dot:focus-visible {
+    outline: 2px solid var(--links);
+    outline-offset: 3px;
+}
+
+.qh-story .qh-marker {
+    position: absolute;
+    top: 4px;
+    height: 30px;
+    width: 44px;
+    transform: translateX(-50%);
+    transition: left 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+    color: var(--links);
+    pointer-events: none;
+}
+
+.qh-story .qh-marker .qh-robot {
+    height: 30px;
+    width: 44px;
+}
+
+.qh-story .qh-marker.qh-walking .qh-leg {
+    transform-box: view-box;
+}
+
+.qh-story .qh-marker.qh-walking .qh-near-front,
+.qh-story .qh-marker.qh-walking .qh-far-rear {
+    animation: qh-swing-a 0.4s ease-in-out infinite;
+}
+
+.qh-story .qh-marker.qh-walking .qh-near-rear,
+.qh-story .qh-marker.qh-walking .qh-far-front {
+    animation: qh-swing-b 0.4s ease-in-out infinite;
+}
+
+.qh-story .qh-marker.qh-walking .qh-near-front { transform-origin: 86px 32px; }
+.qh-story .qh-marker.qh-walking .qh-far-rear { transform-origin: 45px 32px; }
+.qh-story .qh-marker.qh-walking .qh-near-rear { transform-origin: 40px 32px; }
+.qh-story .qh-marker.qh-walking .qh-far-front { transform-origin: 91px 32px; }
+
+@keyframes qh-swing-a {
+    50% { transform: rotate(9deg); }
+}
+
+@keyframes qh-swing-b {
+    50% { transform: rotate(-9deg); }
+}
+
+.qh-story .qh-now {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 2px 12px 0;
+    font-size: 13px;
+}
+
+.qh-story .qh-now-era {
+    padding: 0.08em 0.55em;
+    border-radius: 999px;
+    background: var(--qh-soft);
+    color: var(--links);
+    font-variant-numeric: tabular-nums;
+}
+
+.qh-story .qh-now-title {
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ *
+ * 场景
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-scene {
+    position: relative;
+    margin: 0 0 2.2rem;
+    padding: 1.15rem 1.25rem 1.1rem;
+    background: var(--qh-card);
+    border: 1px solid var(--qh-rule);
+    border-radius: 10px;
+}
+
+.qh-story .qh-badge {
+    display: inline-block;
+    font-size: 0.72em;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    padding: 0.08em 0.6em;
+    border: 1px solid var(--qh-rule);
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--links);
+    font-variant-numeric: tabular-nums;
+}
+
+.qh-story .qh-title {
+    font-size: 1.42em;
+    font-weight: 650;
+    line-height: 1.3;
+    margin: 0.45rem 0 0.55rem;
+}
+
+.qh-story .qh-scene > p {
+    margin: 0.35rem 0 0.85rem;
+    line-height: 1.65;
+}
+
+.qh-story .qh-reminder {
+    margin: 0.6rem 0 1rem;
+    padding: 0.5rem 0.75rem;
+    border-left: 3px solid var(--links);
+    background: var(--bg);
+    border-radius: 0 6px 6px 0;
+    font-size: 0.92em;
+    font-weight: 600;
+}
+
+.qh-story .qh-widget {
+    margin: 0.9rem 0 1.1rem;
+}
+
+.qh-story .qh-figcap {
+    display: none;
+    margin: 0.1rem 0 0.55rem;
+    font-size: 0.86em;
+    color: var(--fg);
+    opacity: 0.78;
+}
+
+/* 只有部件真的生成出来，才显示部件上方的图号与图注。 */
+.qh-story .qh-scene.qh-has-widget .qh-figcap {
+    display: block;
+}
+
+.qh-story .qh-empty {
+    padding: 1rem;
+    border: 1px dashed var(--qh-rule);
+    border-radius: 6px;
+    text-align: center;
+}
+
+/* 有 JS 部件时隐藏静态回退图；打印和部件失败时仍然显示。 */
+.qh-story .qh-has-widget .qh-fallback {
+    display: none;
+}
+
+.qh-story .qh-fallback {
+    margin: 1rem 0;
+}
+
+.qh-story .qh-fallback img {
+    background: #fff;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--qh-rule);
+}
+
+/* ------------------------------------------------------------------ *
+ * 折叠区
+ * ------------------------------------------------------------------ */
+
+.qh-story details {
+    margin: 0.9rem 0 0.4rem;
+    padding: 0.5rem 0.8rem 0.55rem;
+    background: var(--bg);
+    border: 1px solid var(--qh-rule);
+    border-radius: 8px;
+}
+
+.qh-story details details {
+    background: var(--qh-card);
+}
+
+.qh-story summary {
+    cursor: pointer;
+    color: var(--links);
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+.qh-story summary:hover {
+    text-decoration: underline;
+}
+
+.qh-story details[open] > summary {
+    margin-bottom: 0.45rem;
+}
+
+.qh-story details p {
+    margin: 0.5rem 0;
+    line-height: 1.7;
+}
+
+.qh-story details pre {
+    max-width: 100%;
+}
+
+.qh-story pre {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* ------------------------------------------------------------------ *
+ * 入场
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-anim {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.qh-story .qh-anim.qh-in {
+    opacity: 1;
+    transform: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * 通用小部件
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-dot,
+.qh-story .qh-hop-buttons button,
+.qh-story .qh-stages button,
+.qh-story .qh-tl-filters button,
+.qh-story .qh-tl-play,
+.qh-story .qh-tl-node,
+.qh-story .qh-ladder button,
+.qh-story .qh-curve {
+    font-family: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.qh-story h5 {
+    margin: 0.2rem 0 0.45rem;
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+.qh-story .qh-robot {
+    display: block;
+    width: 100%;
+    height: auto;
+    color: inherit;
+}
+
+.qh-story .qh-robot .qh-r-body,
+.qh-story .qh-robot .qh-r-torso,
+.qh-story .qh-robot .qh-r-head {
+    fill: currentColor;
+    stroke: none;
+}
+
+.qh-story .qh-robot .qh-leg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.qh-story .qh-robot .qh-leg.qh-far {
+    opacity: 0.45;
+}
+
+.qh-story .qh-robot .qh-r-foot {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 5;
+    stroke-linecap: round;
+}
+
+.qh-story .qh-robot .qh-r-wheel {
+    fill: var(--bg);
+    stroke: currentColor;
+    stroke-width: 4;
+}
+
+.qh-story .qh-robot .qh-r-hub {
+    fill: currentColor;
+}
+
+.qh-story .qh-robot .qh-r-joint {
+    fill: currentColor;
+    stroke: none;
+}
+
+.qh-story .qh-robot-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* ------------------------------------------------------------------ *
+ * 第一幕：里程碑
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-miles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+}
+
+.qh-story .qh-miles li {
+    display: grid;
+    grid-template-columns: 4.6rem 1fr;
+    column-gap: 0.6rem;
+    align-items: baseline;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--qh-rule);
+    border-left: 3px solid var(--qh-rule);
+    border-radius: 6px;
+    background: var(--bg);
+    opacity: 0.32;
+    transform: translateY(5px);
+    transition: opacity 0.45s ease, transform 0.45s ease, border-color 0.45s ease;
+}
+
+.qh-story .qh-miles li.qh-on {
+    opacity: 1;
+    transform: none;
+    border-left-color: var(--links);
+}
+
+.qh-story .qh-mile-year {
+    color: var(--links);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+.qh-story .qh-mile-name {
+    font-weight: 600;
+}
+
+.qh-story .qh-mile-note {
+    grid-column: 2;
+    font-size: 0.88em;
+    opacity: 0.78;
+}
+
+/* ------------------------------------------------------------------ *
+ * 第二幕：弹跳演示
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-hop-stage {
+    position: relative;
+    height: 260px;
+    border: 1px solid var(--qh-rule);
+    border-radius: 8px;
+    background: var(--qh-soft);
+    overflow: hidden;
+}
+
+.qh-story .qh-hop-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.qh-story .qh-hop-svg .qh-hop-ground line {
+    stroke: var(--fg);
+    stroke-width: 1;
+    opacity: 0.35;
+    vector-effect: non-scaling-stroke;
+}
+
+.qh-story .qh-hop-svg pattern line {
+    stroke: var(--fg);
+    stroke-width: 1;
+    opacity: 0.18;
+    vector-effect: non-scaling-stroke;
+}
+
+.qh-story .qh-hop-svg pattern line.qh-major {
+    opacity: 0.4;
+}
+
+.qh-story .qh-hop-svg .qh-hop-body rect {
+    fill: var(--bg);
+    stroke: var(--links);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+}
+
+.qh-story .qh-hop-svg .qh-hop-target {
+    stroke: var(--links);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 5;
+    opacity: 0.7;
+    vector-effect: non-scaling-stroke;
+}
+
+.qh-story .qh-hop-svg .qh-hop-tail {
+    fill: none;
+    stroke: var(--links);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    opacity: 0.28;
+    vector-effect: non-scaling-stroke;
+}
+
+.qh-story .qh-hop-svg .qh-hop-leg {
+    fill: none;
+    stroke: var(--links);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.qh-story .qh-hop-svg .qh-hop-foot {
+    fill: var(--links);
+    stroke: var(--bg);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+
+.qh-story .qh-hop-phase {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    padding: 0.1em 0.55em;
+    border-radius: 999px;
+    background: var(--bg);
+    border: 1px solid var(--qh-rule);
+    font-size: 12px;
+    color: var(--links);
+}
+
+.qh-story .qh-hop-phase[data-phase="compress"] {
+    color: var(--qh-hydraulic);
+}
+
+.qh-story .qh-hop-phase[data-phase="extend"] {
+    color: var(--qh-electric);
+}
+
+.qh-story .qh-hop-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.55rem 0.9rem;
+    align-items: end;
+    margin-top: 0.7rem;
+}
+
+.qh-story .qh-hop-slider {
+    display: block;
+    font-size: 0.86em;
+    margin: 0;
+}
+
+.qh-story .qh-hop-slider span {
+    display: block;
+    margin-bottom: 0.15rem;
+}
+
+.qh-story .qh-hop-slider input {
+    width: 100%;
+    margin: 0;
+    accent-color: var(--links);
+}
+
+.qh-story .qh-hop-buttons {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.qh-story .qh-hop-buttons button,
+.qh-story .qh-stages button,
+.qh-story .qh-tl-filters button {
+    padding: 0.3em 0.75em;
+    border: 1px solid var(--qh-rule);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--links);
+    font-size: 0.86em;
+    cursor: pointer;
+    line-height: 1.6;
+}
+
+.qh-story .qh-hop-buttons button:hover,
+.qh-story .qh-stages button:hover,
+.qh-story .qh-tl-filters button:hover {
+    border-color: var(--links);
+}
+
+.qh-story .qh-stages button.qh-on,
+.qh-story .qh-tl-filters button.qh-on {
+    background: var(--quote-bg);
+    border-color: var(--links);
+    color: var(--links);
+    font-weight: 600;
+}
+
+.qh-story .qh-hop-readout {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.7rem;
+}
+
+.qh-story .qh-hop-readout > div {
+    padding: 0.45rem 0.55rem;
+    border: 1px solid var(--qh-rule);
+    border-radius: 6px;
+    background: var(--bg);
+}
+
+.qh-story .qh-hop-readout span,
+.qh-story .qh-hop-readout i {
+    display: block;
+    font-size: 0.78em;
+    font-style: normal;
+    opacity: 0.72;
+}
+
+.qh-story .qh-hop-readout b {
+    display: block;
+    font-size: 1.22em;
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+}
+
+.qh-story .qh-hop-note {
+    margin: 0.65rem 0 0.2rem;
+    font-size: 0.88em;
+    line-height: 1.6;
+    opacity: 0.88;
+}
+
+.qh-story .qh-hop-warn {
+    margin: 0.4rem 0 0;
+    font-size: 0.88em;
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ *
+ * 第三幕：零件
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-parts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+}
+
+.qh-story .qh-part {
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--qh-rule);
+    border-radius: 7px;
+    background: var(--bg);
+}
+
+.qh-story .qh-part p {
+    margin: 0.25rem 0;
+    font-size: 0.9em;
+    line-height: 1.55;
+}
+
+.qh-story .qh-part p span {
+    display: inline-block;
+    min-width: 2.4em;
+    margin-right: 0.35em;
+    color: var(--links);
+    font-size: 0.88em;
+}
+
+.qh-story .qh-stages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.65rem;
+}
+
+.qh-story .qh-stage-text {
+    margin: 0.5rem 0 0;
+    font-size: 0.9em;
+    padding-left: 0.1rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * 第四幕：三种形态
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-forms {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+}
+
+.qh-story .qh-form {
+    display: flex;
+    flex-direction: column;
+    padding: 0.6rem 0.65rem;
+    border: 1px solid var(--qh-rule);
+    border-radius: 8px;
+    background: var(--bg);
+    min-width: 0;
+}
+
+.qh-story .qh-form-art {
+    height: 66px;
+    margin-bottom: 0.2rem;
+    color: var(--qh-tone, var(--links));
+}
+
+.qh-story .qh-form-art .qh-robot {
+    height: 66px;
+    width: 100%;
+}
+
+.qh-story .qh-form-names {
+    font-size: 0.84em;
+    opacity: 0.72;
+    margin: 0 0 0.35rem;
+}
+
+.qh-story .qh-form p {
+    margin: 0.22rem 0;
+    font-size: 0.85em;
+    line-height: 1.5;
+}
+
+.qh-story .qh-form p span {
+    display: inline-block;
+    margin-right: 0.3em;
+    color: var(--links);
+}
+
+.qh-story .qh-tone-hydraulic { --qh-tone: var(--qh-hydraulic); }
+.qh-story .qh-tone-electric { --qh-tone: var(--qh-electric); }
+.qh-story .qh-tone-plain { --qh-tone: var(--links); }
+
+.qh-story .qh-forms-note {
+    margin: 0.55rem 0 0;
+    font-size: 0.85em;
+    opacity: 0.78;
+}
+
+/* ------------------------------------------------------------------ *
+ * 第五幕：时间轴
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-tl-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+}
+
+.qh-story .qh-tl-divider {
+    width: 1px;
+    height: 1.3em;
+    margin: 0 0.15rem;
+    background: var(--qh-rule);
+}
+
+.qh-story .qh-tl-note {
+    margin: 0 0 0.45rem;
+    font-size: 0.8em;
+    line-height: 1.5;
+    opacity: 0.78;
+}
+
+.qh-story .qh-tl-tools {
+    margin: 0 0 0.5rem;
+}
+
+.qh-story .qh-tl-play {
+    padding: 0.3em 0.8em;
+    border: 1px solid var(--qh-rule);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--links);
+    font-family: inherit;
+    font-size: 0.86em;
+    cursor: pointer;
+}
+
+.qh-story .qh-tl-play:hover {
+    border-color: var(--links);
+}
+
+.qh-story .qh-tl-play[aria-pressed="true"] {
+    background: var(--quote-bg);
+    border-color: var(--links);
+    font-weight: 600;
+}
+
+.qh-story .qh-tl-team {
+    margin: 0 0 0.5rem;
+    padding: 0.45rem 0.65rem;
+    border-left: 3px solid var(--links);
+    border-radius: 0 6px 6px 0;
+    background: var(--bg);
+    font-size: 0.86em;
+    line-height: 1.55;
+}
+
+.qh-story .qh-tl-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 6px 0 2px;
+    scrollbar-width: thin;
+}
+
+.qh-story .qh-tl-track {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    width: max-content;
+    margin: 0 auto;
+}
+
+.qh-story .qh-tl-track::before {
+    content: "";
+    position: absolute;
+    left: 28px;
+    right: 28px;
+    bottom: 10px;
+    height: 2px;
+    background: var(--qh-rule);
+}
+
+.qh-story .qh-tl-node {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 56px;
+    min-width: 0;
+    margin: 0;
+    padding: 4px 0 22px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--fg);
+    cursor: pointer;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.qh-story .qh-tl-node:hover {
+    background: var(--qh-soft);
+}
+
+.qh-story .qh-tl-node.qh-selected {
+    background: linear-gradient(to bottom, var(--quote-bg) 0, var(--quote-bg) calc(100% - 16px), transparent calc(100% - 16px));
+    outline: 2px solid var(--links);
+    outline-offset: -2px;
+}
+
+.qh-story .qh-tl-node:focus-visible {
+    outline: 2px solid var(--links);
+    outline-offset: 1px;
+}
+
+.qh-story .qh-tl-icon {
+    display: block;
+    width: 100%;
+    height: 36px;
+    color: var(--qh-hydraulic);
+}
+
+.qh-story .qh-tl-node.qh-drive-electric .qh-tl-icon {
+    color: var(--qh-electric);
+}
+
+.qh-story .qh-tl-icon .qh-robot {
+    height: 34px;
+    width: 56px;
+    margin: 0 auto;
+}
+
+.qh-story .qh-tl-year {
+    font-size: 11px;
+    color: var(--links);
+    font-variant-numeric: tabular-nums;
+}
+
+.qh-story .qh-tl-name {
+    display: block;
+    max-width: 100%;
+    min-height: 2.5em;
+    font-size: 10px;
+    line-height: 1.25;
+    white-space: normal;
+    word-break: break-word;
+    text-align: center;
+}
+
+.qh-story .qh-tl-dot {
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    width: 10px;
+    height: 10px;
+    transform: translateX(-50%);
+    border: 2px solid var(--bg);
+    border-radius: 50%;
+    background: var(--qh-hydraulic);
+    z-index: 2;
+}
+
+.qh-story .qh-tl-node.qh-drive-electric .qh-tl-dot {
+    background: var(--qh-electric);
+}
+
+.qh-story .qh-tl-node.qh-open .qh-tl-dot {
+    box-shadow: 0 0 0 3px var(--qh-open);
+}
+
+.qh-story .qh-tl-star {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    color: var(--qh-open);
+    font-size: 13px;
+    line-height: 1;
+}
+
+.qh-story .qh-tl-detail {
+    margin-top: 0.3rem;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--qh-rule);
+    border-left: 3px solid var(--links);
+    border-radius: 0 7px 7px 0;
+    background: var(--bg);
+}
+
+.qh-story .qh-tl-detail-head {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+}
+
+.qh-story .qh-tl-detail-body {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 0.7rem;
+    align-items: center;
+}
+
+.qh-story .qh-tl-detail-art {
+    height: 76px;
+    color: var(--qh-tone, var(--links));
+}
+
+.qh-story .qh-tl-detail-art .qh-robot {
+    width: 120px;
+    height: 72px;
+}
+
+.qh-story .qh-tl-detail dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: 0.6rem;
+    row-gap: 0.18rem;
+    align-items: baseline;
+    margin: 0;
+    font-size: 0.9em;
+}
+
+.qh-story .qh-tl-detail dt {
+    color: var(--links);
+    white-space: nowrap;
+}
+
+.qh-story .qh-tl-detail dd {
+    margin: 0;
+}
+
+.qh-story .qh-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.45rem;
+    margin-top: 0.75rem;
+}
+
+.qh-story .qh-stats > div {
+    padding: 0.45rem 0.55rem;
+    border: 1px solid var(--qh-rule);
+    border-radius: 7px;
+    background: var(--qh-card);
+    min-width: 0;
+}
+
+.qh-story .qh-stats span,
+.qh-story .qh-stats i {
+    display: block;
+    font-size: 0.74em;
+    font-style: normal;
+    opacity: 0.72;
+}
+
+.qh-story .qh-stats b {
+    display: block;
+    font-size: 1.16em;
+    line-height: 1.35;
+    font-variant-numeric: tabular-nums;
+}
+
+.qh-story .qh-stats-mark {
+    margin: 0.35rem 0 0;
+    font-size: 0.8em;
+    color: var(--links);
+}
+
+.qh-story .qh-stats-mark::before {
+    content: "● ";
+    color: var(--links);
+}
+
+/* ------------------------------------------------------------------ *
+ * 第六幕：开放程度
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-dims {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.65rem;
+}
+
+.qh-story .qh-dims span {
+    padding: 0.12em 0.65em;
+    border: 1px solid var(--qh-rule);
+    border-radius: 999px;
+    background: var(--bg);
+    font-size: 0.86em;
+}
+
+.qh-story .qh-ladder {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+}
+
+.qh-story .qh-ladder li {
+    padding-left: calc(var(--i) * 1rem);
+}
+
+.qh-story .qh-ladder button {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    text-align: left;
+    border: 1px solid var(--qh-rule);
+    border-left: 4px solid var(--qh-open);
+    border-radius: 0 7px 7px 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.qh-story .qh-ladder button:hover {
+    background: var(--qh-soft);
+}
+
+.qh-story .qh-ladder button.qh-on {
+    border-color: var(--links);
+    border-left-color: var(--links);
+    background: var(--qh-soft);
+}
+
+.qh-story .qh-ladder button b {
+    font-weight: 600;
+}
+
+.qh-story .qh-ladder button span {
+    opacity: 0.75;
+    font-size: 0.9em;
+}
+
+.qh-story .qh-ladder button em {
+    margin-left: auto;
+    font-style: normal;
+    font-size: 0.82em;
+    color: var(--qh-open);
+}
+
+.qh-story .qh-open-detail {
+    margin-top: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--qh-rule);
+    border-radius: 7px;
+    background: var(--bg);
+}
+
+.qh-story .qh-open-detail p {
+    margin: 0.25rem 0;
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+
+.qh-story .qh-open-who {
+    opacity: 0.85;
+}
+
+/* ------------------------------------------------------------------ *
+ * 第七幕：A1 与 Go1
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+}
+
+.qh-story .qh-pair-card {
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--qh-rule);
+    border-top: 3px solid var(--qh-tone, var(--links));
+    border-radius: 8px;
+    background: var(--bg);
+    min-width: 0;
+}
+
+.qh-story .qh-pair-art {
+    height: 72px;
+    margin-bottom: 0.2rem;
+    color: var(--qh-tone, var(--links));
+}
+
+.qh-story .qh-pair-art .qh-robot {
+    height: 72px;
+}
+
+.qh-story .qh-pair-sub {
+    margin: 0 0 0.35rem;
+    font-size: 0.85em;
+    opacity: 0.72;
+}
+
+.qh-story .qh-pair-card ul {
+    margin: 0;
+    padding-left: 1.1em;
+}
+
+.qh-story .qh-pair-card li {
+    margin: 0.2rem 0;
+    font-size: 0.88em;
+    line-height: 1.55;
+}
+
+.qh-story .qh-pair-note {
+    margin: 0.55rem 0 0;
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+/* ------------------------------------------------------------------ *
+ * 第八幕：能力曲线
+ * ------------------------------------------------------------------ */
+
+.qh-story .qh-curves {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.qh-story .qh-curve {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.7rem 0.55rem;
+    border: 1px solid var(--qh-rule);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--fg);
+    text-align: left;
+    cursor: pointer;
+}
+
+.qh-story .qh-curve:hover {
+    background: var(--qh-soft);
+}
+
+.qh-story .qh-curve.qh-on {
+    border-color: var(--links);
+    background: var(--quote-bg);
+    box-shadow: inset 3px 0 0 var(--links);
+}
+
+.qh-story .qh-curve-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.qh-story .qh-curve-head b {
+    font-size: 1em;
+}
+
+.qh-story .qh-curve-head i {
+    font-style: normal;
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+.qh-story .qh-curve-body {
+    display: block;
+    margin-top: 0.35rem;
+}
+
+.qh-story .qh-curve-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+}
+
+.qh-story .qh-curve-metrics > span {
+    padding: 0.3rem 0.4rem;
+    border: 1px solid var(--qh-rule);
+    border-radius: 6px;
+    background: var(--qh-card);
+    font-size: 0.86em;
+    text-align: center;
+}
+
+.qh-story .qh-curve-pair {
+    display: grid;
+    grid-template-columns: 11em auto minmax(0, 1fr);
+    gap: 0.4rem;
+    align-items: baseline;
+    padding: 0.18rem 0;
+    font-size: 0.88em;
+    line-height: 1.5;
+}
+
+.qh-story .qh-curve-pair em {
+    font-style: normal;
+    color: var(--links);
+}
+
+.qh-story .qh-curve-detail {
+    margin-top: 0.55rem;
+    padding: 0.55rem 0.75rem;
+    border-left: 3px solid var(--links);
+    background: var(--bg);
+    border-radius: 0 7px 7px 0;
+}
+
+.qh-story .qh-curve-detail:empty {
+    display: none;
+}
+
+.qh-story .qh-curve-detail p {
+    margin: 0.2rem 0;
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------ *
+ * 窄屏
+ * ------------------------------------------------------------------ */
+
+@media (max-width: 680px) {
+    .qh-story .qh-scene {
+        padding: 0.9rem 0.85rem 0.85rem;
+        border-radius: 8px;
+    }
+
+    .qh-story .qh-rail {
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+    .qh-story .qh-ruler {
+        margin: 0 20px;
+    }
+
+    .qh-story .qh-tick {
+        font-size: 9px;
+    }
+
+    .qh-story .qh-now {
+        padding-left: 6px;
+        gap: 0.35rem;
+        font-size: 12px;
+    }
+
+    .qh-story .qh-forms,
+    .qh-story .qh-pair {
+        grid-template-columns: 1fr;
+    }
+
+    .qh-story .qh-form-art,
+    .qh-story .qh-form-art .qh-robot {
+        height: 58px;
+    }
+
+    .qh-story .qh-form-art {
+        max-width: 150px;
+        margin: 0 auto 0.2rem;
+    }
+
+    .qh-story .qh-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .qh-story .qh-hop-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .qh-story .qh-hop-readout {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.35rem;
+    }
+
+    .qh-story .qh-hop-readout > div {
+        padding: 0.35rem 0.4rem;
+    }
+
+    .qh-story .qh-hop-readout b {
+        font-size: 1.05em;
+    }
+
+    .qh-story .qh-hop-stage {
+        height: 220px;
+    }
+
+    .qh-story .qh-dot {
+        width: 8px;
+        height: 8px;
+        border-width: 1px;
+    }
+
+    .qh-story .qh-tl-detail-body {
+        grid-template-columns: 72px minmax(0, 1fr);
+    }
+
+    .qh-story .qh-tl-detail-art {
+        height: 48px;
+    }
+
+    .qh-story .qh-tl-detail-art .qh-robot {
+        width: 72px;
+        height: 43px;
+    }
+
+    .qh-story .qh-ladder li {
+        padding-left: calc(var(--i) * 0.45rem);
+    }
+
+    .qh-story .qh-ladder button {
+        gap: 0.3rem;
+        padding: 0.45rem 0.55rem;
+    }
+
+    .qh-story .qh-ladder button em {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 400px) {
+    .qh-story .qh-parts {
+        grid-template-columns: 1fr;
+    }
+
+    .qh-story .qh-hop-stage {
+        height: 200px;
+    }
+
+    .qh-story .qh-tl-icon,
+    .qh-story .qh-tl-icon .qh-robot {
+        height: 32px;
+    }
+
+    .qh-story .qh-hop-readout {
+        grid-template-columns: 1fr;
+    }
+
+    .qh-story .qh-tick {
+        font-size: 8px;
+    }
+}
+
+/* ------------------------------------------------------------------ *
+ * 减少动效
+ * ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+    .qh-story .qh-anim {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    .qh-story .qh-marker,
+    .qh-story .qh-miles li,
+    .qh-story .qh-dot {
+        transition: none !important;
+    }
+
+    .qh-story .qh-marker.qh-walking .qh-leg {
+        animation: none !important;
+    }
+}
+
+/* ------------------------------------------------------------------ *
+ * 打印
+ * ------------------------------------------------------------------ */
+
+@media print {
+    .qh-story .qh-rail,
+    .qh-story .qh-widget,
+    .qh-story .qh-figcap,
+    .qh-story .qh-hop-controls {
+        display: none !important;
+    }
+
+    .qh-story .qh-scene {
+        margin: 1.1rem 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        break-inside: avoid;
+    }
+
+    .qh-story .qh-has-widget .qh-fallback,
+    .qh-story .qh-fallback {
+        display: block !important;
+    }
+
+    .qh-story .qh-anim {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .qh-story details {
+        border: 0;
+        padding: 0;
+        background: none;
+    }
+}
