@@ -6,7 +6,8 @@ language = "zh-CN"
 src = "src"
 
 [output.html]
-additional-css = ["theme/custom.css"]
+additional-css = ["theme/custom.css", "theme/charts.css"]
+additional-js = ["theme/charts.js"]
 git-repository-url = "https://github.com/winterYANGWT/Awesome-Tech-Books/tree/main/books/cuda-programming-zh"
 no-section-label = true
 
