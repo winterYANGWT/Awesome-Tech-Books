@@ -1,0 +1,259 @@
+{
+  "kind": "flow",
+  "title": "Reactor：一次事件从 epoll 到回调",
+  "alt": "监听 fd 就绪后进队列，Reactor 按处理器类型分派，连接改兴趣后回到 epoll",
+  "grid": [
+    5,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "lfd",
+      "label": "监听 fd",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "box"
+    },
+    {
+      "id": "ep",
+      "label": "epoll",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "data.ptr"
+    },
+    {
+      "id": "rq",
+      "label": "就绪队列",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "queue",
+      "slots": 3
+    },
+    {
+      "id": "reactor",
+      "label": "Reactor",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "acc",
+      "label": "Acceptor",
+      "at": [
+        4,
+        0
+      ],
+      "sub": "accept4"
+    },
+    {
+      "id": "conn",
+      "label": "Connection",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "读写缓冲"
+    },
+    {
+      "id": "tq",
+      "label": "TimerQueue",
+      "at": [
+        3,
+        1
+      ],
+      "sub": "3 秒空闲"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_lfd_ep",
+      "from": "lfd",
+      "to": "ep",
+      "label": "注册"
+    },
+    {
+      "id": "e_ep_rq",
+      "from": "ep",
+      "to": "rq",
+      "label": "就绪"
+    },
+    {
+      "id": "e_rq_reactor",
+      "from": "rq",
+      "to": "reactor",
+      "label": "取事件"
+    },
+    {
+      "id": "e_reactor_acc",
+      "from": "reactor",
+      "to": "acc",
+      "route": "straight"
+    },
+    {
+      "id": "e_reactor_conn",
+      "from": "reactor",
+      "to": "conn",
+      "route": "straight"
+    },
+    {
+      "id": "e_reactor_tq",
+      "from": "reactor",
+      "to": "tq"
+    },
+    {
+      "id": "e_conn_ep",
+      "from": "conn",
+      "to": "ep",
+      "label": "注册/修改",
+      "route": "straight"
+    },
+    {
+      "id": "e_conn_tq",
+      "from": "conn",
+      "to": "tq",
+      "label": "重置"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "e_lfd_ep",
+          "label": "EPOLLIN"
+        }
+      ],
+      "hi": [
+        "e_lfd_ep"
+      ],
+      "note": "监听 fd 注册进 epoll，data.ptr 指向 Acceptor"
+    },
+    {
+      "token": [
+        {
+          "edge": "e_ep_rq",
+          "label": "连接"
+        }
+      ],
+      "queue": {
+        "rq": [
+          "连接"
+        ]
+      },
+      "hi": [
+        "e_ep_rq"
+      ],
+      "note": "epoll_wait 返回，就绪事件进队列"
+    },
+    {
+      "token": [
+        {
+          "edge": "e_rq_reactor",
+          "label": "事件"
+        }
+      ],
+      "queue": {
+        "rq": []
+      },
+      "hi": [
+        "e_rq_reactor"
+      ],
+      "note": "Reactor 取出事件，按 data.ptr 找处理器"
+    },
+    {
+      "token": [
+        {
+          "edge": "e_reactor_acc",
+          "label": "分派"
+        }
+      ],
+      "set": {
+        "acc": "accept4 新连接"
+      },
+      "hi": [
+        "e_reactor_acc",
+        "acc"
+      ],
+      "note": "监听器就绪，调用 Acceptor"
+    },
+    {
+      "token": [
+        {
+          "edge": "e_conn_ep",
+          "label": "EPOLLIN"
+        }
+      ],
+      "set": {
+        "conn": "fd 已注册"
+      },
+      "hi": [
+        "e_conn_ep",
+        "conn"
+      ],
+      "note": "accept4 得到连接，立即注册读事件"
+    },
+    {
+      "token": [
+        {
+          "edge": "e_ep_rq",
+          "label": "数据"
+        }
+      ],
+      "queue": {
+        "rq": [
+          "数据"
+        ]
+      },
+      "hi": [
+        "e_ep_rq"
+      ],
+      "note": "连接可读，事件再次进就绪队列"
+    },
+    {
+      "token": [
+        {
+          "edge": "e_rq_reactor",
+          "label": "事件"
+        },
+        {
+          "edge": "e_reactor_conn",
+          "label": "回调"
+        }
+      ],
+      "queue": {
+        "rq": []
+      },
+      "hi": [
+        "e_reactor_conn",
+        "conn"
+      ],
+      "set": {
+        "conn": "回射并重置"
+      },
+      "note": "Reactor 调用 Connection 的 handle_event"
+    },
+    {
+      "token": [
+        {
+          "edge": "e_conn_tq",
+          "label": "重置 3s"
+        }
+      ],
+      "hi": [
+        "e_conn_tq",
+        "tq"
+      ],
+      "set": {
+        "conn": "等下一次事件"
+      },
+      "note": "有读写就推迟空闲定时器；定时器到期则关闭连接"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "kind": "flow",
+  "title": "分离栈：线程 0 分一半给等待的线程 1",
+  "alt": "线程 0 锁住终止互斥量，把栈里一半回路放进 new_stack，唤醒线程 1 取走",
+  "grid": [4, 4],
+  "nodes": [
+    {"id": "t0", "label": "线程 0", "at": [0, 1], "shape": "round"},
+    {"id": "t1", "label": "线程 1", "at": [0, 3], "shape": "round", "sub": "空闲等待"},
+    {"id": "stack0", "label": "T0 的栈", "at": [1, 0], "shape": "queue", "slots": 8, "sub": "8 条部分回路"},
+    {"id": "newstack", "label": "new_stack", "at": [2, 0], "shape": "queue", "slots": 8, "sub": "待交接"},
+    {"id": "term", "label": "term_mutex", "at": [1, 2], "sub": "等者数、new_stack、结束"},
+    {"id": "cv", "label": "条件变量", "at": [2, 3], "sub": "notify_one"}
+  ],
+  "edges": [
+    {"id": "lock", "from": "t0", "to": "term", "label": "加锁"},
+    {"id": "split", "from": "stack0", "to": "newstack", "label": "分一半"},
+    {"id": "wake", "from": "cv", "to": "t1", "label": "唤醒", "dashed": true},
+    {"id": "take", "from": "newstack", "to": "t1", "label": "取走"},
+    {"id": "search", "from": "t0", "to": "stack0", "label": "继续搜索", "dashed": true}
+  ],
+  "steps": [
+    {"queue": {"stack0": ["A", "B", "C", "D", "E", "F", "G", "H"]}, "hi": ["stack0"], "note": "线程 0 的栈里有 8 条部分回路"},
+    {"tone": {"t1": "wait"}, "hi": ["t1"], "note": "线程 1 的栈空了，登记为等待者"},
+    {"token": [{"edge": "lock", "label": "lock"}], "hi": ["term"], "note": "线程 0 先锁住终止互斥量，再检查等待者"},
+    {"token": [{"edge": "split", "label": "4 条"}], "queue": {"stack0": ["A", "B", "C", "D"], "newstack": ["E", "F", "G", "H"]}, "note": "按已访问城市数轮流分：两边任务量尽量接近"},
+    {"token": [{"edge": "wake", "label": "notify_one"}], "hi": ["cv"], "note": "唤醒一个等待者；new_stack 和等待者数在同一把锁下"},
+    {"token": [{"edge": "take", "label": "new_stack"}], "tone": {"t1": "ok"}, "set": {"t1": "继续搜索"}, "queue": {"newstack": []}, "note": "线程 1 醒来取走整叠回路，从自己的栈继续 DFS"},
+    {"tone": {"term": "bad"}, "hi": ["term"], "note": "先快速检查、加锁后再检查；只查一次会在检查后丢唤醒"},
+    {"hi": ["t0", "t1"], "note": "两边各自搜索；栈再空时重新走终止协议"}
+  ]
+}

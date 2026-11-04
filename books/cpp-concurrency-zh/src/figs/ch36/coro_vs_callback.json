@@ -1,0 +1,91 @@
+{
+  "kind": "seq",
+  "title": "同一个请求：回调版和协程版的调用链",
+  "alt": "回调版把读、解析、写拆进不同回调；协程版用 co_await 写成一条顺序流程",
+  "static": true,
+  "lanes": [
+    {
+      "id": "cb",
+      "label": "回调版"
+    },
+    {
+      "id": "co",
+      "label": "协程版"
+    },
+    {
+      "id": "io",
+      "label": "I/O 完成",
+      "role": "kernel"
+    }
+  ],
+  "steps": [
+    {
+      "label": "回调版",
+      "at": "cb",
+      "text": "on_read(n)",
+      "note": "读完成回调里拿到 n 字节"
+    },
+    {
+      "at": "cb",
+      "text": "feed(parser)",
+      "note": "把字节喂给增量解析器，可能吐出多个请求"
+    },
+    {
+      "from": "cb",
+      "to": "io",
+      "text": "async_write(on_write)",
+      "note": "把响应缓冲交给 Asio，注册写完成回调"
+    },
+    {
+      "from": "io",
+      "to": "cb",
+      "text": "on_write(ec)",
+      "note": "写完成后回到另一个回调"
+    },
+    {
+      "at": "cb",
+      "text": "if (ec) close",
+      "note": "错误和正常路径都要在各回调里分别处理"
+    },
+    {
+      "label": "协程版",
+      "at": "co",
+      "text": "co_await async_read",
+      "note": "同一个连接的代码写在协程体里，顺序往下"
+    },
+    {
+      "from": "co",
+      "to": "io",
+      "text": "async_read",
+      "note": "use_awaitable 把完成回调变成 co_await 的恢复点"
+    },
+    {
+      "from": "io",
+      "to": "co",
+      "text": "恢复，返回 n",
+      "note": "协程从挂起点继续，n 是读到的字节数"
+    },
+    {
+      "at": "co",
+      "text": "feed(parser)",
+      "note": "解析代码和回调版完全相同"
+    },
+    {
+      "from": "co",
+      "to": "io",
+      "text": "co_await async_write",
+      "note": "挂起，直到写完成"
+    },
+    {
+      "from": "io",
+      "to": "co",
+      "text": "恢复或抛异常",
+      "note": "错误以异常或 error_code 返回"
+    },
+    {
+      "at": "co",
+      "text": "catch / close",
+      "note": "一个 try/catch 覆盖整条顺序流程，不用逐层传 ec"
+    }
+  ]
+}

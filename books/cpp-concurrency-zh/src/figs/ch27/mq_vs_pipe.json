@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "字节流与消息队列：有无边界、能否按类型取",
+  "alt": "管道把消息当连续字节；消息队列保留每条消息的边界和类型",
+  "grid": [4, 3],
+  "bands": [
+    {"label": "字节流", "rows": [0, 0]},
+    {"label": "消息队列", "rows": [2, 2]}
+  ],
+  "nodes": [
+    {"id": "w1", "label": "写者", "at": [0, 0], "shape": "round"},
+    {"id": "pipe", "label": "管道", "at": [1, 0], "shape": "queue", "slots": 6, "sub": "A A B B C C"},
+    {"id": "r1", "label": "读者", "at": [3, 0], "shape": "round", "sub": "read(6) 跨两条消息"},
+    {"id": "w2", "label": "写者", "at": [0, 2], "shape": "round"},
+    {"id": "mq", "label": "消息队列", "at": [1, 2], "shape": "queue", "slots": 3, "sub": "类型 3 / 1 / 2"},
+    {"id": "r2", "label": "读者", "at": [3, 2], "shape": "round", "sub": "msgrcv(type=1)"}
+  ],
+  "edges": [
+    {"id": "p1", "from": "w1", "to": "pipe", "label": "write"},
+    {"id": "p2", "from": "pipe", "to": "r1", "label": "无边界"},
+    {"id": "m1", "from": "w2", "to": "mq", "label": "msgsnd"},
+    {"id": "m2", "from": "mq", "to": "r2", "label": "按类型取"}
+  ],
+  "steps": [
+    {"hi": ["pipe", "mq"], "note": "管道只认字节；消息队列每条消息带 mtype，可只取类型 1"}
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "kind": "flow",
+  "title": "半同步/半反应堆：读写集中，任务过队列",
+  "alt": "I/O 线程读一批完整请求放进有界队列，worker 查表后把响应经结果队列送回",
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "client", "label": "客户端", "at": [0, 1], "shape": "round"},
+    {"id": "io", "label": "I/O 线程", "at": [1, 1], "shape": "round", "sub": "epoll 只做读写"},
+    {"id": "queue", "label": "请求队列", "at": [2, 1], "shape": "queue", "slots": 4},
+    {"id": "workers", "label": "worker 池", "at": [3, 1], "shape": "round", "sub": "解析 + 查表"},
+    {"id": "result", "label": "结果队列", "at": [2, 0], "shape": "queue", "slots": 4}
+  ],
+  "edges": [
+    {"id": "req", "from": "client", "to": "io", "label": "请求字节"},
+    {"id": "submit", "from": "io", "to": "queue", "label": "一批行"},
+    {"id": "take", "from": "queue", "to": "workers", "label": "取任务"},
+    {"id": "done", "from": "workers", "to": "result", "label": "响应", "dashed": true},
+    {"id": "wake", "from": "result", "to": "io", "label": "eventfd", "dashed": true},
+    {"id": "back", "from": "io", "to": "client", "label": "写回", "dashed": true}
+  ],
+  "steps": [
+    {"hi": ["client"], "note": "客户端发来一条或多条请求"},
+    {"token": [{"edge": "req", "label": "字节"}], "note": "I/O 线程读 socket，直到 EAGAIN"},
+    {"token": [{"edge": "submit", "label": "一批行"}], "note": "攒够至少一行，就按批（最多 16 行）投进有界队列"},
+    {"hi": ["queue"], "tone": {"queue": "wait"}, "note": "队列满时暂停 EPOLLIN，形成背压"},
+    {"token": [{"edge": "take", "label": "任务"}], "note": "空闲 worker 取走一个任务"},
+    {"hi": ["workers"], "note": "worker 只解析和查表，不碰 socket"},
+    {"token": [{"edge": "done", "label": "响应"}], "note": "响应放进结果队列"},
+    {"token": [{"edge": "wake", "label": "eventfd"}], "note": "eventfd 唤醒 I/O 线程来取结果"},
+    {"token": [{"edge": "back", "label": "写回"}], "note": "I/O 线程把响应写回连接"}
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "kind": "seq",
+  "title": "seq_cst：四个线程共享一条总序",
+  "alt": "读 A 看到 x=true、y=false；总序强制读 B 看到 y=true，所以至少一个读者看到另一个写",
+  "lanes": [
+    {"id": "wx", "label": "写 x"},
+    {"id": "wy", "label": "写 y"},
+    {"id": "ra", "label": "读 A（x→y）"},
+    {"id": "rb", "label": "读 B（y→x）"}
+  ],
+  "state": [
+    {"id": "x", "label": "x", "value": "false"},
+    {"id": "y", "label": "y", "value": "false"}
+  ],
+  "steps": [
+    {"at": "wx", "text": "x = true", "tone": "hot", "set": {"x": "true"}, "note": "写 x 进入总序"},
+    {"at": "ra", "text": "读到 x = true", "note": "A 的 x 读在 Wx 之后"},
+    {"at": "ra", "text": "再读 y = false", "tone": "wait", "note": "A 的 y 读排在 Wy 之前"},
+    {"at": "wy", "text": "y = true", "set": {"y": "true"}, "note": "写 y 排在写 x 之后"},
+    {"span": ["wx", "wy", "ra", "rb"], "text": "总序：Wx 在 Wy 前", "tone": "hot", "note": "两个写操作在总序上有先后"},
+    {"at": "rb", "text": "y=true，x=true", "tone": "ok", "note": "B 的 y 读在 Wy 后，x 读必在 Wx 后"}
+  ]
+}

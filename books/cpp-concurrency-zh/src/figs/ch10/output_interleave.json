@@ -1,0 +1,21 @@
+{
+  "kind": "seq",
+  "title": "std::cout 的字符交错与 osyncstream",
+  "alt": "多次插入之间会被别的线程插进来；osyncstream 把整行一次写出",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "out", "label": "std::cout 缓冲", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "buf", "label": "缓冲区", "value": "空"}
+  ],
+  "steps": [
+    {"from": "a", "to": "out", "text": "`<< \"T1 \"`", "set": {"buf": "T1 "}, "note": "A 的第一次插入：只写了行首"},
+    {"from": "b", "to": "out", "text": "`<< \"T2 \"`", "tone": "hot", "set": {"buf": "T1 T2 "}, "note": "B 的插入挤进 A 的两次插入之间"},
+    {"from": "a", "to": "out", "text": "`<< \"AAAA\"`", "set": {"buf": "T1 T2 AAAA"}, "note": "A 的后半段接在 B 后面"},
+    {"from": "b", "to": "out", "text": "`<< \"BBBB\\n\"`", "set": {"buf": "T1 T2 AAAA BBBB"}, "note": "B 先换行，B 的行先结束"},
+    {"from": "a", "to": "out", "text": "`<< \"\\n\"`", "tone": "bad", "set": {"buf": "两行都花了"}, "note": "A 的行尾落到下一行：两行都不完整"},
+    {"span": ["a", "out", "b"], "text": "`osyncstream` 整行 emit", "tone": "ok", "set": {"buf": "一行完整写出"}, "note": "整段一次写出，字符不再交错"}
+  ]
+}

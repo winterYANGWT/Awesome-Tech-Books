@@ -1,0 +1,107 @@
+{
+  "kind": "seq",
+  "title": "close-on-exec 的窗口与 O_CLOEXEC",
+  "alt": "open 后、fcntl 前另一个线程 exec，fd 泄漏；O_CLOEXEC 在创建时设好，没有窗口",
+  "lanes": [
+    {
+      "id": "a",
+      "label": "线程 A"
+    },
+    {
+      "id": "b",
+      "label": "线程 B"
+    },
+    {
+      "id": "kern",
+      "label": "内核",
+      "role": "kernel"
+    }
+  ],
+  "state": [
+    {
+      "id": "fd",
+      "label": "fd 3",
+      "value": "未打开"
+    },
+    {
+      "id": "clo",
+      "label": "FD_CLOEXEC",
+      "value": "no"
+    }
+  ],
+  "steps": [
+    {
+      "at": "a",
+      "text": "`open()` 返回 3",
+      "note": "open 不带 O_CLOEXEC，返回的 fd 3 默认会被 exec 继承",
+      "set": {
+        "fd": "打开",
+        "clo": "no"
+      }
+    },
+    {
+      "at": "a",
+      "text": "准备 `fcntl`",
+      "tone": "wait",
+      "note": "A 还没执行 fcntl，fd 3 已经能被别的线程看到"
+    },
+    {
+      "at": "b",
+      "text": "`fork` + `exec`",
+      "note": "B 恰好在这个窗口里 fork，子进程继承 fd 3"
+    },
+    {
+      "from": "b",
+      "to": "kern",
+      "text": "`execve`",
+      "note": "exec 换掉进程映像，只关闭带 FD_CLOEXEC 的 fd"
+    },
+    {
+      "from": "kern",
+      "to": "b",
+      "text": "fd 3 还在",
+      "tone": "bad",
+      "note": "新程序看到本不该给它的日志文件 fd"
+    },
+    {
+      "at": "a",
+      "text": "`fcntl(FD_CLOEXEC)`",
+      "note": "设置成功，但泄漏已经发生，晚了一步"
+    },
+    {
+      "at": "a",
+      "text": "`close(3)`",
+      "note": "第一轮结束，关闭 fd 3；第二轮重新 open 才会再拿到同一个号",
+      "set": {
+        "fd": "已关闭",
+        "clo": "no"
+      }
+    },
+    {
+      "at": "a",
+      "text": "`open(O_CLOEXEC)` 返回 3",
+      "note": "重来一次：fd 3 在创建的那一刻就带 close-on-exec",
+      "set": {
+        "fd": "打开",
+        "clo": "yes"
+      }
+    },
+    {
+      "from": "a",
+      "to": "kern",
+      "text": "`execve`",
+      "note": "同一个窗口里再 exec，这次 fd 已经标好"
+    },
+    {
+      "from": "kern",
+      "to": "a",
+      "text": "fd 3 已关闭",
+      "tone": "ok",
+      "note": "exec 时原子地关掉，别的线程没有机会插进来",
+      "set": {
+        "fd": "已关闭",
+        "clo": "no"
+      }
+    }
+  ]
+}

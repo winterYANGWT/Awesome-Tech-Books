@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "两个线程各加一次，为什么只多 1",
+  "alt": "A、B 都读到 0，A 先写回 1，B 后写回 1，一次加一丢了",
+  "speed": 1400,
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "mem", "label": "counter", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "counter", "label": "counter", "value": "0"},
+    {"id": "ra", "label": "A 的寄存器", "value": "—"},
+    {"id": "rb", "label": "B 的寄存器", "value": "—"}
+  ],
+  "steps": [
+    {"from": "mem", "to": "a", "text": "读到 0", "set": {"ra": "0"}, "note": "A 把 counter 的 0 读进寄存器"},
+    {"from": "mem", "to": "b", "text": "读到 0", "set": {"rb": "0"}, "note": "A 还没写回，B 也读到了 0"},
+    {"from": "a", "to": "mem", "text": "写 1", "tone": "hot", "set": {"counter": "1"}, "note": "A 加一后写回 1，counter 现在是 1"},
+    {"from": "b", "to": "mem", "text": "写 1", "tone": "bad", "set": {"counter": "1"}, "note": "B 也写回自己的 1：两次加一，只多了 1"}
+  ]
+}

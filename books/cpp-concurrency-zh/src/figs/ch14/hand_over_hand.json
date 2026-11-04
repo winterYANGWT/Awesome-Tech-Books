@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "手递手：先锁下一个，再放当前",
+  "alt": "A 等 B 持有的 node2，B 继续向前锁 node3 后释放 node2，A 于是拿到锁，没有环",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "list", "label": "链表节点", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "n1", "label": "node1", "value": "空闲"},
+    {"id": "n2", "label": "node2", "value": "空闲"},
+    {"id": "n3", "label": "node3", "value": "空闲"}
+  ],
+  "steps": [
+    {"from": "a", "to": "list", "text": "`lock(node1)`", "set": {"n1": "A 持有"}, "note": "A 从链表头开始，锁住 node1"},
+    {"from": "b", "to": "list", "text": "`lock(node2)`", "set": {"n2": "B 持有"}, "note": "B 从 node2 开始，锁住它"},
+    {"from": "a", "to": "list", "text": "`lock(node2)`", "tone": "wait", "lane": {"a": "blocked"}, "note": "A 要 node2，B 正持有：A 等"},
+    {"from": "b", "to": "list", "text": "`lock(node3)`", "set": {"n3": "B 持有"}, "note": "B 向前走：先锁 node3，node2 还拿着"},
+    {"at": "list", "text": "B 放 node2", "tone": "ok", "set": {"n2": "空闲"}, "note": "B 拿到 node3 后才放 node2"},
+    {"from": "a", "to": "list", "text": "`lock(node2)`", "lane": {"a": "running"}, "set": {"n2": "A 持有"}, "note": "A 拿到 node2，继续向前"},
+    {"from": "a", "to": "list", "text": "放 node1", "set": {"n1": "空闲"}, "note": "同方向推进：A 等的锁总会被前面的人释放，没有环"}
+  ]
+}

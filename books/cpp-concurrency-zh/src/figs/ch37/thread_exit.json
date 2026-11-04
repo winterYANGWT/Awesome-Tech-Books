@@ -1,0 +1,109 @@
+{
+  "kind": "seq",
+  "title": "线程结束的三条路径",
+  "alt": "不 join 就 terminate；thread_guard 析构 join；jthread 先停止再 join",
+  "lanes": [
+    {
+      "id": "nojoin",
+      "label": "不 join"
+    },
+    {
+      "id": "guard",
+      "label": "thread_guard"
+    },
+    {
+      "id": "jthread",
+      "label": "jthread"
+    }
+  ],
+  "steps": [
+    {
+      "ops": [
+        {
+          "at": "nojoin",
+          "text": "t 离开作用域"
+        },
+        {
+          "at": "guard",
+          "text": "guard 离开作用域"
+        },
+        {
+          "at": "jthread",
+          "text": "jthread 离开作用域"
+        }
+      ],
+      "note": "同一个返回点，三种对象各自析构"
+    },
+    {
+      "ops": [
+        {
+          "at": "nojoin",
+          "text": "joinable() 为真",
+          "tone": "bad"
+        },
+        {
+          "at": "guard",
+          "text": "调用 join()",
+          "tone": "wait"
+        },
+        {
+          "at": "jthread",
+          "text": "request_stop()",
+          "tone": "hot"
+        }
+      ],
+      "note": "thread_guard 自己 join；jthread 先发停止请求"
+    },
+    {
+      "ops": [
+        {
+          "at": "nojoin",
+          "text": "std::terminate",
+          "tone": "bad"
+        },
+        {
+          "at": "guard",
+          "text": "阻塞等 worker",
+          "tone": "wait"
+        },
+        {
+          "at": "jthread",
+          "text": "stop_token 置位",
+          "tone": "hot"
+        }
+      ],
+      "lane": {
+        "nojoin": "done"
+      },
+      "note": "不 join 没有第二次机会：程序直接终止"
+    },
+    {
+      "ops": [
+        {
+          "at": "guard",
+          "text": "worker 返回"
+        },
+        {
+          "at": "jthread",
+          "text": "worker 查 stop_requested"
+        }
+      ],
+      "note": "一个等线程自然结束，一个让线程看到停止请求"
+    },
+    {
+      "ops": [
+        {
+          "at": "guard",
+          "text": "join 返回",
+          "tone": "ok"
+        },
+        {
+          "at": "jthread",
+          "text": "join 返回",
+          "tone": "ok"
+        }
+      ],
+      "note": "两条路都汇入，栈正常展开；线程不响应停止时 jthread 仍会等下去"
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "kind": "seq",
+  "title": "四种执行策略的契约",
+  "alt": "seq 不建线程；par 可建线程但不交错；par_unseq 和 unseq 允许向量化",
+  "static": true,
+  "lanes": [
+    {
+      "id": "seq",
+      "label": "seq"
+    },
+    {
+      "id": "par",
+      "label": "par"
+    },
+    {
+      "id": "pu",
+      "label": "par_unseq"
+    },
+    {
+      "id": "un",
+      "label": "unseq"
+    }
+  ],
+  "steps": [
+    {
+      "label": "创建线程",
+      "ops": [
+        {
+          "at": "seq",
+          "text": "否",
+          "tone": "bad"
+        },
+        {
+          "at": "par",
+          "text": "可以",
+          "tone": "wait"
+        },
+        {
+          "at": "pu",
+          "text": "可以",
+          "tone": "wait"
+        },
+        {
+          "at": "un",
+          "text": "否",
+          "tone": "bad"
+        }
+      ],
+      "note": "只有 seq 和 unseq 保证元素函数都在调用线程上"
+    },
+    {
+      "label": "同线程交错",
+      "ops": [
+        {
+          "at": "seq",
+          "text": "否",
+          "tone": "ok"
+        },
+        {
+          "at": "par",
+          "text": "否",
+          "tone": "ok"
+        },
+        {
+          "at": "pu",
+          "text": "允许",
+          "tone": "bad"
+        },
+        {
+          "at": "un",
+          "text": "允许",
+          "tone": "bad"
+        }
+      ],
+      "note": "交错指同一线程上两段元素函数的指令可以交叉"
+    },
+    {
+      "label": "向量化",
+      "ops": [
+        {
+          "at": "seq",
+          "text": "否",
+          "tone": "ok"
+        },
+        {
+          "at": "par",
+          "text": "否",
+          "tone": "ok"
+        },
+        {
+          "at": "pu",
+          "text": "允许",
+          "tone": "wait"
+        },
+        {
+          "at": "un",
+          "text": "允许",
+          "tone": "wait"
+        }
+      ],
+      "note": "允许向量化是许可，不表示实现一定生成 SIMD 指令"
+    },
+    {
+      "label": "阻塞同步",
+      "ops": [
+        {
+          "at": "seq",
+          "text": "允许",
+          "tone": "ok"
+        },
+        {
+          "at": "par",
+          "text": "允许",
+          "tone": "ok"
+        },
+        {
+          "at": "pu",
+          "text": "禁止",
+          "tone": "bad"
+        },
+        {
+          "at": "un",
+          "text": "禁止",
+          "tone": "bad"
+        }
+      ],
+      "note": "par_unseq 和 unseq 下用互斥量等阻塞同步有死锁风险"
+    },
+    {
+      "label": "元素异常",
+      "ops": [
+        {
+          "at": "seq",
+          "text": "terminate",
+          "tone": "bad"
+        },
+        {
+          "at": "par",
+          "text": "terminate",
+          "tone": "bad"
+        },
+        {
+          "at": "pu",
+          "text": "terminate",
+          "tone": "bad"
+        },
+        {
+          "at": "un",
+          "text": "terminate",
+          "tone": "bad"
+        }
+      ],
+      "note": "四种策略都一样：元素函数抛出的异常调用 terminate"
+    }
+  ]
+}

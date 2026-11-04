@@ -1,0 +1,188 @@
+{
+  "kind": "seq",
+  "title": "MESI：同一条 cache line 在两条核之间来回搬",
+  "alt": "核 0 读入 E，核 1 读后变 S；谁写都要先让对方的副本失效并取得所有权，整行在两核之间来回搬",
+  "speed": 1500,
+  "lanes": [
+    {
+      "id": "c0",
+      "label": "核 0"
+    },
+    {
+      "id": "line",
+      "label": "cache line",
+      "role": "memory"
+    },
+    {
+      "id": "c1",
+      "label": "核 1"
+    }
+  ],
+  "state": [
+    {
+      "id": "state",
+      "label": "行状态",
+      "value": "I"
+    },
+    {
+      "id": "copy0",
+      "label": "核 0 副本",
+      "value": "无"
+    },
+    {
+      "id": "copy1",
+      "label": "核 1 副本",
+      "value": "无"
+    }
+  ],
+  "steps": [
+    {
+      "from": "c0",
+      "to": "line",
+      "text": "读 x",
+      "tone": "ok",
+      "set": {
+        "state": "E",
+        "copy0": "有"
+      },
+      "note": "核 0 独占地读入整行，状态 E"
+    },
+    {
+      "from": "c1",
+      "to": "line",
+      "text": "读 x",
+      "set": {
+        "state": "S",
+        "copy1": "有"
+      },
+      "note": "核 1 也读，两份副本都干净，变 S"
+    },
+    {
+      "ops": [
+        {
+          "at": "c0",
+          "text": "写 x"
+        },
+        {
+          "from": "c0",
+          "to": "c1",
+          "text": "Invalidate",
+          "dashed": true,
+          "tone": "bad"
+        },
+        {
+          "from": "c0",
+          "to": "line",
+          "text": "RFO"
+        }
+      ],
+      "set": {
+        "state": "M",
+        "copy1": "无"
+      },
+      "note": "写共享行要先拿到所有权，核 1 的副本失效"
+    },
+    {
+      "ops": [
+        {
+          "at": "c1",
+          "text": "写 x"
+        },
+        {
+          "from": "c1",
+          "to": "c0",
+          "text": "Invalidate",
+          "dashed": true,
+          "tone": "bad"
+        },
+        {
+          "from": "c1",
+          "to": "line",
+          "text": "RFO"
+        }
+      ],
+      "set": {
+        "state": "M",
+        "copy0": "无",
+        "copy1": "有"
+      },
+      "note": "核 1 再写又抢回所有权，核 0 失效"
+    },
+    {
+      "from": "c0",
+      "to": "line",
+      "text": "再读 x",
+      "set": {
+        "state": "S",
+        "copy0": "有"
+      },
+      "note": "核 0 再读，整行从核 1 搬回，双方变 S"
+    },
+    {
+      "ops": [
+        {
+          "at": "c0",
+          "text": "写 x"
+        },
+        {
+          "from": "c0",
+          "to": "c1",
+          "text": "Invalidate",
+          "dashed": true,
+          "tone": "bad"
+        },
+        {
+          "from": "c0",
+          "to": "line",
+          "text": "RFO"
+        }
+      ],
+      "set": {
+        "state": "M",
+        "copy1": "无"
+      },
+      "note": "核 0 写，整行又被它独占"
+    },
+    {
+      "ops": [
+        {
+          "at": "c1",
+          "text": "写 x"
+        },
+        {
+          "from": "c1",
+          "to": "c0",
+          "text": "Invalidate",
+          "dashed": true,
+          "tone": "bad"
+        },
+        {
+          "from": "c1",
+          "to": "line",
+          "text": "RFO"
+        }
+      ],
+      "set": {
+        "state": "M",
+        "copy0": "无",
+        "copy1": "有"
+      },
+      "note": "核 1 写，再抢一次；搬的是整行"
+    },
+    {
+      "span": [
+        "c0",
+        "c1"
+      ],
+      "text": "来回搬的是整行",
+      "tone": "bad",
+      "note": "写不同变量也走同一条协议，只要它们在同一行"
+    },
+    {
+      "at": "line",
+      "text": "同一行，两个变量",
+      "tone": "bad",
+      "note": "伪共享：结果正确，代价是整行来回搬"
+    }
+  ]
+}

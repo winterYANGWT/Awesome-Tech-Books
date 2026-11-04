@@ -1,0 +1,259 @@
+{
+  "kind": "grid",
+  "title": "SPSC 环：写槽、发布、读取、归还",
+  "alt": "生产者写槽后 release 发布 tail，消费者 acquire 读 tail 再读槽；留一个空槽区分满和空",
+  "rows": [
+    {
+      "label": "槽"
+    },
+    {
+      "label": "tail"
+    },
+    {
+      "label": "head"
+    }
+  ],
+  "cols": 8,
+  "colLabels": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7"
+  ],
+  "legend": [
+    {
+      "key": "prod",
+      "label": "生产者写"
+    },
+    {
+      "key": "cons",
+      "label": "消费者读"
+    },
+    {
+      "key": "full",
+      "label": "空槽（满）"
+    }
+  ],
+  "cells": [
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "0",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "0",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  ],
+  "steps": [
+    {
+      "paint": [
+        {
+          "r": 1,
+          "c": 0,
+          "key": null,
+          "text": "0"
+        },
+        {
+          "r": 2,
+          "c": 0,
+          "key": null,
+          "text": "0"
+        }
+      ],
+      "note": "初始 head=tail=0，环是空的"
+    },
+    {
+      "paint": [
+        {
+          "r": 0,
+          "c": 0,
+          "key": "prod",
+          "text": "10"
+        }
+      ],
+      "note": "生产者把 10 写进槽 0"
+    },
+    {
+      "paint": [
+        {
+          "r": 1,
+          "c": 0,
+          "key": null,
+          "text": ""
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "key": "prod",
+          "text": "1"
+        }
+      ],
+      "mark": [
+        {
+          "r": 1,
+          "c": 1
+        }
+      ],
+      "note": "release store tail=1：槽 0 已经发布"
+    },
+    {
+      "paint": [
+        {
+          "r": 2,
+          "c": 0,
+          "key": null,
+          "text": "0"
+        }
+      ],
+      "mark": [
+        {
+          "r": 1,
+          "c": 1
+        }
+      ],
+      "note": "消费者 acquire load tail，看到 1，说明槽 0 可读"
+    },
+    {
+      "paint": [
+        {
+          "r": 0,
+          "c": 0,
+          "key": "cons"
+        }
+      ],
+      "mark": [
+        {
+          "r": 0,
+          "c": 0
+        }
+      ],
+      "note": "消费者读槽 0，拿到 10"
+    },
+    {
+      "paint": [
+        {
+          "r": 2,
+          "c": 0,
+          "key": null,
+          "text": ""
+        },
+        {
+          "r": 2,
+          "c": 1,
+          "key": "cons",
+          "text": "1"
+        }
+      ],
+      "note": "release store head=1：槽 0 归还给生产者"
+    },
+    {
+      "paint": [
+        {
+          "r": 0,
+          "c": 1,
+          "key": "prod"
+        },
+        {
+          "r": 0,
+          "c": 2,
+          "key": "prod"
+        },
+        {
+          "r": 0,
+          "c": 3,
+          "key": "prod"
+        },
+        {
+          "r": 0,
+          "c": 4,
+          "key": "prod"
+        },
+        {
+          "r": 0,
+          "c": 5,
+          "key": "prod"
+        },
+        {
+          "r": 0,
+          "c": 6,
+          "key": "prod"
+        },
+        {
+          "r": 0,
+          "c": 7,
+          "key": "prod"
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "key": null,
+          "text": ""
+        },
+        {
+          "r": 1,
+          "c": 0,
+          "key": "prod",
+          "text": "8"
+        }
+      ],
+      "mark": [
+        {
+          "r": 1,
+          "c": 0
+        },
+        {
+          "r": 2,
+          "c": 1
+        }
+      ],
+      "note": "接着写槽 1–7：tail=8（模 8 为 0）、head=1，环满"
+    },
+    {
+      "paint": [
+        {
+          "r": 0,
+          "c": 0,
+          "key": "full",
+          "text": ""
+        }
+      ],
+      "mark": [
+        {
+          "r": 0,
+          "c": 0
+        },
+        {
+          "r": 1,
+          "c": 0
+        }
+      ],
+      "note": "槽 0 空着（刚被消费者读走）：留一个空槽表示满，最多 7 个元素"
+    }
+  ]
+}

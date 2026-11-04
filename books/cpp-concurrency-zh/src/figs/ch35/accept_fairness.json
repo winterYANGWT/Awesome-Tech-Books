@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "两种 accept 方式的每 worker 连接数",
+  "alt": "共享监听 fd 加 EPOLLEXCLUSIVE 时连接集中到一个 worker，SO_REUSEPORT 分得较匀",
+  "type": "bar",
+  "data": "code/ch35/35_4_accept_fairness.out",
+  "x": {"label": "accept 方式"},
+  "y": {"label": "accept 到的连接数", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），1200 条短连接"
+}

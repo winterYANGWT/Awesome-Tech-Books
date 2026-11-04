@@ -1,0 +1,24 @@
+{
+  "kind": "flow",
+  "title": "进程各有地址空间，线程共享",
+  "alt": "左边两个进程各有一份地址空间，右边三个线程共享代码和堆、各有栈和寄存器",
+  "grid": [5, 3],
+  "nodes": [
+    {"id": "p1", "label": "进程 A", "at": [0, 0], "shape": "round", "sub": "代码 堆 栈"},
+    {"id": "p2", "label": "进程 B", "at": [0, 2], "shape": "round", "sub": "代码 堆 栈"},
+    {"id": "shared", "label": "共享区", "at": [3, 1], "shape": "store", "sub": "代码 堆 fd"},
+    {"id": "t1", "label": "线程 1", "at": [4, 0], "shape": "round", "sub": "栈 + 寄存器"},
+    {"id": "t2", "label": "线程 2", "at": [4, 1], "shape": "round", "sub": "栈 + 寄存器"},
+    {"id": "t3", "label": "线程 3", "at": [4, 2], "shape": "round", "sub": "栈 + 寄存器"}
+  ],
+  "edges": [
+    {"id": "ipc", "from": "p1", "to": "p2", "label": "pipe/socket", "dashed": true, "fromSide": "bottom", "toSide": "top"},
+    {"id": "s1", "from": "shared", "to": "t1", "fromSide": "right", "toSide": "left"},
+    {"id": "s2", "from": "shared", "to": "t2", "fromSide": "right", "toSide": "left"},
+    {"id": "s3", "from": "shared", "to": "t3", "fromSide": "right", "toSide": "left"}
+  ],
+  "steps": [
+    {"note": "进程之间要显式通信；线程共享代码、堆和 fd，各自只有栈和寄存器"}
+  ],
+  "static": true
+}

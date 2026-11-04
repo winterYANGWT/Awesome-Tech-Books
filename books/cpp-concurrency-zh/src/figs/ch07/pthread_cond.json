@@ -1,0 +1,30 @@
+{
+  "kind": "seq",
+  "title": "pthread_cond_wait 的释放、等待与重锁",
+  "alt": "wait 原子释放互斥量并睡眠；signal 唤醒后重新加锁；signal 若早于 wait 就丢失",
+  "lanes": [
+    {"id": "c", "label": "消费者"},
+    {"id": "m", "label": "mutex", "role": "memory"},
+    {"id": "cv", "label": "条件变量", "role": "kernel"},
+    {"id": "p", "label": "生产者"}
+  ],
+  "state": [
+    {"id": "owner", "label": "锁持有者", "value": "—"},
+    {"id": "ready", "label": "ready", "value": "0"},
+    {"id": "waiters", "label": "等待者", "value": "空"}
+  ],
+  "steps": [
+    {"from": "c", "to": "m", "text": "`pthread_mutex_lock`", "set": {"owner": "消费者"}, "note": "wait 前必须持有配套的互斥量"},
+    {"ops": [
+      {"from": "c", "to": "m", "text": "解锁"},
+      {"from": "c", "to": "cv", "text": "入队"}
+    ], "lane": {"c": "blocked"}, "set": {"owner": "—", "waiters": "消费者"}, "note": "wait 原子地释放互斥量并进入等待队列"},
+    {"from": "p", "to": "m", "text": "`pthread_mutex_lock`", "set": {"owner": "生产者"}, "note": "生产者拿锁改共享状态"},
+    {"from": "p", "to": "m", "text": "`ready = 1`", "set": {"ready": "1"}, "note": "先改状态"},
+    {"from": "p", "to": "m", "text": "`pthread_mutex_unlock`", "set": {"owner": "—"}, "note": "解锁后再 signal"},
+    {"from": "p", "to": "cv", "text": "`pthread_cond_signal`", "dashed": true, "tone": "bad", "note": "signal 在 wait 前发出会丢失；返回 0 也可能是虚假唤醒"},
+    {"from": "cv", "to": "c", "text": "唤醒", "lane": {"c": "running"}, "set": {"waiters": "空"}, "note": "消费者被唤醒，准备重新加锁"},
+    {"from": "c", "to": "m", "text": "重新加锁", "set": {"owner": "消费者"}, "note": "wait 返回前重新加锁"},
+    {"at": "c", "text": "`while (!ready)`：退出", "tone": "ok", "note": "谓词为真，退出循环；返回值 0 区分不了真假唤醒"}
+  ]
+}

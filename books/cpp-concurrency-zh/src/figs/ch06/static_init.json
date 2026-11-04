@@ -1,0 +1,152 @@
+{
+  "kind": "flow",
+  "title": "编译期、静态初始化、动态初始化与局部 static",
+  "alt": "constexpr/constinit 在 main 前就绪；动态初始化跨翻译单元顺序未指定",
+  "grid": [
+    3,
+    4
+  ],
+  "bands": [
+    {
+      "label": "编译期",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "静态初始化",
+      "rows": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "动态初始化",
+      "rows": [
+        2,
+        2
+      ]
+    },
+    {
+      "label": "首次调用",
+      "rows": [
+        3,
+        3
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "cx",
+      "label": "`constexpr` 函数",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "编译期求值"
+    },
+    {
+      "id": "cx2",
+      "label": "算好的表",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "只读，无竞争"
+    },
+    {
+      "id": "ci",
+      "label": "`constinit` 变量",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "静态初始化"
+    },
+    {
+      "id": "ready",
+      "label": "main 前就绪",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "不需要运行期构造"
+    },
+    {
+      "id": "dyn",
+      "label": "动态初始化",
+      "at": [
+        0,
+        2
+      ],
+      "sub": "全局对象"
+    },
+    {
+      "id": "risk",
+      "label": "另一翻译单元",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "可能还没构造"
+    },
+    {
+      "id": "lazy",
+      "label": "局部 static",
+      "at": [
+        0,
+        3
+      ],
+      "sub": "第一次调用"
+    },
+    {
+      "id": "first",
+      "label": "首次调用时构造",
+      "at": [
+        2,
+        3
+      ],
+      "sub": "之后直接返回"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "cx",
+      "to": "cx2",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e2",
+      "from": "ci",
+      "to": "ready",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e3",
+      "from": "dyn",
+      "to": "risk",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e4",
+      "from": "lazy",
+      "to": "first",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "tone": {
+        "risk": "bad"
+      },
+      "note": "constexpr/constinit 在 main 前就绪；全局动态初始化的跨翻译单元顺序未指定"
+    }
+  ]
+}

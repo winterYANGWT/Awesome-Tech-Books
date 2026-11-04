@@ -1,0 +1,25 @@
+{
+  "kind": "seq",
+  "title": "双重检查锁：B 在锁外读到半构造对象",
+  "alt": "A 在锁内构造并发布指针；B 在锁外先看到指针，再读到还没构造好的字段",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "m", "label": "指针与对象", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "p", "label": "p", "value": "nullptr"},
+    {"id": "fields", "label": "对象字段", "value": "未构造"},
+    {"id": "seen", "label": "B 看到", "value": "—"}
+  ],
+  "steps": [
+    {"from": "m", "to": "b", "text": "读 p", "set": {"seen": "nullptr"}, "note": "B 在锁外读指针，没有加锁"},
+    {"at": "a", "text": "lock()", "note": "A 这时才拿到锁"},
+    {"at": "a", "text": "new Config", "set": {"fields": "分配了内存"}, "note": "先分配内存，字段还没写"},
+    {"at": "a", "text": "写 a=1,b=2", "set": {"fields": "a=1,b=2"}, "note": "构造在锁内完成"},
+    {"from": "a", "to": "m", "text": "p = 地址", "tone": "hot", "set": {"p": "非空"}, "note": "指针发布；和 B 的读没有 happens-before"},
+    {"from": "m", "to": "b", "text": "读到非空", "set": {"seen": "p 非空"}, "note": "B 看到指针已赋值"},
+    {"from": "m", "to": "b", "text": "读字段", "tone": "bad", "set": {"seen": "a=?, b=?"}, "note": "B 可能读到未初始化或半更新的字段"},
+    {"span": ["a", "m", "b"], "text": "没有 happens-before", "tone": "bad", "note": "锁只包住 A；B 的读在锁外，构成数据竞争"}
+  ]
+}

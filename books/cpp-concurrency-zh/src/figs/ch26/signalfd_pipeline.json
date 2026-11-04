@@ -1,0 +1,36 @@
+{
+  "kind": "flow",
+  "title": "signalfd 把信号接进 epoll",
+  "alt": "信号被屏蔽后留在 pending，signalfd 变可读，epoll 通知主循环",
+  "grid": [4, 2],
+  "bands": [
+    {"label": "内核", "rows": [0, 0]},
+    {"label": "用户态", "rows": [1, 1]}
+  ],
+  "nodes": [
+    {"id": "sig", "label": "SIGTERM", "at": [0, 0]},
+    {"id": "mask", "label": "屏蔽", "at": [1, 0]},
+    {"id": "pending", "label": "pending", "at": [2, 0]},
+    {"id": "sfd", "label": "signalfd", "at": [3, 0]},
+    {"id": "epoll", "label": "epoll", "at": [3, 1]},
+    {"id": "read", "label": "`read`", "at": [2, 1]},
+    {"id": "work", "label": "按信号分派", "at": [1, 1]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "sig", "to": "mask", "label": "产生"},
+    {"id": "e2", "from": "mask", "to": "pending", "label": "未决"},
+    {"id": "e3", "from": "pending", "to": "sfd", "label": "可读"},
+    {"id": "e4", "from": "sfd", "to": "epoll", "label": "注册"},
+    {"id": "e5", "from": "epoll", "to": "read", "label": "就绪"},
+    {"id": "e6", "from": "read", "to": "work", "label": "`ssi_signo`"}
+  ],
+  "steps": [
+    {"note": "先在所有线程屏蔽 SIGTERM", "hi": ["mask"]},
+    {"token": [{"edge": "e4"}], "note": "创建 signalfd，再把它的 fd 注册进 epoll", "hi": ["sfd", "epoll"]},
+    {"token": [{"edge": "e1"}], "note": "SIGTERM 产生，目标线程已经屏蔽它", "hi": ["sig"]},
+    {"token": [{"edge": "e2"}], "note": "信号挂在 pending 集合里，没有跑处理函数", "hi": ["pending"]},
+    {"token": [{"edge": "e3"}], "note": "signalfd 对应的 fd 变成可读", "hi": ["sfd"]},
+    {"token": [{"edge": "e5"}], "note": "epoll_wait 返回，主循环知道 signalfd 就绪", "hi": ["read"]},
+    {"token": [{"edge": "e6"}], "note": "read 取走 signalfd_siginfo，按 ssi_signo 分派", "hi": ["work"]}
+  ]
+}

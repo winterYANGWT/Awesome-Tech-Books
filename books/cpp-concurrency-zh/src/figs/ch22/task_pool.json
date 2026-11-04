@@ -1,0 +1,128 @@
+{
+  "kind": "flow",
+  "title": "task：主线程生成、任务池、worker 取走",
+  "alt": "主线程把任务放进池子，一列 worker 取走执行；taskwait 汇集后返回主线程",
+  "static": true,
+  "grid": [
+    3,
+    4
+  ],
+  "nodes": [
+    {
+      "id": "main",
+      "label": "主线程",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round",
+      "sub": "生成 task"
+    },
+    {
+      "id": "pool",
+      "label": "任务池",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "queue",
+      "slots": 4
+    },
+    {
+      "id": "w1",
+      "label": "worker 1",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round",
+      "sub": "取任务"
+    },
+    {
+      "id": "w2",
+      "label": "worker 2",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "round",
+      "sub": "执行"
+    },
+    {
+      "id": "w3",
+      "label": "worker 3",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "round",
+      "sub": "执行"
+    },
+    {
+      "id": "wait",
+      "label": "taskwait",
+      "at": [
+        0,
+        3
+      ],
+      "shape": "box",
+      "sub": "等子任务"
+    }
+  ],
+  "edges": [
+    {
+      "id": "spawn",
+      "from": "main",
+      "to": "pool",
+      "label": "task",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "take1",
+      "from": "pool",
+      "to": "w1",
+      "label": "取任务",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "take2",
+      "from": "pool",
+      "to": "w2",
+      "label": "取任务",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "take3",
+      "from": "pool",
+      "to": "w3",
+      "label": "取任务",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "join3",
+      "from": "w3",
+      "to": "wait",
+      "label": "完成",
+      "fromSide": "left",
+      "toSide": "right",
+      "route": "hv"
+    },
+    {
+      "id": "back",
+      "from": "wait",
+      "to": "main",
+      "label": "返回",
+      "fromSide": "top",
+      "toSide": "bottom"
+    }
+  ],
+  "steps": [
+    {
+      "note": "三个 worker 都完成后 taskwait 才返回；这里只画一条完成边"
+    }
+  ]
+}

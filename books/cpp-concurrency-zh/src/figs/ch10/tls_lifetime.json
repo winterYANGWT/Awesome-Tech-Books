@@ -1,0 +1,25 @@
+{
+  "kind": "seq",
+  "title": "thread_local 对象的生命周期",
+  "alt": "线程第一次经过声明时构造，线程函数返回后逆序析构；交出去的指针随即悬空",
+  "lanes": [
+    {"id": "main", "label": "主线程"},
+    {"id": "work", "label": "工作线程"},
+    {"id": "tls", "label": "TLS 对象", "role": "memory"}
+  ],
+  "state": [
+    {"id": "a", "label": "对象 A", "value": "未构造"},
+    {"id": "b", "label": "对象 B", "value": "未构造"},
+    {"id": "p", "label": "全局指针", "value": "空"}
+  ],
+  "steps": [
+    {"span": ["main", "work"], "text": "`std::thread` 启动", "note": "工作线程开始执行"},
+    {"at": "work", "text": "构造 A", "set": {"a": "存活"}, "note": "控制流第一次经过声明，构造 A"},
+    {"at": "work", "text": "构造 B", "set": {"b": "存活"}, "note": "再经过一次声明，构造 B"},
+    {"at": "work", "text": "使用 A、B", "note": "线程函数体里正常使用两个对象"},
+    {"from": "work", "to": "main", "text": "发布 `&A`", "tone": "hot", "set": {"p": "&A"}, "note": "A 的地址被交给了主线程"},
+    {"at": "work", "text": "线程函数返回", "note": "返回之后才开始析构 thread_local"},
+    {"at": "work", "text": "析构 B→A", "tone": "bad", "set": {"a": "已析构", "b": "已析构"}, "note": "按构造逆序析构；对象只活到线程退出"},
+    {"from": "main", "to": "tls", "text": "解引用 `p`", "tone": "bad", "note": "主线程手里的指针已经悬空"}
+  ]
+}

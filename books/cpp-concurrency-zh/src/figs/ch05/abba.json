@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "相反顺序加锁形成 ABBA 死锁",
+  "alt": "A 持 m1 等 m2，B 持 m2 等 m1，两个线程互相卡住",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "m1", "label": "m1", "value": "空闲"},
+    {"id": "m2", "label": "m2", "value": "空闲"}
+  ],
+  "steps": [
+    {"at": "a", "text": "`lock(m1)` 成功", "set": {"m1": "A 持有"}, "note": "A 先锁 m1，拿到后不释放"},
+    {"at": "b", "text": "`lock(m2)` 成功", "set": {"m2": "B 持有"}, "note": "B 先锁 m2：和 A 的顺序相反"},
+    {"at": "a", "text": "请求 m2 → 阻塞", "tone": "wait", "lane": {"a": "blocked"}, "note": "m2 在 B 手里，A 停在 lock(m2)"},
+    {"at": "b", "text": "请求 m1 → 阻塞", "tone": "wait", "lane": {"b": "blocked"}, "note": "m1 在 A 手里，B 停在 lock(m1)"},
+    {"span": ["a", "b"], "text": "两边都不释放", "tone": "bad", "note": "A 等 B 释放 m2，B 等 A 释放 m1"},
+    {"span": ["a", "b"], "text": "环：A→m2→B→m1→A", "tone": "bad", "note": "循环等待成立，两个线程永远不动"},
+    {"span": ["a", "b"], "text": "CPU 0%，日志停住", "tone": "bad", "note": "等的是锁而不是计算，所以 CPU 不忙"}
+  ]
+}

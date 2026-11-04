@@ -1,0 +1,25 @@
+{
+  "kind": "seq",
+  "title": "eventfd：投递任务后唤醒事件循环",
+  "alt": "工作线程 push 后写 eventfd，循环从 epoll_wait 醒来取任务；不写就丢通知",
+  "lanes": [
+    {"id": "worker", "label": "工作线程"},
+    {"id": "q", "label": "任务队列"},
+    {"id": "efd", "label": "eventfd"},
+    {"id": "loop", "label": "事件循环"}
+  ],
+  "state": [
+    {"id": "q", "label": "队列任务", "value": "0"},
+    {"id": "efd", "label": "eventfd", "value": "0"},
+    {"id": "done", "label": "已执行", "value": "0"}
+  ],
+  "steps": [
+    {"at": "loop", "text": "epoll_wait(-1)", "lane": {"loop": "blocked"}, "note": "循环先睡进等待里，不占 CPU"},
+    {"from": "worker", "to": "q", "text": "push 任务", "set": {"q": "1"}, "note": "工作线程把任务放进队列"},
+    {"from": "worker", "to": "efd", "text": "write 1", "set": {"efd": "1"}, "note": "写 eventfd，计数器加一"},
+    {"from": "efd", "to": "loop", "text": "可读", "dashed": true, "lane": {"loop": "running"}, "note": "内核发现 eventfd 可读，唤醒循环"},
+    {"from": "loop", "to": "efd", "text": "read 8 字节", "set": {"efd": "0"}, "note": "读出计数并清零，事件fd重新可等"},
+    {"from": "q", "to": "loop", "text": "swap 后执行", "set": {"q": "0", "done": "1"}, "note": "先换出队列，再执行，回调里可再投递"},
+    {"at": "worker", "text": "若没有 eventfd", "tone": "bad", "lane": {"loop": "blocked"}, "set": {"q": "1", "done": "0"}, "note": "只 push 不写 fd：队列非空，循环仍在睡"}
+  ]
+}

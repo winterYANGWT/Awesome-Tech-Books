@@ -1,0 +1,23 @@
+{
+  "kind": "seq",
+  "title": "fetch_add 是一步，不是三步",
+  "alt": "A、B 各做一次 fetch_add，变量从 0 到 2，没有丢失更新",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "mem", "label": "counter", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "counter", "label": "counter", "value": "0"},
+    {"id": "ra", "label": "A 的返回值", "value": "—"},
+    {"id": "rb", "label": "B 的返回值", "value": "—"}
+  ],
+  "steps": [
+    {"from": "a", "to": "mem", "text": "`fetch_add(1)`", "set": {"counter": "1", "ra": "0"}, "note": "A 的读-改-写由一条原子指令完成，返回旧值 0"},
+    {"at": "mem", "text": "counter = 1", "note": "A 返回时变量已经是 1，中间没有“只加了一半”的状态"},
+    {"from": "b", "to": "mem", "text": "`fetch_add(1)`", "set": {"counter": "2", "rb": "1"}, "note": "B 的一步也完成，它读到的是 1"},
+    {"at": "mem", "text": "counter = 2", "tone": "ok", "note": "两次加一都保留，counter 是 2"},
+    {"at": "a", "text": "返回值 0", "tone": "muted", "note": "A 拿到的是旧值 0，不是变量现在的值"},
+    {"at": "b", "text": "返回值 1", "tone": "muted", "note": "B 拿到的是旧值 1；两个返回值合起来正好是两次修改"}
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "kind": "seq",
+  "title": "SIGCHLD 合并：三次退出只递送一次",
+  "alt": "三个子进程先后退出，未决位始终只有一位；处理函数循环 waitpid 回收三个",
+  "speed": 1500,
+  "lanes": [
+    {"id": "c1", "label": "子进程 1", "role": "process"},
+    {"id": "c2", "label": "子进程 2", "role": "process"},
+    {"id": "c3", "label": "子进程 3", "role": "process"},
+    {"id": "kernel", "label": "内核", "role": "kernel"},
+    {"id": "parent", "label": "父进程", "role": "process"}
+  ],
+  "state": [
+    {"id": "pending", "label": "SIGCHLD 未决位", "value": "0"},
+    {"id": "reaped", "label": "已回收", "value": "0"}
+  ],
+  "steps": [
+    {"from": "c1", "to": "kernel", "text": "退出", "lane": {"c1": "done"}, "set": {"pending": "1"}, "note": "子进程 1 退出，SIGCHLD 置未决位"},
+    {"from": "c2", "to": "kernel", "text": "退出", "lane": {"c2": "done"}, "set": {"pending": "1"}, "note": "子进程 2 退出，这一位已经是 1，不排队"},
+    {"from": "c3", "to": "kernel", "text": "退出", "lane": {"c3": "done"}, "set": {"pending": "1"}, "note": "子进程 3 退出，仍然只有一位"},
+    {"from": "kernel", "to": "parent", "text": "递送 1 次", "dashed": true, "set": {"pending": "0"}, "note": "解除屏蔽后只递送一次 SIGCHLD"},
+    {"from": "parent", "to": "kernel", "text": "`waitpid` 循环", "set": {"reaped": "3"}, "note": "处理函数循环回收 3 个，直到返回 0 或 -1"},
+    {"at": "parent", "text": "继续 accept", "tone": "ok", "note": "三个都回收了，进程表里没有 Z"}
+  ]
+}

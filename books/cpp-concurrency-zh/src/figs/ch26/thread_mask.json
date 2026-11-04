@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "所有线程屏蔽，专用线程 sigwait",
+  "alt": "主线程先屏蔽 SIGTERM，新线程继承掩码，sigwait 取走后处理函数不执行",
+  "lanes": [
+    {"id": "main", "label": "主线程"},
+    {"id": "w", "label": "worker"},
+    {"id": "sw", "label": "sigwait 线程"},
+    {"id": "kern", "label": "内核", "role": "kernel"}
+  ],
+  "state": [
+    {"id": "mask", "label": "SIGTERM 掩码", "value": "无"},
+    {"id": "pending", "label": "pending", "value": "0"},
+    {"id": "handler", "label": "处理函数次数", "value": "0"}
+  ],
+  "steps": [
+    {"at": "main", "text": "`pthread_sigmask`", "set": {"mask": "屏蔽"}, "note": "主线程在创建其他线程之前先屏蔽 SIGTERM"},
+    {"span": ["main", "w"], "text": "创建 worker", "lane": {"w": "new"}, "note": "新线程继承创建者的信号掩码"},
+    {"at": "main", "text": "创建 sigwait 线程", "lane": {"sw": "new"}, "note": "专用线程也继承同一个掩码"},
+    {"from": "kern", "to": "sw", "text": "SIGTERM", "set": {"pending": "1"}, "note": "信号到达，所有线程都屏蔽了它"},
+    {"at": "sw", "text": "`sigwait` 取走", "set": {"pending": "0"}, "note": "sigwait 返回 0，信号从 pending 集合移除"},
+    {"span": ["sw", "main"], "text": "处理函数不执行", "tone": "ok", "set": {"handler": "0"}, "note": "取走的信号不再调用处理函数，由 sigwait 线程处理"}
+  ]
+}

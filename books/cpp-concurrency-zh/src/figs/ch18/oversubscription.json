@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "CPU 密集型任务：线程数与耗时",
+  "alt": "线程数超过逻辑线程数以后耗时回升，64 线程明显慢于 32 线程",
+  "type": "line",
+  "data": "code/ch18/18_4_oversubscribe.out",
+  "x": {"label": "线程数", "scale": "log2"},
+  "y": {"label": "耗时", "unit": "ms", "min": 0},
+  "note": "本机 16 个物理核、32 个逻辑线程（SMT 2）；线程数超过 32 后开始退化。数据随机器和负载变化"
+}

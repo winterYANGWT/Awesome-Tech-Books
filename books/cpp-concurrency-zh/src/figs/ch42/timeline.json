@@ -1,0 +1,24 @@
+{
+  "kind": "flow",
+  "title": "I/O 接口的时间线",
+  "alt": "select 受 fd_set 限制，poll 换成数组，epoll 把兴趣表放进内核，io_uring 改成完成式",
+  "grid": [4, 1],
+  "nodes": [
+    {"id": "select", "label": "select", "at": [0, 0], "sub": "POSIX，fd_set"},
+    {"id": "poll", "label": "poll", "at": [1, 0], "sub": "nfds_t 数组"},
+    {"id": "epoll", "label": "epoll", "at": [2, 0], "sub": "Linux 2.6"},
+    {"id": "uring", "label": "io_uring", "at": [3, 0], "sub": "Linux 5.1"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "select", "to": "poll", "label": "数组替代位图"},
+    {"id": "e2", "from": "poll", "to": "epoll", "label": "C10K"},
+    {"id": "e3", "from": "epoll", "to": "uring", "label": "完成式"}
+  ],
+  "static": true,
+  "steps": [
+    {"hi": ["select"], "note": "select 用定长 fd_set，连接数受 FD_SETSIZE 限制"},
+    {"hi": ["poll"], "note": "poll 换成数组，去掉 1024 上限，但仍要每次复制和扫描"},
+    {"hi": ["epoll"], "note": "C10K 推动 epoll 把兴趣表放进内核，只返回就绪项"},
+    {"hi": ["uring"], "note": "io_uring 改成完成式，SQ/CQ 在用户和内核之间共享"}
+  ]
+}

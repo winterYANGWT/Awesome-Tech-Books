@@ -1,0 +1,106 @@
+{
+  "kind": "flow",
+  "title": "IPC 对象：谁有 fd、谁负责清理",
+  "alt": "SysV 用 key 不是 fd；POSIX shm 有名字和 fd；memfd 只有 fd；都要显式清理",
+  "static": true,
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "sysv",
+      "label": "SysV 共享内存",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "key，不是 fd"
+    },
+    {
+      "id": "posix",
+      "label": "POSIX 共享内存",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "名字在 /dev/shm，有 fd"
+    },
+    {
+      "id": "memfd",
+      "label": "`memfd`",
+      "at": [
+        0,
+        2
+      ],
+      "sub": "匿名 fd，可加 seals"
+    },
+    {
+      "id": "scm",
+      "label": "`SCM_RIGHTS`",
+      "at": [
+        1,
+        2
+      ],
+      "sub": "把 fd 发给别的进程"
+    },
+    {
+      "id": "sysvc",
+      "label": "`IPC_RMID`",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "或进程退出后仍在"
+    },
+    {
+      "id": "posixc",
+      "label": "`shm_unlink`",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "名字消失，映射还在"
+    },
+    {
+      "id": "memfdc",
+      "label": "`close`",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "最后一个 fd 关闭"
+    }
+  ],
+  "edges": [
+    {
+      "id": "s1",
+      "from": "sysv",
+      "to": "sysvc",
+      "label": "shmctl"
+    },
+    {
+      "id": "p1",
+      "from": "posix",
+      "to": "posixc",
+      "label": "unlink"
+    },
+    {
+      "id": "m1",
+      "from": "memfd",
+      "to": "scm",
+      "label": "sendmsg"
+    },
+    {
+      "id": "m2",
+      "from": "memfd",
+      "to": "memfdc",
+      "label": "close"
+    }
+  ],
+  "steps": [
+    {
+      "note": "这些对象都不是可读事件源：fd 只用于 mmap"
+    }
+  ]
+}

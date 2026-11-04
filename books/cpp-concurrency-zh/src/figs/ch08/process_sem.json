@@ -1,0 +1,86 @@
+{
+  "kind": "flow",
+  "title": "进程间信号量：sem_t 必须放在共享内存里",
+  "alt": "父进程 mmap 共享页并 sem_init(pshared=1)，fork 后父子页表不同但映射同一物理页",
+  "grid": [
+    3,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "parent",
+      "label": "父进程",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round",
+      "sub": "mmap + sem_init"
+    },
+    {
+      "id": "shm",
+      "label": "共享内存页",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "store",
+      "sub": "sem_t + counter"
+    },
+    {
+      "id": "child",
+      "label": "子进程",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round",
+      "sub": "sem_wait"
+    }
+  ],
+  "edges": [
+    {
+      "id": "map",
+      "from": "parent",
+      "to": "shm",
+      "label": "映射"
+    },
+    {
+      "id": "fork",
+      "from": "parent",
+      "to": "child",
+      "label": "fork"
+    },
+    {
+      "id": "wait",
+      "from": "child",
+      "to": "shm",
+      "label": "sem_wait",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "map"
+      ],
+      "note": "父进程用 MAP_SHARED 映射一页，sem_init 的第二个参数传 1"
+    },
+    {
+      "hi": [
+        "fork"
+      ],
+      "note": "fork 之后父子进程各有页表，但都指向同一物理页"
+    },
+    {
+      "hi": [
+        "wait"
+      ],
+      "note": "子进程 sem_wait 看到的是共享页里的 sem_t，不是自己的副本"
+    },
+    {
+      "note": "父进程 sem_post 改的也是这一页；pshared=1 只有在共享内存里才成立"
+    }
+  ],
+  "static": true
+}

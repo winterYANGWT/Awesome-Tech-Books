@@ -1,0 +1,18 @@
+{
+  "kind": "seq",
+  "title": "字节流里的读写边界与请求边界",
+  "alt": "三次写各 16 字节对应三次读；两条请求一次写入又被一次读走",
+  "lanes": [
+    {"id": "tx", "label": "发送端"},
+    {"id": "stream", "label": "字节流", "role": "kernel"},
+    {"id": "rx", "label": "接收端"}
+  ],
+  "steps": [
+    {"from": "tx", "to": "stream", "text": "写 16 字节", "note": "发送端第 1 次 write，16 字节"},
+    {"from": "stream", "to": "rx", "text": "读 16 字节", "note": "接收端第 1 次 read 取走 16 字节"},
+    {"from": "tx", "to": "stream", "text": "再写 16 字节", "note": "第 2 次 write，又是 16 字节"},
+    {"from": "stream", "to": "rx", "text": "再读 16 字节", "note": "第 2 次 read 仍是 16 字节"},
+    {"from": "tx", "to": "stream", "text": "写两条请求", "note": "两条以换行结尾的请求放在一次 write 里"},
+    {"from": "stream", "to": "rx", "text": "一次读 19 字节", "tone": "hot", "note": "一次读到两条请求：读次数不等于请求数"}
+  ]
+}

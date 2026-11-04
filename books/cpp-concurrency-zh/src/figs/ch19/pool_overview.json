@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "线程池的组成与两条路径",
+  "alt": "提交者在运行期只入队，工作线程取任务执行，结果写进 future",
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "sub", "label": "提交者", "at": [0, 0], "shape": "round", "sub": "调用 submit"},
+    {"id": "q", "label": "任务队列", "at": [1, 0], "shape": "queue", "slots": 4, "sub": "有界或可观测"},
+    {"id": "w", "label": "工作线程", "at": [2, 0], "shape": "round", "sub": "启动时创建"},
+    {"id": "f", "label": "future", "at": [3, 0], "shape": "store", "sub": "结果或异常"},
+    {"id": "boot", "label": "创建发生在启动阶段", "at": [2, 1], "shape": "note"}
+  ],
+  "edges": [
+    {"id": "submit", "from": "sub", "to": "q", "label": "入队"},
+    {"id": "take", "from": "q", "to": "w", "label": "取任务"},
+    {"id": "result", "from": "w", "to": "f", "label": "写共享状态"},
+    {"id": "create", "from": "boot", "to": "w", "label": "创建", "dashed": true}
+  ],
+  "steps": [
+    {"note": "运行期只有入队和出队；线程创建在启动阶段就完成了"}
+  ],
+  "static": true
+}

@@ -1,0 +1,30 @@
+{
+  "kind": "flow",
+  "title": "三层消息传递：线程、进程、机器",
+  "alt": "进程内传对象所有权，操作系统 IPC 经内核复制，MPI 跨机器按 rank 和 tag 匹配",
+  "grid": [3, 3],
+  "bands": [
+    {"label": "进程内：共享地址空间", "rows": [0, 0]},
+    {"label": "OS IPC：同一台机器", "rows": [1, 1]},
+    {"label": "MPI：跨进程、跨机器", "rows": [2, 2]}
+  ],
+  "nodes": [
+    {"id": "ta", "label": "线程 A", "at": [0, 0], "shape": "round", "sub": "同一进程"},
+    {"id": "tb", "label": "线程 B", "at": [2, 0], "shape": "round"},
+    {"id": "pa", "label": "进程 A", "at": [0, 1], "shape": "round", "sub": "私有地址空间"},
+    {"id": "pb", "label": "进程 B", "at": [2, 1], "shape": "round"},
+    {"id": "ma", "label": "机器 A", "at": [0, 2], "shape": "round", "sub": "可能不同字节序"},
+    {"id": "mb", "label": "机器 B", "at": [2, 2], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "ch", "from": "ta", "to": "tb", "label": "`Channel<T>`：移动对象"},
+    {"id": "pipe", "from": "pa", "to": "pb", "label": "pipe/mq：内核复制"},
+    {"id": "mpi", "from": "ma", "to": "mb", "label": "MPI：rank/tag 匹配"}
+  ],
+  "steps": [
+    {"token": [{"edge": "ch", "label": "unique_ptr"}], "hi": ["ta", "tb"], "note": "同一进程：消息是 move-only 对象，没有序列化"},
+    {"token": [{"edge": "pipe", "label": "字节"}], "hi": ["pa", "pb"], "note": "同一台机器：字节经过内核复制；pipe 无边界，mq 有边界，都有错误码"},
+    {"token": [{"edge": "mpi", "label": "消息"}], "hi": ["ma", "mb"], "note": "跨机器：私有地址空间，按通信子、rank、tag 匹配"}
+  ],
+  "static": true
+}

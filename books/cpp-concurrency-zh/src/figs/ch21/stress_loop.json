@@ -1,0 +1,145 @@
+{
+  "kind": "flow",
+  "title": "压力测试的一轮：失败就留下种子",
+  "alt": "固定 push/pop/close，种子决定 yield/sleep 的时机；失败留下种子和最近的 push，便于重跑",
+  "grid": [
+    5,
+    1
+  ],
+  "nodes": [
+    {
+      "id": "seed",
+      "label": "随机种子",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round",
+      "sub": "seed=…"
+    },
+    {
+      "id": "gate",
+      "label": "起跑门",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "round",
+      "sub": "latch"
+    },
+    {
+      "id": "ops",
+      "label": "多线程固定操作",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round",
+      "sub": "push/pop/close"
+    },
+    {
+      "id": "check",
+      "label": "断言 / 超时",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "round",
+      "sub": "计数、和、栈"
+    },
+    {
+      "id": "log",
+      "label": "记录种子和栈",
+      "at": [
+        4,
+        0
+      ],
+      "sub": "失败时"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "seed",
+      "to": "gate",
+      "label": "种子"
+    },
+    {
+      "id": "e2",
+      "from": "gate",
+      "to": "ops",
+      "label": "同时开始"
+    },
+    {
+      "id": "e3",
+      "from": "ops",
+      "to": "check",
+      "label": "操作序列"
+    },
+    {
+      "id": "e4",
+      "from": "check",
+      "to": "log",
+      "label": "失败"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "e1",
+          "label": "seed"
+        }
+      ],
+      "note": "每轮先取一个种子，决定 yield 和 sleep 的时机"
+    },
+    {
+      "token": [
+        {
+          "edge": "e2",
+          "label": "开始"
+        }
+      ],
+      "note": "所有线程在起跑门报到，同时开始"
+    },
+    {
+      "token": [
+        {
+          "edge": "e3",
+          "label": "序列"
+        }
+      ],
+      "note": "生产者固定 push、消费者 pop，最后一个 close"
+    },
+    {
+      "token": [
+        {
+          "edge": "e4",
+          "label": "失败"
+        }
+      ],
+      "tone": {
+        "check": "bad"
+      },
+      "note": "某轮断言失败：计数、和对不上，或超时"
+    },
+    {
+      "tone": {
+        "log": "hot"
+      },
+      "hi": [
+        "log"
+      ],
+      "note": "打印种子、线程数和最近的 push 值"
+    },
+    {
+      "tone": {
+        "log": "hot"
+      },
+      "note": "用同一种子重跑，重复延迟序列但不保证同一交错",
+      "hi": [
+        "log"
+      ]
+    }
+  ]
+}

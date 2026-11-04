@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "async 的三种启动策略",
+  "alt": "launch::async 通常开新线程且析构等待；deferred 到 get 才执行；默认由实现选",
+  "grid": [3, 3],
+  "static": true,
+  "nodes": [
+    {"id": "call", "label": "调用 async", "at": [0, 1], "shape": "round"},
+    {"id": "async", "label": "launch::async", "at": [1, 0], "sub": "通常开新线程"},
+    {"id": "def", "label": "默认策略", "at": [1, 1], "sub": "实现选 async 或 deferred"},
+    {"id": "deferred", "label": "launch::deferred", "at": [1, 2], "sub": "get/wait 时才执行"},
+    {"id": "blocks", "label": "future 析构", "at": [2, 0], "sub": "可能等任务结束"},
+    {"id": "caller", "label": "调用线程执行", "at": [2, 1], "sub": "看实现选了哪条"},
+    {"id": "never", "label": "可能永不执行", "at": [2, 2], "sub": "不 get/wait 就不跑"}
+  ],
+  "edges": [
+    {"id": "a", "from": "call", "to": "async", "label": "指定"},
+    {"id": "d", "from": "call", "to": "def", "label": "不指定"},
+    {"id": "f", "from": "call", "to": "deferred", "label": "指定"},
+    {"id": "ab", "from": "async", "to": "blocks", "label": "析构"},
+    {"id": "dc", "from": "def", "to": "caller", "label": "可能"},
+    {"id": "dn", "from": "deferred", "to": "never", "label": "不取"}
+  ],
+  "steps": [
+    {"hi": ["call", "async", "def", "deferred"], "note": "三条路的分叉点在启动策略；默认由实现选择"}
+  ]
+}

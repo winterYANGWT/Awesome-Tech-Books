@@ -1,0 +1,119 @@
+{
+  "kind": "flow",
+  "title": "四类算法：策略重载覆盖到哪里",
+  "alt": "无返回值、可提前终止、归约、前缀和都有策略版；accumulate 和 partial_sum 没有",
+  "static": true,
+  "grid": [
+    2,
+    4
+  ],
+  "nodes": [
+    {
+      "id": "c0",
+      "label": "无返回值",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "每个元素做一次"
+    },
+    {
+      "id": "c1",
+      "label": "可提前终止",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "找到就可以停"
+    },
+    {
+      "id": "c2",
+      "label": "有前后依赖",
+      "at": [
+        0,
+        2
+      ],
+      "sub": "归约/折叠"
+    },
+    {
+      "id": "c3",
+      "label": "前缀和",
+      "at": [
+        0,
+        3
+      ],
+      "sub": "每个位置一个结果"
+    },
+    {
+      "id": "a0",
+      "label": "`for_each`",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "有策略重载"
+    },
+    {
+      "id": "a1",
+      "label": "`find`",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "有策略重载"
+    },
+    {
+      "id": "a2",
+      "label": "`reduce`",
+      "at": [
+        1,
+        2
+      ],
+      "sub": "有；`accumulate` 无"
+    },
+    {
+      "id": "a3",
+      "label": "`inclusive_scan`",
+      "at": [
+        1,
+        3
+      ],
+      "sub": "有；`partial_sum` 无"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "from": "c0",
+      "to": "a0",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e1",
+      "from": "c1",
+      "to": "a1",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e2",
+      "from": "c2",
+      "to": "a2",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e3",
+      "from": "c3",
+      "to": "a3",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ],
+  "steps": [
+    {
+      "note": "标“无”的两个没有策略重载，只能串行调用或换成语义允许重排的算法"
+    }
+  ]
+}

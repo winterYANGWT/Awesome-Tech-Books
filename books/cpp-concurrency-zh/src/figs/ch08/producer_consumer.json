@@ -1,0 +1,190 @@
+{
+  "kind": "flow",
+  "title": "有界队列：empty 管空位，full 管元素",
+  "alt": "生产者先 acquire 空位再入队，消费者先 acquire 元素再出队；队列满时生产者在 empty 上阻塞",
+  "grid": [
+    3,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "p",
+      "label": "生产者",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round",
+      "sub": "empty=2"
+    },
+    {
+      "id": "q",
+      "label": "队列",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "queue",
+      "slots": 2,
+      "sub": "mutex 保护"
+    },
+    {
+      "id": "c",
+      "label": "消费者",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round",
+      "sub": "full=0"
+    }
+  ],
+  "edges": [
+    {
+      "id": "push",
+      "from": "p",
+      "to": "q",
+      "label": "push"
+    },
+    {
+      "id": "pop",
+      "from": "q",
+      "to": "c",
+      "label": "pop"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "push",
+          "label": "A"
+        }
+      ],
+      "queue": {
+        "q": [
+          "A"
+        ]
+      },
+      "set": {
+        "p": "empty=1",
+        "c": "full=1"
+      },
+      "hi": [
+        "p"
+      ],
+      "note": "生产者先 empty.acquire（2→1），入队 A，再 full.release（0→1）"
+    },
+    {
+      "token": [
+        {
+          "edge": "push",
+          "label": "B"
+        }
+      ],
+      "queue": {
+        "q": [
+          "A",
+          "B"
+        ]
+      },
+      "set": {
+        "p": "empty=0",
+        "c": "full=2"
+      },
+      "note": "再入队 B：空位用完了，full=2"
+    },
+    {
+      "hi": [
+        "p"
+      ],
+      "tone": {
+        "p": "wait"
+      },
+      "note": "生产者想入队 C，但 empty 计数为 0，阻塞在 acquire"
+    },
+    {
+      "token": [
+        {
+          "edge": "pop",
+          "label": "A"
+        }
+      ],
+      "queue": {
+        "q": [
+          "B"
+        ]
+      },
+      "set": {
+        "p": "empty=1",
+        "c": "full=1"
+      },
+      "hi": [
+        "c"
+      ],
+      "note": "消费者 full.acquire 拿到 A，出队后 empty.release（0→1）"
+    },
+    {
+      "token": [
+        {
+          "edge": "push",
+          "label": "C"
+        }
+      ],
+      "queue": {
+        "q": [
+          "B",
+          "C"
+        ]
+      },
+      "set": {
+        "p": "empty=0",
+        "c": "full=2"
+      },
+      "hi": [
+        "p"
+      ],
+      "note": "被唤醒的生产者拿到空位，入队 C",
+      "tone": {
+        "p": "ok"
+      }
+    },
+    {
+      "token": [
+        {
+          "edge": "pop",
+          "label": "B"
+        }
+      ],
+      "queue": {
+        "q": [
+          "C"
+        ]
+      },
+      "set": {
+        "p": "empty=1",
+        "c": "full=1"
+      },
+      "note": "消费者取走 B，再归还一个空位"
+    },
+    {
+      "token": [
+        {
+          "edge": "pop",
+          "label": "C"
+        }
+      ],
+      "queue": {
+        "q": []
+      },
+      "set": {
+        "p": "empty=2",
+        "c": "full=0"
+      },
+      "note": "取走 C：队列空、空位满，两个计数各自回到初值",
+      "tone": {
+        "p": "ok"
+      }
+    }
+  ]
+}

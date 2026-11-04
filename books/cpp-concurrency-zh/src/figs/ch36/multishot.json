@@ -1,0 +1,72 @@
+{
+  "kind": "seq",
+  "title": "multishot：一次提交多次完成",
+  "alt": "一个 multishot SQE 连续产生多个 CQE，带 MORE 标志表示操作仍然有效",
+  "lanes": [
+    {
+      "id": "app",
+      "label": "应用"
+    },
+    {
+      "id": "kernel",
+      "label": "内核",
+      "role": "kernel"
+    },
+    {
+      "id": "client",
+      "label": "新连接",
+      "role": "process"
+    }
+  ],
+  "steps": [
+    {
+      "from": "app",
+      "to": "kernel",
+      "text": "multishot accept",
+      "note": "只提交一次 accept；SQE 设 IORING_ACCEPT_MULTISHOT"
+    },
+    {
+      "from": "kernel",
+      "to": "app",
+      "text": "CQE conn1 MORE",
+      "note": "res 是第一个新连接的 fd；MORE 表示后面还有"
+    },
+    {
+      "from": "client",
+      "to": "kernel",
+      "text": "conn2 到达",
+      "note": "不需要为第二个连接重新 get_sqe 和 submit"
+    },
+    {
+      "from": "kernel",
+      "to": "app",
+      "text": "CQE conn2 MORE",
+      "note": "第二个连接也通过同一个 SQE 的完成事件交上来"
+    },
+    {
+      "from": "app",
+      "to": "kernel",
+      "text": "multishot recv",
+      "note": "在 conn1 上提交一次 recv，设 BUFFER_SELECT 和 buffer group"
+    },
+    {
+      "from": "kernel",
+      "to": "app",
+      "text": "CQE data1 MORE",
+      "note": "第一批数据到达；内核从 buffer ring 取了一块"
+    },
+    {
+      "from": "kernel",
+      "to": "app",
+      "text": "CQE data2 MORE",
+      "note": "第二批数据又产生一个 CQE，仍然不用重新提交"
+    },
+    {
+      "from": "kernel",
+      "to": "app",
+      "text": "CQE EOF 无 MORE",
+      "tone": "bad",
+      "note": "对端关闭，multishot 结束；最后一个 CQE 没有 MORE"
+    }
+  ]
+}

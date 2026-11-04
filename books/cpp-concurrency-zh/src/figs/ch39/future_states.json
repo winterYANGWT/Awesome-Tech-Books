@@ -1,0 +1,158 @@
+{
+  "kind": "flow",
+  "title": "future 的三种状态",
+  "alt": "async 的 future 析构会等任务完成，deferred 的 future 析构会丢弃任务",
+  "grid": [
+    5,
+    4
+  ],
+  "nodes": [
+    {
+      "id": "created",
+      "label": "创建 future",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "async",
+      "label": "async",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "任务在别的线程跑"
+    },
+    {
+      "id": "deferred",
+      "label": "deferred",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "任务还没开始"
+    },
+    {
+      "id": "ready",
+      "label": "ready",
+      "at": [
+        4,
+        1
+      ],
+      "sub": "结果已就绪"
+    },
+    {
+      "id": "discarded",
+      "label": "任务被丢弃",
+      "at": [
+        4,
+        3
+      ],
+      "sub": "从没执行"
+    }
+  ],
+  "edges": [
+    {
+      "id": "to_async",
+      "from": "created",
+      "to": "async",
+      "label": "launch::async"
+    },
+    {
+      "id": "to_deferred",
+      "from": "created",
+      "to": "deferred",
+      "label": "launch::deferred"
+    },
+    {
+      "id": "async_done",
+      "from": "async",
+      "to": "ready",
+      "label": "任务完成"
+    },
+    {
+      "id": "deferred_get",
+      "from": "deferred",
+      "to": "ready",
+      "label": "get/wait"
+    },
+    {
+      "id": "async_dtor",
+      "from": "async",
+      "to": "ready",
+      "label": "析构等待",
+      "dashed": true
+    },
+    {
+      "id": "deferred_dtor",
+      "from": "deferred",
+      "to": "discarded",
+      "label": "析构丢弃",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "created"
+      ],
+      "note": "async 返回的 future 一开始是 async 或 deferred"
+    },
+    {
+      "hi": [
+        "async"
+      ],
+      "tone": {
+        "async": "wait"
+      },
+      "note": "launch::async：wait_for 可能 timeout，但不会返回 deferred"
+    },
+    {
+      "hi": [
+        "deferred"
+      ],
+      "tone": {
+        "deferred": "wait"
+      },
+      "note": "launch::deferred：wait_for 直接返回 deferred，任务没跑"
+    },
+    {
+      "hi": [
+        "ready"
+      ],
+      "tone": {
+        "ready": "ok"
+      },
+      "note": "任务完成，或 get/wait 把 deferred 跑完：状态变 ready"
+    },
+    {
+      "hi": [
+        "deferred_get"
+      ],
+      "note": "deferred 只有 get 或 wait 才执行；wait_for 不会执行它"
+    },
+    {
+      "hi": [
+        "async_dtor"
+      ],
+      "tone": {
+        "async": "wait"
+      },
+      "note": "async 的 future 析构：阻塞到任务完成，不是取消"
+    },
+    {
+      "hi": [
+        "deferred_dtor",
+        "discarded"
+      ],
+      "tone": {
+        "deferred": "bad",
+        "discarded": "bad"
+      },
+      "note": "deferred 的 future 析构且没 get：任务被丢弃，永远不会跑"
+    }
+  ],
+  "speed": 1600
+}

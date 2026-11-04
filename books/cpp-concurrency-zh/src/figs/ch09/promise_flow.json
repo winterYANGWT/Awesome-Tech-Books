@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "promise 写，future 读",
+  "alt": "promise 用 set_value 把共享状态从空推到就绪，future 用 get 取走；异常走红色分支",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "p", "label": "promise", "at": [0, 1], "shape": "round", "sub": "写端"},
+    {"id": "s", "label": "共享状态", "at": [1, 1], "shape": "store", "sub": "空"},
+    {"id": "f", "label": "future", "at": [2, 1], "shape": "round", "sub": "读端"},
+    {"id": "v", "label": "值", "at": [1, 0], "shape": "store", "sub": "T"},
+    {"id": "e", "label": "异常", "at": [1, 2], "shape": "store", "sub": "exception_ptr"}
+  ],
+  "edges": [
+    {"id": "set", "from": "p", "to": "s"},
+    {"id": "get", "from": "s", "to": "f", "label": "get()"},
+    {"id": "fail", "from": "p", "to": "e", "label": "set_exception", "dashed": true},
+    {"id": "throw", "from": "e", "to": "f", "label": "get() 重抛", "dashed": true}
+  ],
+  "steps": [
+    {"hi": ["p", "s", "f"], "set": {"s": "空"}, "note": "promise 和 future 各持一端，中间是共享状态"},
+    {"token": [{"edge": "set", "label": "42"}], "tone": {"v": "ok"}, "set": {"s": "有值 42"}, "note": "set_value 把值写进共享状态，状态就绪"},
+    {"token": [{"edge": "get", "label": "42"}], "tone": {"f": "hot"}, "set": {"s": "已取走"}, "note": "future.get 取走值，状态只能被取一次"},
+    {"token": [{"edge": "fail", "label": "异常"}], "tone": {"e": "bad", "s": "bad"}, "set": {"s": "有异常"}, "note": "另一条路：set_exception 把异常存进同一个槽"},
+    {"token": [{"edge": "throw", "label": "重抛"}], "tone": {"f": "bad"}, "note": "get 在调用线程重新抛出异常对象"},
+    {"hi": ["p", "f"], "set": {"s": "broken_promise"}, "tone": {"s": "bad"}, "note": "销毁未设值的 promise：状态以 broken_promise 就绪"}
+  ]
+}

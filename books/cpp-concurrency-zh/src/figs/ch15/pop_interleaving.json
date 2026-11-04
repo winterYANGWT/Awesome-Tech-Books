@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "pop 的窗口：读到 next 之后，节点被释放",
+  "alt": "A 读完 head 和 next 后被挂起；B 弹出并释放 A；A 再解引用 old->next 就是释放后使用",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "mem", "label": "head", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "head", "label": "head", "value": "A"},
+    {"id": "old", "label": "A 的 old", "value": "—"},
+    {"id": "next", "label": "A 的 next", "value": "—"},
+    {"id": "node_a", "label": "节点 A", "value": "在栈上"}
+  ],
+  "steps": [
+    {"from": "mem", "to": "a", "text": "load head", "set": {"old": "A"}, "note": "A 读到 head=A，记下 old=A"},
+    {"at": "a", "text": "读 A→next", "set": {"next": "B"}, "note": "A 又读出 A.next=B，准备用 CAS 把 head 换成 B"},
+    {"from": "mem", "to": "b", "text": "load head", "note": "A 还没 CAS，B 也读到 head=A"},
+    {"from": "b", "to": "mem", "text": "CAS(A, B)", "tone": "bad", "set": {"head": "B", "node_a": "已释放"}, "note": "B 先弹出 A，随后 delete A"},
+    {"at": "a", "text": "读 old→next", "tone": "bad", "note": "A 手里的 A 已经悬空：再读 A.next 就是释放后使用"},
+    {"at": "a", "text": "CAS(A, B)", "tone": "muted", "note": "CAS 失败：head 已经是 B；但第 5 步的读取已经造成 UB"}
+  ]
+}

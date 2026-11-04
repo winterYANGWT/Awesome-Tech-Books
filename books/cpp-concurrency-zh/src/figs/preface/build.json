@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "示例从源文件到正文里的输出",
+  "alt": "源文件编译成可执行文件，正常运行和 TSan 检查后，脚本把输出写成 .out",
+  "grid": [4, 1],
+  "nodes": [
+    {"id": "src", "label": "示例源文件", "at": [0, 0], "sub": "code/chNN/"},
+    {"id": "cc", "label": "编译器", "at": [1, 0], "sub": "g++-15 / gcc"},
+    {"id": "run", "label": "运行", "at": [2, 0], "sub": "普通 + TSan"},
+    {"id": "out", "label": ".out 文件", "at": [3, 0], "sub": "脚本生成"}
+  ],
+  "edges": [
+    {"id": "compile", "from": "src", "to": "cc", "label": "编译"},
+    {"id": "exec", "from": "cc", "to": "run", "label": "可执行文件"},
+    {"id": "save", "from": "run", "to": "out", "label": "stdout"}
+  ],
+  "steps": [
+    {"hi": ["src"], "note": "每章的示例在 code/chNN/ 下，按小节编号命名"},
+    {"token": [{"edge": "compile", "label": "源文件"}], "hi": ["cc"], "note": "按正文给的命令编译，多线程示例加 -pthread"},
+    {"token": [{"edge": "exec", "label": "a.out"}], "hi": ["run"], "note": "先正常运行，再在 ThreadSanitizer 下跑一遍"},
+    {"token": [{"edge": "save", "label": "输出"}], "hi": ["out"], "tone": {"out": "ok"}, "note": "脚本把输出写成 .out，正文直接引用这个文件"}
+  ]
+}

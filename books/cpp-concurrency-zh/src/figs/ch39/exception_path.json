@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "异常跨过任务边界：从工作线程到 get",
+  "alt": "工作线程把异常存进 shared state，调用线程在 future.get() 处重新抛出",
+  "lanes": [
+    {"id": "worker", "label": "工作线程"},
+    {"id": "state", "label": "shared state", "role": "memory"},
+    {"id": "caller", "label": "调用线程"}
+  ],
+  "state": [
+    {"id": "error", "label": "异常", "value": "—"}
+  ],
+  "steps": [
+    {"at": "worker", "text": "执行任务", "note": "packaged_task 在工作线程里被调用"},
+    {"from": "worker", "to": "state", "text": "throw runtime_error", "tone": "bad", "set": {"error": "runtime_error"}, "note": "任务函数抛出异常，异常离开函数体"},
+    {"at": "state", "text": "保存 exception_ptr", "tone": "hot", "note": "packaged_task 捕获它，存进 shared state"},
+    {"at": "worker", "text": "任务结束", "lane": {"worker": "done"}, "note": "工作线程正常结束，没有调用 terminate"},
+    {"from": "state", "to": "caller", "text": "future.get()", "dashed": true, "note": "调用线程在 get 处重新抛出同一个异常"},
+    {"at": "caller", "text": "catch 捕获", "tone": "ok", "note": "异常跨过任务边界，回到调用者的 catch"}
+  ],
+  "speed": 1500
+}

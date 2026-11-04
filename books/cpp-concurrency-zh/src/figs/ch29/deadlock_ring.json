@@ -1,0 +1,23 @@
+{
+  "kind": "seq",
+  "title": "四个 rank 都先发后收，环上互相等待",
+  "alt": "每个 rank 的 Send 都在等右邻的 Recv，四个 Send 首尾相接，没有 rank 能推进",
+  "lanes": [
+    {"id": "r0", "label": "rank 0"},
+    {"id": "r1", "label": "rank 1"},
+    {"id": "r2", "label": "rank 2"},
+    {"id": "r3", "label": "rank 3"}
+  ],
+  "state": [
+    {"id": "done", "label": "完成的 rank", "value": "0"}
+  ],
+  "steps": [
+    {"from": "r0", "to": "r1", "text": "`Send` 给右邻", "lane": {"r0": "blocked"}, "note": "rank 0 先发，等右邻 rank 1 接收"},
+    {"from": "r1", "to": "r2", "text": "`Send` 给右邻", "lane": {"r1": "blocked"}, "note": "rank 1 也先发，右邻 rank 2 还没收"},
+    {"from": "r2", "to": "r3", "text": "`Send` 给右邻", "lane": {"r2": "blocked"}, "note": "rank 2 同样卡在发送"},
+    {"from": "r3", "to": "r0", "text": "`Send` 给右邻", "lane": {"r3": "blocked"}, "note": "rank 3 的发送也在等 rank 0 接收"},
+    {"span": ["r0", "r1", "r2", "r3"], "text": "没有 rank 能推进", "tone": "bad", "note": "四个 Send 都没有匹配的 Recv，环上的等待没有起点"},
+    {"ops": [{"at": "r0", "text": "等 `Send` 返回"}, {"at": "r1", "text": "等 `Send` 返回"}, {"at": "r2", "text": "等 `Send` 返回"}, {"at": "r3", "text": "等 `Send` 返回"}], "note": "Send 没有返回，后面的 Recv 还没开始"},
+    {"span": ["r0", "r1", "r2", "r3"], "text": "死锁", "tone": "bad", "set": {"done": "0"}, "note": "没有 rank 会先放弃 Send，程序只能等超时"}
+  ]
+}

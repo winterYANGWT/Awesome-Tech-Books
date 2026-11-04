@@ -1,0 +1,97 @@
+{
+  "kind": "seq",
+  "title": "信号递送：处理函数、EINTR 和重启",
+  "alt": "内核递送 SIGALRM，处理函数写 pipe；不设 SA_RESTART 时 read 返回 EINTR",
+  "lanes": [
+    {
+      "id": "main",
+      "label": "主线程"
+    },
+    {
+      "id": "kern",
+      "label": "内核",
+      "role": "kernel"
+    },
+    {
+      "id": "handler",
+      "label": "处理函数"
+    }
+  ],
+  "state": [
+    {
+      "id": "ret",
+      "label": "read 的返回",
+      "value": "阻塞中"
+    },
+    {
+      "id": "flag",
+      "label": "SA_RESTART",
+      "value": "未设"
+    }
+  ],
+  "steps": [
+    {
+      "at": "main",
+      "text": "`read()` 睡眠",
+      "note": "主线程阻塞在 read 上，信号屏蔽字为空"
+    },
+    {
+      "at": "kern",
+      "text": "SIGALRM 到期",
+      "note": "内核把 SIGALRM 标成待递送，挑一个不屏蔽它的线程"
+    },
+    {
+      "from": "kern",
+      "to": "main",
+      "text": "递送给主线程",
+      "note": "进程里只有主线程，处理函数就在它的栈上运行",
+      "set": {
+        "flag": "未设"
+      }
+    },
+    {
+      "at": "handler",
+      "text": "`write(pipe)`",
+      "note": "处理函数只调用 async-signal-safe 的 write"
+    },
+    {
+      "from": "handler",
+      "to": "main",
+      "text": "返回",
+      "note": "处理函数返回，主线程从 sigreturn 恢复执行"
+    },
+    {
+      "at": "main",
+      "text": "`read` 返回 -1",
+      "tone": "bad",
+      "note": "没设 SA_RESTART，read 没有重启，errno 是 EINTR",
+      "set": {
+        "ret": "-1 / EINTR"
+      }
+    },
+    {
+      "at": "main",
+      "text": "重装 SA_RESTART",
+      "note": "同一个 read 再来一次，这次带上 SA_RESTART",
+      "set": {
+        "flag": "已设",
+        "ret": "阻塞中"
+      }
+    },
+    {
+      "from": "kern",
+      "to": "main",
+      "text": "重启 read",
+      "note": "处理函数返回后，内核重新启动被中断的 read"
+    },
+    {
+      "at": "main",
+      "text": "`read` 返回 1",
+      "tone": "ok",
+      "note": "读到处理函数写入的那 1 个字节，read 返回 1 而不是 EINTR",
+      "set": {
+        "ret": "1 字节"
+      }
+    }
+  ]
+}

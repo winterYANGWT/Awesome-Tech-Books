@@ -1,0 +1,23 @@
+{
+  "kind": "seq",
+  "title": "wait 被 notify 唤醒，再查值",
+  "alt": "消费者阻塞后，store 只改值不唤醒；notify 之后 wait 重查值才返回",
+  "lanes": [
+    {"id": "c", "label": "消费者"},
+    {"id": "ready", "label": "ready", "role": "memory"},
+    {"id": "p", "label": "生产者"}
+  ],
+  "state": [
+    {"id": "value", "label": "ready 的值", "value": "0"},
+    {"id": "data", "label": "data", "value": "—"}
+  ],
+  "steps": [
+    {"at": "c", "text": "读到 0", "note": "消费者读 ready，还是 0"},
+    {"at": "c", "text": "`wait(0)`", "lane": {"c": "blocked"}, "note": "值等于 0，消费者阻塞"},
+    {"at": "p", "text": "data = 42", "set": {"data": "42"}, "note": "生产者先填数据"},
+    {"at": "p", "text": "store(1)", "tone": "hot", "set": {"value": "1"}, "note": "值变了，但 store 不唤醒已阻塞的 wait"},
+    {"from": "p", "to": "c", "text": "notify_one(ready)", "dashed": true, "tone": "ok", "lane": {"c": "running"}, "note": "notify 把消费者从等待队列里放出来"},
+    {"at": "c", "text": "重查：1 != 0", "note": "wait 醒来后重查，值已变才返回"},
+    {"at": "c", "text": "读 data", "note": "谓词成立后才读 data，看到 42"}
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "异常从工作线程回到主线程",
+  "alt": "工作线程抛异常、捕获后 set_exception；主线程 get 时重新抛出同一个异常对象",
+  "lanes": [
+    {"id": "w", "label": "工作线程"},
+    {"id": "p", "label": "promise"},
+    {"id": "s", "label": "共享状态", "role": "memory"},
+    {"id": "m", "label": "主线程"}
+  ],
+  "state": [
+    {"id": "state", "label": "状态", "value": "空"},
+    {"id": "exc", "label": "异常", "value": "—"}
+  ],
+  "steps": [
+    {"at": "w", "text": "`throw runtime_error`", "tone": "bad", "note": "工作线程在任务内部抛出异常"},
+    {"at": "w", "text": "`catch (...)`", "note": "异常必须先在工作线程里捕获，不能直接跨线程抛"},
+    {"from": "w", "to": "p", "text": "`set_exception()`", "set": {"state": "有异常"}, "note": "把 current_exception() 交给 promise"},
+    {"from": "p", "to": "s", "text": "存 `exception_ptr`", "set": {"exc": "指向异常对象"}, "note": "共享状态持有异常对象，工作线程可以退出"},
+    {"from": "s", "to": "m", "text": "`get()` 重抛", "tone": "bad", "lane": {"m": "running"}, "note": "主线程 get 时在调用线程重新抛出"},
+    {"at": "m", "text": "`catch (runtime_error)`", "tone": "ok", "set": {"state": "已取走"}, "note": "主线程按原类型捕获，消息完整"},
+    {"at": "s", "text": "持有到最后一个读者", "tone": "muted", "note": "异常对象的生命周期由共享状态管理，不是原线程的栈"}
+  ]
+}

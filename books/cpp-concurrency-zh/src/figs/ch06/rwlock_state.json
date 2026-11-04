@@ -1,0 +1,25 @@
+{
+  "kind": "flow",
+  "title": "读者、等待的写者与持有写锁的写者",
+  "alt": "读者陆续进入；写者请求后等待；最后一个读者退出后写者才进入",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "readers", "label": "读者持有", "at": [0, 1], "shape": "round", "sub": "count=0"},
+    {"id": "waiting", "label": "写者等待", "at": [1, 1], "shape": "round", "sub": "空"},
+    {"id": "writing", "label": "写者持有", "at": [2, 1], "shape": "round", "sub": "空"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "readers", "to": "waiting", "label": "写者请求", "fromSide": "bottom", "toSide": "bottom"},
+    {"id": "e2", "from": "waiting", "to": "writing", "label": "读者清零", "fromSide": "bottom", "toSide": "bottom"},
+    {"id": "e3", "from": "writing", "to": "readers", "label": "解锁", "fromSide": "top", "toSide": "top", "dashed": true}
+  ],
+  "steps": [
+    {"hi": ["readers"], "set": {"readers": "count=0"}, "note": "开始：没有读者，锁空闲"},
+    {"hi": ["readers"], "set": {"readers": "count=1"}, "note": "读者 1 加读锁：计数原子加一"},
+    {"hi": ["readers"], "set": {"readers": "count=3"}, "note": "又有两个读者进入，三个读者共享"},
+    {"token": [{"edge": "e1", "label": "W"}], "tone": {"waiting": "wait"}, "set": {"waiting": "count=3"}, "note": "写者请求写锁；有读者，写者等待"},
+    {"hi": ["waiting"], "tone": {"waiting": "wait"}, "set": {"waiting": "count=2"}, "note": "一个读者退出，计数减一，写者仍等"},
+    {"token": [{"edge": "e2", "label": "W"}], "set": {"waiting": "空", "writing": "W 持有"}, "tone": {"writing": "ok"}, "note": "最后一个读者退出，写者进入"},
+    {"token": [{"edge": "e3", "label": "unlock"}], "set": {"writing": "空", "readers": "count=2"}, "tone": {"readers": "ok"}, "note": "写者解锁，等待的读者进入；计数也要原子更新"}
+  ]
+}

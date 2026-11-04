@@ -1,0 +1,157 @@
+{
+  "kind": "flow",
+  "title": "SQ 填满、submit、空位回来",
+  "alt": "get_sqe 在用户 tail 追上内核 head 时返回 NULL；submit 推进 head 后空位恢复",
+  "grid": [
+    3,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "app",
+      "label": "用户线程",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round",
+      "sub": "tail=0"
+    },
+    {
+      "id": "sq",
+      "label": "提交队列",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "queue",
+      "slots": 4,
+      "sub": "head=0 tail=0"
+    },
+    {
+      "id": "kernel",
+      "label": "内核",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "round",
+      "sub": "空闲"
+    }
+  ],
+  "edges": [
+    {
+      "id": "put",
+      "from": "app",
+      "to": "sq",
+      "label": "填 SQE"
+    },
+    {
+      "id": "submit",
+      "from": "sq",
+      "to": "kernel",
+      "label": "submit"
+    },
+    {
+      "id": "done",
+      "from": "kernel",
+      "to": "app",
+      "label": "推进 head",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "put",
+          "label": "4 个"
+        }
+      ],
+      "queue": {
+        "sq": [
+          "SQE",
+          "SQE",
+          "SQE",
+          "SQE"
+        ]
+      },
+      "set": {
+        "app": "填入 4 个",
+        "sq": "head=0 tail=4"
+      },
+      "note": "连续 4 次 get_sqe 都成功，SQ 被填满"
+    },
+    {
+      "hi": [
+        "app"
+      ],
+      "set": {
+        "app": "get_sqe → NULL"
+      },
+      "tone": {
+        "app": "bad"
+      },
+      "note": "第 5 次 get_sqe 返回 NULL：用户 tail 追上了内核 head"
+    },
+    {
+      "token": [
+        {
+          "edge": "submit",
+          "label": "4 个"
+        }
+      ],
+      "hi": [
+        "submit"
+      ],
+      "set": {
+        "sq": "head=0 tail=4 已提交"
+      },
+      "note": "先 submit 把已填的 4 个交给内核，不能对 NULL 调 prep"
+    },
+    {
+      "token": [
+        {
+          "edge": "done",
+          "label": "head=4"
+        }
+      ],
+      "queue": {
+        "sq": []
+      },
+      "set": {
+        "sq": "head=4 tail=4",
+        "kernel": "取走 4 个"
+      },
+      "note": "内核取走 SQE，head 前进，4 个槽位空出来"
+    },
+    {
+      "token": [
+        {
+          "edge": "put",
+          "label": "SQE"
+        }
+      ],
+      "queue": {
+        "sq": [
+          "SQE"
+        ]
+      },
+      "set": {
+        "app": "get_sqe → 非 NULL",
+        "sq": "head=4 tail=5"
+      },
+      "note": "再取 SQE 成功；ring 的“满”只是这一瞬间没有空位"
+    },
+    {
+      "hi": [
+        "sq",
+        "kernel"
+      ],
+      "tone": {
+        "kernel": "hot"
+      },
+      "note": "SQ 大小限制的是一次能提交多少个，不限制同时在途的请求数"
+    }
+  ]
+}

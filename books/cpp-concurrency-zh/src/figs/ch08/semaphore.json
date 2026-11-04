@@ -1,0 +1,25 @@
+{
+  "kind": "seq",
+  "title": "计数信号量：acquire 减一，release 加一并唤醒",
+  "alt": "计数从 2 减到 0，第三个线程阻塞；一次 release 后计数变 1，等待者被唤醒",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "b", "label": "线程 B"},
+    {"id": "c", "label": "线程 C"},
+    {"id": "s", "label": "信号量", "role": "memory"}
+  ],
+  "state": [
+    {"id": "count", "label": "计数", "value": "2"},
+    {"id": "owner", "label": "持有者", "value": "无"}
+  ],
+  "steps": [
+    {"from": "s", "to": "a", "text": "`acquire()` 成功", "set": {"count": "1"}, "note": "计数从 2 减到 1，A 拿到一个许可"},
+    {"from": "s", "to": "b", "text": "`acquire()` 成功", "set": {"count": "0"}, "note": "计数减到 0，许可发完了"},
+    {"from": "c", "to": "s", "text": "`acquire()`", "tone": "wait", "lane": {"c": "blocked"}, "note": "C 在计数为 0 时阻塞，进入信号量的等待队列"},
+    {"from": "a", "to": "s", "text": "`release()`", "tone": "hot", "set": {"count": "1"}, "note": "A 释放：计数加 1。信号量没有持有者，谁都能 release"},
+    {"from": "s", "to": "c", "text": "唤醒", "dashed": true, "lane": {"c": "running"}, "note": "等待者被唤醒，重新尝试减一"},
+    {"from": "s", "to": "c", "text": "计数 1 → 0", "set": {"count": "0"}, "note": "C 拿到这个许可，计数又回到 0"},
+    {"at": "a", "text": "A 继续工作", "lane": {"a": "done"}, "note": "A 已经释放，不关心谁拿到许可"},
+    {"at": "c", "text": "C 继续工作", "tone": "ok", "lane": {"c": "done"}, "note": "信号量只计数，不记录是哪个线程释放的"}
+  ]
+}

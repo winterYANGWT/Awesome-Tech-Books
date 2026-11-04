@@ -1,0 +1,47 @@
+{
+  "kind": "grid",
+  "title": "1..N 按连续块分给 4 个线程",
+  "alt": "四个线程各领一段连续区间，只写自己的 partials 槽，最后串行合并",
+  "rows": [
+    {"label": "1..N"},
+    {"label": "partials"}
+  ],
+  "cols": 32,
+  "legend": [
+    {"key": "T0", "label": "线程 0"},
+    {"key": "T1", "label": "线程 1"},
+    {"key": "T2", "label": "线程 2"},
+    {"key": "T3", "label": "线程 3"}
+  ],
+  "cells": [
+    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+    [null, null, null, null, "p0", null, null, null, null, null, null, null, "p1", null, null, null, null, null, null, null, "p2", null, null, null, null, null, null, null, "p3", null, null, null]
+  ],
+  "brackets": [
+    {"c": "0-7", "label": "块 0"},
+    {"c": "8-15", "label": "块 1"},
+    {"c": "16-23", "label": "块 2"},
+    {"c": "24-31", "label": "块 3"}
+  ],
+  "steps": [
+    {"paint": [
+      {"r": 0, "c": "0-7", "key": "T0"},
+      {"r": 0, "c": "8-15", "key": "T1"},
+      {"r": 0, "c": "16-23", "key": "T2"},
+      {"r": 0, "c": "24-31", "key": "T3"}
+    ], "note": "1..N 按连续块分给 4 个线程"},
+    {"paint": [
+      {"r": 1, "c": 4, "key": "T0"},
+      {"r": 1, "c": 12, "key": "T1"},
+      {"r": 1, "c": 20, "key": "T2"},
+      {"r": 1, "c": 28, "key": "T3"}
+    ], "note": "每个线程只写自己的 partials[i] 槽"},
+    {"mark": [
+      {"r": 1, "c": 4, "tone": "hot"},
+      {"r": 1, "c": 12, "tone": "hot"},
+      {"r": 1, "c": 20, "tone": "hot"},
+      {"r": 1, "c": 28, "tone": "hot"}
+    ], "note": "join 之后主线程串行合并 4 个槽"}
+  ],
+  "static": true
+}

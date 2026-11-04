@@ -1,0 +1,29 @@
+{
+  "kind": "flow",
+  "title": "三套每线程存储的实现分工",
+  "alt": "thread_local 由语言构造析构；pthread key 和 C11 tss_t 只对非空值回调",
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "tl", "label": "`thread_local`", "at": [0, 0], "sub": "语言设施"},
+    {"id": "tlv", "label": "每线程对象", "at": [1, 0], "shape": "store", "sub": "语言构造\n语言析构"},
+    {"id": "tld", "label": "线程退出时\n逆序析构", "at": [3, 0], "shape": "note"},
+    {"id": "pk", "label": "pthread key", "at": [0, 1], "sub": "`pthread_key_t`"},
+    {"id": "pkv", "label": "每线程 `void*`", "at": [1, 1], "shape": "store", "sub": "只对非空值\n调用回调"},
+    {"id": "pkd", "label": "destructor\n回调", "at": [3, 1], "shape": "note"},
+    {"id": "tss", "label": "C11 `tss_t`", "at": [0, 2], "sub": "`<threads.h>`"},
+    {"id": "tssv", "label": "每线程 `void*`", "at": [1, 2], "shape": "store", "sub": "只对非空值\n调用回调"},
+    {"id": "tssd", "label": "destructor\n回调", "at": [3, 2], "shape": "note"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "tl", "to": "tlv"},
+    {"id": "e2", "from": "tlv", "to": "tld", "label": "逆序"},
+    {"id": "e3", "from": "pk", "to": "pkv"},
+    {"id": "e4", "from": "pkv", "to": "pkd", "label": "非空时"},
+    {"id": "e5", "from": "tss", "to": "tssv"},
+    {"id": "e6", "from": "tssv", "to": "tssd", "label": "非空时"}
+  ],
+  "static": true,
+  "steps": [
+    {"note": "前者的构造/析构由语言保证；后两者只回调非空值"}
+  ]
+}

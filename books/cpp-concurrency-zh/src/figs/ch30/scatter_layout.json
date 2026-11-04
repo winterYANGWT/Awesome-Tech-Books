@@ -1,0 +1,150 @@
+{
+  "kind": "grid",
+  "title": "Scatter 与 Scatterv：每块一份，不是总数",
+  "alt": "16 个元素按 4 个一份分发，或按 3、3、2、2 不等长分发",
+  "rows": [
+    {
+      "label": "元素值"
+    },
+    {
+      "label": "Scatter"
+    },
+    {
+      "label": "Scatterv"
+    }
+  ],
+  "cols": 16,
+  "colLabels": "index",
+  "legend": [
+    {
+      "key": "R0",
+      "label": "rank 0"
+    },
+    {
+      "key": "R1",
+      "label": "rank 1"
+    },
+    {
+      "key": "R2",
+      "label": "rank 2"
+    },
+    {
+      "key": "R3",
+      "label": "rank 3"
+    }
+  ],
+  "cells": [
+    [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15"
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  ],
+  "brackets": [
+    {
+      "c": "0-15",
+      "label": "sendcount=4，每块 4 个"
+    },
+    {
+      "c": "0-9",
+      "label": "每块 3,3,2,2；偏移以元素计",
+      "below": true
+    }
+  ],
+  "steps": [
+    {
+      "paint": [
+        {
+          "r": 1,
+          "c": "0-3",
+          "key": "R0"
+        },
+        {
+          "r": 1,
+          "c": "4-7",
+          "key": "R1"
+        },
+        {
+          "r": 1,
+          "c": "8-11",
+          "key": "R2"
+        },
+        {
+          "r": 1,
+          "c": "12-15",
+          "key": "R3"
+        },
+        {
+          "r": 2,
+          "c": "0-2",
+          "key": "R0"
+        },
+        {
+          "r": 2,
+          "c": "3-5",
+          "key": "R1"
+        },
+        {
+          "r": 2,
+          "c": "6-7",
+          "key": "R2"
+        },
+        {
+          "r": 2,
+          "c": "8-9",
+          "key": "R3"
+        }
+      ],
+      "note": "Scatter 每块 4 个；Scatterv 每块 3/3/2/2，displs 以元素为单位"
+    }
+  ]
+}

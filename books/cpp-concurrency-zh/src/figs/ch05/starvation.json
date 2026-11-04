@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "读者越多，写者等待越久",
+  "alt": "默认读者优先时写者等待随读者数上升；写者优先时等待保持很短",
+  "type": "line",
+  "data": "code/ch05/5_5_writer_starvation.out",
+  "x": {"label": "读者数", "scale": "log2"},
+  "y": {"label": "写者最大等待", "unit": "ms", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2；数字随机器和负载变化"
+}

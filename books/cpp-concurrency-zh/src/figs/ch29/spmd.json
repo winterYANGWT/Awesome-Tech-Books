@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "SPMD：一份程序，四个 rank",
+  "alt": "同一个可执行文件启动四次，rank 1 到 3 把结果发给 rank 0，由 rank 0 统一打印",
+  "static": true,
+  "grid": [4, 4],
+  "nodes": [
+    {"id": "exe", "label": "同一个可执行文件", "at": [0, 0], "span": [4, 1]},
+    {"id": "r1", "label": "rank 1", "sub": "同一个 main", "at": [1, 1], "shape": "round"},
+    {"id": "r2", "label": "rank 2", "sub": "同一个 main", "at": [1, 2], "shape": "round"},
+    {"id": "r3", "label": "rank 3", "sub": "同一个 main", "at": [1, 3], "shape": "round"},
+    {"id": "r0", "label": "rank 0", "sub": "负责汇总输出", "at": [3, 1], "shape": "round"},
+    {"id": "out", "label": "终端输出", "at": [3, 2], "shape": "store"}
+  ],
+  "edges": [
+    {"id": "launch", "from": "exe", "to": "r0", "label": "启动 4 份"},
+    {"id": "s1", "from": "r1", "to": "r0", "label": "Send"},
+    {"id": "s2", "from": "r2", "to": "r0", "label": "Send"},
+    {"id": "s3", "from": "r3", "to": "r0", "label": "Send"},
+    {"id": "p", "from": "r0", "to": "out", "label": "printf"}
+  ],
+  "steps": [
+    {"hi": ["exe", "launch"], "note": "mpirun 把同一个文件启动成 4 个进程"},
+    {"token": [{"edge": "s1"}, {"edge": "s2"}, {"edge": "s3"}], "note": "rank 1 到 3 按 rank 走不同分支，把消息发给 0"},
+    {"token": [{"edge": "p"}], "hi": ["r0", "out"], "note": "rank 0 按 1、2、3 的顺序接收并打印"}
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "两个读者，两个互相矛盾的世界",
+  "alt": "读 A 看到 x=true、y=false，读 B 看到 y=true、x=false；两组值无法放进同一条总序",
+  "grid": [3, 3],
+  "static": true,
+  "nodes": [
+    {"id": "wx", "label": "写 x=true", "at": [0, 0]},
+    {"id": "wy", "label": "写 y=true", "at": [2, 0]},
+    {"id": "wa", "label": "读 A 看到", "sub": "x=true\ny=false", "at": [0, 2]},
+    {"id": "wb", "label": "读 B 看到", "sub": "y=true\nx=false", "at": [2, 2]},
+    {"id": "gap", "label": "没有全局总序", "at": [1, 1], "shape": "note"}
+  ],
+  "edges": [
+    {"id": "x_to_a", "from": "wx", "to": "wa", "label": "x=true"},
+    {"id": "y_to_b", "from": "wy", "to": "wb", "label": "y=true"},
+    {"id": "miss_y", "from": "wy", "to": "wa", "label": "看不到", "dashed": true},
+    {"id": "miss_x", "from": "wx", "to": "wb", "label": "看不到", "dashed": true}
+  ],
+  "steps": [
+    {"note": "A 和 B 各看到一组值；两组都自洽，合起来却矛盾"}
+  ]
+}

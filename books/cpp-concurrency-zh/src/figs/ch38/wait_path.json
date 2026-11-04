@@ -1,0 +1,110 @@
+{
+  "kind": "flow",
+  "title": "atomic::wait 的快路径和慢路径",
+  "alt": "值变了直接返回；没变就睡到 futex 队列，notify 或虚假唤醒后重查",
+  "grid": [
+    3,
+    3
+  ],
+  "static": true,
+  "bands": [
+    {
+      "label": "用户态",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "内核",
+      "rows": [
+        1,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "call",
+      "label": "wait(old)",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "cmp",
+      "label": "load == old?",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "ret",
+      "label": "返回",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "futex",
+      "label": "futex 等待队列",
+      "at": [
+        1,
+        2
+      ],
+      "shape": "queue",
+      "slots": 3
+    },
+    {
+      "id": "notify",
+      "label": "notify_one/all",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_call",
+      "from": "call",
+      "to": "cmp",
+      "label": "比较"
+    },
+    {
+      "id": "e_ret",
+      "from": "cmp",
+      "to": "ret",
+      "label": "≠ old"
+    },
+    {
+      "id": "e_sleep",
+      "from": "cmp",
+      "to": "futex",
+      "label": "睡/醒后重查",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "arrow": "both"
+    },
+    {
+      "id": "e_notify",
+      "from": "notify",
+      "to": "futex",
+      "label": "唤醒",
+      "dashed": true,
+      "fromSide": "left",
+      "toSide": "right"
+    }
+  ],
+  "steps": [
+    {
+      "note": "快路径只比较一次；慢路径睡在 futex 队列，notify 或虚假唤醒后都回到比较"
+    }
+  ]
+}

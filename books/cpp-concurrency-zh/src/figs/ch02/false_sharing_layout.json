@@ -1,0 +1,114 @@
+{
+  "kind": "grid",
+  "title": "两个计数器：同一行与各自一行",
+  "alt": "相邻布局里两个计数器落在同一条 64 字节行；alignas(64) 后各占一行，两个核的写不再互相使整行失效",
+  "static": true,
+  "cols": 16,
+  "rows": [
+    {
+      "label": "相邻布局"
+    },
+    {
+      "label": "各自一行"
+    }
+  ],
+  "legend": [
+    {
+      "key": "T0",
+      "label": "核 0 写 cnt0"
+    },
+    {
+      "key": "T1",
+      "label": "核 1 写 cnt1"
+    }
+  ],
+  "cells": [
+    [
+      "cnt0",
+      "cnt1",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "cnt0",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "cnt1",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  ],
+  "brackets": [
+    {
+      "c": "0-7",
+      "label": "一条 64 B 缓存行"
+    },
+    {
+      "c": "8-15",
+      "label": "另一条 64 B 缓存行"
+    }
+  ],
+  "steps": [
+    {
+      "paint": [
+        {
+          "r": 0,
+          "c": 0,
+          "key": "T0"
+        },
+        {
+          "r": 0,
+          "c": 1,
+          "key": "T1"
+        },
+        {
+          "r": 1,
+          "c": 0,
+          "key": "T0"
+        },
+        {
+          "r": 1,
+          "c": 8,
+          "key": "T1"
+        }
+      ],
+      "mark": [
+        {
+          "r": 0,
+          "c": "0-1"
+        },
+        {
+          "r": 1,
+          "c": 0
+        },
+        {
+          "r": 1,
+          "c": 8
+        }
+      ],
+      "note": "上面两个计数器同一条行；下面隔开 64 B，各占一条"
+    }
+  ]
+}

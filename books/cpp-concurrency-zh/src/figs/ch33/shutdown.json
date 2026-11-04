@@ -1,0 +1,26 @@
+{
+  "kind": "seq",
+  "title": "优雅退出：停止接收、排空、关闭",
+  "alt": "SIGTERM 后先摘掉监听 fd，再等输出缓冲排空，最后关连接并释放",
+  "lanes": [
+    {"id": "sig", "label": "信号源"},
+    {"id": "loop", "label": "事件循环"},
+    {"id": "listen", "label": "监听 fd"},
+    {"id": "conn", "label": "连接"},
+    {"id": "client", "label": "客户端"}
+  ],
+  "state": [
+    {"id": "req", "label": "未完成请求", "value": "1"},
+    {"id": "out", "label": "待发字节", "value": "512 B"},
+    {"id": "conns", "label": "连接数", "value": "1"}
+  ],
+  "steps": [
+    {"from": "sig", "to": "loop", "text": "SIGTERM", "note": "信号被屏蔽，变成 signalfd 可读"},
+    {"at": "loop", "text": "read signalfd", "set": {"req": "1"}, "note": "置 stopping，不调用 exit"},
+    {"from": "loop", "to": "listen", "text": "DEL/close", "lane": {"listen": "done"}, "note": "停止 accept，不再接新连接"},
+    {"at": "loop", "text": "进入 draining", "lane": {"loop": "blocked"}, "note": "等已收下的请求和输出缓冲"},
+    {"from": "conn", "to": "client", "text": "写完剩余", "set": {"out": "0 B", "req": "0"}, "lane": {"loop": "running"}, "note": "非阻塞 send 短写后从断点继续"},
+    {"from": "client", "to": "conn", "text": "完整 VALUE", "note": "客户端收完最后一行响应"},
+    {"at": "loop", "text": "close/释放", "lane": {"conn": "done"}, "note": "先关连接，再关 eventfd/epoll fd，最后销毁定时器，join 线程"}
+  ]
+}

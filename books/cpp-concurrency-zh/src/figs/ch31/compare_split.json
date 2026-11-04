@@ -1,0 +1,131 @@
+{
+  "kind": "seq",
+  "title": "compare-split：交换整块后各留一半",
+  "alt": "rank 0 和 rank 1 交换全部键值，rank 0 用两个下标取最小的一半，rank 1 从后往前取最大的一半",
+  "speed": 1500,
+  "lanes": [
+    {
+      "id": "r0",
+      "label": "rank 0"
+    },
+    {
+      "id": "r1",
+      "label": "rank 1"
+    }
+  ],
+  "state": [
+    {
+      "id": "i",
+      "label": "rank 0 的 i",
+      "value": "0"
+    },
+    {
+      "id": "j",
+      "label": "rank 0 的 j",
+      "value": "0"
+    },
+    {
+      "id": "low",
+      "label": "rank 0 保留",
+      "value": "—"
+    },
+    {
+      "id": "high",
+      "label": "rank 1 保留",
+      "value": "—"
+    },
+    {
+      "id": "comps",
+      "label": "比较次数",
+      "value": "0"
+    }
+  ],
+  "steps": [
+    {
+      "ops": [
+        {
+          "at": "r0",
+          "text": "本块 1 4 7 10"
+        },
+        {
+          "at": "r1",
+          "text": "本块 2 3 8 9"
+        }
+      ],
+      "note": "两个块各自已经有序，n/p=4"
+    },
+    {
+      "ops": [
+        {
+          "from": "r0",
+          "to": "r1",
+          "text": "发整块"
+        },
+        {
+          "from": "r1",
+          "to": "r0",
+          "text": "发整块"
+        }
+      ],
+      "note": "交换全部 n/p 个键值：每阶段通信 2n/p 个"
+    },
+    {
+      "at": "r0",
+      "text": "i=0,j=0：1<2，取 1",
+      "set": {
+        "i": "1",
+        "comps": "1"
+      },
+      "tone": "hot",
+      "note": "Merge_low 同时看两个有序列表的当前元素"
+    },
+    {
+      "at": "r0",
+      "text": "4>2，取 2；4>3，取 3",
+      "set": {
+        "j": "2",
+        "comps": "3"
+      },
+      "tone": "hot",
+      "note": "j 往后走，i 不动：只取最小的那几个"
+    },
+    {
+      "at": "r0",
+      "text": "4<8，取 4，凑满 4 个",
+      "set": {
+        "i": "2",
+        "low": "1 2 3 4",
+        "comps": "4"
+      },
+      "tone": "ok",
+      "note": "凑满 n/p 个就停，不继续扫剩下的元素"
+    },
+    {
+      "at": "r1",
+      "text": "从后往前：10>9，取 10",
+      "set": {
+        "high": "10"
+      },
+      "tone": "hot",
+      "note": "rank 1 用 Merge_high，从两个列表的末尾取最大"
+    },
+    {
+      "at": "r1",
+      "text": "再取 9、8、7，凑满 4 个",
+      "set": {
+        "high": "7 8 9 10"
+      },
+      "tone": "ok",
+      "note": "两个方向都只保留自己那一半"
+    },
+    {
+      "span": [
+        "r0",
+        "r1"
+      ],
+      "text": "只取一半，不完整排序",
+      "tone": "ok",
+      "note": "下一阶段再和新的 partner 交换；p 个阶段后全局有序"
+    }
+  ]
+}

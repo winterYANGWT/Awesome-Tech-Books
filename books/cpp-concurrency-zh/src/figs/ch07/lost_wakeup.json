@@ -1,0 +1,27 @@
+{
+  "kind": "seq",
+  "title": "通知发在 wait 之前：丢失唤醒",
+  "alt": "消费者检查完空队列、还没进入 wait，生产者 push 后 notify；通知落在空处，消费者永久睡",
+  "lanes": [
+    {"id": "c", "label": "消费者"},
+    {"id": "m", "label": "mutex + 队列", "role": "memory"},
+    {"id": "p", "label": "生产者"}
+  ],
+  "state": [
+    {"id": "pred", "label": "谓词", "value": "假"},
+    {"id": "queue", "label": "队列", "value": "空"},
+    {"id": "owner", "label": "锁持有者", "value": "—"}
+  ],
+  "steps": [
+    {"from": "c", "to": "m", "text": "`lock()`", "set": {"owner": "消费者"}, "note": "消费者拿到锁，开始检查"},
+    {"from": "m", "to": "c", "text": "`empty()` = true", "set": {"pred": "假"}, "note": "谓词为假：队列是空的"},
+    {"ops": [
+      {"from": "c", "to": "m", "text": "`unlock()`"},
+      {"at": "c", "text": "准备 wait"}
+    ], "set": {"owner": "—"}, "tone": "wait", "note": "检查完、还没进入 wait：窗口就在这里"},
+    {"from": "p", "to": "m", "text": "`lock()` + `push`", "set": {"owner": "生产者", "queue": "1 个", "pred": "真"}, "note": "生产者改状态时，消费者还不在等待队列里"},
+    {"from": "p", "to": "m", "text": "`unlock()`", "set": {"owner": "—"}, "note": "解锁之后才通知"},
+    {"from": "p", "to": "c", "text": "`notify_one()`", "dashed": true, "tone": "bad", "note": "没有等待者，通知被丢掉"},
+    {"at": "c", "text": "才进入 `wait()`", "lane": {"c": "blocked"}, "tone": "bad", "note": "通知已经过去，条件变量没有记忆：永久睡眠"}
+  ]
+}

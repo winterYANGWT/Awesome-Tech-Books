@@ -1,0 +1,102 @@
+{
+  "kind": "seq",
+  "title": "两个 pthread 的创建与汇入",
+  "alt": "主线程在 join 处阻塞，线程退出时把 void* 退出值交给回收者",
+  "lanes": [
+    {
+      "id": "main",
+      "label": "主线程"
+    },
+    {
+      "id": "a",
+      "label": "线程 A"
+    },
+    {
+      "id": "b",
+      "label": "线程 B"
+    }
+  ],
+  "state": [
+    {
+      "id": "ra",
+      "label": "A 的退出值",
+      "value": "—"
+    },
+    {
+      "id": "rb",
+      "label": "B 的退出值",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "at": "main",
+      "text": "create A",
+      "note": "pthread_create 返回 0 表示创建成功"
+    },
+    {
+      "at": "main",
+      "text": "create B",
+      "note": "两个线程句柄分别存进数组"
+    },
+    {
+      "ops": [
+        {
+          "at": "a",
+          "text": "运行"
+        },
+        {
+          "at": "b",
+          "text": "运行"
+        }
+      ],
+      "note": "A 和 B 并发运行，先后由调度决定"
+    },
+    {
+      "at": "main",
+      "text": "join(A)",
+      "lane": {
+        "main": "blocked"
+      },
+      "note": "主线程阻塞，等待 A 结束"
+    },
+    {
+      "at": "a",
+      "text": "pthread_exit",
+      "lane": {
+        "a": "done"
+      },
+      "note": "A 结束，退出值放在 retval 里"
+    },
+    {
+      "from": "a",
+      "to": "main",
+      "text": "void* 退出值",
+      "set": {
+        "ra": "42"
+      },
+      "note": "join 取回 A 的退出值并回收 A"
+    },
+    {
+      "at": "b",
+      "text": "pthread_exit",
+      "lane": {
+        "b": "done"
+      },
+      "note": "B 随后结束"
+    },
+    {
+      "from": "b",
+      "to": "main",
+      "text": "void* 退出值",
+      "set": {
+        "rb": "7"
+      },
+      "lane": {
+        "main": "running"
+      },
+      "note": "最后一个 join 返回，主线程继续"
+    }
+  ],
+  "speed": 1500
+}

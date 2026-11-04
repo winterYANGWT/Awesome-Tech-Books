@@ -1,0 +1,198 @@
+{
+  "kind": "flow",
+  "title": "io_uring 的提交队列和完成队列",
+  "alt": "用户填 SQE 进 SQ，内核取走执行，把结果作为 CQE 放进 CQ，用户收割后 cqe_seen",
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "app",
+      "label": "用户线程",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "sq",
+      "label": "提交队列 SQ",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "queue",
+      "slots": 4,
+      "sub": "tail=0"
+    },
+    {
+      "id": "kernel",
+      "label": "内核",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "cq",
+      "label": "完成队列 CQ",
+      "at": [
+        1,
+        2
+      ],
+      "shape": "queue",
+      "slots": 4,
+      "sub": "head=0"
+    }
+  ],
+  "edges": [
+    {
+      "id": "put",
+      "from": "app",
+      "to": "sq",
+      "label": "填 SQE"
+    },
+    {
+      "id": "submit",
+      "from": "sq",
+      "to": "kernel",
+      "label": "submit"
+    },
+    {
+      "id": "post",
+      "from": "kernel",
+      "to": "cq",
+      "label": "写 CQE"
+    },
+    {
+      "id": "reap",
+      "from": "cq",
+      "to": "app",
+      "label": "收割"
+    },
+    {
+      "id": "seen",
+      "from": "app",
+      "to": "cq",
+      "label": "cqe_seen",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "put",
+          "label": "SQE#1"
+        }
+      ],
+      "queue": {
+        "sq": [
+          "SQE"
+        ]
+      },
+      "hi": [
+        "put"
+      ],
+      "note": "get_sqe 拿到空位，prep_read 填好 SQE#1"
+    },
+    {
+      "token": [
+        {
+          "edge": "submit",
+          "label": "enter"
+        }
+      ],
+      "hi": [
+        "submit"
+      ],
+      "set": {
+        "sq": "tail=1 已提交"
+      },
+      "note": "submit 把 SQ 的 tail 推给内核，一次系统调用提交一批"
+    },
+    {
+      "queue": {
+        "sq": []
+      },
+      "set": {
+        "kernel": "执行 read"
+      },
+      "hi": [
+        "kernel"
+      ],
+      "note": "内核从 SQ 头取走 SQE，开始搬数据"
+    },
+    {
+      "set": {
+        "kernel": "搬完 26 字节"
+      },
+      "hi": [
+        "kernel"
+      ],
+      "note": "操作完成，结果是字节数或负 errno"
+    },
+    {
+      "token": [
+        {
+          "edge": "post",
+          "label": "CQE res=26"
+        }
+      ],
+      "queue": {
+        "cq": [
+          "CQE"
+        ]
+      },
+      "hi": [
+        "post"
+      ],
+      "note": "内核在 CQ 尾部放 CQE，user_data 原样带回"
+    },
+    {
+      "token": [
+        {
+          "edge": "reap",
+          "label": "CQE#1"
+        }
+      ],
+      "hi": [
+        "reap"
+      ],
+      "set": {
+        "app": "处理 res"
+      },
+      "note": "用户 wait_cqe 或 peek 到 CQE，按 user_data 找回请求"
+    },
+    {
+      "set": {
+        "app": "处理完"
+      },
+      "hi": [
+        "app"
+      ],
+      "note": "读 cqe->res，处理数据或错误"
+    },
+    {
+      "token": [
+        {
+          "edge": "seen",
+          "label": "seen"
+        }
+      ],
+      "queue": {
+        "cq": []
+      },
+      "hi": [
+        "seen"
+      ],
+      "set": {
+        "cq": "head=1"
+      },
+      "note": "cqe_seen 推进 CQ 头，这个槽位才能被内核复用"
+    }
+  ]
+}

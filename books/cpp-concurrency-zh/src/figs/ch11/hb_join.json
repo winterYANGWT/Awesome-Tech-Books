@@ -1,0 +1,23 @@
+{
+  "kind": "seq",
+  "title": "各写各的槽，join 之后再合并",
+  "alt": "两个线程分别写 results[0] 和 results[1]，join 返回后主线程才读取这两个槽",
+  "lanes": [
+    {"id": "main", "label": "主线程"},
+    {"id": "a", "label": "线程 A"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "r0", "label": "results[0]", "value": "0"},
+    {"id": "r1", "label": "results[1]", "value": "0"},
+    {"id": "total", "label": "total", "value": "—"}
+  ],
+  "steps": [
+    {"at": "main", "text": "创建 A 和 B", "lane": {"a": "new", "b": "new"}, "note": "构造完成与新线程开始执行同步"},
+    {"at": "a", "text": "累加自己的槽", "set": {"r0": "1000000"}, "note": "A 只写 results[0]，不碰 results[1]"},
+    {"at": "b", "text": "累加自己的槽", "set": {"r1": "1000000"}, "note": "B 只写 results[1]：两个槽是不同的内存位置"},
+    {"from": "a", "to": "main", "text": "join 返回", "tone": "ok", "lane": {"a": "done"}, "note": "线程函数返回与 join 返回同步，A 的写对主线程可见"},
+    {"from": "b", "to": "main", "text": "join 返回", "tone": "ok", "lane": {"b": "done"}, "note": "B 的写也通过这条边对主线程可见"},
+    {"at": "main", "text": "读取两个槽", "set": {"total": "2000000"}, "note": "两次 join 都返回后，主线程读到的就是各线程写下的值"}
+  ]
+}

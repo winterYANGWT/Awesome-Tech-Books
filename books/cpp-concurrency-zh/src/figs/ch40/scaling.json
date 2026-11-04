@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "求和：线程数、耗时与加速比",
+  "alt": "线程数增加时耗时先降，16 线程以后基本不再变快；32 线程加速比远低于 32",
+  "type": "line",
+  "data": "code/ch40/40_5_scaling.out",
+  "x": {"label": "线程数", "scale": "log2"},
+  "y": {"label": "耗时 / 加速比", "unit": "ms / 倍", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2"
+}

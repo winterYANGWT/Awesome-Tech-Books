@@ -1,0 +1,31 @@
+{
+  "kind": "flow",
+  "title": "future 的共享状态：空、就绪、被取走",
+  "alt": "共享状态从空到有值或异常，get 取走一次；shared_future 可有多个读者",
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "f", "label": "future 句柄", "at": [0, 1], "shape": "round", "sub": "move-only"},
+    {"id": "s", "label": "共享状态", "at": [1, 1], "shape": "store", "sub": "空"},
+    {"id": "v", "label": "值", "at": [2, 0], "shape": "store", "sub": "T"},
+    {"id": "e", "label": "异常", "at": [2, 2], "shape": "store", "sub": "exception_ptr"},
+    {"id": "t", "label": "已取走", "at": [3, 1], "shape": "store", "sub": "valid() == false"},
+    {"id": "sh", "label": "shared_future", "at": [0, 2], "shape": "round", "sub": "每线程一份副本"}
+  ],
+  "edges": [
+    {"id": "wait", "from": "f", "to": "s", "label": "等待"},
+    {"id": "set", "from": "s", "to": "v", "label": "set_value"},
+    {"id": "fail", "from": "s", "to": "e", "label": "set_exception", "dashed": true},
+    {"id": "getv", "from": "v", "to": "t", "label": "get()"},
+    {"id": "gete", "from": "e", "to": "t", "label": "get() 重抛", "dashed": true},
+    {"id": "share", "from": "sh", "to": "s", "label": "读取"}
+  ],
+  "steps": [
+    {"hi": ["f", "s"], "set": {"s": "空"}, "note": "future 刚创建，共享状态还是空的"},
+    {"token": [{"edge": "wait", "label": "任务"}], "hi": ["f"], "note": "任务在另一个线程计算，future 先等着"},
+    {"token": [{"edge": "set", "label": "42"}], "set": {"s": "有值 42"}, "tone": {"v": "ok"}, "note": "set_value 让状态就绪，结果放进共享状态"},
+    {"token": [{"edge": "getv", "label": "get()"}], "set": {"s": "已取走"}, "tone": {"t": "hot"}, "note": "get 取走值，future 随后变为 invalid"},
+    {"token": [{"edge": "fail", "label": "异常"}], "tone": {"e": "bad", "s": "bad"}, "set": {"s": "有异常"}, "note": "另一条路：任务抛出异常，状态里存 exception_ptr"},
+    {"token": [{"edge": "gete", "label": "重抛"}], "tone": {"t": "bad"}, "note": "对异常状态 get 会重新抛出异常"},
+    {"token": [{"edge": "share", "label": "副本"}], "hi": ["sh"], "note": "shared_future 可拷贝：多个读者共享同一状态，但各自用自己的副本"}
+  ]
+}

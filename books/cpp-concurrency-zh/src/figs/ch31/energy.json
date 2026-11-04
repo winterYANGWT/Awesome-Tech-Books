@@ -1,0 +1,50 @@
+{
+  "kind": "seq",
+  "title": "能量终止：工作在途中时收不齐 p 单位",
+  "alt": "rank 1 的工作还在途中，rank 2 先空闲；朴素计数器误判，能量随工作流动，收齐 3 单位才终止",
+  "speed": 1500,
+  "lanes": [
+    {"id": "r0", "label": "rank 0"},
+    {"id": "r1", "label": "rank 1"},
+    {"id": "r2", "label": "rank 2"}
+  ],
+  "state": [
+    {"id": "e0", "label": "rank 0 能量", "value": "1.000"},
+    {"id": "e1", "label": "rank 1 能量", "value": "1.000"},
+    {"id": "e2", "label": "rank 2 能量", "value": "1.000"},
+    {"id": "flight", "label": "在途能量", "value": "0.000"},
+    {"id": "total", "label": "rank 0 收到", "value": "0.000"},
+    {"id": "idle", "label": "空闲计数", "value": "0"}
+  ],
+  "steps": [
+    {"ops": [
+      {"at": "r0", "text": "1.000"},
+      {"at": "r1", "text": "1.000"},
+      {"at": "r2", "text": "1.000"}
+    ], "note": "开始每个 rank 各 1 单位能量，总量是 p=3"},
+    {"from": "r1", "to": "r0", "text": "工作 +0.5", "dashed": true,
+     "set": {"e1": "0.500", "flight": "0.500"},
+     "note": "rank 1 分任务，把一半能量随工作发出；工作还在路上"},
+    {"from": "r2", "to": "r0", "text": "空闲，交 1.000",
+     "set": {"e2": "0.000", "total": "1.000", "idle": "2"},
+     "note": "rank 2 先没工作，把能量交给 rank 0"},
+    {"from": "r1", "to": "r0", "text": "报告无工作", "dashed": true, "tone": "bad",
+     "set": {"idle": "3"},
+     "note": "朴素计数器收到 rank 1、rank 2 的通知，加上自己就是 3"},
+    {"at": "r0", "text": "计数到 p，退出", "tone": "bad",
+     "note": "工作还在途中，rank 0 已经走了：任务丢失"},
+    {"from": "r1", "to": "r0", "text": "工作到达 +0.5",
+     "set": {"e0": "1.500", "flight": "0.000"},
+     "note": "能量版不退出：工作到达 rank 0，0.5 先记在本地能量里"},
+    {"at": "r0", "text": "执行完，并入 1.500",
+     "set": {"e0": "0.000", "total": "2.500"},
+     "note": "rank 0 执行完收到的任务，才把自己的 1.5 并入总数"},
+    {"from": "r1", "to": "r0", "text": "做完，交回 0.5",
+     "set": {"e1": "0.000", "total": "3.000"},
+     "note": "rank 1 真正做完，才把剩下的 0.5 交给 rank 0"},
+    {"at": "r0", "text": "收齐 3.000", "tone": "ok",
+     "note": "总能量回到 p，所有工作都已完成；停在栈里不算完成"},
+    {"span": ["r0", "r1", "r2"], "text": "广播终止", "tone": "ok",
+     "note": "这时才广播终止；能量守恒挡住了“工作在途中”的提前退出"}
+  ]
+}

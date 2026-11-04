@@ -1,0 +1,116 @@
+{
+  "kind": "flow",
+  "title": "死锁的四个条件与破坏方法",
+  "alt": "互斥、持有并等待、不可抢占、循环等待同时成立才死锁，破坏任意一个即可",
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "mutex",
+      "label": "互斥",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "破坏：去掉互斥"
+    },
+    {
+      "id": "hold",
+      "label": "持有并等待",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "破坏：一次全锁"
+    },
+    {
+      "id": "preempt",
+      "label": "不可抢占",
+      "at": [
+        1,
+        2
+      ],
+      "sub": "破坏：超时/回滚"
+    },
+    {
+      "id": "cycle",
+      "label": "循环等待",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "破坏：固定顺序/层级"
+    },
+    {
+      "id": "dead",
+      "label": "死锁",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "round",
+      "sub": "四个同时成立"
+    }
+  ],
+  "edges": [
+    {
+      "id": "m_d",
+      "from": "mutex",
+      "to": "dead"
+    },
+    {
+      "id": "h_d",
+      "from": "hold",
+      "to": "dead"
+    },
+    {
+      "id": "p_d",
+      "from": "preempt",
+      "to": "dead"
+    },
+    {
+      "id": "c_d",
+      "from": "cycle",
+      "to": "dead"
+    },
+    {
+      "id": "m_h",
+      "from": "mutex",
+      "to": "hold",
+      "dashed": true
+    },
+    {
+      "id": "h_p",
+      "from": "hold",
+      "to": "preempt",
+      "dashed": true
+    },
+    {
+      "id": "p_c",
+      "from": "preempt",
+      "to": "cycle",
+      "dashed": true
+    },
+    {
+      "id": "c_m",
+      "from": "cycle",
+      "to": "mutex",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "tone": {
+        "mutex": "hot",
+        "hold": "hot",
+        "preempt": "hot",
+        "cycle": "hot",
+        "dead": "bad"
+      },
+      "note": "四个条件同时成立才死锁；破坏任意一个即可，互斥本身最难去掉"
+    }
+  ],
+  "static": true
+}

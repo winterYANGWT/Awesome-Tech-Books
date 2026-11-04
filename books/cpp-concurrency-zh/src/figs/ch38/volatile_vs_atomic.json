@@ -1,0 +1,26 @@
+{
+  "kind": "seq",
+  "title": "volatile 与 atomic：可见性和同步",
+  "alt": "volatile 只保证访问不被删掉；atomic 的 release/acquire 才建立先行发生",
+  "lanes": [
+    {"id": "w", "label": "写线程"},
+    {"id": "sb", "label": "store buffer", "role": "memory"},
+    {"id": "mem", "label": "内存", "role": "memory"},
+    {"id": "r", "label": "读线程"}
+  ],
+  "state": [
+    {"id": "wdata", "label": "写线程 data", "value": "—"},
+    {"id": "data", "label": "内存 data", "value": "0"},
+    {"id": "ready", "label": "ready", "value": "false"},
+    {"id": "seen", "label": "读者看到", "value": "—"}
+  ],
+  "steps": [
+    {"label": "volatile", "at": "w", "text": "data = 42", "set": {"wdata": "42"}, "note": "普通写先进 store buffer"},
+    {"from": "w", "to": "sb", "text": "data=42 留在缓冲", "tone": "wait", "note": "另一个核暂时看不到 data"},
+    {"at": "w", "text": "ready = 1", "tone": "wait", "set": {"ready": "true"}, "note": "volatile 不建立先行发生，也不刷缓冲"},
+    {"from": "r", "to": "mem", "text": "读到 ready=1", "set": {"seen": "ready=1"}, "note": "读线程以为数据准备好了"},
+    {"from": "r", "to": "mem", "text": "再读 data=0", "tone": "bad", "set": {"seen": "data=0"}, "note": "没有 happens-before，内存里的 data 还是 0"},
+    {"label": "atomic", "at": "w", "text": "release 写 ready", "tone": "hot", "note": "release 把前面的写一起发布"},
+    {"from": "mem", "to": "r", "text": "acquire 读，data=42", "tone": "ok", "set": {"data": "42", "seen": "data=42"}, "note": "acquire 与 release 同步，data 可见"}
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "kind": "flow",
+  "title": "线程 API 的时间线",
+  "alt": "pthread 1995、C++11 2011、C11 2011、C++20 2020、C++23 2023",
+  "grid": [
+    5,
+    1
+  ],
+  "nodes": [
+    {
+      "id": "pthread",
+      "label": "pthread",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "1995 · POSIX"
+    },
+    {
+      "id": "cpp11",
+      "label": "C++11",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "2011 · std::thread"
+    },
+    {
+      "id": "c11",
+      "label": "C11 threads",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "2011 · C11；glibc 2.28"
+    },
+    {
+      "id": "cpp20",
+      "label": "C++20",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "2020 · jthread"
+    },
+    {
+      "id": "cpp23",
+      "label": "C++23",
+      "at": [
+        4,
+        0
+      ],
+      "sub": "2023 · move-only"
+    }
+  ],
+  "edges": [
+    {
+      "id": "p_c11",
+      "from": "pthread",
+      "to": "cpp11",
+      "label": "标准库"
+    },
+    {
+      "id": "c11_c11t",
+      "from": "cpp11",
+      "to": "c11",
+      "label": "C 的另一条路"
+    },
+    {
+      "id": "c11t_c20",
+      "from": "c11",
+      "to": "cpp20",
+      "label": "C++ 继续"
+    },
+    {
+      "id": "c20_c23",
+      "from": "cpp20",
+      "to": "cpp23",
+      "label": "补缺口"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "pthread"
+      ],
+      "note": "pthread 定下 C 的线程、互斥量、条件变量接口"
+    },
+    {
+      "hi": [
+        "cpp11"
+      ],
+      "note": "C++11 把这些搬进标准库，用异常报错"
+    },
+    {
+      "hi": [
+        "c11"
+      ],
+      "note": "C11 另起 threads.h，glibc 2.28 才提供"
+    },
+    {
+      "hi": [
+        "cpp20"
+      ],
+      "note": "C++20 加 jthread、stop_token、屏障、闩、信号量"
+    },
+    {
+      "hi": [
+        "cpp23"
+      ],
+      "note": "C++23 加 move_only_function，补上只能移动的任务"
+    }
+  ],
+  "static": true
+}

@@ -1,0 +1,122 @@
+{
+  "kind": "flow",
+  "title": "eventop 函数表和后端",
+  "alt": "event_base 按优先级选 eventop；函数表把 epoll、kqueue、select 的差异包住",
+  "grid": [
+    3,
+    4
+  ],
+  "nodes": [
+    {
+      "id": "base",
+      "label": "event_base",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "持有 evsel"
+    },
+    {
+      "id": "ops",
+      "label": "eventop",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "init/add/del/dispatch"
+    },
+    {
+      "id": "epoll",
+      "label": "epoll",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "ET/O1"
+    },
+    {
+      "id": "kqueue",
+      "label": "kqueue",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "BSD/macOS"
+    },
+    {
+      "id": "poll",
+      "label": "poll",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "FDS"
+    },
+    {
+      "id": "select",
+      "label": "select",
+      "at": [
+        2,
+        3
+      ],
+      "sub": "FDS"
+    }
+  ],
+  "edges": [
+    {
+      "id": "pick",
+      "from": "base",
+      "to": "ops",
+      "label": "按优先级选一个"
+    },
+    {
+      "id": "e1",
+      "from": "ops",
+      "to": "epoll",
+      "label": "同一套接口"
+    },
+    {
+      "id": "e2",
+      "from": "ops",
+      "to": "kqueue"
+    },
+    {
+      "id": "e3",
+      "from": "ops",
+      "to": "poll"
+    },
+    {
+      "id": "e4",
+      "from": "ops",
+      "to": "select"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "note": "Linux 上 eventops[] 把 epoll 排在前面，运行时选第一个可用后端",
+      "hi": [
+        "epoll"
+      ]
+    },
+    {
+      "note": "eventop 的函数指针把后端差异关在函数表里，上层不依赖具体机制",
+      "hi": [
+        "ops"
+      ]
+    },
+    {
+      "note": "epoll 支持 ET 和 O(1)，但不收普通文件，所以 features 没有 FDS",
+      "hi": [
+        "epoll"
+      ]
+    },
+    {
+      "note": "select/poll 支持普通文件（FDS），但没有 ET，复杂度 O(n)",
+      "hi": [
+        "poll",
+        "select"
+      ]
+    }
+  ]
+}

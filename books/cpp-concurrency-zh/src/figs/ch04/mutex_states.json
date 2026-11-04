@@ -1,0 +1,166 @@
+{
+  "kind": "flow",
+  "title": "互斥量的三个状态",
+  "alt": "三个状态排成一行；A 用 CAS 拿到锁，B 失败后进入等待，A 解锁时唤醒 B",
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "u",
+      "label": "unlocked",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "无人持有",
+      "shape": "round"
+    },
+    {
+      "id": "l",
+      "label": "locked",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "—",
+      "shape": "round"
+    },
+    {
+      "id": "w",
+      "label": "有等待者",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "—",
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "ul",
+      "from": "u",
+      "to": "l",
+      "label": "`lock()`",
+      "fromSide": "bottom",
+      "toSide": "bottom"
+    },
+    {
+      "id": "lu",
+      "from": "l",
+      "to": "u",
+      "label": "`unlock()`",
+      "fromSide": "top",
+      "toSide": "top"
+    },
+    {
+      "id": "lw",
+      "from": "l",
+      "to": "w",
+      "label": "失败",
+      "fromSide": "bottom",
+      "toSide": "bottom"
+    },
+    {
+      "id": "wl",
+      "from": "w",
+      "to": "l",
+      "label": "唤醒",
+      "fromSide": "top",
+      "toSide": "top",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "u"
+      ],
+      "note": "初始是 unlocked，没有线程持有锁"
+    },
+    {
+      "token": [
+        {
+          "edge": "ul",
+          "label": "A"
+        }
+      ],
+      "set": {
+        "l": "A 持有"
+      },
+      "hi": [
+        "l"
+      ],
+      "note": "A 的 lock 用一条 CAS 成功，没有系统调用"
+    },
+    {
+      "token": [
+        {
+          "edge": "lw",
+          "label": "B"
+        }
+      ],
+      "set": {
+        "w": "B 睡眠"
+      },
+      "tone": {
+        "w": "wait"
+      },
+      "note": "B 的 CAS 失败：锁被占用，B 进入等待"
+    },
+    {
+      "token": [
+        {
+          "edge": "lu",
+          "label": "A"
+        }
+      ],
+      "set": {
+        "u": "无人持有",
+        "l": "—"
+      },
+      "tone": {
+        "l": "muted"
+      },
+      "note": "A unlock，把锁字改回 0"
+    },
+    {
+      "token": [
+        {
+          "edge": "wl",
+          "label": "B"
+        }
+      ],
+      "set": {
+        "l": "B 持有",
+        "w": "—"
+      },
+      "tone": {
+        "w": "muted",
+        "l": "ok"
+      },
+      "hi": [
+        "l"
+      ],
+      "note": "A 唤醒 B，B 重新尝试并拿到锁"
+    },
+    {
+      "token": [
+        {
+          "edge": "lu",
+          "label": "B"
+        }
+      ],
+      "set": {
+        "u": "无人持有",
+        "l": "—"
+      },
+      "note": "B 释放锁，等待队列为空，回到 unlocked",
+      "tone": {
+        "l": "muted"
+      }
+    }
+  ]
+}

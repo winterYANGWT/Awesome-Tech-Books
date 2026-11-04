@@ -1,0 +1,33 @@
+{
+  "kind": "flow",
+  "title": "pthread_attr_t 的属性落到内核的哪里",
+  "alt": "创建前用 attr 设分离、栈和调度；创建后还能改名字、绑核和 detach",
+  "grid": [3, 4],
+  "bands": [
+    {"label": "创建前设置", "rows": [0, 2]},
+    {"label": "创建后仍能改", "rows": [3, 3]}
+  ],
+  "nodes": [
+    {"id": "attr", "label": "pthread_attr_t", "at": [0, 0], "span": [3, 1], "shape": "store", "sub": "只通过 pthread_attr_*"},
+    {"id": "join", "label": "分离状态", "at": [0, 1], "sub": "detachstate"},
+    {"id": "mem", "label": "栈与保护区", "at": [1, 1], "sub": "stacksize / guardsize"},
+    {"id": "cpu", "label": "调度", "at": [2, 1], "sub": "policy / param / scope"},
+    {"id": "task", "label": "内核 task", "at": [0, 2], "sub": "每个线程一个"},
+    {"id": "stack", "label": "线程栈", "at": [1, 2], "sub": "默认来自 RLIMIT_STACK"},
+    {"id": "sched", "label": "调度实体", "at": [2, 2], "sub": "SCHED_OTHER 起步"},
+    {"id": "post", "label": "创建后仍能改", "at": [0, 3], "span": [3, 1], "sub": "名字 / 绑核 / detach"}
+  ],
+  "edges": [
+    {"id": "a1", "from": "attr", "to": "join"},
+    {"id": "a2", "from": "attr", "to": "mem"},
+    {"id": "a3", "from": "attr", "to": "cpu"},
+    {"id": "b1", "from": "join", "to": "task"},
+    {"id": "b2", "from": "mem", "to": "stack"},
+    {"id": "b3", "from": "cpu", "to": "sched"}
+  ],
+  "steps": [
+    {"hi": ["attr", "join", "mem", "cpu"], "note": "这些属性只在 pthread_create 之前通过 attr 设置"},
+    {"hi": ["post"], "note": "名字、绑核、detach 在创建后通过 pthread_* 改"}
+  ],
+  "static": true
+}

@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "自旋锁和互斥量：线程数增加后的耗时",
+  "alt": "自旋锁在 8 线程以后迅速变慢，互斥量把等待交给内核，耗时基本平缓",
+  "type": "line",
+  "data": "code/ch04/4_5_spin_vs_mutex.out",
+  "x": {"label": "线程数"},
+  "y": {"label": "每次加解锁", "unit": "ns", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2"
+}

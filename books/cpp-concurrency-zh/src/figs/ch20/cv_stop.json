@@ -1,0 +1,31 @@
+{
+  "kind": "seq",
+  "title": "cv_any 加 stop_token：叫醒等待",
+  "alt": "消费者在空队列上睡下并注册回调；request_stop 触发 notify_all，消费者醒来看到停止请求后退出",
+  "lanes": [
+    {"id": "consumer", "label": "消费者"},
+    {"id": "cv", "label": "cv_any", "role": "memory"},
+    {"id": "main", "label": "主线程"},
+    {"id": "queue", "label": "任务队列", "role": "memory"}
+  ],
+  "state": [
+    {"id": "queue", "label": "队列长度", "value": "0"},
+    {"id": "stop", "label": "stop_requested", "value": "false"}
+  ],
+  "steps": [
+    {"at": "consumer", "text": "`wait(lock,token,pred)`",
+     "note": "队列已空，消费者取完任务后再次等待；这次调用先注册停止回调"},
+    {"at": "cv", "text": "登记回调并等待",
+     "note": "回调已登记：停止请求到来时能叫醒这次等待"},
+    {"at": "consumer", "text": "睡眠", "lane": {"consumer": "blocked"},
+     "note": "消费者睡在 cv 上，互斥量已经释放"},
+    {"at": "main", "text": "`request_stop()`", "set": {"stop": "true"},
+     "note": "第 4 步：主线程确认任务已处理完，发出停止请求"},
+    {"from": "cv", "to": "consumer", "text": "notify_all", "dashed": true,
+     "note": "回调在 request_stop 的线程上执行，把等待者叫醒"},
+    {"at": "consumer", "text": "醒来，重查谓词", "lane": {"consumer": "running"},
+     "note": "第 6 步：停止已请求，谓词为 true；队列为空，可以退出"},
+    {"at": "consumer", "text": "队列空，退出", "lane": {"consumer": "done"},
+     "note": "停止请求叫醒等待，消费者自己完成退出"}
+  ]
+}

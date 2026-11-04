@@ -1,0 +1,90 @@
+{
+  "kind": "flow",
+  "title": "同一段 C++，两套指令",
+  "alt": "x86 用 mov，seq_cst store 用 xchg；ARM 用 LDAR/STLR",
+  "grid": [
+    2,
+    4
+  ],
+  "static": true,
+  "nodes": [
+    {
+      "id": "x_rlx",
+      "label": "relaxed",
+      "sub": "mov",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "x_acq",
+      "label": "acquire",
+      "sub": "mov",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "x_rel",
+      "label": "release",
+      "sub": "mov",
+      "at": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "x_sc",
+      "label": "seq_cst",
+      "sub": "xchg / mfence",
+      "at": [
+        0,
+        3
+      ]
+    },
+    {
+      "id": "a_rlx",
+      "label": "relaxed",
+      "sub": "LDR / STR",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "a_acq",
+      "label": "acquire",
+      "sub": "LDAR",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "a_rel",
+      "label": "release",
+      "sub": "STLR",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "a_sc",
+      "label": "seq_cst",
+      "sub": "STLR / DMB",
+      "at": [
+        1,
+        3
+      ]
+    }
+  ],
+  "edges": [],
+  "steps": [
+    {
+      "note": "左列本机可实测；右列只讲原理，本书环境没有 ARM 机器"
+    }
+  ]
+}

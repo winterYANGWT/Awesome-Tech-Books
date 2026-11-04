@@ -1,0 +1,25 @@
+{
+  "kind": "seq",
+  "title": "写者请求后，读者一个接一个插队",
+  "alt": "写者一直等；只要总有读者持有读锁，标准允许它永远拿不到写锁",
+  "lanes": [
+    {"id": "w", "label": "写者"},
+    {"id": "l", "label": "读写锁", "role": "memory"},
+    {"id": "r1", "label": "读者 1"},
+    {"id": "r2", "label": "读者 2"}
+  ],
+  "state": [
+    {"id": "readers", "label": "活动读者", "value": "0"},
+    {"id": "writer", "label": "写者状态", "value": "运行"}
+  ],
+  "steps": [
+    {"from": "w", "to": "l", "text": "wrlock", "tone": "wait", "lane": {"w": "blocked"}, "set": {"writer": "等待"}, "note": "写者请求写锁，读者还在里面"},
+    {"from": "l", "to": "r1", "text": "允许读", "set": {"readers": "1"}, "note": "新读者越过写者，拿到读锁"},
+    {"from": "l", "to": "r2", "text": "允许读", "lane": {"r2": "new"}, "set": {"readers": "2"}, "note": "又来一个读者，也拿到读锁"},
+    {"from": "r1", "to": "l", "text": "unlock", "set": {"readers": "1"}, "note": "读者 1 退出，读者 2 仍持有"},
+    {"from": "l", "to": "r1", "text": "再次允许", "set": {"readers": "2"}, "note": "读者 1 立刻重新进入，写者继续等"},
+    {"from": "r2", "to": "l", "text": "unlock", "set": {"readers": "1"}, "note": "读者 2 退出，读者 1 仍持有"},
+    {"from": "l", "to": "r2", "text": "再次允许", "set": {"readers": "2"}, "note": "读者 2 也重新进入；总有人持有"},
+    {"at": "w", "text": "继续等待", "tone": "bad", "note": "标准允许写者无限等待；glibc 默认读者优先"}
+  ]
+}

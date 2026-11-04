@@ -1,0 +1,119 @@
+{
+  "kind": "seq",
+  "title": "wait_for 超时后任务仍在跑",
+  "alt": "主线程两次 50 ms 超时，工作线程 200 ms 后才给结果；future 仍能 get",
+  "lanes": [
+    {
+      "id": "m",
+      "label": "主线程"
+    },
+    {
+      "id": "f",
+      "label": "future 状态",
+      "role": "memory"
+    },
+    {
+      "id": "c",
+      "label": "条件变量",
+      "role": "memory"
+    },
+    {
+      "id": "w",
+      "label": "工作线程"
+    }
+  ],
+  "state": [
+    {
+      "id": "fut",
+      "label": "future",
+      "value": "等待中"
+    },
+    {
+      "id": "cv",
+      "label": "cv 谓词",
+      "value": "假"
+    }
+  ],
+  "steps": [
+    {
+      "at": "w",
+      "text": "`sleep_for(200ms)`",
+      "lane": {
+        "w": "sleeping",
+        "m": "blocked"
+      },
+      "note": "工作线程要睡 200 ms，主线程开始等"
+    },
+    {
+      "from": "m",
+      "to": "f",
+      "text": "`wait_for(50ms)`",
+      "set": {
+        "fut": "等待中"
+      },
+      "note": "主线程在 future 上最多等 50 ms"
+    },
+    {
+      "at": "m",
+      "text": "50 ms：timeout",
+      "tone": "wait",
+      "lane": {
+        "m": "running"
+      },
+      "set": {
+        "fut": "timeout"
+      },
+      "note": "时间到，wait_for 返回 timeout；任务没被取消"
+    },
+    {
+      "from": "m",
+      "to": "c",
+      "text": "`wait_for(50ms)`",
+      "lane": {
+        "m": "blocked"
+      },
+      "set": {
+        "cv": "等待中"
+      },
+      "note": "换条件变量再等 50 ms，谓词仍是假"
+    },
+    {
+      "at": "m",
+      "text": "100 ms：timeout",
+      "tone": "wait",
+      "lane": {
+        "m": "running"
+      },
+      "set": {
+        "cv": "timeout"
+      },
+      "note": "第二次超时返回；任务仍在后台跑"
+    },
+    {
+      "from": "w",
+      "to": "f",
+      "text": "`set_value(42)`",
+      "tone": "ok",
+      "lane": {
+        "w": "done"
+      },
+      "set": {
+        "fut": "有值 42"
+      },
+      "note": "200 ms 时工作线程才写结果，future 变为就绪"
+    },
+    {
+      "from": "f",
+      "to": "m",
+      "text": "`get()` 得到 42",
+      "tone": "ok",
+      "lane": {
+        "m": "done"
+      },
+      "set": {
+        "fut": "已取走"
+      },
+      "note": "超时只影响等待，不影响结果：get 仍取到 42"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "kind": "seq",
+  "title": "互斥量的快路径与 futex 等待",
+  "alt": "A 用 CAS 在用户态抢到锁；B 失败后在 futex 上睡眠，A 解锁并唤醒它",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "m", "label": "锁字", "role": "memory"},
+    {"id": "b", "label": "线程 B"},
+    {"id": "k", "label": "内核等待队列", "role": "kernel"}
+  ],
+  "state": [
+    {"id": "word", "label": "锁字", "value": "0"},
+    {"id": "queue", "label": "等待队列", "value": "空"}
+  ],
+  "steps": [
+    {"from": "a", "to": "m", "text": "CAS 0→1 成功", "tone": "ok", "set": {"word": "1"}, "note": "A 用一条 CAS 抢到锁，全程在用户态"},
+    {"at": "a", "text": "进入临界区", "note": "A 持有锁；内核不知道这件事"},
+    {"from": "b", "to": "m", "text": "CAS 失败", "tone": "bad", "note": "B 的 CAS 看到 1，没有抢到锁"},
+    {"at": "b", "text": "再读一次：仍是 1", "note": "B 读到的值仍等于期望值 1"},
+    {"from": "b", "to": "k", "text": "`FUTEX_WAIT(1)`", "tone": "wait", "lane": {"b": "blocked"}, "set": {"queue": "B 等待"}, "note": "值仍等于 1，B 才进入内核睡眠"},
+    {"at": "k", "text": "B 进入等待队列", "note": "内核把 B 挂到这把锁的等待队列上"},
+    {"from": "a", "to": "m", "text": "置 0", "set": {"word": "0"}, "note": "A 离开临界区，把锁字改回 0"},
+    {"from": "a", "to": "k", "text": "`FUTEX_WAKE`", "dashed": true, "tone": "hot", "note": "A 通知内核唤醒一个等待者"},
+    {"from": "k", "to": "b", "text": "唤醒 B", "lane": {"b": "running"}, "set": {"queue": "空"}, "note": "内核把 B 从等待队列摘下，放回用户态"},
+    {"from": "b", "to": "m", "text": "CAS 0→1 成功", "tone": "ok", "set": {"word": "1"}, "note": "B 重新抢锁成功；如果又失败，就再等一次"}
+  ]
+}

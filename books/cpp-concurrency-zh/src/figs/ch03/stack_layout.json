@@ -1,0 +1,32 @@
+{
+  "kind": "grid",
+  "title": "用户栈、保护区、TLS 与内核栈的位置",
+  "alt": "用户栈向下增长，栈底下面是保护区；内核栈在另一块地址空间",
+  "rows": [
+    {"label": "用户空间"},
+    {"label": "内核空间"}
+  ],
+  "cols": 16,
+  "legend": [
+    {"key": "guard", "label": "保护区"},
+    {"key": "stack", "label": "用户栈"},
+    {"key": "tls", "label": "TLS"},
+    {"key": "kstack", "label": "内核栈"}
+  ],
+  "brackets": [
+    {"c": "0-1", "label": "保护区"},
+    {"c": "2-10", "label": "用户栈（向低地址增长）"},
+    {"c": "11-12", "label": "TLS"},
+    {"c": "13-15", "label": "未映射"}
+  ],
+  "steps": [
+    {"paint": [
+      {"r": 0, "c": "0-1", "key": "guard"},
+      {"r": 0, "c": "2-10", "key": "stack"},
+      {"r": 0, "c": "11-12", "key": "tls"}
+    ], "note": "用户栈从高地址向低地址增长，栈底下面是保护区"},
+    {"paint": [{"r": 1, "c": "6-9", "key": "kstack"}], "note": "内核栈在另一块地址空间，不在用户栈旁边"},
+    {"mark": [{"r": 0, "c": "0-1", "tone": "bad"}], "note": "写越过栈底进入保护区，内核发 SIGSEGV"}
+  ],
+  "static": true
+}

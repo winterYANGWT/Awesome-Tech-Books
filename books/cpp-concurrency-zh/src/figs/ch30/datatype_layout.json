@@ -1,0 +1,36 @@
+{
+  "kind": "grid",
+  "title": "结构体的 24 字节布局与填充",
+  "alt": "两个 double 占 0–15，int 占 16–19，20–23 是填充",
+  "rows": [
+    {"label": "字节偏移"},
+    {"label": "字段"}
+  ],
+  "cols": 24,
+  "colLabels": "index",
+  "legend": [
+    {"key": "A", "label": "a: double"},
+    {"key": "B", "label": "b: double"},
+    {"key": "I", "label": "id: int"},
+    {"key": "P", "label": "填充"}
+  ],
+  "cells": [
+    ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"],
+    [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+  ],
+  "brackets": [
+    {"c": "0-7", "label": "a: 0–7"},
+    {"c": "8-15", "label": "b: 8–15"},
+    {"c": "16-19", "label": "id: 16–19"},
+    {"c": "20-23", "label": "填充: 20–23", "below": true}
+  ],
+  "steps": [
+    {"paint": [
+      {"r": 1, "c": "0-7", "key": "A"},
+      {"r": 1, "c": "8-15", "key": "B"},
+      {"r": 1, "c": "16-19", "key": "I"},
+      {"r": 1, "c": "20-23", "key": "P"}
+    ], "mark": [{"r": 1, "c": "20-23", "tone": "bad"}],
+     "note": "`sizeof`=24；`MPI_Type_size`=20，末尾 4 字节是填充"}
+  ]
+}

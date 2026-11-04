@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "固定睡眠与条件变量的等待",
+  "alt": "睡眠版靠猜时间，慢机器上会读得太早；条件变量版由通知唤醒并重查谓词",
+  "lanes": [
+    {"id": "producer", "label": "生产者"},
+    {"id": "consumer", "label": "消费者"},
+    {"id": "cv", "label": "条件变量"}
+  ],
+  "state": [
+    {"id": "data", "label": "data", "value": "0"},
+    {"id": "mode", "label": "等待方式", "value": "睡眠"}
+  ],
+  "steps": [
+    {"at": "producer", "text": "准备写 data", "note": "生产者还没拿到 CPU"},
+    {"at": "consumer", "text": "nanosleep(1s)", "lane": {"consumer": "blocked"}, "note": "消费者用固定睡眠等生产者"},
+    {"at": "producer", "text": "被调度延迟", "lane": {"producer": "blocked"}, "tone": "wait", "note": "慢机器上生产者 1 秒内没运行"},
+    {"at": "consumer", "text": "醒来读 data", "lane": {"consumer": "running"}, "tone": "bad", "set": {"data": "0"}, "note": "时间到了，数据还没写：读到旧值"},
+    {"at": "consumer", "text": "改用条件变量", "tone": "hot", "set": {"mode": "条件变量"}, "note": "不再猜时间，睡在谓词上"},
+    {"at": "consumer", "text": "wait(lock, pred)", "lane": {"consumer": "blocked"}, "note": "谓词为假就一直睡，不占 CPU"},
+    {"from": "producer", "to": "cv", "text": "写 data，notify_one", "lane": {"producer": "running"}, "set": {"data": "42"}, "note": "生产者写完后通知"},
+    {"from": "cv", "to": "consumer", "text": "唤醒，重查谓词", "lane": {"consumer": "running"}, "note": "谓词为真才继续，读到的就是 42"}
+  ]
+}

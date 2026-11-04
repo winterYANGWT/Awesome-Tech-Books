@@ -1,0 +1,142 @@
+{
+  "kind": "flow",
+  "title": "TSP 静态划分：BFS 造任务，MINLOC 收结果",
+  "alt": "BFS 生成任务，Scatterv 不等长分发，各自 DFS，MINLOC 归约后送回回路",
+  "grid": [
+    5,
+    2
+  ],
+  "static": true,
+  "nodes": [
+    {
+      "id": "bfs",
+      "label": "rank 0\nBFS 任务",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "深度 4 的部分回路"
+    },
+    {
+      "id": "scatter",
+      "label": "Scatterv",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "条数不等长"
+    },
+    {
+      "id": "dfs",
+      "label": "rank 0..3\n各自 DFS",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "私有栈"
+    },
+    {
+      "id": "minloc",
+      "label": "MINLOC",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "代价 + rank"
+    },
+    {
+      "id": "owner",
+      "label": "最佳 rank",
+      "at": [
+        4,
+        0
+      ],
+      "sub": "把回路发给 0"
+    },
+    {
+      "id": "out",
+      "label": "rank 0\n输出",
+      "at": [
+        4,
+        1
+      ],
+      "shape": "store"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "bfs",
+      "to": "scatter",
+      "label": "任务表"
+    },
+    {
+      "id": "e2",
+      "from": "scatter",
+      "to": "dfs",
+      "label": "每 rank 一份"
+    },
+    {
+      "id": "e3",
+      "from": "dfs",
+      "to": "minloc",
+      "label": "局部最佳"
+    },
+    {
+      "id": "e4",
+      "from": "minloc",
+      "to": "owner",
+      "label": "Allreduce"
+    },
+    {
+      "id": "e5",
+      "from": "owner",
+      "to": "out",
+      "label": "Send 回路"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "bfs"
+      ],
+      "note": "rank 0 用 BFS 生成至少 p 条部分回路，深度决定任务数"
+    },
+    {
+      "hi": [
+        "scatter"
+      ],
+      "tone": {
+        "scatter": "hot"
+      },
+      "note": "条数不一定被 p 整除，所以用 Scatterv 而不是 Scatter"
+    },
+    {
+      "hi": [
+        "dfs"
+      ],
+      "note": "每个 rank 用自己的栈跑 DFS，读同一份距离矩阵不需要锁"
+    },
+    {
+      "hi": [
+        "minloc"
+      ],
+      "tone": {
+        "minloc": "hot"
+      },
+      "note": "Allreduce + MPI_MINLOC + MPI_2INT 一次得到最小代价和拥有者"
+    },
+    {
+      "hi": [
+        "owner"
+      ],
+      "note": "拥有最佳回路的 rank 用 Send 把整条回路发给 rank 0"
+    },
+    {
+      "hi": [
+        "out"
+      ],
+      "note": "不能在某个 rank 里单独调用 Bcast：集合通信要求所有 rank 参与"
+    }
+  ]
+}

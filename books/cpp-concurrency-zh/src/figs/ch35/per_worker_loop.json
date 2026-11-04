@@ -1,0 +1,28 @@
+{
+  "kind": "flow",
+  "title": "每 worker 一个 epoll：连接按四元组分流",
+  "alt": "每个 worker 有自己的监听 socket 和 epoll，内核按四元组把连接分给其中一个",
+  "grid": [5, 2],
+  "nodes": [
+    {"id": "hash", "label": "四元组哈希", "at": [0, 0], "span": [1, 2], "shape": "store", "sub": "内核分流"},
+    {"id": "w0", "label": "worker 0", "at": [1, 0], "shape": "round", "sub": "自己的 listen"},
+    {"id": "w1", "label": "worker 1", "at": [2, 0], "shape": "round", "sub": "自己的 listen"},
+    {"id": "w2", "label": "worker 2", "at": [3, 0], "shape": "round", "sub": "自己的 listen"},
+    {"id": "w3", "label": "worker 3", "at": [4, 0], "shape": "round", "sub": "自己的 listen"}
+  ],
+  "edges": [
+    {"id": "h0", "from": "hash", "to": "w0", "label": "conn"},
+    {"id": "h1", "from": "hash", "to": "w1", "label": "conn"},
+    {"id": "h2", "from": "hash", "to": "w2", "label": "conn"},
+    {"id": "h3", "from": "hash", "to": "w3", "label": "conn"}
+  ],
+  "steps": [
+    {"hi": ["hash"], "note": "每个 worker 各自 socket+bind+listen 同一端口"},
+    {"token": [{"edge": "h0", "label": "conn"}], "note": "内核按四元组哈希选中一个 listener"},
+    {"token": [{"edge": "h1", "label": "conn"}], "note": "同一连接的请求总是落到同一个 worker"},
+    {"token": [{"edge": "h2", "label": "conn"}], "note": "连接不跨 worker，没有任务队列"},
+    {"token": [{"edge": "h3", "label": "conn"}], "note": "短连接多时，哈希分布可能偏斜"},
+    {"hi": ["w1"], "tone": {"w1": "hot"}, "note": "worker 只处理自己 epoll 里的连接"},
+    {"hi": ["w0", "w1", "w2", "w3"], "note": "没有队列锁；迁移和全局统计更难"}
+  ]
+}

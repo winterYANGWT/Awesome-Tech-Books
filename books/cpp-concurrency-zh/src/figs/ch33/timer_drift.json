@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "sleep 的累计漂移与 timerfd 的单次误差",
+  "alt": "sleep 每轮多睡一点，误差累积；timerfd 用绝对截止时间，单次误差不随轮次累积",
+  "type": "line",
+  "data": "code/ch33/33_4_timer_drift.out",
+  "x": {"label": "第几次（每次 100ms）"},
+  "y": {"label": "误差", "unit": "ms", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），数字随负载变化"
+}

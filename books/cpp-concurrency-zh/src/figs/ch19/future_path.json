@@ -1,0 +1,120 @@
+{
+  "kind": "flow",
+  "title": "任务的结果与异常走同一条路",
+  "alt": "packaged_task 把值或异常写进共享状态，future::get 在提交者线程取出或重抛",
+  "grid": [
+    5,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "sub",
+      "label": "提交者",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "pt",
+      "label": "packaged_task",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "任务 + 共享状态"
+    },
+    {
+      "id": "q",
+      "label": "任务队列",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "queue",
+      "slots": 4
+    },
+    {
+      "id": "w",
+      "label": "工作线程",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "st",
+      "label": "共享状态",
+      "at": [
+        4,
+        0
+      ],
+      "shape": "store",
+      "sub": "值或异常"
+    },
+    {
+      "id": "f",
+      "label": "future",
+      "at": [
+        4,
+        1
+      ],
+      "shape": "store",
+      "sub": "get() 取值或重抛"
+    }
+  ],
+  "edges": [
+    {
+      "id": "make",
+      "from": "sub",
+      "to": "pt",
+      "label": "创建 + get_future"
+    },
+    {
+      "id": "enqueue",
+      "from": "pt",
+      "to": "q",
+      "label": "移动入队"
+    },
+    {
+      "id": "take",
+      "from": "q",
+      "to": "w",
+      "label": "取任务"
+    },
+    {
+      "id": "store",
+      "from": "w",
+      "to": "st",
+      "label": "存值或异常"
+    },
+    {
+      "id": "read",
+      "from": "st",
+      "to": "f",
+      "label": "`get()` 取值或重抛"
+    },
+    {
+      "id": "back",
+      "from": "f",
+      "to": "sub",
+      "label": "返回或重抛",
+      "route": "vh",
+      "fromSide": "bottom",
+      "toSide": "bottom"
+    }
+  ],
+  "steps": [
+    {
+      "tone": {
+        "store": "bad",
+        "read": "bad",
+        "back": "bad"
+      },
+      "note": "红色路径：抛异常时异常存进共享状态，future::get() 在提交者线程重抛"
+    }
+  ],
+  "static": true
+}

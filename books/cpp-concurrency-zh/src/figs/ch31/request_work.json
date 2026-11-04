@@ -1,0 +1,33 @@
+{
+  "kind": "flow",
+  "title": "请求工作：空闲 rank 怎么拿到任务",
+  "alt": "空闲 rank 发请求，忙 rank 用 Iprobe 查请求，有任务就分离栈打包回传，没任务回 NO_WORK",
+  "grid": [5, 3],
+  "static": true,
+  "nodes": [
+    {"id": "idle", "label": "空闲 rank", "at": [0, 1], "shape": "round", "sub": "栈空"},
+    {"id": "req", "label": "WORK_REQUEST", "at": [1, 1], "sub": "轮转选目标"},
+    {"id": "busy", "label": "忙 rank", "at": [2, 1], "shape": "round", "sub": "边搜边 Iprobe"},
+    {"id": "split", "label": "分离栈\nMPI_Pack", "at": [3, 0], "sub": "一半任务"},
+    {"id": "work", "label": "WORK\n+ 能量", "at": [4, 0], "sub": "MPI_PACKED"},
+    {"id": "no", "label": "NO_WORK", "at": [3, 2], "sub": "这次没有"},
+    {"id": "cont", "label": "解包继续", "at": [4, 2], "shape": "round", "sub": "压回自己的栈"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "idle", "to": "req", "label": "要工作"},
+    {"id": "e2", "from": "req", "to": "busy"},
+    {"id": "e3", "from": "busy", "to": "split", "label": "栈里还有"},
+    {"id": "e4", "from": "busy", "to": "no", "label": "栈空"},
+    {"id": "e5", "from": "split", "to": "work", "label": "打包"},
+    {"id": "e6", "from": "work", "to": "cont"},
+    {"id": "e7", "from": "no", "to": "cont", "label": "换目标"}
+  ],
+  "steps": [
+    {"hi": ["idle", "req"], "note": "空闲 rank 主动发请求；目标可以轮转、由 0 号维护或随机选"},
+    {"hi": ["busy"], "note": "忙 rank 每搜一小段就用 Iprobe 查一次，不阻塞在接收上"},
+    {"hi": ["split"], "tone": {"split": "hot"}, "note": "栈里多于一条就分一半；MPI 不能发指针，用 MPI_Pack 打包"},
+    {"hi": ["work"], "note": "WORK 里带任务和一半能量；接收方用 MPI_Unpack 解包后继续搜索"},
+    {"hi": ["no"], "tone": {"no": "wait"}, "note": "没工作就回 NO_WORK，请求方换一个目标再试"},
+    {"hi": ["cont"], "note": "请求、工作、拒绝、能量各用一个 tag，Iprobe 用 ANY_SOURCE 时靠 tag 区分"}
+  ]
+}

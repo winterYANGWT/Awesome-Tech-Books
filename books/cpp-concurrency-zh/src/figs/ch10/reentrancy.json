@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "线程安全、可重入与异步信号安全",
+  "alt": "可重入通常也线程安全；异步信号安全是另一条轴，不能由前两者推出",
+  "grid": [5, 3],
+  "nodes": [
+    {"id": "malloc", "label": "`malloc`", "at": [0, 0], "sub": "有锁，不可重入"},
+    {"id": "printf", "label": "`printf`", "at": [0, 2], "sub": "stdio 锁，不可重入"},
+    {"id": "ts", "label": "线程安全", "at": [1, 1], "sub": "可以加锁"},
+    {"id": "localtime_r", "label": "`localtime_r`", "at": [2, 0], "sub": "结果写调用者缓冲区"},
+    {"id": "re", "label": "可重入", "at": [3, 1], "sub": "无共享可变状态"},
+    {"id": "note", "label": "handler 只认\nPOSIX 列表", "at": [2, 2], "shape": "note"},
+    {"id": "as", "label": "异步信号安全", "at": [4, 1], "sub": "POSIX 列表"},
+    {"id": "write", "label": "`write`", "at": [4, 2], "sub": "在列表里"}
+  ],
+  "edges": [
+    {"id": "m1", "from": "malloc", "to": "ts", "label": "例子", "dashed": true},
+    {"id": "m2", "from": "printf", "to": "ts", "label": "例子", "dashed": true},
+    {"id": "m3", "from": "localtime_r", "to": "re", "label": "例子", "dashed": true},
+    {"id": "m4", "from": "write", "to": "as", "label": "例子", "dashed": true},
+    {"id": "m5", "from": "re", "to": "ts", "label": "通常蕴含"}
+  ],
+  "static": true,
+  "steps": [
+    {"note": "不是严格包含：localtime_r 可重入，但不在异步信号安全列表里"}
+  ]
+}

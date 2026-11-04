@@ -1,0 +1,139 @@
+{
+  "kind": "seq",
+  "title": "关闭顺序：置 done、唤醒、排空、join",
+  "alt": "主线程置 done 并 notify_all；两个工作线程排空队列后退出，join 才返回",
+  "lanes": [
+    {
+      "id": "main",
+      "label": "主线程"
+    },
+    {
+      "id": "w0",
+      "label": "工作线程 0"
+    },
+    {
+      "id": "w1",
+      "label": "工作线程 1"
+    },
+    {
+      "id": "q",
+      "label": "任务队列",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "done",
+      "label": "done",
+      "value": "false"
+    },
+    {
+      "id": "queue",
+      "label": "队列长度",
+      "value": "3"
+    }
+  ],
+  "steps": [
+    {
+      "at": "main",
+      "text": "`done = true`",
+      "set": {
+        "done": "true"
+      },
+      "note": "先置停止标志：不再接受新任务"
+    },
+    {
+      "ops": [
+        {
+          "from": "main",
+          "to": "w0",
+          "text": "notify_all",
+          "dashed": true
+        },
+        {
+          "from": "main",
+          "to": "w1",
+          "text": "notify_all",
+          "dashed": true
+        }
+      ],
+      "note": "唤醒全部等待者；只置标志不唤醒会卡住"
+    },
+    {
+      "ops": [
+        {
+          "at": "w0",
+          "text": "醒来，重查谓词"
+        },
+        {
+          "at": "w1",
+          "text": "醒来，重查谓词"
+        }
+      ],
+      "note": "谓词看见停止标志且队列非空，继续取任务"
+    },
+    {
+      "at": "main",
+      "text": "`join(w0)`",
+      "tone": "wait",
+      "note": "若第 2 步没做，w0 仍睡在 wait，这里永不返回"
+    },
+    {
+      "from": "q",
+      "to": "w0",
+      "text": "取走一个",
+      "set": {
+        "queue": "2"
+      },
+      "note": "排空模式：先做完队列里剩下的任务"
+    },
+    {
+      "from": "q",
+      "to": "w1",
+      "text": "取走一个",
+      "set": {
+        "queue": "1"
+      },
+      "note": "w1 也取走一个；两个线程一起排空"
+    },
+    {
+      "from": "q",
+      "to": "w0",
+      "text": "取走最后一个",
+      "set": {
+        "queue": "0"
+      },
+      "note": "w0 取走最后一个，队列空"
+    },
+    {
+      "at": "w0",
+      "text": "队列空，退出",
+      "lane": {
+        "w0": "done"
+      },
+      "note": "取空且停止标志为真，w0 退出"
+    },
+    {
+      "at": "w1",
+      "text": "任务做完，队列空",
+      "lane": {
+        "w1": "done"
+      },
+      "note": "w1 做完手里的任务，也退出"
+    },
+    {
+      "from": "w0",
+      "to": "main",
+      "text": "`join(w0)` 返回",
+      "tone": "ok",
+      "note": "w0 退出后 join(w0) 返回"
+    },
+    {
+      "from": "w1",
+      "to": "main",
+      "text": "`join(w1)` 返回",
+      "tone": "ok",
+      "note": "两个线程都汇入后 shutdown 返回"
+    }
+  ]
+}

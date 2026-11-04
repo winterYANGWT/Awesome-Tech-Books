@@ -1,0 +1,211 @@
+{
+  "kind": "flow",
+  "title": "ABA：地址没变，历史变了",
+  "alt": "线程 2 弹出 A、压入同地址的 A′；线程 1 的 CAS 只比较地址，仍然成功，但 next 已失效",
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "t1",
+      "label": "线程 1",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "head",
+      "label": "head",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "addr",
+      "label": "地址 X",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "store",
+      "sub": "→ 地址 X"
+    },
+    {
+      "id": "b",
+      "label": "节点 B",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "box",
+      "sub": "值 2"
+    },
+    {
+      "id": "t2",
+      "label": "线程 2",
+      "at": [
+        3,
+        2
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_head",
+      "from": "head",
+      "to": "addr",
+      "label": "head",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e_next",
+      "from": "addr",
+      "to": "b",
+      "label": "next",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "e_head_b",
+      "from": "head",
+      "to": "b",
+      "label": "head→B",
+      "hidden": true,
+      "route": "vh",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "e_read",
+      "from": "t1",
+      "to": "addr",
+      "label": "读 A",
+      "dashed": true,
+      "route": "hv",
+      "fromSide": "right",
+      "toSide": "top"
+    },
+    {
+      "id": "e_pop",
+      "from": "t2",
+      "to": "addr",
+      "label": "弹出/压入",
+      "dashed": true,
+      "route": "vh",
+      "fromSide": "top",
+      "toSide": "right"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "e_read",
+          "label": "读 X"
+        }
+      ],
+      "hi": [
+        "addr"
+      ],
+      "note": "线程 1 读到 head=地址 X（节点 A）"
+    },
+    {
+      "token": [
+        {
+          "edge": "e_next",
+          "label": "next=B"
+        }
+      ],
+      "hi": [
+        "b"
+      ],
+      "note": "线程 1 记下 A.next=B，准备把 head 换成 B"
+    },
+    {
+      "token": [
+        {
+          "edge": "e_pop",
+          "label": "弹出 A"
+        }
+      ],
+      "show": [],
+      "hide": [
+        "e_head",
+        "e_next",
+        "e_head_b"
+      ],
+      "set": {
+        "head": "→ null",
+        "addr": "已释放",
+        "b": "已弹出"
+      },
+      "hi": [
+        "head",
+        "b"
+      ],
+      "note": "线程 2 弹出 A 和 B，head 变 null，A 被释放",
+      "tone": {
+        "b": "muted"
+      }
+    },
+    {
+      "token": [
+        {
+          "edge": "e_pop",
+          "label": "压入 A′"
+        }
+      ],
+      "show": [
+        "e_head"
+      ],
+      "hide": [
+        "e_head_b"
+      ],
+      "set": {
+        "head": "→ 地址 X",
+        "addr": "节点 A′：值 99"
+      },
+      "hi": [
+        "addr"
+      ],
+      "note": "线程 2 在同一个地址分配 A′，值 99，压回栈；A′ 的 next 是 null"
+    },
+    {
+      "token": [
+        {
+          "edge": "e_head_b",
+          "label": "CAS 改指 B"
+        }
+      ],
+      "show": [
+        "e_head_b"
+      ],
+      "hide": [
+        "e_head"
+      ],
+      "tone": {
+        "head": "bad"
+      },
+      "note": "线程 1 的 CAS 只比较地址 X，仍然成功：head 改指已经弹出的 B",
+      "set": {
+        "head": "→ B"
+      }
+    },
+    {
+      "tone": {
+        "b": "bad"
+      },
+      "hi": [
+        "b"
+      ],
+      "note": "值相等，历史不同：B 已经被弹出，线程 1 手里的 next 已失效"
+    }
+  ]
+}

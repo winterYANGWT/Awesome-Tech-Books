@@ -1,0 +1,50 @@
+{
+  "kind": "flow",
+  "title": "终端 I/O 集中到 rank 0，线程级别先声明",
+  "alt": "rank 0 读 stdin 后广播，各 rank 的结果发回 rank 0 统一打印",
+  "static": true,
+  "grid": [4, 4],
+  "nodes": [
+    {"id": "in", "label": "stdin", "at": [0, 0], "shape": "store"},
+    {"id": "r0", "label": "rank 0", "sub": "唯一的终端 I/O", "at": [1, 0], "shape": "round"},
+    {"id": "out", "label": "终端输出", "at": [3, 0], "shape": "store"},
+    {"id": "r1", "label": "rank 1", "at": [2, 1], "shape": "round"},
+    {"id": "r2", "label": "rank 2", "at": [2, 2], "shape": "round"},
+    {"id": "r3", "label": "rank 3", "at": [2, 3], "shape": "round"},
+    {"id": "lv", "label": "线程级别", "sub": "SINGLE/FUNNELED/\nSERIALIZED/MULTIPLE", "at": [0, 3], "shape": "note"}
+  ],
+  "edges": [
+    {"id": "read", "from": "in", "to": "r0", "label": "scanf"},
+    {"id": "l1", "from": "r0", "to": "r1", "fromSide": "right", "toSide": "left"},
+    {"id": "l2", "from": "r0", "to": "r2", "fromSide": "right", "toSide": "left"},
+    {"id": "l3", "from": "r0", "to": "r3", "fromSide": "right", "toSide": "left"},
+    {"id": "b1", "from": "r1", "to": "r0", "fromSide": "left", "toSide": "right"},
+    {"id": "b2", "from": "r2", "to": "r0", "fromSide": "left", "toSide": "right"},
+    {"id": "b3", "from": "r3", "to": "r0", "fromSide": "left", "toSide": "right"},
+    {"id": "print", "from": "r0", "to": "out", "label": "printf"}
+  ],
+  "steps": [
+    {
+      "token": [
+        {"edge": "read"},
+        {"edge": "l1", "label": "Bcast"},
+        {"edge": "l2", "label": "Bcast"},
+        {"edge": "l3", "label": "Bcast"}
+      ],
+      "note": "rank 0 读入参数，再用 Bcast 分发给其他 rank"
+    },
+    {
+      "token": [
+        {"edge": "b1", "label": "Send"},
+        {"edge": "b2", "label": "Send"},
+        {"edge": "b3", "label": "Send"},
+        {"edge": "print"}
+      ],
+      "note": "各 rank 用 Send 把结果送回 rank 0，由 rank 0 打印"
+    },
+    {
+      "hi": ["lv"],
+      "note": "用线程之前先声明级别；MULTIPLE 才允许不同线程同时调用 MPI"
+    }
+  ]
+}

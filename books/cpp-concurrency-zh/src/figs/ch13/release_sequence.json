@@ -1,0 +1,25 @@
+{
+  "kind": "flow",
+  "title": "释放序列：链头的 release 连到每个 acquire",
+  "alt": "release store 在链头，两个 fetch_sub 依次挂上；第二个消费者的同步边经过第一个",
+  "grid": [4, 3],
+  "static": true,
+  "nodes": [
+    {"id": "p", "label": "生产者", "sub": "填 20 个元素", "at": [0, 0], "shape": "round"},
+    {"id": "head", "label": "count=20", "sub": "release store", "at": [1, 0], "shape": "store"},
+    {"id": "f1", "label": "fetch_sub", "sub": "返回 20", "at": [2, 0], "shape": "store"},
+    {"id": "f2", "label": "fetch_sub", "sub": "返回 19", "at": [3, 0], "shape": "store"},
+    {"id": "c1", "label": "消费者 1", "sub": "读 data[19]", "at": [2, 2], "shape": "round"},
+    {"id": "c2", "label": "消费者 2", "sub": "读 data[18]", "at": [3, 2], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "fill", "from": "p", "to": "head", "label": "先写数据"},
+    {"id": "head_to_1", "from": "head", "to": "f1", "label": "链头"},
+    {"id": "chain", "from": "f1", "to": "f2", "label": "RMW"},
+    {"id": "acq1", "from": "f1", "to": "c1", "label": "acquire"},
+    {"id": "acq2", "from": "f2", "to": "c2", "label": "同步边经过 f1"}
+  ],
+  "steps": [
+    {"note": "第二个消费者的 acquire 读到 f1 写的值，沿释放序列追到头部的 release store"}
+  ]
+}

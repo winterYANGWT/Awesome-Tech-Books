@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "自旋锁和 mutex：线程数超过核数之后",
+  "alt": "自旋锁在 16 线程以后明显变慢，mutex 的每次操作耗时基本不变",
+  "type": "line",
+  "data": "code/ch15/15_1_spin_vs_mutex.out",
+  "x": {"label": "线程数", "scale": "log2"},
+  "y": {"label": "每次操作耗时", "unit": "ns", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2；数字会随机器和负载变化"
+}

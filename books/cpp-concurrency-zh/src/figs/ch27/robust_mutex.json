@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "robust 互斥量：持锁者死亡后返回 EOWNERDEAD",
+  "alt": "持锁进程 _exit 后锁被标成 owner dead，下一个 lock 得到 EOWNERDEAD",
+  "lanes": [
+    {"id": "child", "label": "子进程"},
+    {"id": "mtx", "label": "共享的锁", "role": "memory"},
+    {"id": "parent", "label": "父进程"}
+  ],
+  "state": [
+    {"id": "owner", "label": "持有者", "value": "—"},
+    {"id": "state", "label": "锁状态", "value": "空闲"}
+  ],
+  "steps": [
+    {"from": "child", "to": "mtx", "text": "lock", "set": {"owner": "子进程", "state": "已加锁"}, "note": "子进程拿到锁，临界区里改共享数据"},
+    {"at": "child", "text": "`_exit(0)`", "tone": "bad", "set": {"state": "已加锁"}, "note": "没有 unlock 就退出，普通锁会永远留在加锁状态"},
+    {"at": "mtx", "text": "owner dead", "tone": "wait", "set": {"owner": "—", "state": "owner dead"}, "note": "内核发现持有者死了，把 robust 锁标成 owner dead"},
+    {"from": "parent", "to": "mtx", "text": "lock", "set": {"owner": "父进程"}, "note": "父进程的 lock 成功返回，错误码是 EOWNERDEAD"},
+    {"at": "parent", "text": "`consistent` 修复", "set": {"state": "consistent"}, "note": "修复临界区后调用 consistent，告诉内核可以继续用"},
+    {"at": "parent", "text": "unlock 后再 lock", "tone": "ok", "set": {"state": "空闲"}, "note": "之后这把锁恢复正常；不调用 consistent 就解锁会变成 ENOTRECOVERABLE"}
+  ]
+}

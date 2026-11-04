@@ -1,0 +1,28 @@
+{
+  "kind": "flow",
+  "title": "四种回收方案：读、改、删",
+  "alt": "引用计数看计数，风险指针先登记，RCU 等宽限期，GC 扫描不可达对象",
+  "grid": [4, 3],
+  "static": true,
+  "nodes": [
+    {"id": "obj", "label": "共享对象", "at": [1, 0], "shape": "store"},
+    {"id": "ref", "label": "引用计数", "sub": "读 +1 / 删 -1", "at": [0, 1]},
+    {"id": "hp", "label": "风险指针", "sub": "读前登记", "at": [1, 1]},
+    {"id": "rcu", "label": "RCU", "sub": "等宽限期", "at": [2, 1]},
+    {"id": "gc", "label": "GC", "sub": "扫描不可达", "at": [3, 1]},
+    {"id": "free", "label": "释放", "at": [1, 2], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "e_ref", "from": "obj", "to": "ref", "label": "读/删", "fromSide": "left", "toSide": "top"},
+    {"id": "e_hp", "from": "obj", "to": "hp", "label": "读/删", "fromSide": "bottom", "toSide": "top"},
+    {"id": "e_rcu", "from": "obj", "to": "rcu", "label": "读/删", "fromSide": "right", "toSide": "top"},
+    {"id": "e_gc", "from": "obj", "to": "gc", "label": "读/删", "fromSide": "right", "toSide": "top"},
+    {"id": "e_ref_free", "from": "ref", "to": "free", "label": "计数归零", "fromSide": "bottom", "toSide": "left"},
+    {"id": "e_hp_free", "from": "hp", "to": "free", "label": "扫描通过", "fromSide": "bottom", "toSide": "top"},
+    {"id": "e_rcu_free", "from": "rcu", "to": "free", "label": "宽限期满", "fromSide": "bottom", "toSide": "right"},
+    {"id": "e_gc_free", "from": "gc", "to": "free", "label": "不可达", "fromSide": "bottom", "toSide": "right"}
+  ],
+  "steps": [
+    {"note": "风险指针在解引用前登记；RCU 的释放要等所有读者离开宽限期"}
+  ]
+}

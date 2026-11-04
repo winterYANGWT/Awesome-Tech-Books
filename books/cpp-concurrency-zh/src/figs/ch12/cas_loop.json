@@ -1,0 +1,23 @@
+{
+  "kind": "seq",
+  "title": "CAS 循环：失败拿到最新值",
+  "alt": "CAS 失败时 expected 被回写成 7，循环用新值重试并成功",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "mem", "label": "原子变量", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "value", "label": "变量", "value": "5"},
+    {"id": "expected", "label": "expected", "value": "—"},
+    {"id": "desired", "label": "desired", "value": "—"}
+  ],
+  "steps": [
+    {"at": "a", "text": "expected = 5", "set": {"expected": "5"}, "note": "循环开始，先读一次当前值 5"},
+    {"at": "a", "text": "desired = 6", "set": {"desired": "6"}, "note": "用 expected 构造想写入的新值"},
+    {"from": "b", "to": "mem", "text": "store(7)", "set": {"value": "7"}, "note": "另一个线程抢先改成 7"},
+    {"from": "a", "to": "mem", "text": "CAS(5, 6)", "tone": "hot", "note": "5 != 7，CAS 失败；失败不是错误，是拿到了最新值"},
+    {"from": "mem", "to": "a", "text": "回写 7", "set": {"expected": "7"}, "note": "失败路径把当前值写回 expected"},
+    {"from": "a", "to": "mem", "text": "CAS(7, 8)", "tone": "ok", "set": {"value": "8"}, "note": "用回写的 7 重试，成功返回 true"}
+  ]
+}

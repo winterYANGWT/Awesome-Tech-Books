@@ -1,0 +1,75 @@
+{
+  "kind": "seq",
+  "title": "最小 task：创建、恢复、返回",
+  "alt": "调用只建帧，两次 resume 后 co_return，帧停在 final_suspend",
+  "lanes": [
+    {
+      "id": "caller",
+      "label": "调用方"
+    },
+    {
+      "id": "frame",
+      "label": "协程帧"
+    }
+  ],
+  "state": [
+    {
+      "id": "done",
+      "label": "done",
+      "value": "否"
+    },
+    {
+      "id": "result",
+      "label": "结果",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "at": "caller",
+      "text": "compute()",
+      "note": "调用协程函数只创建帧；initial_suspend 让函数体停在起点"
+    },
+    {
+      "at": "frame",
+      "text": "initial_suspend",
+      "note": "一行函数体都没执行，控制权回到调用方"
+    },
+    {
+      "from": "caller",
+      "to": "frame",
+      "text": "resume() #1",
+      "note": "第一次恢复，执行到 co_await 之前"
+    },
+    {
+      "at": "frame",
+      "text": "co_await suspend_always",
+      "tone": "wait",
+      "note": "再次挂起，控制权回到调用方"
+    },
+    {
+      "from": "caller",
+      "to": "frame",
+      "text": "resume() #2",
+      "note": "第二次恢复，从 co_await 后面继续"
+    },
+    {
+      "at": "frame",
+      "text": "co_return 42",
+      "set": {
+        "result": "42"
+      },
+      "note": "return_value 把 42 存进 promise"
+    },
+    {
+      "at": "frame",
+      "text": "final_suspend",
+      "tone": "ok",
+      "set": {
+        "done": "是"
+      },
+      "note": "帧停在终点；调用方读结果后 destroy"
+    }
+  ],
+  "speed": 1500
+}

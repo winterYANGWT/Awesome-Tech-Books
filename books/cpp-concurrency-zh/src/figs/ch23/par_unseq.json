@@ -1,0 +1,87 @@
+{
+  "kind": "seq",
+  "title": "par_unseq：同一线程上的两段代码交错",
+  "alt": "同一条线程上元素 A 持锁、元素 B 等锁，B 不让出线程，A 无法解锁",
+  "speed": 1500,
+  "lanes": [
+    {
+      "id": "a",
+      "label": "元素 A"
+    },
+    {
+      "id": "b",
+      "label": "元素 B"
+    },
+    {
+      "id": "m",
+      "label": "mutex",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "lock",
+      "label": "mutex",
+      "value": "空闲"
+    }
+  ],
+  "steps": [
+    {
+      "at": "a",
+      "text": "lock(m)",
+      "set": {
+        "lock": "A 持有"
+      },
+      "note": "元素 A 在调用 lock() 后持有互斥量"
+    },
+    {
+      "at": "b",
+      "text": "lock(m)",
+      "tone": "wait",
+      "lane": {
+        "b": "blocked"
+      },
+      "note": "同一条线程上，元素 B 也开始 lock()"
+    },
+    {
+      "at": "m",
+      "text": "已被 A 锁定",
+      "tone": "wait",
+      "set": {
+        "lock": "B 等待"
+      },
+      "note": "锁只有一把，B 要等 A 释放"
+    },
+    {
+      "at": "b",
+      "text": "等 A 解锁",
+      "tone": "bad",
+      "note": "但 A 要继续执行才能解锁，而线程现在停在 B 里"
+    },
+    {
+      "span": [
+        "a",
+        "b"
+      ],
+      "text": "不是两个线程",
+      "tone": "bad",
+      "note": "第 5 步：不是两个线程，是同一条线程的两段代码交错"
+    },
+    {
+      "at": "a",
+      "text": "拿不到执行机会",
+      "tone": "bad",
+      "note": "A 无法继续，B 永远等锁，形成自死锁"
+    },
+    {
+      "at": "b",
+      "text": "deadlock",
+      "tone": "bad",
+      "lane": {
+        "a": "blocked",
+        "b": "blocked"
+      },
+      "note": "par_unseq 允许这种交错，所以阻塞同步有死锁风险"
+    }
+  ]
+}

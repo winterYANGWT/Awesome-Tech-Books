@@ -1,0 +1,204 @@
+{
+  "kind": "flow",
+  "title": "两把锁的队列：哑节点隔开头和尾",
+  "alt": "两把锁分开头尾；get_tail 必须在 head_mutex 内读 tail",
+  "grid": [
+    5,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "p",
+      "label": "生产者",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "tlock",
+      "label": "tail_mutex",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "锁住尾部"
+    },
+    {
+      "id": "q",
+      "label": "队列",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "queue",
+      "slots": 3,
+      "sub": "哑节点 + 数据节点"
+    },
+    {
+      "id": "hlock",
+      "label": "head_mutex",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "锁住头部"
+    },
+    {
+      "id": "c",
+      "label": "消费者",
+      "at": [
+        4,
+        1
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "push",
+      "from": "p",
+      "to": "tlock",
+      "label": "push"
+    },
+    {
+      "id": "tail_write",
+      "from": "tlock",
+      "to": "q",
+      "label": "写尾"
+    },
+    {
+      "id": "head_read",
+      "from": "hlock",
+      "to": "q",
+      "label": "摘头"
+    },
+    {
+      "id": "pop",
+      "from": "c",
+      "to": "hlock",
+      "label": "pop"
+    },
+    {
+      "id": "get_tail",
+      "from": "hlock",
+      "to": "tlock",
+      "label": "get_tail",
+      "dashed": true,
+      "fromSide": "left",
+      "toSide": "right"
+    }
+  ],
+  "steps": [
+    {
+      "queue": {
+        "q": [
+          "·"
+        ]
+      },
+      "note": "空队列也有一个哑节点；head 和 tail 都指向它"
+    },
+    {
+      "token": [
+        {
+          "edge": "push",
+          "label": "A"
+        }
+      ],
+      "queue": {
+        "q": [
+          "A",
+          "·"
+        ]
+      },
+      "hi": [
+        "tlock"
+      ],
+      "note": "push 先锁 tail_mutex，把 A 写进旧哑节点"
+    },
+    {
+      "token": [
+        {
+          "edge": "tail_write",
+          "label": "新哑尾"
+        }
+      ],
+      "queue": {
+        "q": [
+          "A",
+          "·"
+        ]
+      },
+      "note": "再挂一个新节点作哑尾，tail 指向它"
+    },
+    {
+      "token": [
+        {
+          "edge": "get_tail",
+          "label": "读 tail"
+        }
+      ],
+      "hi": [
+        "hlock",
+        "tlock"
+      ],
+      "note": "pop 先调 get_tail：在 head_mutex 内短暂锁 tail_mutex 比较空满"
+    },
+    {
+      "token": [
+        {
+          "edge": "head_read",
+          "label": "A"
+        }
+      ],
+      "queue": {
+        "q": [
+          "·"
+        ]
+      },
+      "hi": [
+        "hlock"
+      ],
+      "note": "确认非空后才摘下哑节点后面的 A"
+    },
+    {
+      "queue": {
+        "q": [
+          "·"
+        ]
+      },
+      "note": "取空后 head 和 tail 又指向同一个哑节点"
+    },
+    {
+      "token": [
+        {
+          "edge": "push",
+          "label": "C"
+        },
+        {
+          "edge": "head_read",
+          "label": "B"
+        }
+      ],
+      "queue": {
+        "q": [
+          "·"
+        ]
+      },
+      "note": "一个线程入队、一个出队：不再为整个操作互等，get_tail 仍要短暂锁 tail_mutex"
+    },
+    {
+      "token": [
+        {
+          "edge": "get_tail",
+          "label": "锁外读"
+        }
+      ],
+      "tone": {
+        "get_tail": "bad"
+      },
+      "note": "先放 head_mutex 再读 tail，head 可能已经越过 tail，比较失效"
+    }
+  ]
+}

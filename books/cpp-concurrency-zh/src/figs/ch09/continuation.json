@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "手写回调链：A 验证、B 取用户、C 取订单",
+  "alt": "三步都在后台线程执行，最后回主线程更新界面；任一步抛异常就跳过后面的步骤",
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "a", "label": "A 验证", "at": [0, 0], "sub": "后台线程"},
+    {"id": "b", "label": "B 取用户", "at": [1, 0], "sub": "后台线程"},
+    {"id": "c", "label": "C 取订单", "at": [2, 0], "sub": "后台线程"},
+    {"id": "ui", "label": "更新界面", "at": [3, 0], "sub": "主线程"},
+    {"id": "err", "label": "异常回调", "at": [1, 2], "sub": "跳过后续步骤", "shape": "note"}
+  ],
+  "edges": [
+    {"id": "ab", "from": "a", "to": "b", "label": "user"},
+    {"id": "bc", "from": "b", "to": "c", "label": "orders"},
+    {"id": "cui", "from": "c", "to": "ui"},
+    {"id": "be", "from": "b", "to": "err", "label": "异常", "dashed": true}
+  ],
+  "steps": [
+    {"hi": ["a"], "note": "A 验证 token，在后台线程执行"},
+    {"token": [{"edge": "ab", "label": "user"}], "hi": ["b"], "note": "A 完成后调用 B 的回调，把 user 传过去"},
+    {"token": [{"edge": "bc", "label": "orders"}], "hi": ["c"], "note": "B 取用户，仍在后台；回调继续调 C"},
+    {"token": [{"edge": "cui", "label": "summary"}], "hi": ["ui"], "note": "C 汇总后回到主线程更新界面"},
+    {"token": [{"edge": "be", "label": "异常"}], "tone": {"err": "bad", "b": "bad"}, "note": "B 抛异常时跳过 C，直接进异常回调"},
+    {"hi": ["a", "b", "c", "ui", "err"], "note": "手写回调要自己传异常；then 把两条路合进一条 future 链"}
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "kind": "seq",
+  "title": "计算在主线程时心跳停住",
+  "alt": "计算占住主线程时心跳没人处理，移到工作线程后主线程每 5 ms 观察一次",
+  "speed": 1500,
+  "lanes": [
+    {
+      "id": "main",
+      "label": "主线程"
+    },
+    {
+      "id": "work",
+      "label": "工作线程"
+    },
+    {
+      "id": "hb",
+      "label": "心跳线程"
+    }
+  ],
+  "steps": [
+    {
+      "at": "main",
+      "text": "开始 800 ms 计算",
+      "tone": "wait",
+      "note": "t=0 主线程被计算占住，事件循环停住"
+    },
+    {
+      "at": "hb",
+      "text": "t≈50 ms 第一次心跳",
+      "note": "心跳线程先睡 50 ms 再计数，第一次 tick 在约 50 ms"
+    },
+    {
+      "from": "hb",
+      "to": "main",
+      "text": "tick",
+      "dashed": true,
+      "note": "心跳到了，但主线程没空观察"
+    },
+    {
+      "at": "hb",
+      "text": "每 50 ms 一次",
+      "note": "从 t≈50 ms 起心跳照发，主线程一次也没处理"
+    },
+    {
+      "at": "main",
+      "text": "结束才看到积压",
+      "tone": "bad",
+      "note": "最大间隔接近整段计算时间"
+    },
+    {
+      "at": "work",
+      "text": "开始计算",
+      "lane": {
+        "work": "new"
+      },
+      "note": "把同一段计算放进工作线程"
+    },
+    {
+      "from": "hb",
+      "to": "main",
+      "text": "tick",
+      "dashed": true,
+      "note": "主线程空闲，心跳一到就能处理"
+    },
+    {
+      "at": "main",
+      "text": "处理心跳",
+      "note": "主线程每 5 ms 观察一次，心跳仍每 50 ms 一次"
+    },
+    {
+      "at": "main",
+      "text": "最大间隔几十 ms",
+      "tone": "ok",
+      "note": "计算总时间没变，变的是响应性"
+    }
+  ]
+}

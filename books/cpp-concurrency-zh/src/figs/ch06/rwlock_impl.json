@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "一个互斥量、两个条件变量实现的读写锁",
+  "alt": "状态由 mutex 保护；读者等 can_read，写者等 can_write，解锁时决定唤醒谁",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "r", "label": "读者", "at": [0, 1], "shape": "round"},
+    {"id": "st", "label": "共享状态", "at": [1, 1], "shape": "store", "sub": "读者数 / 写者"},
+    {"id": "w", "label": "写者", "at": [2, 1], "shape": "round"},
+    {"id": "cr", "label": "`can_read`", "at": [1, 0], "sub": "等无写者"},
+    {"id": "cw", "label": "`can_write`", "at": [1, 2], "sub": "等读者清零"}
+  ],
+  "edges": [
+    {"id": "rin", "from": "r", "to": "st", "label": "加锁", "fromSide": "right", "toSide": "left"},
+    {"id": "rout", "from": "st", "to": "r", "label": "释放", "fromSide": "left", "toSide": "right"},
+    {"id": "win", "from": "w", "to": "st", "label": "请求", "fromSide": "left", "toSide": "right"},
+    {"id": "wout", "from": "st", "to": "w", "label": "得到", "fromSide": "right", "toSide": "left"},
+    {"id": "waitr", "from": "st", "to": "cr", "label": "读者等", "fromSide": "top", "toSide": "bottom"},
+    {"id": "waker", "from": "cr", "to": "r", "label": "唤醒", "fromSide": "left", "toSide": "top"},
+    {"id": "waitw", "from": "st", "to": "cw", "label": "写者等", "fromSide": "bottom", "toSide": "top"},
+    {"id": "wakew", "from": "cw", "to": "w", "label": "唤醒", "fromSide": "right", "toSide": "bottom"}
+  ],
+  "static": true,
+  "steps": [
+    {"hi": ["st"], "tone": {"cr": "wait", "cw": "wait"}, "note": "一个 mutex 保护状态；两个条件变量分别等可读和可写"}
+  ]
+}

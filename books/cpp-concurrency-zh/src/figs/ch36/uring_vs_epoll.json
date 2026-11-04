@@ -1,0 +1,17 @@
+{
+  "kind": "chart",
+  "title": "epoll 与 io_uring：吞吐随连接数变化",
+  "alt": "两版吞吐在同一数量级；本机回环上 io_uring 并没有自动更快",
+  "type": "line",
+  "data": "code/ch36/36_6_uring_vs_epoll/output.out",
+  "x": {
+    "label": "连接数",
+    "scale": "log2"
+  },
+  "y": {
+    "label": "吞吐",
+    "unit": "Mreq/s",
+    "min": 0
+  },
+  "note": "纵轴是百万请求每秒；本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），回环地址，每连接 400 个请求、流水线 4"
+}

@@ -1,0 +1,139 @@
+{
+  "kind": "flow",
+  "title": "对象边界和内存位置边界不是一回事",
+  "alt": "普通成员各占一个位置，相邻位域共用一个位置，零宽位域只分隔，string 对象和字符缓冲区是两个对象",
+  "grid": [
+    5,
+    3
+  ],
+  "bands": [
+    {
+      "label": "对象",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "内存位置",
+      "rows": [
+        2,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "a",
+      "label": "int a",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "独立对象"
+    },
+    {
+      "id": "bf1",
+      "label": "unsigned bf1:4",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "位域对象"
+    },
+    {
+      "id": "bf2",
+      "label": "unsigned bf2:4",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "位域对象"
+    },
+    {
+      "id": "zero",
+      "label": "int :0;",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "只分隔，不占位置"
+    },
+    {
+      "id": "name",
+      "label": "std::string name",
+      "at": [
+        4,
+        0
+      ],
+      "sub": "对象本身"
+    },
+    {
+      "id": "loc_a",
+      "label": "位置 1",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "store",
+      "sub": "只有 a"
+    },
+    {
+      "id": "loc_bits",
+      "label": "位置 2",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "store",
+      "sub": "bf1 和 bf2 共用"
+    },
+    {
+      "id": "loc_buf",
+      "label": "字符存储",
+      "at": [
+        4,
+        2
+      ],
+      "shape": "store",
+      "sub": "短串在对象内"
+    }
+  ],
+  "edges": [
+    {
+      "id": "a_loc",
+      "from": "a",
+      "to": "loc_a"
+    },
+    {
+      "id": "bf1_loc",
+      "from": "bf1",
+      "to": "loc_bits"
+    },
+    {
+      "id": "bf2_loc",
+      "from": "bf2",
+      "to": "loc_bits"
+    },
+    {
+      "id": "name_buf",
+      "from": "name",
+      "to": "loc_buf",
+      "label": "字符内容",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "tone": {
+        "bf1": "bad",
+        "bf2": "bad",
+        "loc_bits": "bad",
+        "name": "wait",
+        "loc_buf": "wait"
+      },
+      "note": "bf1 与 bf2 是两个对象，却落在同一个内存位置；string 对象和它的字符缓冲区也是两回事"
+    }
+  ],
+  "static": true
+}

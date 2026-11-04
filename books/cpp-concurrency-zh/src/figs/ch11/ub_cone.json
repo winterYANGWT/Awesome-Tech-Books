@@ -1,0 +1,29 @@
+{
+  "kind": "flow",
+  "title": "未定义行为不是一个确定的坏值",
+  "alt": "数据竞争让语言不作任何保证，编译器可以假设它不存在，后果从错误的值到崩溃都有可能",
+  "grid": [4, 3],
+  "bands": [
+    {"label": "诊断", "rows": [0, 0]},
+    {"label": "语言允许的后果", "rows": [1, 2]}
+  ],
+  "nodes": [
+    {"id": "race", "label": "数据竞争", "at": [1, 0], "sub": "同一位置、无先行发生", "shape": "round"},
+    {"id": "ub", "label": "未定义行为", "at": [1, 1], "sub": "标准不规定结果", "shape": "store"},
+    {"id": "assume", "label": "编译器假设", "at": [0, 2], "sub": "竞争不存在"},
+    {"id": "reg", "label": "值留在寄存器", "at": [1, 2], "sub": "读不到别人的写"},
+    {"id": "reorder", "label": "指令被重排", "at": [2, 2], "sub": "顺序不再可靠"},
+    {"id": "crash", "label": "崩溃或算错", "at": [3, 2], "sub": "换机器才出现"}
+  ],
+  "edges": [
+    {"id": "r_u", "from": "race", "to": "ub"},
+    {"id": "u_a", "from": "ub", "to": "assume"},
+    {"id": "u_r", "from": "ub", "to": "reg"},
+    {"id": "u_o", "from": "ub", "to": "reorder"},
+    {"id": "u_c", "from": "ub", "to": "crash"}
+  ],
+  "steps": [
+    {"tone": {"race": "bad", "ub": "wait", "crash": "bad"}, "note": "四条判据都满足时，程序整体失去定义；不是“少加几次”的算术错误"}
+  ],
+  "static": true
+}

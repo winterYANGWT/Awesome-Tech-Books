@@ -1,0 +1,28 @@
+{
+  "kind": "seq",
+  "title": "进程池：通知、子进程 accept、SIGCHLD 补人",
+  "alt": "父进程只监听并通知，子进程自己 accept；子进程退出后父进程回收并补一个",
+  "lanes": [
+    {"id": "client", "label": "客户端"},
+    {"id": "parent", "label": "父进程", "role": "process"},
+    {"id": "childA", "label": "子进程 A", "role": "process"},
+    {"id": "childB", "label": "子进程 B", "role": "process"},
+    {"id": "kernel", "label": "内核", "role": "kernel"}
+  ],
+  "state": [
+    {"id": "children", "label": "子进程数", "value": "4"}
+  ],
+  "steps": [
+    {"from": "client", "to": "parent", "text": "connect", "note": "客户端连到监听端口"},
+    {"at": "parent", "text": "listen 可读", "note": "父进程只监听，不 accept"},
+    {"from": "parent", "to": "childA", "text": "写 1 字节", "dashed": true, "note": "socketpair 通知某个子进程"},
+    {"from": "childA", "to": "kernel", "text": "accept", "note": "子进程自己从监听队列取连接"},
+    {"from": "kernel", "to": "childA", "text": "connfd", "dashed": true, "note": "连接 fd 留在子进程，不跨进程传"},
+    {"at": "childA", "text": "处理并回写", "note": "这条连接只由子进程 A 服务"},
+    {"at": "childA", "text": "退出", "tone": "bad", "lane": {"childA": "done"}, "set": {"children": "3"}, "note": "子进程崩溃或被 kill"},
+    {"from": "kernel", "to": "parent", "text": "SIGCHLD", "dashed": true, "note": "内核通知父进程有子进程退出"},
+    {"at": "parent", "text": "waitpid 回收", "note": "循环 waitpid，子进程数减一"},
+    {"from": "parent", "to": "childB", "text": "fork 补一个", "dashed": true, "lane": {"childB": "new"}, "note": "新建子进程 B 补回池里"},
+    {"at": "childB", "text": "等下一个通知", "set": {"children": "4"}, "note": "进程数从 3 回到 4"}
+  ]
+}

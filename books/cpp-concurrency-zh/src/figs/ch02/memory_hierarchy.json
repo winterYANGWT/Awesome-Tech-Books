@@ -1,0 +1,101 @@
+{
+  "kind": "flow",
+  "title": "存储层次：越靠近核越小越快",
+  "alt": "容量逐级变大、延迟逐级变高；本机 L1d 48 KiB、L2 1 MiB、L3 2×32 MiB",
+  "static": true,
+  "grid": [
+    5,
+    1
+  ],
+  "nodes": [
+    {
+      "id": "reg",
+      "label": "寄存器",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "store",
+      "sub": "每核几十个\n<1 周期"
+    },
+    {
+      "id": "l1",
+      "label": "L1d",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "store",
+      "sub": "48 KiB/核\n约 4 周期"
+    },
+    {
+      "id": "l2",
+      "label": "L2",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "store",
+      "sub": "1 MiB/核\n约 12 周期"
+    },
+    {
+      "id": "l3",
+      "label": "L3",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "store",
+      "sub": "2×32 MiB\n约 40 周期"
+    },
+    {
+      "id": "dram",
+      "label": "DRAM",
+      "at": [
+        4,
+        0
+      ],
+      "shape": "store",
+      "sub": "32 GiB\n约 250 周期"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "reg",
+      "to": "l1",
+      "label": "未命中",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e2",
+      "from": "l1",
+      "to": "l2",
+      "label": "未命中",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e3",
+      "from": "l2",
+      "to": "l3",
+      "label": "未命中",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e4",
+      "from": "l3",
+      "to": "dram",
+      "label": "未命中",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ],
+  "steps": [
+    {
+      "note": "容量和周期是典型值；本机 L1d 48 KiB、L2 1 MiB、L3 2×32 MiB，周期未实测"
+    }
+  ]
+}

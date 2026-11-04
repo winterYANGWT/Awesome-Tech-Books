@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "SCM_RIGHTS：两个 fd，一个打开文件描述",
+  "alt": "子进程把 fd 传给父进程，编号不同，但共享偏移和状态标志",
+  "lanes": [
+    {"id": "child", "label": "子进程"},
+    {"id": "kernel", "label": "打开文件描述", "role": "kernel"},
+    {"id": "parent", "label": "父进程"}
+  ],
+  "state": [
+    {"id": "cfd", "label": "子进程 fd", "value": "4"},
+    {"id": "pfd", "label": "父进程 fd", "value": "—"},
+    {"id": "off", "label": "文件偏移", "value": "5"}
+  ],
+  "steps": [
+    {"at": "child", "text": "open + read 5", "set": {"cfd": "4", "off": "5"}, "note": "子进程打开文件，读到 5 字节，偏移是 5"},
+    {"from": "child", "to": "kernel", "text": "sendmsg(SCM_RIGHTS)", "note": "fd 号作为控制信息发给父进程"},
+    {"at": "kernel", "text": "同一打开文件描述", "tone": "hot", "set": {"pfd": "3"}, "note": "内核给父进程一个新的 fd 号，指向同一个对象"},
+    {"from": "kernel", "to": "parent", "text": "recvmsg 返回 fd=3", "note": "父进程收到的编号是 3，子进程的是 4"},
+    {"from": "parent", "to": "kernel", "text": "read 5 字节", "set": {"off": "10"}, "note": "父进程接着读到 5 字节，偏移变成 10"},
+    {"at": "child", "text": "lseek 得到 10", "note": "子进程看到同一个偏移：两边共享打开文件描述"},
+    {"at": "child", "text": "close(fd=4)", "tone": "muted", "note": "发送方关掉自己那份，父进程的 fd 仍然有效"}
+  ]
+}

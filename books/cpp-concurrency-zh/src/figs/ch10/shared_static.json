@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "两个线程交替调用 strtok",
+  "alt": "A 设置静态指针后，B 把它改成自己的字符串，A 再继续时读到 B 的词",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "lib", "label": "strtok 静态指针", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "slot", "label": "静态指针", "value": "—"}
+  ],
+  "steps": [
+    {"from": "a", "to": "lib", "text": "`strtok(A)`", "set": {"slot": "A→a001"}, "note": "A 第一次调用：指针指向 A 的下一个词"},
+    {"from": "lib", "to": "a", "text": "a000", "note": "A 拿到自己的第一个词"},
+    {"from": "b", "to": "lib", "text": "`strtok(B)`", "tone": "hot", "set": {"slot": "B→b001"}, "note": "B 调用 strtok，覆盖同一个静态指针"},
+    {"from": "lib", "to": "b", "text": "b000", "note": "B 拿到 B 的第一个词"},
+    {"from": "lib", "to": "a", "text": "b001", "tone": "bad", "set": {"slot": "B→b002"}, "note": "A 用 NULL 继续，读到的却是 B 的字符串"},
+    {"from": "lib", "to": "b", "text": "b002", "set": {"slot": "B→b003"}, "note": "B 继续自己的字符串；A 的词被跳过"},
+    {"at": "a", "text": "少了 a001", "tone": "bad", "note": "A 的字符串再也没被继续：结果被 B 改了"}
+  ]
+}

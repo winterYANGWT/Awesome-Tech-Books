@@ -1,0 +1,40 @@
+{
+  "kind": "flow",
+  "title": "快速排序：递归树、任务栈和空闲线程",
+  "alt": "按枢轴拆出的区间进任务栈，空闲线程取栈顶；小于阈值的区间改用插入排序",
+  "grid": [4, 4],
+  "nodes": [
+    {"id": "root", "label": "整个区间", "at": [1, 0], "shape": "round", "sub": "[0, n)"},
+    {"id": "left", "label": "左半", "at": [0, 1], "shape": "round", "sub": "[first, pivot)"},
+    {"id": "right", "label": "右半", "at": [2, 1], "shape": "round", "sub": "[pivot, last)"},
+    {"id": "ll", "label": "左左", "at": [0, 2], "shape": "round", "sub": "继续拆"},
+    {"id": "lr", "label": "左右", "at": [1, 2], "shape": "round", "sub": "继续拆"},
+    {"id": "stack", "label": "任务栈", "at": [2, 2], "shape": "queue", "slots": 4},
+    {"id": "worker", "label": "工作线程", "at": [3, 2], "shape": "round", "sub": "等待任务"}
+  ],
+  "edges": [
+    {"id": "split_l", "from": "root", "to": "left", "label": "按枢轴分"},
+    {"id": "split_r", "from": "root", "to": "right", "label": "按枢轴分"},
+    {"id": "left_l", "from": "left", "to": "ll", "label": "继续分"},
+    {"id": "left_r", "from": "left", "to": "lr", "label": "继续分"},
+    {"id": "push_r", "from": "right", "to": "stack", "label": "压栈"},
+    {"id": "push_lr", "from": "lr", "to": "stack", "label": "压栈"},
+    {"id": "take", "from": "stack", "to": "worker", "label": "取任务"}
+  ],
+  "steps": [
+    {"hi": ["root"], "note": "整个区间是一个任务；先按枢轴把它分成两半"},
+    {"token": [
+      {"edge": "split_l", "label": "左半"},
+      {"edge": "split_r", "label": "右半"}
+    ], "note": "划分之后才知道两半的边界，这是递归划分和按数据划分的区别"},
+    {"token": [{"edge": "push_r", "label": "右半"}], "queue": {"stack": ["右半"]}, "note": "右半压进任务栈，左半留给当前线程继续拆"},
+    {"token": [{"edge": "take", "label": "右半"}], "queue": {"stack": []}, "set": {"worker": "排序右半"}, "hi": ["worker"], "note": "第 4 步：LIFO，空闲线程取走栈顶的右半"},
+    {"token": [
+      {"edge": "left_l", "label": "继续拆"},
+      {"edge": "left_r", "label": "继续拆"}
+    ], "set": {"left": "已划分"}, "note": "左半继续按枢轴拆成 左左、左右"},
+    {"token": [{"edge": "push_lr", "label": "左右"}], "queue": {"stack": ["左右"]}, "set": {"lr": "≤1024\n插入排序"}, "tone": {"lr": "ok"}, "note": "第 6 步：左右小于 1024，压栈后由取到它的线程插入排序"},
+    {"token": [{"edge": "take", "label": "左右"}], "queue": {"stack": []}, "set": {"worker": "插入排序"}, "note": "取到左右，直接插入排序，不再划分"},
+    {"set": {"worker": "退出"}, "tone": {"worker": "ok"}, "note": "栈空且 pending 归零，工作线程退出"}
+  ]
+}

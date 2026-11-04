@@ -1,0 +1,135 @@
+{
+  "kind": "flow",
+  "title": "execve 前后：CLOEXEC 的 fd 消失",
+  "alt": "同一张 fd 表 exec 后只剩 0/1/2，带 CLOEXEC 的监听 fd 和 epoll fd 被关闭",
+  "grid": [
+    3,
+    1
+  ],
+  "nodes": [
+    {
+      "id": "before",
+      "label": "exec 前 fd 表",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "queue",
+      "slots": 5,
+      "sub": "3 监听 4 epoll"
+    },
+    {
+      "id": "exec",
+      "label": "`execve`",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "round",
+      "sub": "换掉映像"
+    },
+    {
+      "id": "after",
+      "label": "exec 后 fd 表",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "queue",
+      "slots": 5,
+      "sub": "只剩 0/1/2",
+      "hidden": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "run",
+      "from": "before",
+      "to": "exec",
+      "label": "调用",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "swap",
+      "from": "exec",
+      "to": "after",
+      "label": "成功不返回",
+      "fromSide": "right",
+      "toSide": "left",
+      "hidden": true
+    }
+  ],
+  "steps": [
+    {
+      "queue": {
+        "before": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      "note": "exec 前：0/1/2 是标准 fd，3 是监听 fd，4 是 epoll fd"
+    },
+    {
+      "hi": [
+        "before"
+      ],
+      "set": {
+        "before": "3、4 带 CLOEXEC"
+      },
+      "note": "3、4 创建时就带了 SOCK_CLOEXEC、EPOLL_CLOEXEC"
+    },
+    {
+      "token": [
+        {
+          "edge": "run",
+          "label": "execve"
+        }
+      ],
+      "hi": [
+        "exec"
+      ],
+      "note": "execve 用新程序换掉当前进程映像"
+    },
+    {
+      "show": [
+        "after",
+        "swap"
+      ],
+      "queue": {
+        "after": [
+          "0",
+          "1",
+          "2"
+        ]
+      },
+      "hi": [
+        "after"
+      ],
+      "note": "内核关闭带 FD_CLOEXEC 的 3、4，0/1/2 保留"
+    },
+    {
+      "queue": {
+        "after": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "note": "新程序再打开文件，拿到的是最小的空位 3"
+    },
+    {
+      "hi": [
+        "after"
+      ],
+      "tone": {
+        "after": "ok"
+      },
+      "note": "监听 fd 和 epoll fd 没有漏进新程序"
+    }
+  ]
+}

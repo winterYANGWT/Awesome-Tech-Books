@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "一个 event 从创建到释放",
+  "alt": "event_new 建对象，event_add 挂进 base；就绪后回调；持久事件自动重加，最后 event_free",
+  "speed": 1500,
+  "lanes": [
+    {"id": "app", "label": "应用"},
+    {"id": "ev", "label": "event"},
+    {"id": "base", "label": "event_base"},
+    {"id": "loop", "label": "事件循环"},
+    {"id": "cb", "label": "用户回调"}
+  ],
+  "steps": [
+    {"at": "ev", "text": "event_new(base, fd, …)", "note": "应用创建 event，回调函数和 arg 一起存进去"},
+    {"from": "ev", "to": "base", "text": "event_add(ev, tv)", "note": "挂进注册队列；tv 非空时再进时间堆"},
+    {"at": "loop", "text": "dispatch 开始", "lane": {"loop": "running"}, "note": "循环线程调 eventop->dispatch 等就绪"},
+    {"from": "base", "to": "loop", "text": "就绪：进活动队列", "note": "后端报告 fd 就绪，event 被标成 active"},
+    {"from": "loop", "to": "cb", "text": "调用 callback", "note": "按优先级取活动事件，执行用户回调"},
+    {"from": "cb", "to": "base", "text": "EV_PERSIST 重加", "note": "持久事件自动重加；非持久事件要自己再 event_add"},
+    {"at": "app", "text": "event_free", "note": "先 event_free 每个 event，再 event_base_free"}
+  ]
+}

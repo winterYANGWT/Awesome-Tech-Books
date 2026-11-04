@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "notify_one 的异常洞：取走任务后抛出",
+  "alt": "A 取走唯一任务，构造返回值抛异常退出；B 随后才等；队列空、生产者结束，没人再通知",
+  "lanes": [
+    {"id": "a", "label": "消费者 A"},
+    {"id": "b", "label": "消费者 B"},
+    {"id": "q", "label": "队列", "role": "memory"},
+    {"id": "p", "label": "生产者"}
+  ],
+  "state": [
+    {"id": "items", "label": "队列元素", "value": "1"},
+    {"id": "waiters", "label": "等待者", "value": "A"}
+  ],
+  "steps": [
+    {"at": "a", "text": "`wait`", "lane": {"a": "blocked"}, "set": {"waiters": "A"}, "note": "A 先睡在 wait 上"},
+    {"from": "p", "to": "q", "text": "`push(任务)`", "set": {"items": "1"}, "note": "生产者放入唯一的任务"},
+    {"from": "p", "to": "a", "text": "`notify_one()`", "dashed": true, "tone": "hot", "note": "只唤醒 A：一个元素够一个消费者分"},
+    {"from": "q", "to": "a", "text": "A 取走元素", "set": {"items": "0"}, "lane": {"a": "running"}, "note": "A 醒来、重锁、把元素移出队列"},
+    {"at": "a", "text": "构造返回值抛异常", "tone": "bad", "lane": {"a": "done"}, "note": "元素已经不在队列里，A 退出"},
+    {"at": "b", "text": "进入 `wait`", "lane": {"b": "blocked"}, "set": {"waiters": "B"}, "note": "A 退出后，B 才开始等"},
+    {"at": "p", "text": "生产者结束", "tone": "bad", "note": "队列空、没人再通知：join 挂起"}
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "kind": "flow",
+  "title": "分桶表：每桶一把读写锁，快照按固定顺序加锁",
+  "alt": "键哈希到一个桶；get_map 从桶 0 锁到桶 N-1；反序加锁的两个线程会死锁",
+  "grid": [
+    4,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "key",
+      "label": "键",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "hash",
+      "label": "hash % N",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "落到 N 个桶之一"
+    },
+    {
+      "id": "b0",
+      "label": "桶 0",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "shared_mutex"
+    },
+    {
+      "id": "b1",
+      "label": "桶 1",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "shared_mutex"
+    },
+    {
+      "id": "b2",
+      "label": "桶 N-1",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "shared_mutex"
+    },
+    {
+      "id": "snap",
+      "label": "get_map",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "按 0→N-1 加锁"
+    }
+  ],
+  "edges": [
+    {
+      "id": "locate",
+      "from": "key",
+      "to": "hash",
+      "label": "哈希"
+    },
+    {
+      "id": "to0",
+      "from": "hash",
+      "to": "b0",
+      "label": "落桶"
+    },
+    {
+      "id": "to1",
+      "from": "hash",
+      "to": "b1"
+    },
+    {
+      "id": "copy0",
+      "from": "b0",
+      "to": "snap",
+      "label": "复制"
+    },
+    {
+      "id": "copy1",
+      "from": "b1",
+      "to": "snap"
+    },
+    {
+      "id": "copy2",
+      "from": "b2",
+      "to": "snap"
+    },
+    {
+      "id": "reverse",
+      "from": "b2",
+      "to": "b0",
+      "label": "反序加锁",
+      "dashed": true,
+      "fromSide": "top",
+      "toSide": "top",
+      "route": "hv"
+    }
+  ],
+  "steps": [
+    {
+      "tone": {
+        "reverse": "bad"
+      },
+      "hi": [
+        "snap"
+      ],
+      "note": "键只落一个桶；get_map 从桶 0 锁到桶 N-1；谁反着拿锁，谁就可能和快照死锁"
+    }
+  ],
+  "static": true
+}

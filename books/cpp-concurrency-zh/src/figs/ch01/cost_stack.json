@@ -1,0 +1,84 @@
+{
+  "kind": "flow",
+  "title": "拆线程的成本链",
+  "alt": "从创建、栈、调度、同步到维护，每一段都有固定成本",
+  "grid": [
+    5,
+    1
+  ],
+  "nodes": [
+    {
+      "id": "create",
+      "label": "创建与回收",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "内核任务、回收"
+    },
+    {
+      "id": "stack",
+      "label": "每线程栈",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "默认取 RLIMIT_STACK\n本机 8 MiB"
+    },
+    {
+      "id": "sched",
+      "label": "调度与切换",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "上下文切换、缓存变冷"
+    },
+    {
+      "id": "sync",
+      "label": "同步",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "锁、等待、伪共享"
+    },
+    {
+      "id": "maint",
+      "label": "调试与维护",
+      "at": [
+        4,
+        0
+      ],
+      "sub": "复现、竞争、死锁"
+    }
+  ],
+  "edges": [
+    {
+      "id": "c1",
+      "from": "create",
+      "to": "stack"
+    },
+    {
+      "id": "c2",
+      "from": "stack",
+      "to": "sched"
+    },
+    {
+      "id": "c3",
+      "from": "sched",
+      "to": "sync"
+    },
+    {
+      "id": "c4",
+      "from": "sync",
+      "to": "maint"
+    }
+  ],
+  "steps": [
+    {
+      "note": "创建、栈、切换、同步、维护都有成本，也都能测量"
+    }
+  ],
+  "static": true
+}

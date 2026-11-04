@@ -1,0 +1,221 @@
+{
+  "kind": "flow",
+  "title": "prefork 进程池与共享哈希表",
+  "alt": "父进程建监听 fd 和共享段，worker 各自 accept、按桶加锁读写；崩溃后整池重建",
+  "grid": [
+    3,
+    3
+  ],
+  "bands": [
+    {
+      "label": "父进程",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "worker 进程",
+      "rows": [
+        2,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "parent",
+      "label": "父进程",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round",
+      "sub": "建 fd、fork、回收"
+    },
+    {
+      "id": "listen",
+      "label": "监听队列",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "queue",
+      "slots": 3
+    },
+    {
+      "id": "shm",
+      "label": "共享哈希表",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "store",
+      "sub": "64 桶 + 每桶 rwlock"
+    },
+    {
+      "id": "w1",
+      "label": "worker 1",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "w2",
+      "label": "worker 2",
+      "at": [
+        1,
+        2
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "w3",
+      "label": "worker 3",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "el",
+      "from": "parent",
+      "to": "listen",
+      "label": "listen()"
+    },
+    {
+      "id": "a1",
+      "from": "listen",
+      "to": "w1",
+      "label": "accept"
+    },
+    {
+      "id": "a2",
+      "from": "listen",
+      "to": "w2",
+      "label": "accept"
+    },
+    {
+      "id": "a3",
+      "from": "listen",
+      "to": "w3",
+      "label": "accept",
+      "route": "vh"
+    },
+    {
+      "id": "r1",
+      "from": "w1",
+      "to": "shm",
+      "label": "写桶"
+    },
+    {
+      "id": "r2",
+      "from": "w2",
+      "to": "shm",
+      "label": "读桶"
+    },
+    {
+      "id": "r3",
+      "from": "w3",
+      "to": "shm",
+      "label": "读写"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "el",
+          "label": "监听 fd"
+        }
+      ],
+      "hi": [
+        "listen"
+      ],
+      "note": "父进程先建监听 fd，worker 才有东西可继承"
+    },
+    {
+      "set": {
+        "shm": "空表，锁已初始化"
+      },
+      "note": "父进程建共享段并初始化每桶读写锁，再 fork"
+    },
+    {
+      "token": [
+        {
+          "edge": "a1",
+          "label": "连接 A"
+        }
+      ],
+      "set": {
+        "w1": "处理 A"
+      },
+      "note": "worker 1 从同一个监听 fd 上 accept 到连接 A"
+    },
+    {
+      "token": [
+        {
+          "edge": "r1",
+          "label": "SET k 1"
+        }
+      ],
+      "set": {
+        "shm": "k=1"
+      },
+      "note": "worker 1 拿桶写锁，把 k=1 写进共享表"
+    },
+    {
+      "token": [
+        {
+          "edge": "a2",
+          "label": "连接 B"
+        },
+        {
+          "edge": "r2",
+          "label": "GET k"
+        }
+      ],
+      "tone": {
+        "w2": "hot"
+      },
+      "note": "worker 2 accept 到 B，拿同一桶的读锁读到 k=1：写入互相可见"
+    },
+    {
+      "token": [
+        {
+          "edge": "a3",
+          "label": "连接 C"
+        },
+        {
+          "edge": "r3",
+          "label": "写另一个桶"
+        }
+      ],
+      "note": "worker 3 accept 到 C，写另一个桶；不同桶的锁不同，可以并行"
+    },
+    {
+      "tone": {
+        "w3": "bad"
+      },
+      "hi": [
+        "w3"
+      ],
+      "note": "worker 3 持着写锁被 kill -9，锁不会自己释放"
+    },
+    {
+      "tone": {
+        "parent": "wait"
+      },
+      "hi": [
+        "parent",
+        "shm"
+      ],
+      "note": "父进程 SIGCHLD 回收，停掉其余 worker，重建共享段和池"
+    }
+  ]
+}

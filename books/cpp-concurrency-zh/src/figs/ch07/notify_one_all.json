@@ -1,0 +1,29 @@
+{
+  "kind": "flow",
+  "title": "notify_one 与 notify_all 的唤醒集合",
+  "alt": "notify_one 只唤醒等待者中的一个；notify_all 唤醒全部，适合关闭和广播状态",
+  "static": true,
+  "grid": [5, 3],
+  "nodes": [
+    {"id": "one", "label": "notify_one", "at": [0, 1], "sub": "至多一个"},
+    {"id": "w1", "label": "等待者 1", "at": [1, 0], "shape": "round"},
+    {"id": "w2", "label": "等待者 2", "at": [1, 1], "shape": "round"},
+    {"id": "w3", "label": "等待者 3", "at": [1, 2], "shape": "round"},
+    {"id": "all", "label": "notify_all", "at": [3, 1], "sub": "唤醒全部"},
+    {"id": "w4", "label": "等待者 4", "at": [4, 0], "shape": "round"},
+    {"id": "w5", "label": "等待者 5", "at": [4, 1], "shape": "round"},
+    {"id": "w6", "label": "等待者 6", "at": [4, 2], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "o1", "from": "one", "to": "w1", "label": "唤醒"},
+    {"id": "o2", "from": "one", "to": "w2", "label": "不保证"},
+    {"id": "o3", "from": "one", "to": "w3", "label": "不保证"},
+    {"id": "a4", "from": "all", "to": "w4", "label": "唤醒"},
+    {"id": "a5", "from": "all", "to": "w5", "label": "唤醒"},
+    {"id": "a6", "from": "all", "to": "w6", "label": "唤醒"}
+  ],
+  "steps": [
+    {"tone": {"one": "ok", "w1": "ok", "w2": "muted", "w3": "muted", "o1": "ok", "o2": "muted", "o3": "muted"}, "note": "notify_one 唤醒至少一个；一个元素只给一个消费者时够用"},
+    {"tone": {"all": "hot", "w4": "hot", "w5": "hot", "w6": "hot", "a4": "hot", "a5": "hot", "a6": "hot"}, "note": "notify_all 唤醒全部；关闭、广播状态时用，唤醒开销更大"}
+  ]
+}

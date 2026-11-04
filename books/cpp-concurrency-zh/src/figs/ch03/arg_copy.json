@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "按值复制与 std::ref：线程读的是谁的变量",
+  "alt": "按值传参时线程改副本；std::ref 只复制指针，仍然改原对象",
+  "lanes": [
+    {"id": "main", "label": "主线程"},
+    {"id": "store", "label": "线程存储", "role": "memory"},
+    {"id": "worker", "label": "线程"},
+    {"id": "obj", "label": "原对象 c", "role": "memory"}
+  ],
+  "state": [
+    {"id": "c", "label": "原对象 c", "value": "0"}
+  ],
+  "steps": [
+    {"at": "main", "text": "Counter c{0}", "note": "主线程构造实参 c"},
+    {"from": "main", "to": "store", "text": "复制 c", "note": "按值复制进线程存储，原对象不动"},
+    {"from": "store", "to": "worker", "text": "读副本", "note": "线程函数拿到的是另一份 Counter"},
+    {"at": "worker", "text": "c++", "note": "改的是副本；原对象仍是 0"},
+    {"from": "main", "to": "store", "text": "std::ref(c)", "note": "第二段：std::ref 只复制一个指针"},
+    {"from": "store", "to": "worker", "text": "传指针", "note": "线程存储里只有一个 reference_wrapper"},
+    {"from": "worker", "to": "obj", "text": "c++", "set": {"c": "1"}, "note": "经指针改到原对象；原对象要活到线程结束"}
+  ],
+  "speed": 1500
+}

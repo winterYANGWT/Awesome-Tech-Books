@@ -1,0 +1,28 @@
+{
+  "kind": "seq",
+  "title": "actor 邮箱：发送、取走、满时等待、回复",
+  "alt": "驱动线程把请求放进 ATM 邮箱；邮箱满时发送者等待，结果由 UI 线程打印",
+  "lanes": [
+    {"id": "caller", "label": "驱动线程"},
+    {"id": "mba", "label": "ATM 邮箱", "role": "memory"},
+    {"id": "atm", "label": "ATM 线程"},
+    {"id": "uib", "label": "UI 邮箱", "role": "memory"},
+    {"id": "ui", "label": "UI 线程"}
+  ],
+  "state": [
+    {"id": "qa", "label": "ATM 邮箱", "value": "0/8"},
+    {"id": "qu", "label": "UI 邮箱", "value": "0/8"}
+  ],
+  "steps": [
+    {"from": "caller", "to": "mba", "text": "send A", "set": {"qa": "1/8"}, "note": "驱动线程把请求 A 放进 ATM 邮箱"},
+    {"from": "mba", "to": "atm", "text": "recv A", "set": {"qa": "0/8"}, "note": "ATM 线程取走 A；一次只处理一条"},
+    {"at": "atm", "text": "处理 A", "tone": "hot", "note": "状态只在这条线程里改，不需要锁"},
+    {"from": "caller", "to": "mba", "text": "send B–I", "set": {"qa": "8/8"}, "note": "驱动线程连发 B–I，邮箱到容量上限 8 条"},
+    {"at": "caller", "text": "send J", "tone": "wait", "lane": {"caller": "blocked"}, "note": "邮箱满，J 在 send 上等待，形成背压"},
+    {"from": "mba", "to": "atm", "text": "recv B", "set": {"qa": "8/8"}, "lane": {"caller": "running"}, "note": "ATM 取走 B 腾出一格，J 才进得去"},
+    {"from": "atm", "to": "uib", "text": "send display", "set": {"qu": "1/8"}, "note": "ATM 把结果作为显示消息发给 UI actor"},
+    {"from": "uib", "to": "ui", "text": "recv display", "set": {"qu": "0/8"}, "note": "UI 线程从自己的邮箱取出显示消息"},
+    {"at": "ui", "text": "打印余额", "note": "UI 线程打印；驱动线程在等这行输出"},
+    {"from": "ui", "to": "caller", "text": "提示已打印", "dashed": true, "tone": "ok", "note": "驱动线程看到提示，才发下一条"}
+  ]
+}

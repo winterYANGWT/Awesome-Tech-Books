@@ -1,0 +1,91 @@
+{
+  "kind": "seq",
+  "title": "集合通信：所有 rank 按相同顺序调用",
+  "alt": "四个 rank 顺序一致时完成；rank 0 的 Bcast 和其余 rank 的 Reduce 错位就挂起",
+  "static": true,
+  "lanes": [
+    {
+      "id": "r0",
+      "label": "rank 0",
+      "role": "process"
+    },
+    {
+      "id": "r1",
+      "label": "rank 1",
+      "role": "process"
+    },
+    {
+      "id": "r2",
+      "label": "rank 2",
+      "role": "process"
+    },
+    {
+      "id": "r3",
+      "label": "rank 3",
+      "role": "process"
+    }
+  ],
+  "steps": [
+    {
+      "span": [
+        "r0",
+        "r1",
+        "r2",
+        "r3"
+      ],
+      "text": "`Bcast` 到所有 rank",
+      "note": "四个 rank 都调用 Bcast，root 都是 0"
+    },
+    {
+      "span": [
+        "r0",
+        "r1",
+        "r2",
+        "r3"
+      ],
+      "text": "`Reduce` 到 root 0",
+      "note": "四个 rank 都调用 Reduce，root 都是 0"
+    },
+    {
+      "span": [
+        "r0",
+        "r1",
+        "r2",
+        "r3"
+      ],
+      "text": "`Allreduce` 所有 rank",
+      "note": "顺序一致：集合操作按调用次序逐个匹配"
+    },
+    {
+      "ops": [
+        {
+          "at": "r0",
+          "text": "`Bcast` 等 rank 1",
+          "tone": "bad"
+        },
+        {
+          "at": "r1",
+          "text": "`Reduce` 返回",
+          "tone": "wait"
+        },
+        {
+          "at": "r2",
+          "text": "`Reduce` 返回",
+          "tone": "wait"
+        },
+        {
+          "at": "r3",
+          "text": "`Reduce` 返回",
+          "tone": "wait"
+        }
+      ],
+      "lane": {
+        "r0": "blocked",
+        "r1": "blocked",
+        "r2": "blocked",
+        "r3": "blocked"
+      },
+      "note": "rank 0 等不到 Bcast；其余 rank 的 Reduce 先返回，卡在 Finalize"
+    }
+  ]
+}

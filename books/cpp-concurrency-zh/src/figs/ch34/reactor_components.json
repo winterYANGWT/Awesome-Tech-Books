@@ -1,0 +1,123 @@
+{
+  "kind": "flow",
+  "title": "Reactor 五组件落到 Libevent 结构",
+  "alt": "ev_fd 是句柄，eventop+evmap 是分发器，event 是处理器，event_base 是 Reactor",
+  "grid": [
+    5,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "app",
+      "label": "应用",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round",
+      "sub": "注册/删除"
+    },
+    {
+      "id": "event",
+      "label": "event",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "事件处理器"
+    },
+    {
+      "id": "base",
+      "label": "event_base",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "Reactor"
+    },
+    {
+      "id": "demux",
+      "label": "eventop + evmap",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "多路分发器"
+    },
+    {
+      "id": "fd",
+      "label": "ev_fd",
+      "at": [
+        4,
+        0
+      ],
+      "sub": "句柄：fd 或信号"
+    },
+    {
+      "id": "cb",
+      "label": "用户回调",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "具体处理器"
+    }
+  ],
+  "edges": [
+    {
+      "id": "new",
+      "from": "app",
+      "to": "event",
+      "label": "event_new"
+    },
+    {
+      "id": "add",
+      "from": "event",
+      "to": "base",
+      "label": "event_add"
+    },
+    {
+      "id": "dispatch",
+      "from": "base",
+      "to": "demux",
+      "label": "dispatch"
+    },
+    {
+      "id": "ready",
+      "from": "fd",
+      "to": "demux",
+      "label": "就绪"
+    },
+    {
+      "id": "call",
+      "from": "event",
+      "to": "cb",
+      "label": "就绪时调用",
+      "route": "vh"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "note": "应用 event_new 创建 event，再用 event_add 交给 base",
+      "hi": [
+        "app",
+        "event"
+      ]
+    },
+    {
+      "note": "event_base 把 fd 和事件交给 eventop/evmap，真正调用 epoll_ctl",
+      "hi": [
+        "base",
+        "demux"
+      ]
+    },
+    {
+      "note": "就绪后 event 进活动队列，base 按优先级调用用户回调",
+      "hi": [
+        "event",
+        "cb"
+      ]
+    }
+  ]
+}

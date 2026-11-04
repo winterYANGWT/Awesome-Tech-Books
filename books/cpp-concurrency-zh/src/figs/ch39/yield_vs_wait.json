@@ -1,0 +1,158 @@
+{
+  "kind": "flow",
+  "title": "空队列：yield 自旋与条件变量阻塞",
+  "alt": "yield 版在空队列上反复检查占满一个核，cv 版睡眠到 notify_all 才醒",
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "main",
+      "label": "主线程",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round",
+      "sub": "submit / close"
+    },
+    {
+      "id": "queue",
+      "label": "任务队列",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "queue",
+      "slots": 3
+    },
+    {
+      "id": "yield",
+      "label": "yield worker",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round",
+      "sub": "空队列也查"
+    },
+    {
+      "id": "cv",
+      "label": "cv worker",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "round",
+      "sub": "睡在条件变量"
+    }
+  ],
+  "edges": [
+    {
+      "id": "submit",
+      "from": "main",
+      "to": "queue",
+      "label": "submit"
+    },
+    {
+      "id": "take",
+      "from": "queue",
+      "to": "yield",
+      "label": "try_pop"
+    },
+    {
+      "id": "again",
+      "from": "yield",
+      "to": "queue",
+      "label": "空转",
+      "dashed": true
+    },
+    {
+      "id": "wait",
+      "from": "queue",
+      "to": "cv",
+      "label": "wait"
+    },
+    {
+      "id": "notify",
+      "from": "main",
+      "to": "cv",
+      "label": "notify_all",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "main"
+      ],
+      "note": "主线程提交任务；关闭时置 done 再 notify_all"
+    },
+    {
+      "token": [
+        {
+          "edge": "submit",
+          "label": "任务 A"
+        }
+      ],
+      "queue": {
+        "queue": [
+          "A"
+        ]
+      },
+      "note": "任务 A 进入队列"
+    },
+    {
+      "token": [
+        {
+          "edge": "take",
+          "label": "A"
+        }
+      ],
+      "queue": {
+        "queue": []
+      },
+      "set": {
+        "yield": "执行 A"
+      },
+      "note": "yield worker 取走 A，队列空了"
+    },
+    {
+      "hi": [
+        "yield"
+      ],
+      "tone": {
+        "yield": "bad"
+      },
+      "note": "空队列时反复 try_pop + yield：占满一个核"
+    },
+    {
+      "hi": [
+        "cv"
+      ],
+      "tone": {
+        "cv": "wait"
+      },
+      "note": "cv worker 睡在条件变量上，不占 CPU"
+    },
+    {
+      "token": [
+        {
+          "edge": "notify",
+          "label": "done"
+        }
+      ],
+      "set": {
+        "yield": "看到 done 退出",
+        "cv": "看到 done 退出"
+      },
+      "tone": {
+        "yield": "muted",
+        "cv": "ok"
+      },
+      "note": "close 后 worker 看到 done 退出，cv worker 被唤醒"
+    }
+  ],
+  "speed": 1500
+}

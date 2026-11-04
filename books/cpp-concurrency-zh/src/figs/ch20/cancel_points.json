@@ -1,0 +1,32 @@
+{
+  "kind": "seq",
+  "title": "取消点与清理栈：解锁发生在退出之前",
+  "alt": "线程在持有互斥量时阻塞于取消点；取消请求到达后清理栈按后进先出执行，先关 fd 再解锁",
+  "lanes": [
+    {"id": "worker", "label": "工作线程"},
+    {"id": "stack", "label": "清理栈", "role": "memory"},
+    {"id": "main", "label": "主线程"}
+  ],
+  "state": [
+    {"id": "mutex", "label": "互斥量", "value": "未锁"},
+    {"id": "stack", "label": "清理栈", "value": "0 项"}
+  ],
+  "steps": [
+    {"at": "worker", "text": "`lock(m)`", "set": {"mutex": "已锁"},
+     "note": "进入临界区，线程持有互斥量"},
+    {"from": "worker", "to": "stack", "text": "push(unlock)", "set": {"stack": "1 项"},
+     "note": "压入清理函数：取消时用它解锁"},
+    {"from": "worker", "to": "stack", "text": "push(close)", "set": {"stack": "2 项"},
+     "note": "再压一个：取消时关闭 fd"},
+    {"at": "worker", "text": "`pthread_cond_wait`", "lane": {"worker": "blocked"},
+     "note": "阻塞在取消点；延迟取消在这里才生效"},
+    {"at": "main", "text": "`pthread_cancel`",
+     "note": "请求只是排队，目标线程走到取消点才响应"},
+    {"from": "stack", "to": "worker", "text": "执行 close(fd)", "set": {"stack": "1 项"},
+     "note": "第 6 步：后进先出，后压入的 close 先执行"},
+    {"from": "stack", "to": "worker", "text": "执行 unlock(m)", "set": {"stack": "0 项", "mutex": "未锁"},
+     "note": "再执行先压入的 unlock；互斥量在退出前释放"},
+    {"at": "worker", "text": "线程退出", "lane": {"worker": "done"},
+     "note": "pthread_join 拿到 PTHREAD_CANCELED，清理已经完成"}
+  ]
+}

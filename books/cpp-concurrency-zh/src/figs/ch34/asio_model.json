@@ -1,0 +1,170 @@
+{
+  "kind": "flow",
+  "title": "Asio 的 io_context 与协程帧",
+  "alt": "async_* 把 handler 入队，run 经 executor 执行；协程帧保存挂起点",
+  "grid": [
+    4,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "app",
+      "label": "应用",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "io",
+      "label": "io_context",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "run/stop"
+    },
+    {
+      "id": "q",
+      "label": "handler 队列",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "queue",
+      "slots": 3
+    },
+    {
+      "id": "ex",
+      "label": "executor",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "strand 或线程池"
+    },
+    {
+      "id": "ep",
+      "label": "epoll",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "就绪/超时"
+    },
+    {
+      "id": "frame",
+      "label": "协程帧",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "co_await 挂起点"
+    }
+  ],
+  "edges": [
+    {
+      "id": "submit",
+      "from": "app",
+      "to": "io",
+      "label": "async_* / co_spawn"
+    },
+    {
+      "id": "wait",
+      "from": "io",
+      "to": "ep",
+      "label": "等待/就绪",
+      "arrow": "both"
+    },
+    {
+      "id": "enqueue",
+      "from": "io",
+      "to": "q",
+      "label": "完成事件入队"
+    },
+    {
+      "id": "take",
+      "from": "q",
+      "to": "ex",
+      "label": "取 handler"
+    },
+    {
+      "id": "resume",
+      "from": "ex",
+      "to": "frame",
+      "label": "恢复协程",
+      "route": "vh"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "submit",
+          "label": "async_read"
+        }
+      ],
+      "note": "async_* 提交操作，handler 先登记在 io_context"
+    },
+    {
+      "token": [
+        {
+          "edge": "wait",
+          "label": "等待"
+        }
+      ],
+      "hi": [
+        "ep"
+      ],
+      "note": "run 线程在 epoll 上等就绪或等定时器到期"
+    },
+    {
+      "token": [
+        {
+          "edge": "enqueue",
+          "label": "完成"
+        }
+      ],
+      "queue": {
+        "q": [
+          "H"
+        ]
+      },
+      "note": "就绪后把完成 handler 放进队列"
+    },
+    {
+      "token": [
+        {
+          "edge": "take",
+          "label": "取走"
+        }
+      ],
+      "queue": {
+        "q": []
+      },
+      "hi": [
+        "ex"
+      ],
+      "note": "executor 按 strand 或线程池的约束取走 handler"
+    },
+    {
+      "token": [
+        {
+          "edge": "resume",
+          "label": "恢复"
+        }
+      ],
+      "hi": [
+        "frame"
+      ],
+      "note": "协程从 co_await 处恢复，局部变量都在协程帧里"
+    },
+    {
+      "hi": [
+        "frame"
+      ],
+      "note": "handler 跑完；协程再次 co_await 时重新挂起，控制权回到 run"
+    }
+  ]
+}

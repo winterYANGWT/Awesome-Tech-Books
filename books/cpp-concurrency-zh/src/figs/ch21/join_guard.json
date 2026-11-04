@@ -1,0 +1,22 @@
+{
+  "kind": "flow",
+  "title": "parallel_accumulate 的三步：风险逐个消掉",
+  "alt": "裸线程有三处风险；第二版传异常并 join 已建线程；第三版换 vector<jthread>",
+  "grid": [3, 1],
+  "nodes": [
+    {"id": "raw", "label": "裸线程", "at": [0, 0],
+     "sub": "构造失败 / 异常 / 析构"},
+    {"id": "safe", "label": "packaged_task", "at": [1, 0],
+     "sub": "+ join_threads"},
+    {"id": "jthread", "label": "jthread", "at": [2, 0],
+     "sub": "vector<jthread>"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "raw", "to": "safe", "label": "加 future 和守卫"},
+    {"id": "e2", "from": "safe", "to": "jthread", "label": "换 jthread"}
+  ],
+  "static": true,
+  "steps": [
+    {"note": "第二版接住工作线程异常并 join 已建线程；第三版用 jthread 的析构完成汇入"}
+  ]
+}

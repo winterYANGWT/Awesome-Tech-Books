@@ -1,0 +1,113 @@
+{
+  "kind": "seq",
+  "title": "fork-join：建组、各跑、块尾会合",
+  "alt": "主线程遇到 parallel 建立线程组，四个线程各执行块，块尾屏障会合后只剩主线程继续",
+  "speed": 1500,
+  "lanes": [
+    {
+      "id": "main",
+      "label": "主线程"
+    },
+    {
+      "id": "w1",
+      "label": "worker 1"
+    },
+    {
+      "id": "w2",
+      "label": "worker 2"
+    },
+    {
+      "id": "w3",
+      "label": "worker 3"
+    }
+  ],
+  "steps": [
+    {
+      "at": "main",
+      "text": "遇到 `parallel`",
+      "tone": "hot",
+      "note": "主线程执行到 parallel 指令"
+    },
+    {
+      "span": [
+        "main",
+        "w1",
+        "w2",
+        "w3"
+      ],
+      "text": "建立 4 线程的组",
+      "tone": "hot",
+      "lane": {
+        "w1": "new",
+        "w2": "new",
+        "w3": "new"
+      },
+      "note": "运行时建立线程组，主线程是 primary"
+    },
+    {
+      "ops": [
+        {
+          "at": "main",
+          "text": "执行块"
+        },
+        {
+          "at": "w1",
+          "text": "执行块"
+        },
+        {
+          "at": "w2",
+          "text": "执行块"
+        },
+        {
+          "at": "w3",
+          "text": "执行块"
+        }
+      ],
+      "note": "四个线程执行同一个结构化块，入口没有屏障"
+    },
+    {
+      "span": [
+        "main",
+        "w1",
+        "w2",
+        "w3"
+      ],
+      "text": "块尾隐式屏障",
+      "tone": "wait",
+      "note": "先做完的线程在块尾等其余线程"
+    },
+    {
+      "at": "w1",
+      "text": "结束",
+      "tone": "muted",
+      "lane": {
+        "w1": "done"
+      },
+      "note": "worker 1 的隐式任务结束"
+    },
+    {
+      "at": "w2",
+      "text": "结束",
+      "tone": "muted",
+      "lane": {
+        "w2": "done"
+      },
+      "note": "worker 2 也结束"
+    },
+    {
+      "at": "w3",
+      "text": "结束",
+      "tone": "muted",
+      "lane": {
+        "w3": "done"
+      },
+      "note": "worker 3 也结束"
+    },
+    {
+      "at": "main",
+      "text": "继续执行",
+      "tone": "ok",
+      "note": "只有 primary 线程离开 parallel 继续往下走"
+    }
+  ]
+}

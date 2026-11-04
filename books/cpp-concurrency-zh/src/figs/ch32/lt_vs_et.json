@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "LT 反复报告，ET 只在状态变化时报告",
+  "alt": "三批数据到达：LT 每次都报告；ET 只报一次，读到 EAGAIN 才重新武装",
+  "lanes": [
+    {"id": "lt", "label": "LT 应用"},
+    {"id": "et", "label": "ET 应用"},
+    {"id": "ep", "label": "epoll 内核", "role": "kernel"},
+    {"id": "src", "label": "数据源", "role": "device"}
+  ],
+  "steps": [
+    {"from": "src", "to": "ep", "text": "第 1 批到达", "note": "数据分 3 批到达，每批 40 字节"},
+    {"from": "ep", "to": "lt", "text": "报告可读", "note": "LT：条件仍成立，所以每次都报告"},
+    {"from": "ep", "to": "et", "text": "报告一次", "tone": "hot", "note": "ET：只在状态变化时报告一次"},
+    {"ops": [
+      {"at": "lt", "text": "读 10 字节"},
+      {"at": "et", "text": "读 10 字节"}
+    ], "note": "两个应用都只读 10 字节就停下"},
+    {"from": "src", "to": "ep", "text": "第 2 批到达", "note": "接收缓冲里还有 30 字节，又有新数据到达"},
+    {"from": "ep", "to": "lt", "text": "又报告", "tone": "wait", "note": "LT 再报一次，应用还有机会继续读"},
+    {"at": "et", "text": "没有事件", "tone": "bad", "note": "ET 上次没读到 EAGAIN，后续批次不再触发"},
+    {"at": "et", "text": "读到 EAGAIN", "tone": "ok", "note": "把剩余数据读完，ET 重新武装；下一批才会再报"}
+  ]
+}

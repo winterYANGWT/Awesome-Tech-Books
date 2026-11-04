@@ -1,0 +1,23 @@
+{
+  "kind": "seq",
+  "title": "SIGHUP 重读配置",
+  "alt": "处理函数只写一个字节，主循环读管道后重读配置，新请求得到新值",
+  "lanes": [
+    {"id": "src", "label": "信号源", "role": "process"},
+    {"id": "handler", "label": "处理函数"},
+    {"id": "loop", "label": "主循环"},
+    {"id": "cfg", "label": "配置文件", "role": "memory"}
+  ],
+  "state": [
+    {"id": "pipe", "label": "自管道", "value": "空"},
+    {"id": "mode", "label": "内存中的 mode", "value": "old"}
+  ],
+  "steps": [
+    {"from": "src", "to": "handler", "text": "SIGHUP", "note": "管理员执行 kill -HUP，信号到达进程"},
+    {"at": "handler", "text": "写 1 个字节", "set": {"pipe": "有数据"}, "note": "处理函数只调用 write，不做解析"},
+    {"from": "handler", "to": "loop", "text": "管道可读", "dashed": true, "note": "自管道把信号变成普通 I/O 事件"},
+    {"at": "loop", "text": "`read(pipe)`", "set": {"pipe": "空"}, "note": "主循环读走这个字节"},
+    {"from": "cfg", "to": "loop", "text": "重新解析", "set": {"mode": "new"}, "note": "主循环重新读取并解析配置文件"},
+    {"at": "loop", "text": "新请求生效", "tone": "ok", "note": "下一个 GET 读到新的 mode"}
+  ]
+}

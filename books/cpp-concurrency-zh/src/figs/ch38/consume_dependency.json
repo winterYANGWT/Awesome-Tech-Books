@@ -1,0 +1,89 @@
+{
+  "kind": "flow",
+  "title": "consume 的依赖链与 acquire 的同步边",
+  "alt": "指针→字段是地址依赖；实现把 consume 当 acquire，弱化的依赖序已不保证",
+  "grid": [
+    4,
+    2
+  ],
+  "static": true,
+  "nodes": [
+    {
+      "id": "pub",
+      "label": "写线程",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "data",
+      "label": "Data{x=42}",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "ptr",
+      "label": "atomic<Data*>",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "rd",
+      "label": "读线程",
+      "at": [
+        3,
+        1
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_write",
+      "from": "pub",
+      "to": "data",
+      "label": "写 x=42",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e_pub",
+      "from": "data",
+      "to": "ptr",
+      "label": "release 发布",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e_load",
+      "from": "ptr",
+      "to": "rd",
+      "label": "consume 读",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e_dep",
+      "from": "rd",
+      "to": "data",
+      "label": "p->x 地址依赖",
+      "dashed": true,
+      "fromSide": "top",
+      "toSide": "top",
+      "route": "vh"
+    }
+  ],
+  "steps": [
+    {
+      "note": "release 写指针、consume 读；实现把 consume 当 acquire"
+    }
+  ]
+}

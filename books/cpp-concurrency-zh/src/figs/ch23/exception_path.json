@@ -1,0 +1,104 @@
+{
+  "kind": "seq",
+  "title": "异常到不了调用者的 catch",
+  "alt": "元素函数抛出的异常越过算法边界就被 terminate；先捕获再重抛才能接住",
+  "speed": 1500,
+  "lanes": [
+    {
+      "id": "caller",
+      "label": "调用线程"
+    },
+    {
+      "id": "lib",
+      "label": "库线程"
+    },
+    {
+      "id": "rt",
+      "label": "运行时",
+      "role": "kernel"
+    }
+  ],
+  "state": [
+    {
+      "id": "err",
+      "label": "异常",
+      "value": "—"
+    },
+    {
+      "id": "slot",
+      "label": "exception_ptr",
+      "value": "空"
+    }
+  ],
+  "steps": [
+    {
+      "at": "caller",
+      "text": "for_each(par, …)",
+      "note": "调用者的 try/catch 在算法调用外面"
+    },
+    {
+      "from": "caller",
+      "to": "lib",
+      "text": "分派元素",
+      "lane": {
+        "lib": "new"
+      },
+      "note": "元素函数可能跑在调用线程，也可能跑在库线程"
+    },
+    {
+      "at": "lib",
+      "text": "throw runtime_error",
+      "tone": "bad",
+      "set": {
+        "err": "runtime_error"
+      },
+      "note": "元素函数抛出异常，栈开始展开"
+    },
+    {
+      "from": "lib",
+      "to": "rt",
+      "text": "越过算法边界",
+      "tone": "bad",
+      "note": "异常不能穿出策略算法的边界"
+    },
+    {
+      "at": "rt",
+      "text": "std::terminate",
+      "tone": "bad",
+      "note": "异常没有回到调用者的 catch，运行时调用 terminate"
+    },
+    {
+      "span": [
+        "caller",
+        "lib"
+      ],
+      "text": "改在元素内 catch",
+      "tone": "hot",
+      "note": "另一种写法：元素函数自己捕获，算法本身不抛"
+    },
+    {
+      "at": "lib",
+      "text": "存 exception_ptr",
+      "set": {
+        "slot": "已存"
+      },
+      "tone": "ok",
+      "note": "把 current_exception() 存进受保护的槽"
+    },
+    {
+      "from": "lib",
+      "to": "caller",
+      "text": "算法返回",
+      "note": "所有元素执行完，for_each 正常返回"
+    },
+    {
+      "at": "caller",
+      "text": "rethrow_exception",
+      "tone": "ok",
+      "set": {
+        "err": "重新抛出"
+      },
+      "note": "主线程重抛，这次 catch 能接住"
+    }
+  ]
+}

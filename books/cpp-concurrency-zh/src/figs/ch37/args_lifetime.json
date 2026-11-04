@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "按值还是 std::ref：对象活多久",
+  "alt": "按值复制时线程有独立副本；std::ref 只存地址，对象先销毁就悬空",
+  "lanes": [
+    {"id": "main", "label": "主线程"},
+    {"id": "arg", "label": "原对象"},
+    {"id": "copy", "label": "副本"},
+    {"id": "worker", "label": "工作线程"}
+  ],
+  "state": [
+    {"id": "mode", "label": "传参方式", "value": "按值"},
+    {"id": "alive", "label": "原对象存活", "value": "是"}
+  ],
+  "steps": [
+    {"at": "main", "text": "构造 std::thread", "note": "构造函数在主线程里处理实参"},
+    {"from": "arg", "to": "copy", "text": "复制构造", "set": {"alive": "是"}, "note": "副本归线程对象所有，直到 join"},
+    {"from": "copy", "to": "worker", "text": "副本传入 f", "note": "worker 读副本，main 的 arg 不受影响"},
+    {"at": "main", "text": "改用 std::ref", "set": {"mode": "std::ref"}, "note": "std::ref 只包住原对象，不复制"},
+    {"from": "main", "to": "worker", "text": "传引用", "dashed": true, "note": "worker 直接读 main 的 arg"},
+    {"at": "main", "text": "离开作用域", "lane": {"main": "done"}, "set": {"alive": "否"}, "note": "detach 后主线程先销毁 arg，线程还在跑"},
+    {"from": "worker", "to": "arg", "text": "读已销毁的 arg", "tone": "bad", "dashed": true, "note": "引用悬空，未定义行为"}
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "僵尸：退出后等父进程 waitpid",
+  "alt": "子进程退出后表项以 Z 保留，父进程 waitpid 取走状态后内核才删除表项",
+  "speed": 1500,
+  "lanes": [
+    {"id": "parent", "label": "父进程", "role": "process"},
+    {"id": "kernel", "label": "内核", "role": "kernel"},
+    {"id": "child", "label": "子进程", "role": "process"}
+  ],
+  "state": [
+    {"id": "state", "label": "子进程状态", "value": "R"}
+  ],
+  "steps": [
+    {"at": "child", "text": "运行中", "note": "子进程占着一个进程表项，状态 R"},
+    {"at": "child", "text": "`_exit(0)`", "lane": {"child": "done"}, "set": {"state": "退出"}, "note": "子进程停止运行，退出状态先留在内核"},
+    {"at": "kernel", "text": "保留表项，状态 Z", "tone": "bad", "set": {"state": "Z"}, "note": "父进程还没 wait，表项和退出状态都不能删"},
+    {"from": "parent", "to": "kernel", "text": "`waitpid`", "note": "父进程来取子进程的退出状态"},
+    {"from": "kernel", "to": "parent", "text": "status", "tone": "ok", "set": {"state": "已取走"}, "note": "内核把状态交给父进程"},
+    {"at": "kernel", "text": "删除表项", "tone": "ok", "set": {"state": "—"}, "note": "进程表项释放，ps 里不再有 Z"}
+  ]
+}

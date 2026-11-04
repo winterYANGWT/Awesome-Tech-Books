@@ -1,0 +1,31 @@
+{
+  "kind": "flow",
+  "title": "OpenMP 的三种执行模型",
+  "alt": "fork-join 由 parallel 建团队，task 由线程创建任务，target 把区域交给设备",
+  "static": true,
+  "grid": [4, 3],
+  "bands": [
+    {"label": "fork-join", "rows": [0, 0]},
+    {"label": "task", "rows": [1, 1]},
+    {"label": "target", "rows": [2, 2]}
+  ],
+  "nodes": [
+    {"id": "primary", "label": "primary", "sub": "线程 0", "at": [0, 0], "shape": "round"},
+    {"id": "team", "label": "线程组", "sub": "4 个 worker", "at": [1, 0], "shape": "round"},
+    {"id": "barrier", "label": "隐式屏障", "at": [3, 0]},
+    {"id": "taskq", "label": "任务队列", "at": [0, 1], "shape": "queue", "slots": 3},
+    {"id": "workers", "label": "worker", "sub": "取任务执行", "at": [2, 1], "shape": "round"},
+    {"id": "host", "label": "主机线程", "at": [0, 2], "shape": "round"},
+    {"id": "device", "label": "target 设备", "sub": "设备团队", "at": [2, 2], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "fork", "from": "primary", "to": "team", "label": "fork"},
+    {"id": "join", "from": "team", "to": "barrier", "label": "汇合"},
+    {"id": "spawn", "from": "primary", "to": "taskq", "label": "创建 task"},
+    {"id": "take", "from": "taskq", "to": "workers", "label": "取走"},
+    {"id": "offload", "from": "host", "to": "device", "label": "offload"}
+  ],
+  "steps": [
+    {"note": "parallel 建团队，task 进队列，target 交给设备团队。"}
+  ]
+}

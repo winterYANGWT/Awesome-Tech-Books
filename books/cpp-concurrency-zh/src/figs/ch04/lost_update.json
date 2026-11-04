@@ -1,0 +1,23 @@
+{
+  "kind": "seq",
+  "title": "两次 counter++ 只加了一次",
+  "alt": "A 和 B 都读到 0、都写回 1，两次加一只让 counter 多了 1",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "mem", "label": "counter", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "counter", "label": "counter", "value": "0"},
+    {"id": "ra", "label": "A 的寄存器", "value": "—"},
+    {"id": "rb", "label": "B 的寄存器", "value": "—"}
+  ],
+  "steps": [
+    {"from": "mem", "to": "a", "text": "读到 0", "set": {"ra": "0"}, "note": "A 把 counter 的 0 读进寄存器"},
+    {"from": "mem", "to": "b", "text": "读到 0", "set": {"rb": "0"}, "note": "A 还没写回，B 也读到了 0"},
+    {"at": "a", "text": "寄存器 +1", "set": {"ra": "1"}, "note": "A 在自己的寄存器里算出 1"},
+    {"from": "a", "to": "mem", "text": "写 1", "tone": "hot", "set": {"counter": "1"}, "note": "A 把 1 写回 counter"},
+    {"at": "b", "text": "寄存器 +1", "set": {"rb": "1"}, "note": "B 用的还是刚才读到的 0，也算出 1"},
+    {"from": "b", "to": "mem", "text": "写 1", "tone": "bad", "set": {"counter": "1"}, "note": "B 也写回 1：两次加一，结果只多了 1"}
+  ]
+}

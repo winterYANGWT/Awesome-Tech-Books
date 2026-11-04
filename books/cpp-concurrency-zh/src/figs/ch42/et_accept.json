@@ -1,0 +1,20 @@
+{
+  "kind": "seq",
+  "title": "ET 监听 socket 只 accept 一次",
+  "alt": "两个连接同时排队，ET 只报一次；accept 取走一个，第二个等到客户端超时",
+  "lanes": [
+    {"id": "a", "label": "客户端 A"},
+    {"id": "b", "label": "客户端 B"},
+    {"id": "q", "label": "accept 队列", "role": "memory"},
+    {"id": "s", "label": "服务器"},
+    {"id": "ep", "label": "epoll", "role": "kernel"}
+  ],
+  "steps": [
+    {"from": "a", "to": "q", "text": "connect", "note": "客户端 A 的握手完成，连接进入队列"},
+    {"from": "b", "to": "q", "text": "connect", "note": "客户端 B 紧跟着完成，队列里有两个连接"},
+    {"from": "ep", "to": "s", "text": "可读，一次", "tone": "hot", "note": "监听 fd 从不可读变为可读，ET 只报告这一次"},
+    {"at": "s", "text": "accept() 取 A", "note": "服务器只调用一次 accept，取走队头的 A"},
+    {"at": "s", "text": "epoll_wait 再等", "tone": "wait", "note": "B 还在队列里，但没有新的边沿"},
+    {"ops": [{"at": "q", "text": "B 仍在队列", "tone": "bad"}, {"at": "b", "text": "超时"}], "note": "B 等不到 accept，客户端超时；日志里没有错误码"}
+  ]
+}

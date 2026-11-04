@@ -1,0 +1,41 @@
+{
+  "kind": "flow",
+  "title": "条件竞争的分类",
+  "alt": "条件竞争分良性、恶性，恶性里再分数据竞争、不变量破坏和生命周期问题",
+  "grid": [5, 4],
+  "bands": [
+    {"label": "分类", "rows": [0, 0]},
+    {"label": "原因", "rows": [1, 2]},
+    {"label": "例子", "rows": [3, 3]}
+  ],
+  "nodes": [
+    {"id": "race", "label": "条件竞争", "at": [2, 0], "sub": "结果依赖执行顺序", "shape": "round"},
+    {"id": "benign", "label": "良性", "at": [0, 1], "sub": "不改不变量", "shape": "round"},
+    {"id": "bad", "label": "恶性", "at": [3, 1], "sub": "破坏不变量", "shape": "round"},
+    {"id": "data", "label": "数据竞争", "at": [2, 2], "sub": "语言层面，未定义"},
+    {"id": "inv", "label": "不变量破坏", "at": [3, 2], "sub": "看到中间状态"},
+    {"id": "life", "label": "生命周期问题", "at": [4, 2], "sub": "对象已经不在了"},
+    {"id": "ex_benign", "label": "同时查表", "at": [0, 3]},
+    {"id": "ex_data", "label": "`counter++`", "at": [2, 3]},
+    {"id": "ex_inv", "label": "empty/top", "at": [3, 3]},
+    {"id": "ex_life", "label": "释放后使用", "at": [4, 3]}
+  ],
+  "edges": [
+    {"id": "r_b", "from": "race", "to": "benign"},
+    {"id": "r_x", "from": "race", "to": "bad"},
+    {"id": "x_d", "from": "bad", "to": "data"},
+    {"id": "x_i", "from": "bad", "to": "inv"},
+    {"id": "x_l", "from": "bad", "to": "life"},
+    {"id": "b_e", "from": "benign", "to": "ex_benign"},
+    {"id": "d_e", "from": "data", "to": "ex_data"},
+    {"id": "i_e", "from": "inv", "to": "ex_inv"},
+    {"id": "l_e", "from": "life", "to": "ex_life"}
+  ],
+  "steps": [
+    {
+      "tone": {"benign": "ok", "bad": "bad", "data": "bad", "inv": "wait", "life": "wait"},
+      "note": "良性竞争不改不变量；恶性竞争里，本章只处理前两类，生命周期问题放到后面的章节"
+    }
+  ],
+  "static": true
+}

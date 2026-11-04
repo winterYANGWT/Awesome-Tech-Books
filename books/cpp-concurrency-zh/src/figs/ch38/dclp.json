@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "双重检查锁：指针可见，对象没构造完",
+  "alt": "A 分配、构造、赋值；B 在赋值后、构造完成前读到非空指针，看到半构造对象",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "obj", "label": "Singleton 对象", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "instance", "label": "instance", "value": "nullptr"},
+    {"id": "constructed", "label": "constructed", "value": "false"},
+    {"id": "value", "label": "value", "value": "—"}
+  ],
+  "steps": [
+    {"at": "a", "text": "第一次检查：空", "note": "A 在锁外读到 instance 为空"},
+    {"at": "a", "text": "加锁，再检查", "note": "A 进入临界区，第二次检查仍为空"},
+    {"at": "obj", "text": "分配并初始化", "set": {"value": "0"}, "note": "成员初始化把 value 写成 0"},
+    {"from": "a", "to": "obj", "text": "instance = 地址", "tone": "bad", "set": {"instance": "非空"}, "note": "指针先于构造完成可见（允许的重排）"},
+    {"from": "b", "to": "obj", "text": "读 instance：非空", "note": "B 跳过锁，直接拿到指针"},
+    {"from": "b", "to": "obj", "text": "读 constructed：false", "tone": "bad", "note": "B 看到 constructed 还是 false，value 还是 0"},
+    {"at": "obj", "text": "构造完成", "tone": "ok", "set": {"constructed": "true", "value": "42"}, "note": "A 这时才把字段写完"}
+  ]
+}

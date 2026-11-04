@@ -1,0 +1,145 @@
+{
+  "kind": "flow",
+  "title": "信号处理函数里能调用什么",
+  "alt": "处理函数只写一个字节到管道，printf、malloc、syslog 都不安全",
+  "static": true,
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "h",
+      "label": "处理函数",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "write",
+      "label": "`write`",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "exit",
+      "label": "`_exit`",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "sem",
+      "label": "`sem_post`",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "printf",
+      "label": "`printf`",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "malloc",
+      "label": "`malloc`",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "syslog",
+      "label": "`syslog`",
+      "at": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "loop",
+      "label": "主循环",
+      "at": [
+        3,
+        1
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "safe",
+      "from": "h",
+      "to": "write",
+      "label": "写 1 字节"
+    },
+    {
+      "id": "wake",
+      "from": "write",
+      "to": "loop",
+      "label": "唤醒"
+    },
+    {
+      "id": "p",
+      "from": "h",
+      "to": "printf",
+      "label": "禁止",
+      "dashed": true
+    },
+    {
+      "id": "m",
+      "from": "h",
+      "to": "malloc",
+      "label": "禁止",
+      "dashed": true
+    },
+    {
+      "id": "s",
+      "from": "h",
+      "to": "syslog",
+      "label": "禁止",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "note": "处理函数只做一件小事：写一个字节",
+      "hi": [
+        "safe"
+      ]
+    },
+    {
+      "note": "write 是 POSIX 列出的 async-signal-safe 函数",
+      "hi": [
+        "write"
+      ]
+    },
+    {
+      "note": "主循环从管道读端醒来，再做真正的工作",
+      "hi": [
+        "wake",
+        "loop"
+      ]
+    },
+    {
+      "note": "printf、malloc、syslog 都可能拿内部锁",
+      "hi": [
+        "p",
+        "m",
+        "s"
+      ],
+      "tone": {
+        "p": "bad"
+      }
+    }
+  ]
+}

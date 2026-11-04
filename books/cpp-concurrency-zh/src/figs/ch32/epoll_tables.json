@@ -1,0 +1,179 @@
+{
+  "kind": "flow",
+  "title": "epoll 的兴趣表和就绪表",
+  "alt": "epoll_ctl 维护内核兴趣表；事件到达挂到就绪表，epoll_wait 只取走就绪项",
+  "grid": [
+    4,
+    3
+  ],
+  "bands": [
+    {
+      "label": "用户态",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "内核",
+      "rows": [
+        1,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "app",
+      "label": "应用",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "ctl",
+      "label": "epoll_ctl",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "wait",
+      "label": "epoll_wait",
+      "at": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "interest",
+      "label": "兴趣表",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "store",
+      "sub": "fd → event"
+    },
+    {
+      "id": "dev",
+      "label": "socket 事件",
+      "at": [
+        3,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "ready",
+      "label": "就绪表",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "queue",
+      "slots": 4
+    }
+  ],
+  "edges": [
+    {
+      "id": "add",
+      "from": "app",
+      "to": "ctl",
+      "label": "ADD/MOD"
+    },
+    {
+      "id": "ins",
+      "from": "ctl",
+      "to": "interest",
+      "label": "插入/修改"
+    },
+    {
+      "id": "arrive",
+      "from": "dev",
+      "to": "ready",
+      "label": "事件到达"
+    },
+    {
+      "id": "take",
+      "from": "wait",
+      "to": "ready",
+      "label": "取走"
+    },
+    {
+      "id": "ret",
+      "from": "ready",
+      "to": "app",
+      "label": "就绪事件",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "app"
+      ],
+      "note": "应用先拿到一个 epoll fd"
+    },
+    {
+      "token": [
+        {
+          "edge": "add",
+          "label": "EPOLLIN"
+        }
+      ],
+      "note": "epoll_ctl 把 fd 和兴趣写进内核"
+    },
+    {
+      "hi": [
+        "interest"
+      ],
+      "note": "兴趣表长期留在内核，不必每次调用都复制"
+    },
+    {
+      "token": [
+        {
+          "edge": "arrive",
+          "label": "数据"
+        }
+      ],
+      "note": "事件到达后挂到就绪表，不遍历整张兴趣表"
+    },
+    {
+      "token": [
+        {
+          "edge": "ins",
+          "label": "改兴趣"
+        }
+      ],
+      "note": "MOD 只改表项，不重建整个集合"
+    },
+    {
+      "token": [
+        {
+          "edge": "take",
+          "label": "就绪项"
+        }
+      ],
+      "note": "epoll_wait 只取走就绪项，不扫描全部注册的 fd"
+    },
+    {
+      "token": [
+        {
+          "edge": "ret",
+          "label": "就绪"
+        }
+      ],
+      "note": "返回的事件数与本次就绪数成正比，不是 O(1)"
+    },
+    {
+      "hi": [
+        "interest"
+      ],
+      "note": "close 由内核自动删表项，不经过 epoll_ctl；dup 副本还在时注册仍存在"
+    }
+  ]
+}

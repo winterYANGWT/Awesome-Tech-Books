@@ -1,0 +1,33 @@
+{
+  "kind": "flow",
+  "title": "递归 async 快排的任务树",
+  "alt": "每层左半区开一个 async 任务、右半区当前线程递归；到 cutoff 后串行；父任务 get 合并",
+  "grid": [5, 3],
+  "nodes": [
+    {"id": "root", "label": "根区间", "at": [0, 1], "shape": "store", "sub": "1M 个元素"},
+    {"id": "left", "label": "左半区", "at": [1, 0], "sub": "async 任务"},
+    {"id": "right", "label": "右半区", "at": [1, 2], "sub": "当前线程"},
+    {"id": "l2", "label": "左半区", "at": [2, 0], "sub": "继续 async"},
+    {"id": "r2", "label": "右半区", "at": [2, 2], "sub": "继续递归"},
+    {"id": "cut", "label": "cutoff 后串行", "at": [3, 1], "sub": "小于 4096 个"},
+    {"id": "join", "label": "get() 合并", "at": [4, 1], "shape": "store", "sub": "从叶子往根"}
+  ],
+  "edges": [
+    {"id": "spawn", "from": "root", "to": "left", "label": "async"},
+    {"id": "stay", "from": "root", "to": "right", "label": "当前线程"},
+    {"id": "spawn2", "from": "left", "to": "l2", "label": "再分"},
+    {"id": "stay2", "from": "right", "to": "r2", "label": "再分"},
+    {"id": "cut1", "from": "l2", "to": "cut", "label": "到阈值"},
+    {"id": "cut2", "from": "r2", "to": "cut", "label": "到阈值"},
+    {"id": "merge", "from": "cut", "to": "join", "label": "结果"}
+  ],
+  "steps": [
+    {"hi": ["root"], "note": "根区间先做一次 partition，pivot 归位"},
+    {"token": [{"edge": "spawn", "label": "左半"}], "tone": {"left": "hot"}, "note": "左半区交给 async，生成一个新任务"},
+    {"token": [{"edge": "stay", "label": "右半"}], "tone": {"right": "hot"}, "note": "右半区留在当前线程递归，不新建任务"},
+    {"token": [{"edge": "spawn2", "label": "再分"}], "note": "左半区继续分，每层再开一个 async 任务"},
+    {"token": [{"edge": "stay2", "label": "再分"}], "note": "右半区也继续递归；任务树按层展开"},
+    {"token": [{"edge": "cut1", "label": "串行"}, {"edge": "cut2", "label": "串行"}], "tone": {"cut": "ok"}, "note": "区间小于 cutoff 就串行 std::sort，不再开任务"},
+    {"token": [{"edge": "merge", "label": "get()"}], "tone": {"join": "ok"}, "note": "父任务 get 子任务结果；没有 cutoff 时任务数按元素数增长"}
+  ]
+}

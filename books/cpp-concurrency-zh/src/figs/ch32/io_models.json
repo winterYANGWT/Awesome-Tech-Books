@@ -1,0 +1,86 @@
+{
+  "kind": "seq",
+  "title": "五种 I/O 模型：谁阻塞、谁搬数据",
+  "alt": "前四种只通知“就绪”，复制发生在应用随后的 read 里；异步 I/O 通知的是“完成”",
+  "static": true,
+  "lanes": [
+    {
+      "id": "app",
+      "label": "应用"
+    },
+    {
+      "id": "kernel",
+      "label": "内核",
+      "role": "kernel"
+    }
+  ],
+  "steps": [
+    {
+      "label": "阻塞 I/O",
+      "from": "app",
+      "to": "kernel",
+      "text": "read() 阻塞",
+      "tone": "wait",
+      "note": "应用阻塞在内核等待队列，不占用 CPU"
+    },
+    {
+      "from": "kernel",
+      "to": "app",
+      "text": "内核搬数据",
+      "note": "数据到了，内核把它复制进用户缓冲后 read 才返回；复制期间应用一直等着"
+    },
+    {
+      "label": "非阻塞",
+      "from": "app",
+      "to": "kernel",
+      "text": "read() 立即返回",
+      "note": "没数据时返回 EAGAIN，应用不阻塞"
+    },
+    {
+      "at": "app",
+      "text": "再次 read() 复制",
+      "note": "数据到了以后再调 read：内核在这次调用里复制数据，复制期间应用等着"
+    },
+    {
+      "label": "I/O 复用",
+      "from": "app",
+      "to": "kernel",
+      "text": "阻塞在 epoll_wait",
+      "tone": "wait",
+      "note": "应用阻塞在复用调用上，可以同时等很多 fd"
+    },
+    {
+      "from": "kernel",
+      "to": "app",
+      "text": "就绪后 read() 复制",
+      "note": "复用调用只通知就绪；复制发生在随后的 read 调用里，期间应用等着"
+    },
+    {
+      "label": "信号驱动",
+      "from": "kernel",
+      "to": "app",
+      "text": "SIGIO：就绪",
+      "dashed": true,
+      "note": "应用不阻塞；信号处理函数里再 read"
+    },
+    {
+      "at": "app",
+      "text": "read() 复制",
+      "note": "信号只说“可以读了”；之后的 read 调用里内核复制数据"
+    },
+    {
+      "label": "异步 I/O",
+      "from": "app",
+      "to": "kernel",
+      "text": "aio_read 提交",
+      "note": "应用提交请求后立即返回，不阻塞"
+    },
+    {
+      "from": "kernel",
+      "to": "app",
+      "text": "内核搬完通知",
+      "tone": "hot",
+      "note": "内核把数据复制完才通知完成（glibc 的 POSIX AIO 用辅助线程代劳）"
+    }
+  ]
+}

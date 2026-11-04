@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "用 stop_callback 唤醒普通条件变量",
+  "alt": "消费者阻塞在 wait；主线程 request_stop 时回调执行 notify_all；消费者醒来检查后退出",
+  "lanes": [
+    {"id": "c", "label": "消费者"},
+    {"id": "cv", "label": "cv + mutex", "role": "memory"},
+    {"id": "m", "label": "主线程"}
+  ],
+  "state": [
+    {"id": "stop", "label": "停止请求", "value": "否"},
+    {"id": "wait", "label": "wait 返回值", "value": "等待中"}
+  ],
+  "steps": [
+    {"from": "c", "to": "cv", "text": "`wait(lock, st, pred)`", "lane": {"c": "blocked"}, "set": {"wait": "等待中"}, "note": "消费者带 stop_token 进入普通 cv 的 wait"},
+    {"at": "m", "text": "`request_stop()`", "tone": "hot", "set": {"stop": "是"}, "note": "主线程请求停止；jthread 析构也会这样做"},
+    {"from": "m", "to": "cv", "text": "回调里 `notify_all`", "dashed": true, "tone": "hot", "note": "stop_callback 在请求线程执行，必须短、不能抛"},
+    {"from": "cv", "to": "c", "text": "唤醒", "lane": {"c": "running"}, "note": "消费者被唤醒，重新加锁"},
+    {"at": "c", "text": "再查谓词与 token", "tone": "hot", "set": {"wait": "false"}, "note": "谓词为假、停止已请求：wait 返回 false"},
+    {"at": "c", "text": "退出", "tone": "ok", "lane": {"c": "done"}, "note": "停止是协作式的：线程自己检查并退出"}
+  ]
+}

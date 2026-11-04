@@ -1,0 +1,196 @@
+{
+  "kind": "flow",
+  "title": "所有工作线程都在等子任务",
+  "alt": "4 个父任务占满工作线程，子任务在队列里没人执行；等待者帮忙后环被打破",
+  "grid": [
+    3,
+    4
+  ],
+  "nodes": [
+    {
+      "id": "a",
+      "label": "父任务 A",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round",
+      "sub": "等 B、C"
+    },
+    {
+      "id": "q",
+      "label": "任务队列",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "queue",
+      "slots": 4
+    },
+    {
+      "id": "w0",
+      "label": "工作线程 0",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "w1",
+      "label": "工作线程 1",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "w2",
+      "label": "工作线程 2",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "w3",
+      "label": "工作线程 3",
+      "at": [
+        2,
+        3
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "submit",
+      "from": "a",
+      "to": "q",
+      "label": "提交 B、C",
+      "dashed": true
+    },
+    {
+      "id": "take",
+      "from": "q",
+      "to": "w0",
+      "label": "取任务"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "submit",
+          "label": "B,C"
+        }
+      ],
+      "queue": {
+        "q": [
+          "B",
+          "C"
+        ]
+      },
+      "set": {
+        "w0": "执行 A"
+      },
+      "hi": [
+        "a"
+      ],
+      "note": "A 提交 B、C 后等两个 future"
+    },
+    {
+      "set": {
+        "w1": "执行父任务",
+        "w2": "执行父任务",
+        "w3": "执行父任务"
+      },
+      "tone": {
+        "w0": "wait",
+        "w1": "wait",
+        "w2": "wait",
+        "w3": "wait"
+      },
+      "note": "4 个工作线程各执行一个父任务"
+    },
+    {
+      "set": {
+        "w0": "等 future",
+        "w1": "等 future",
+        "w2": "等 future",
+        "w3": "等 future"
+      },
+      "tone": {
+        "w0": "bad",
+        "w1": "bad",
+        "w2": "bad",
+        "w3": "bad"
+      },
+      "note": "4 个线程全在等自己提交的子任务"
+    },
+    {
+      "token": [
+        {
+          "edge": "take",
+          "label": "B"
+        }
+      ],
+      "queue": {
+        "q": [
+          "C"
+        ]
+      },
+      "set": {
+        "w0": "执行 B"
+      },
+      "tone": {
+        "w0": "hot"
+      },
+      "note": "w0 调用 run_pending_task 取出 B"
+    },
+    {
+      "set": {
+        "w0": "B 完成"
+      },
+      "tone": {
+        "w0": "ok"
+      },
+      "note": "B 的 future 就绪，A 仍等 C"
+    },
+    {
+      "token": [
+        {
+          "edge": "take",
+          "label": "C"
+        }
+      ],
+      "queue": {
+        "q": []
+      },
+      "set": {
+        "w0": "执行 C"
+      },
+      "note": "w0 再取 C，队列取空"
+    },
+    {
+      "set": {
+        "w0": "B、C 都就绪"
+      },
+      "tone": {
+        "w0": "ok"
+      },
+      "note": "B、C 的 future 都就绪，A 继续执行"
+    },
+    {
+      "set": {
+        "w0": "A 完成"
+      },
+      "tone": {
+        "w0": "ok"
+      },
+      "note": "帮忙能打破等待环，修不好依赖环"
+    }
+  ]
+}

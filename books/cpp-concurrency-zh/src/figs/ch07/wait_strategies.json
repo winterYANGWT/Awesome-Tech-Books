@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "三种等待策略：延迟与 CPU 时间",
+  "alt": "忙轮询延迟低但 CPU 时间和等待时间一样长；1 ms 睡眠延迟高；条件变量两者都低",
+  "type": "bar",
+  "data": "code/ch07/7_1_wait_strategies.out",
+  "x": {"label": "策略"},
+  "y": {"label": "每次等待的时间", "unit": "µs", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2；数字随机器和负载变化"
+}

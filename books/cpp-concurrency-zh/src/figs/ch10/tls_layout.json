@@ -1,0 +1,121 @@
+{
+  "kind": "flow",
+  "title": "thread_local 按线程定位",
+  "alt": "每个线程有自己的 TLS 块，%fs 给出基址，变量按固定偏移从块里取",
+  "grid": [
+    3,
+    3
+  ],
+  "bands": [
+    {
+      "label": "每个线程一份",
+      "rows": [
+        0,
+        1
+      ]
+    },
+    {
+      "label": "共享 TLS 模板",
+      "rows": [
+        2,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "t1",
+      "label": "线程 1",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "t2",
+      "label": "线程 2",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "b1",
+      "label": "TLS 块",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "store",
+      "sub": "counter @ +16\nbuf @ +24"
+    },
+    {
+      "id": "b2",
+      "label": "TLS 块",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "store",
+      "sub": "counter @ +16\nbuf @ +24"
+    },
+    {
+      "id": "meta",
+      "label": "`%fs` + DTV",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "store",
+      "sub": "每线程基址\n模块偏移表"
+    },
+    {
+      "id": "tmpl",
+      "label": "静态 TLS 模板",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "store",
+      "sub": "偏移固定"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "t1",
+      "to": "b1"
+    },
+    {
+      "id": "e2",
+      "from": "t2",
+      "to": "b2"
+    },
+    {
+      "id": "e3",
+      "from": "meta",
+      "to": "b1",
+      "label": "定位"
+    },
+    {
+      "id": "e4",
+      "from": "meta",
+      "to": "b2",
+      "label": "定位"
+    },
+    {
+      "id": "e5",
+      "from": "tmpl",
+      "to": "meta",
+      "label": "布局"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "note": "%fs 是每线程基址；变量地址是基址加链接时定下的偏移"
+    }
+  ]
+}

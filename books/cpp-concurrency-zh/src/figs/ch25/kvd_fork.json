@@ -1,0 +1,30 @@
+{
+  "kind": "flow",
+  "title": "kvd_fork：每连接一个子进程、一份 store",
+  "alt": "父进程 accept 后 fork 子进程，A 写自己的 store，B 读另一份得到 NOT_FOUND",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "listen", "label": "监听 fd", "at": [0, 0], "shape": "box", "sub": "127.0.0.1"},
+    {"id": "parent", "label": "父进程", "at": [0, 1], "shape": "round", "sub": "accept + fork"},
+    {"id": "childA", "label": "子进程 A", "at": [1, 0], "shape": "round", "sub": "等待连接"},
+    {"id": "storeA", "label": "store A", "at": [2, 0], "shape": "store", "sub": "独立副本"},
+    {"id": "childB", "label": "子进程 B", "at": [1, 2], "shape": "round", "sub": "等待连接"},
+    {"id": "storeB", "label": "store B", "at": [2, 2], "shape": "store", "sub": "独立副本"}
+  ],
+  "edges": [
+    {"id": "accept", "from": "listen", "to": "parent", "label": "连接", "fromSide": "bottom", "toSide": "top"},
+    {"id": "forkA", "from": "parent", "to": "childA", "label": "fork", "fromSide": "right", "toSide": "left", "route": "hv"},
+    {"id": "rwA", "from": "childA", "to": "storeA", "label": "读/写", "fromSide": "right", "toSide": "left"},
+    {"id": "forkB", "from": "parent", "to": "childB", "label": "fork", "fromSide": "right", "toSide": "left", "route": "hv"},
+    {"id": "rwB", "from": "childB", "to": "storeB", "label": "读/写", "fromSide": "right", "toSide": "left"}
+  ],
+  "steps": [
+    {"token": [{"edge": "accept", "label": "连接 A"}], "hi": ["parent"], "note": "父进程 accept 到连接 A"},
+    {"token": [{"edge": "forkA", "label": "A"}], "hi": ["childA"], "note": "父进程 fork 出子进程 A"},
+    {"set": {"childA": "SET k 1 → OK"}, "hi": ["storeA"], "note": "A 写自己的 store 副本，父进程和 B 都看不到"},
+    {"token": [{"edge": "accept", "label": "连接 B"}], "hi": ["parent"], "note": "父进程 accept 到连接 B"},
+    {"token": [{"edge": "forkB", "label": "B"}], "hi": ["childB"], "note": "父进程 fork 出子进程 B"},
+    {"set": {"childB": "GET k → NOT_FOUND"}, "hi": ["storeB"], "tone": {"storeB": "bad"}, "note": "B 的 store 是另一份，读不到 A 写的 k"},
+    {"set": {"childA": "已退出", "childB": "已退出"}, "hi": ["parent"], "tone": {"parent": "ok"}, "note": "回收 A、B；示例的长连接子进程也算，共 3 个"}
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "kind": "flow",
+  "title": "Treiber 栈的内存序清单",
+  "alt": "push CAS 用 release，pop 读 head 和摘链用 acquire，其余可 relaxed",
+  "grid": [
+    4,
+    1
+  ],
+  "nodes": [
+    {
+      "id": "rel",
+      "label": "必须 release",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "push 的 CAS"
+    },
+    {
+      "id": "acq",
+      "label": "必须 acquire",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "pop 读 head\n摘链 CAS"
+    },
+    {
+      "id": "relax",
+      "label": "可以 relaxed",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "push 读 head\npop 读 next"
+    },
+    {
+      "id": "fail",
+      "label": "失败路径",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "两处 CAS\n只重读，不发布"
+    }
+  ],
+  "edges": [],
+  "static": true,
+  "steps": [
+    {
+      "hi": [
+        "rel"
+      ],
+      "note": "push 的 CAS 用 release：新节点和它的 data 在成功时发布"
+    },
+    {
+      "hi": [
+        "acq"
+      ],
+      "note": "pop 先 acquire 读 head，摘链 CAS 也用 acquire，才能读 data"
+    },
+    {
+      "hi": [
+        "relax"
+      ],
+      "note": "push 读 head、pop 读 next 可以 relaxed；它们不负责发布"
+    },
+    {
+      "hi": [
+        "fail"
+      ],
+      "note": "两处 CAS 的失败路径只重读，不发布新数据，可以 relaxed"
+    }
+  ]
+}

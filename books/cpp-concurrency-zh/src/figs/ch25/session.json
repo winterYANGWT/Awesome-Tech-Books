@@ -1,0 +1,137 @@
+{
+  "kind": "flow",
+  "title": "终端、会话、进程组与守护进程",
+  "alt": "终端属于原会话，守护进程用 setsid 新建会话，不再有控制终端",
+  "static": true,
+  "grid": [
+    3,
+    3
+  ],
+  "bands": [
+    {
+      "label": "原会话",
+      "rows": [
+        0,
+        1
+      ]
+    },
+    {
+      "label": "新会话",
+      "rows": [
+        2,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "term",
+      "label": "终端",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "box",
+      "sub": "控制终端"
+    },
+    {
+      "id": "session",
+      "label": "会话",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "box",
+      "sub": "sid"
+    },
+    {
+      "id": "fg",
+      "label": "前台进程组",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "box",
+      "sub": "pgid"
+    },
+    {
+      "id": "shell",
+      "label": "shell",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "round",
+      "sub": "读命令"
+    },
+    {
+      "id": "leader",
+      "label": "会话首领",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "round",
+      "sub": "setsid 后"
+    },
+    {
+      "id": "daemon",
+      "label": "守护进程（孙）",
+      "at": [
+        1,
+        2
+      ],
+      "shape": "round",
+      "sub": "再 fork"
+    }
+  ],
+  "edges": [
+    {
+      "id": "t2s",
+      "from": "term",
+      "to": "session",
+      "label": "控制终端",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "s2f",
+      "from": "session",
+      "to": "fg",
+      "label": "前台",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "f2sh",
+      "from": "fg",
+      "to": "shell",
+      "label": "属于",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "s2l",
+      "from": "session",
+      "to": "leader",
+      "label": "`setsid()`",
+      "dashed": true,
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "vh"
+    },
+    {
+      "id": "l2d",
+      "from": "leader",
+      "to": "daemon",
+      "label": "再 fork",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ],
+  "steps": [
+    {
+      "note": "终端在原会话；子进程 setsid 成会话首领，孙进程没有控制终端"
+    }
+  ]
+}

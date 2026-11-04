@@ -1,0 +1,16 @@
+{
+  "kind": "chart",
+  "title": "三种回收方案的每次操作开销",
+  "alt": "三者都在同一数量级，差距不大；平均开销看不出尾延迟的差别",
+  "type": "bar",
+  "data": "code/ch16/16_6_reclaim_bench.out",
+  "x": {
+    "label": "方案"
+  },
+  "y": {
+    "label": "每次 push+pop",
+    "unit": "µs",
+    "min": 0
+  },
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），Clang 21 -mcx16；数字随机器和负载变化"
+}

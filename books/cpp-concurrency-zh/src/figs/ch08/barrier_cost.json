@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "屏障开销随阶段数增长",
+  "alt": "阶段数从 1 增到 1000，两种屏障的耗时都上涨一个数量级以上",
+  "type": "line",
+  "data": "code/ch08/8_5_barrier_cost.out",
+  "x": {"label": "阶段数", "scale": "log2"},
+  "y": {"label": "耗时", "unit": "ms", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2；每阶段计算量固定，数字会随机器和负载变化"
+}

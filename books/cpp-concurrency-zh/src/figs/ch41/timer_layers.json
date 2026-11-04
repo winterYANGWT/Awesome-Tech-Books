@@ -1,0 +1,112 @@
+{
+  "kind": "flow",
+  "title": "定时接口：信号一侧和 fd 一侧",
+  "alt": "alarm/setitimer/timer_create 落到信号处理函数；timerfd 是 fd，能进 epoll",
+  "static": true,
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "alarm",
+      "label": "`alarm(1)`",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "秒，一次性"
+    },
+    {
+      "id": "setitimer",
+      "label": "`setitimer`",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "微秒，可周期，已过时"
+    },
+    {
+      "id": "timer_create",
+      "label": "`timer_create`",
+      "at": [
+        0,
+        2
+      ],
+      "sub": "POSIX，SIGEV_SIGNAL"
+    },
+    {
+      "id": "handler",
+      "label": "信号处理函数",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "异步，不能进 epoll"
+    },
+    {
+      "id": "timerfd",
+      "label": "`timerfd_create`",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "纳秒，可周期"
+    },
+    {
+      "id": "epoll",
+      "label": "epoll / 事件循环",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "fd 就绪，统一事件源"
+    },
+    {
+      "id": "read",
+      "label": "`read` 得 uint64",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "上次读后的过期次数"
+    }
+  ],
+  "edges": [
+    {
+      "id": "a",
+      "from": "alarm",
+      "to": "handler",
+      "label": "SIGALRM"
+    },
+    {
+      "id": "b",
+      "from": "setitimer",
+      "to": "handler",
+      "label": "SIGALRM"
+    },
+    {
+      "id": "c",
+      "from": "timer_create",
+      "to": "handler",
+      "label": "SIGEV_SIGNAL"
+    },
+    {
+      "id": "d",
+      "from": "timerfd",
+      "to": "epoll",
+      "label": "fd 可读"
+    },
+    {
+      "id": "e",
+      "from": "epoll",
+      "to": "read",
+      "label": "就绪"
+    }
+  ],
+  "steps": [
+    {
+      "note": "左列只有信号，处理函数不能进事件循环；右列是 fd，epoll 能等它"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "flow",
+  "title": "分布式内存：每个节点只有自己的内存",
+  "alt": "四个节点各有 CPU 和私有内存，跨节点读数据只能通过互连网络发消息",
+  "static": true,
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "n0", "label": "节点 0", "sub": "CPU + 私有内存", "at": [0, 0]},
+    {"id": "n1", "label": "节点 1", "sub": "CPU + 私有内存", "at": [2, 0]},
+    {"id": "n2", "label": "节点 2", "sub": "CPU + 私有内存", "at": [0, 2]},
+    {"id": "n3", "label": "节点 3", "sub": "CPU + 私有内存", "at": [2, 2]},
+    {"id": "net", "label": "互连网络", "sub": "只搬消息", "at": [1, 1], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "e0", "from": "n0", "to": "net", "label": "消息"},
+    {"id": "e1", "from": "n1", "to": "net", "label": "消息"},
+    {"id": "e2", "from": "n2", "to": "net", "label": "消息"},
+    {"id": "e3", "from": "n3", "to": "net", "label": "消息"}
+  ],
+  "steps": [
+    {"hi": ["n0"], "note": "节点 0 的 CPU 只能读写节点 0 的内存"},
+    {"hi": ["net", "e0", "e1", "e2", "e3"], "note": "要拿别的节点的数据，只能把它打包成消息送过网络"}
+  ]
+}

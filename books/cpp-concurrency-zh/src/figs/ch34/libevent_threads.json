@@ -1,0 +1,110 @@
+{
+  "kind": "seq",
+  "title": "循环线程与工作线程只共享 base",
+  "alt": "工作线程持 base 锁 event_add，循环线程释放锁等 I/O；回调仍在循环线程串行执行",
+  "speed": 1500,
+  "lanes": [
+    {
+      "id": "loop",
+      "label": "循环线程"
+    },
+    {
+      "id": "worker",
+      "label": "工作线程"
+    },
+    {
+      "id": "base",
+      "label": "event_base",
+      "role": "memory"
+    },
+    {
+      "id": "cond",
+      "label": "条件变量",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "lock",
+      "label": "base 锁",
+      "value": "空闲"
+    },
+    {
+      "id": "pending",
+      "label": "变更队列",
+      "value": "0"
+    }
+  ],
+  "steps": [
+    {
+      "at": "loop",
+      "text": "evthread_use_pthreads()",
+      "note": "在创建任何 base 之前装好锁和条件变量"
+    },
+    {
+      "from": "loop",
+      "to": "base",
+      "text": "event_base_new()",
+      "note": "base 内部的锁、条件变量、唤醒 socketpair 一起建好"
+    },
+    {
+      "at": "loop",
+      "text": "持锁检查",
+      "set": {
+        "lock": "持有"
+      },
+      "note": "循环线程只在改内部结构时持锁"
+    },
+    {
+      "at": "loop",
+      "text": "释放锁后 epoll_wait",
+      "lane": {
+        "loop": "blocked"
+      },
+      "set": {
+        "lock": "空闲"
+      },
+      "note": "等 I/O 时不持锁，工作线程才能 event_add"
+    },
+    {
+      "from": "worker",
+      "to": "base",
+      "text": "event_add 取锁",
+      "lane": {
+        "worker": "running"
+      },
+      "set": {
+        "lock": "持有"
+      },
+      "note": "工作线程改的是 base 的变更队列，不是回调"
+    },
+    {
+      "from": "base",
+      "to": "worker",
+      "text": "加队列，唤醒",
+      "set": {
+        "lock": "空闲",
+        "pending": "1"
+      },
+      "note": "写唤醒 fd；循环线程从 epoll_wait 返回"
+    },
+    {
+      "from": "loop",
+      "to": "base",
+      "text": "合并变更，取事件",
+      "lane": {
+        "loop": "running"
+      },
+      "set": {
+        "pending": "0"
+      },
+      "note": "循环线程持锁把变更并进后端，再释放锁执行回调"
+    },
+    {
+      "from": "loop",
+      "to": "cond",
+      "text": "回调结束，broadcast",
+      "note": "回调仍在循环线程里串行；库锁不保护你的计数器"
+    }
+  ]
+}

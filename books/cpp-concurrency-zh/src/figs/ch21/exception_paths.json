@@ -1,0 +1,124 @@
+{
+  "kind": "flow",
+  "title": "异常的三条去向：逃出、传回、析构",
+  "alt": "异常逃出线程会 terminate；catch 后经 future 重抛；析构时仍 joinable",
+  "static": true,
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "worker",
+      "label": "工作线程",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "escape",
+      "label": "异常逃出边界",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "term1",
+      "label": "std::terminate",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "box"
+    },
+    {
+      "id": "catch",
+      "label": "catch (...)",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "current_exception()"
+    },
+    {
+      "id": "future",
+      "label": "future::get()",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "重新抛出"
+    },
+    {
+      "id": "caller",
+      "label": "调用者处理",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "obj",
+      "label": "线程对象\n仍 joinable",
+      "at": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "term2",
+      "label": "std::terminate",
+      "at": [
+        1,
+        2
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "throw",
+      "from": "worker",
+      "to": "escape",
+      "label": "抛出"
+    },
+    {
+      "id": "uncaught",
+      "from": "escape",
+      "to": "term1",
+      "label": "未捕获"
+    },
+    {
+      "id": "caught",
+      "from": "worker",
+      "to": "catch",
+      "label": "捕获"
+    },
+    {
+      "id": "handoff",
+      "from": "catch",
+      "to": "future",
+      "label": "exception_ptr"
+    },
+    {
+      "id": "rethrow",
+      "from": "future",
+      "to": "caller",
+      "label": "重抛"
+    },
+    {
+      "id": "dtor",
+      "from": "obj",
+      "to": "term2",
+      "label": "析构"
+    }
+  ],
+  "steps": [
+    {
+      "note": "上：逃出边界；中：经 future 重抛；下：析构仍 joinable"
+    }
+  ]
+}

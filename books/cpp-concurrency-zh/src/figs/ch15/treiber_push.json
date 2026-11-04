@@ -1,0 +1,23 @@
+{
+  "kind": "seq",
+  "title": "两个线程同时 push：失败的 CAS 带回新 head",
+  "alt": "A 的 CAS 成功；B 的 CAS 失败后 expected 被回写成 A，B 用新的 next 重试成功",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "mem", "label": "head", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "head", "label": "head", "value": "C"},
+    {"id": "anext", "label": "A.next", "value": "—"},
+    {"id": "bnext", "label": "B.next", "value": "—"}
+  ],
+  "steps": [
+    {"at": "a", "text": "新建 A", "set": {"anext": "C"}, "note": "A 先构造节点，next 指向当前 head=C"},
+    {"at": "b", "text": "新建 B", "set": {"bnext": "C"}, "note": "B 也读到同一个 head=C"},
+    {"from": "a", "to": "mem", "text": "CAS(C, A)", "tone": "ok", "set": {"head": "A"}, "note": "A 的 CAS 成功，head 变成 A"},
+    {"from": "mem", "to": "b", "text": "回写 A", "tone": "bad", "set": {"bnext": "A"}, "note": "B 的 CAS 失败：最新 head=A 已经被写进 B.next"},
+    {"from": "b", "to": "mem", "text": "CAS(A, B)", "tone": "ok", "set": {"head": "B"}, "note": "B 不用重新 load，直接用新的 next 重试，成功"},
+    {"at": "mem", "text": "B→A→C", "tone": "ok", "note": "两个节点都在栈上，B 在栈顶"}
+  ]
+}

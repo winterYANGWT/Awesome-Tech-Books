@@ -1,0 +1,28 @@
+{
+  "kind": "grid",
+  "title": "两个计数器：同一行与各自一行",
+  "alt": "同一缓存行里的两个计数器互相拖慢；各占一行后写不再让对方失效",
+  "static": true,
+  "rows": [
+    {"label": "布局 A：同一行"},
+    {"label": "布局 B：各一行"}
+  ],
+  "cols": 16,
+  "colLabels": "index",
+  "legend": [
+    {"key": "a", "label": "计数器 a"},
+    {"key": "b", "label": "计数器 b"}
+  ],
+  "cells": [
+    ["a", "b", null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+    ["a", null, null, null, null, null, null, null, "b", null, null, null, null, null, null, null]
+  ],
+  "brackets": [
+    {"c": "0-7", "label": "缓存行 0（64 B）"},
+    {"c": "8-15", "label": "缓存行 1（64 B）"}
+  ],
+  "steps": [
+    {"paint": [{"r": 0, "c": 0, "key": "a"}, {"r": 0, "c": 1, "key": "b"}], "mark": [{"r": 0, "c": "0-7", "tone": "bad"}], "note": "布局 A：写 a 或 b 都让整行失效。"},
+    {"paint": [{"r": 1, "c": 0, "key": "a"}, {"r": 1, "c": 8, "key": "b"}], "mark": [{"r": 1, "c": "8-15"}], "note": "布局 B：各占一行，两个线程的写互不失效。"}
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "kind": "seq",
+  "title": "fork 后子进程要 event_reinit",
+  "alt": "父子共享同一个 epoll 实例时事件会被对方取走；子进程重建后端后各跑各的循环",
+  "speed": 1500,
+  "lanes": [
+    {
+      "id": "parent",
+      "label": "父进程",
+      "role": "process"
+    },
+    {
+      "id": "child",
+      "label": "子进程",
+      "role": "process"
+    },
+    {
+      "id": "ep",
+      "label": "epoll 实例",
+      "role": "kernel"
+    }
+  ],
+  "steps": [
+    {
+      "at": "parent",
+      "text": "建 base，event_add",
+      "note": "父进程建 base、注册事件；后端 fd 和时间堆都在"
+    },
+    {
+      "span": [
+        "parent",
+        "child"
+      ],
+      "text": "fork()",
+      "lane": {
+        "child": "new"
+      },
+      "note": "子进程复制地址空间和 fd，epoll 实例仍指向同一个"
+    },
+    {
+      "at": "child",
+      "text": "event_reinit(base)",
+      "tone": "hot",
+      "note": "子进程重建后端，epoll/kqueue 需要这一步"
+    },
+    {
+      "from": "child",
+      "to": "ep",
+      "text": "新建自己的实例",
+      "note": "reinit 关闭旧后端、重新 init，并重加已有事件"
+    },
+    {
+      "span": [
+        "parent",
+        "child"
+      ],
+      "text": "各自 dispatch",
+      "note": "两边各跑一个循环，定时器各自推进"
+    },
+    {
+      "at": "child",
+      "text": "exit；父进程继续",
+      "lane": {
+        "child": "done"
+      },
+      "note": "正确做法：fork 后 exec，或子进程重建 base"
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "kind": "flow",
+  "title": "可复用屏障：计数、代与完成函数",
+  "alt": "计数加一；最后一个到达者清零、推进代、执行完成函数并唤醒等待者，等待者看到新代才通过",
+  "grid": [
+    2,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "arrive",
+      "label": "线程到达",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "count",
+      "label": "计数",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "store",
+      "sub": "count = 3"
+    },
+    {
+      "id": "last",
+      "label": "最后一个到达者",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "count 到 n"
+    },
+    {
+      "id": "gen",
+      "label": "代 generation",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "store",
+      "sub": "gen = 7"
+    },
+    {
+      "id": "done",
+      "label": "完成函数",
+      "at": [
+        1,
+        2
+      ],
+      "sub": "由它执行一次"
+    },
+    {
+      "id": "wait",
+      "label": "其他线程",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "round",
+      "sub": "等新代"
+    }
+  ],
+  "edges": [
+    {
+      "id": "inc",
+      "from": "arrive",
+      "to": "count",
+      "label": "加一"
+    },
+    {
+      "id": "full",
+      "from": "count",
+      "to": "last",
+      "label": "到 n"
+    },
+    {
+      "id": "reset",
+      "from": "last",
+      "to": "count",
+      "label": "清零",
+      "dashed": true,
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "bump",
+      "from": "last",
+      "to": "gen",
+      "label": "gen++"
+    },
+    {
+      "id": "call",
+      "from": "last",
+      "to": "done",
+      "label": "调用"
+    },
+    {
+      "id": "see",
+      "from": "gen",
+      "to": "wait",
+      "label": "看到新代"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "arrive",
+        "count"
+      ],
+      "note": "每个线程进入屏障：计数加一，只由计数判断到没到齐"
+    },
+    {
+      "hi": [
+        "last"
+      ],
+      "note": "最后一个到达者发现计数到 n，由它负责收尾"
+    },
+    {
+      "hi": [
+        "gen",
+        "count"
+      ],
+      "note": "它把计数清零、把代加一：下一轮从干净的计数开始"
+    },
+    {
+      "hi": [
+        "done"
+      ],
+      "note": "完成函数由这一个线程执行一次，其他线程不执行"
+    },
+    {
+      "hi": [
+        "last",
+        "wait"
+      ],
+      "note": "最后一个到达者唤醒全部等待者；自旋的等待者则直接看到代变化"
+    },
+    {
+      "hi": [
+        "wait",
+        "gen"
+      ],
+      "note": "等待者看到新代后才通过，不会把下一轮的到达当成自己这一轮"
+    }
+  ],
+  "static": true
+}

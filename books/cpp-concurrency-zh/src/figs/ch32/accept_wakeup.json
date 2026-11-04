@@ -1,0 +1,40 @@
+{
+  "kind": "flow",
+  "title": "4 个 epoll 等同一个监听 fd：默认与独占",
+  "alt": "默认模式一次连接唤醒全部 4 个；EPOLLEXCLUSIVE 通常只唤醒一个",
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "listen", "label": "监听 fd", "at": [1, 0], "span": [2, 1], "shape": "store", "sub": "同一个"},
+    {"id": "e0", "label": "epoll 0", "at": [0, 1], "shape": "round"},
+    {"id": "e1", "label": "epoll 1", "at": [1, 1], "shape": "round"},
+    {"id": "e2", "label": "epoll 2", "at": [2, 1], "shape": "round"},
+    {"id": "e3", "label": "epoll 3", "at": [3, 1], "shape": "round"},
+    {"id": "w0", "label": "worker 0", "at": [0, 2], "shape": "round"},
+    {"id": "w1", "label": "worker 1", "at": [1, 2], "shape": "round"},
+    {"id": "w2", "label": "worker 2", "at": [2, 2], "shape": "round"},
+    {"id": "w3", "label": "worker 3", "at": [3, 2], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "l0", "from": "listen", "to": "e0", "label": "可读", "dashed": true},
+    {"id": "l1", "from": "listen", "to": "e1", "label": "可读", "dashed": true},
+    {"id": "l2", "from": "listen", "to": "e2", "label": "可读", "dashed": true},
+    {"id": "l3", "from": "listen", "to": "e3", "label": "可读", "dashed": true},
+    {"id": "k0", "from": "e0", "to": "w0", "label": "唤醒"},
+    {"id": "k1", "from": "e1", "to": "w1", "label": "唤醒"},
+    {"id": "k2", "from": "e2", "to": "w2", "label": "唤醒"},
+    {"id": "k3", "from": "e3", "to": "w3", "label": "唤醒"}
+  ],
+  "steps": [
+    {"hi": ["listen"], "note": "4 个 epoll 实例注册了同一个监听 fd"},
+    {"token": [
+      {"edge": "l0", "label": "wake"},
+      {"edge": "l1", "label": "wake"},
+      {"edge": "l2", "label": "wake"},
+      {"edge": "l3", "label": "wake"}
+    ], "tone": {"e0": "bad", "e1": "bad", "e2": "bad", "e3": "bad"}, "note": "默认模式：一次连接把所有等待者都唤醒"},
+    {"hi": ["e0", "e1", "e2", "e3"], "note": "这就是惊群：3 个执行体醒来后抢不到连接"},
+    {"token": [{"edge": "l1", "label": "只选一个"}], "tone": {"e1": "hot"}, "note": "EPOLLEXCLUSIVE 让内核优先挑一个等待者，不保证唯一"},
+    {"hi": ["e1"], "note": "只有 epoll 1 收到事件，由它 accept 这个连接"},
+    {"token": [{"edge": "k1", "label": "处理"}], "note": "其余三个继续睡，少掉无效唤醒"}
+  ]
+}

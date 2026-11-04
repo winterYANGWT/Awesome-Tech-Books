@@ -1,0 +1,26 @@
+{
+  "kind": "flow",
+  "title": "四条一次性初始化路径",
+  "alt": "每次加锁最慢；DCLP 后续不加锁但有竞争；call_once 和局部 static 既只做一次又安全",
+  "grid": [3, 4],
+  "nodes": [
+    {"id": "lock", "label": "每次加锁", "at": [0, 0], "sub": "第一次：加锁+检查"},
+    {"id": "lock2", "label": "之后仍加锁", "at": [2, 0], "sub": "所有线程排队"},
+    {"id": "dclp", "label": "DCLP", "at": [0, 1], "sub": "第一次：锁内构造"},
+    {"id": "dclp2", "label": "之后不加锁", "at": [2, 1], "sub": "锁外读有竞争"},
+    {"id": "once", "label": "`call_once`", "at": [0, 2], "sub": "第一次：执行一次"},
+    {"id": "once2", "label": "之后不加锁", "at": [2, 2], "sub": "直接返回"},
+    {"id": "local", "label": "局部 static", "at": [0, 3], "sub": "第一次：构造一次"},
+    {"id": "local2", "label": "之后不加锁", "at": [2, 3], "sub": "直接返回"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "lock", "to": "lock2", "fromSide": "right", "toSide": "left"},
+    {"id": "e2", "from": "dclp", "to": "dclp2", "fromSide": "right", "toSide": "left"},
+    {"id": "e3", "from": "once", "to": "once2", "fromSide": "right", "toSide": "left"},
+    {"id": "e4", "from": "local", "to": "local2", "fromSide": "right", "toSide": "left"}
+  ],
+  "static": true,
+  "steps": [
+    {"tone": {"dclp2": "bad"}, "note": "关键看第一次之后还要不要加锁；DCLP 的锁外读没有 happens-before"}
+  ]
+}

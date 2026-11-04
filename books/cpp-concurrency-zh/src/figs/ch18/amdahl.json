@@ -1,0 +1,24 @@
+{
+  "kind": "flow",
+  "title": "Amdahl：串行段把上限钉在 1/r",
+  "alt": "程序先走串行段再走并行段，核数再多也超不过 1/r",
+  "grid": [4, 1],
+  "nodes": [
+    {"id": "serial", "label": "串行段 r", "at": [0, 0], "sub": "只有一个核在干"},
+    {"id": "par", "label": "并行段 1−r", "at": [1, 0], "sub": "p 个核分摊"},
+    {"id": "merge", "label": "合并与同步", "at": [2, 0], "sub": "还要等最慢的"},
+    {"id": "limit", "label": "上限 1/r", "at": [3, 0], "shape": "store", "sub": "r=5% / 10% / 20%"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "serial", "to": "par", "label": "剩下的"},
+    {"id": "e2", "from": "par", "to": "merge", "label": "p 份"},
+    {"id": "e3", "from": "merge", "to": "limit", "label": "核数再多"}
+  ],
+  "static": true,
+  "steps": [
+    {"hi": ["serial"], "note": "串行段占 r：这段时间只有一个核在干活"},
+    {"hi": ["par"], "note": "并行段占 1−r：理想情况下由 p 个核分摊"},
+    {"hi": ["merge"], "note": "实际还要加同步、通信和负载不均，实测低于公式"},
+    {"hi": ["limit"], "tone": {"limit": "bad"}, "note": "核数再多也超不过 1/r：r 越小，上限越高"}
+  ]
+}

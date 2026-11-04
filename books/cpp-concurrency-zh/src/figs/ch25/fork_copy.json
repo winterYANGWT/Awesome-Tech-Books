@@ -1,0 +1,25 @@
+{
+  "kind": "seq",
+  "title": "fork 返回两次：父子各改自己的副本",
+  "alt": "父进程 fork 出子进程，子进程写时复制后改成 11/21，父进程仍是 10/20",
+  "speed": 1500,
+  "lanes": [
+    {"id": "parent", "label": "父进程", "role": "process"},
+    {"id": "child", "label": "子进程", "role": "process"}
+  ],
+  "state": [
+    {"id": "pg", "label": "父 g", "value": "1"},
+    {"id": "ph", "label": "父 heap", "value": "未初始化"},
+    {"id": "cg", "label": "子 g", "value": "—"},
+    {"id": "ch", "label": "子 heap", "value": "—"}
+  ],
+  "steps": [
+    {"at": "parent", "text": "g=1，heap 未初始化", "set": {"pg": "1", "ph": "未初始化"}, "note": "全局变量初值为 1，堆对象还没有赋值"},
+    {"at": "parent", "text": "g=10, heap=20", "set": {"pg": "10", "ph": "20"}, "note": "这两个值在 fork 前写进父进程的地址空间"},
+    {"at": "parent", "text": "`fork()`", "tone": "hot", "note": "父进程调用 fork，准备复制一份地址空间"},
+    {"span": ["parent", "child"], "text": "复制页表（COW）", "tone": "hot", "lane": {"child": "new"}, "set": {"cg": "10", "ch": "20"}, "note": "子进程拿到页表的副本，物理页先共享并标成只读"},
+    {"at": "child", "text": "g=11", "set": {"cg": "11"}, "note": "子进程写 g，触发写时复制，得到自己的一页"},
+    {"at": "child", "text": "heap->v=21", "set": {"ch": "21"}, "note": "子进程改堆对象，改的也是自己的副本"},
+    {"at": "parent", "text": "waitpid 后读", "tone": "ok", "note": "父进程仍是 10/20，子进程的修改不可见"}
+  ]
+}

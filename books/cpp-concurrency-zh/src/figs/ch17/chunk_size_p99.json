@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "块大小：单块计算耗时的 p99",
+  "alt": "单块 p99 在几十到几百纳秒，块大时升高；只计块内计算",
+  "type": "line",
+  "data": "code/ch17/17_5_chunk_size/p99.out",
+  "x": {"label": "块大小（元素）", "scale": "log2"},
+  "y": {"label": "单块 p99", "unit": "ns", "min": 0},
+  "note": "和上图同一次运行；只计块内计算，不含领任务的等待"
+}

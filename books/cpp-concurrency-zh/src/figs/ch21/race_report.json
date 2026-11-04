@@ -1,0 +1,21 @@
+{
+  "kind": "flow",
+  "title": "TSan 报告怎么读：两条栈、一个地址、一条缺的边",
+  "alt": "线程 1 和线程 2 访问同一地址，报告指出缺少 happens-before，修法是加锁或改原子",
+  "static": true,
+  "grid": [3, 2],
+  "nodes": [
+    {"id": "t1", "label": "线程 1 的栈", "at": [0, 0], "sub": "当前访问"},
+    {"id": "t2", "label": "线程 2 的栈", "at": [0, 1], "sub": "先前访问"},
+    {"id": "addr", "label": "冲突地址", "at": [1, 0], "shape": "store"},
+    {"id": "fix", "label": "加锁或改 atomic", "at": [2, 0]}
+  ],
+  "edges": [
+    {"id": "read1", "from": "t1", "to": "addr", "label": "读写"},
+    {"id": "read2", "from": "t2", "to": "addr", "label": "先前访问"},
+    {"id": "missing", "from": "addr", "to": "fix", "label": "缺同步边"}
+  ],
+  "steps": [
+    {"note": "两条栈指向同一地址；共同的上一层缺少 happens-before，修法是加锁或改原子"}
+  ]
+}

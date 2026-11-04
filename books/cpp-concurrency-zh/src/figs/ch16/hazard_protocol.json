@@ -1,0 +1,25 @@
+{
+  "kind": "seq",
+  "title": "风险指针：发布、重读、扫描",
+  "alt": "读者先发布 hp=A 再重读 head；删除者扫描到 A 就挂回，读者清空后才删",
+  "lanes": [
+    {"id": "r", "label": "读者"},
+    {"id": "d", "label": "删除者"},
+    {"id": "h", "label": "head", "role": "memory"},
+    {"id": "hp", "label": "风险指针", "role": "memory"}
+  ],
+  "state": [
+    {"id": "hpv", "label": "hp[读者]", "value": "空"},
+    {"id": "head", "label": "head", "value": "A"}
+  ],
+  "steps": [
+    {"from": "h", "to": "r", "text": "读 head=A", "note": "读者先看到 A，还没发布"},
+    {"from": "r", "to": "hp", "text": "发布 hp=A", "set": {"hpv": "A"}, "tone": "hot", "note": "先发布：告诉别人 A 正在被读"},
+    {"from": "h", "to": "r", "text": "重读 head=A", "tone": "hot", "note": "后重读：确认 A 还在 head 上"},
+    {"at": "d", "text": "弹出 A，head=B", "set": {"head": "B"}, "note": "删除者把 A 从 head 上摘下来，A 退休"},
+    {"from": "hp", "to": "d", "text": "扫描到 A", "tone": "wait", "note": "有人指着 A，不能删，挂回待回收链"},
+    {"at": "r", "text": "读 A->next", "note": "发布并确认之后，读 next 才安全"},
+    {"at": "r", "text": "清空 hp", "set": {"hpv": "空"}, "note": "读完就撤销发布"},
+    {"at": "d", "text": "delete A", "tone": "ok", "note": "再扫描时没人指向 A，可以删除"}
+  ]
+}

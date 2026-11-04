@@ -1,0 +1,157 @@
+{
+  "kind": "flow",
+  "title": "共享队列与 actor 邮箱：箭头指向哪里",
+  "alt": "上半三个线程都指向同一个队列；下半消息只进入对方邮箱，没有共享对象",
+  "grid": [
+    4,
+    4
+  ],
+  "bands": [
+    {
+      "label": "共享内存：同一队列",
+      "rows": [
+        0,
+        1
+      ]
+    },
+    {
+      "label": "消息传递：只发消息",
+      "rows": [
+        2,
+        3
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "t1",
+      "label": "线程 1",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "t2",
+      "label": "线程 2",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "t3",
+      "label": "线程 3",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "q",
+      "label": "`std::queue`",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "queue",
+      "slots": 3,
+      "sub": "mutex + cv"
+    },
+    {
+      "id": "a",
+      "label": "actor A\n（邮箱）",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "b",
+      "label": "actor B\n（邮箱）",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "c",
+      "label": "actor C\n（邮箱）",
+      "at": [
+        3,
+        2
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "r1",
+      "from": "t1",
+      "to": "q",
+      "label": "读写",
+      "arrow": "both"
+    },
+    {
+      "id": "r2",
+      "from": "t2",
+      "to": "q",
+      "label": "读写",
+      "arrow": "both"
+    },
+    {
+      "id": "r3",
+      "from": "t3",
+      "to": "q",
+      "label": "读写",
+      "arrow": "both"
+    },
+    {
+      "id": "m1",
+      "from": "a",
+      "to": "b",
+      "label": "send"
+    },
+    {
+      "id": "m2",
+      "from": "b",
+      "to": "c",
+      "label": "send"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "t1",
+        "t2",
+        "t3",
+        "q"
+      ],
+      "note": "三个线程读写同一个队列，箭头都指向共享对象"
+    },
+    {
+      "token": [
+        {
+          "edge": "m1",
+          "label": "消息"
+        },
+        {
+          "edge": "m2",
+          "label": "消息"
+        }
+      ],
+      "hi": [
+        "a",
+        "b",
+        "c"
+      ],
+      "note": "消息只进入对方邮箱；每个 actor 只写自己的状态"
+    }
+  ],
+  "static": true
+}

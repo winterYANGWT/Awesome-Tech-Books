@@ -1,0 +1,285 @@
+{
+  "kind": "flow",
+  "title": "有界通道：满时等待、取走唤醒、关闭排空",
+  "alt": "队列填满后生产者等待；消费者取走一条并唤醒；close 唤醒所有等待者后排空",
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "p",
+      "label": "生产者",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "q",
+      "label": "通道（容量 8）",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "queue",
+      "slots": 8
+    },
+    {
+      "id": "c",
+      "label": "消费者",
+      "at": [
+        3,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "nf",
+      "label": "not_full",
+      "at": [
+        0,
+        2
+      ],
+      "sub": "生产者等待"
+    },
+    {
+      "id": "cl",
+      "label": "`close()`",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "置 closed"
+    },
+    {
+      "id": "ne",
+      "label": "not_empty",
+      "at": [
+        3,
+        2
+      ],
+      "sub": "消费者等待"
+    }
+  ],
+  "edges": [
+    {
+      "id": "send",
+      "from": "p",
+      "to": "q",
+      "label": "send"
+    },
+    {
+      "id": "recv",
+      "from": "q",
+      "to": "c",
+      "label": "recv"
+    },
+    {
+      "id": "waitfull",
+      "from": "p",
+      "to": "nf",
+      "label": "满时等待",
+      "dashed": true,
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "wakefull",
+      "from": "nf",
+      "to": "p",
+      "dashed": true,
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "waitempty",
+      "from": "c",
+      "to": "ne",
+      "label": "空时等待",
+      "dashed": true,
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "wakeempty",
+      "from": "ne",
+      "to": "c",
+      "dashed": true,
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "closefull",
+      "from": "cl",
+      "to": "nf",
+      "label": "notify_all",
+      "dashed": true
+    },
+    {
+      "id": "closeempty",
+      "from": "cl",
+      "to": "ne",
+      "label": "notify_all",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "send",
+          "label": "M1、M2"
+        }
+      ],
+      "queue": {
+        "q": [
+          "M1",
+          "M2"
+        ]
+      },
+      "note": "生产者 send：M1、M2 入队"
+    },
+    {
+      "token": [
+        {
+          "edge": "send",
+          "label": "M3–M6"
+        }
+      ],
+      "queue": {
+        "q": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6"
+        ]
+      },
+      "note": "继续入队，队列里有 6 条"
+    },
+    {
+      "token": [
+        {
+          "edge": "send",
+          "label": "M7、M8"
+        }
+      ],
+      "queue": {
+        "q": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "M8"
+        ]
+      },
+      "tone": {
+        "q": "hot"
+      },
+      "note": "8 个槽全满，队列到容量上限"
+    },
+    {
+      "token": [
+        {
+          "edge": "waitfull",
+          "label": "第 9 条"
+        }
+      ],
+      "tone": {
+        "p": "wait",
+        "nf": "hot"
+      },
+      "note": "第 9 条 send 在 not_full 上等待"
+    },
+    {
+      "token": [
+        {
+          "edge": "recv",
+          "label": "M1"
+        },
+        {
+          "edge": "send",
+          "label": "M9 入队"
+        },
+        {
+          "edge": "wakefull",
+          "label": "唤醒"
+        }
+      ],
+      "queue": {
+        "q": [
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "M8",
+          "M9"
+        ]
+      },
+      "tone": {
+        "p": "ok"
+      },
+      "note": "消费者取走 M1，not_full 唤醒生产者，M9 入队"
+    },
+    {
+      "token": [
+        {
+          "edge": "recv",
+          "label": "M2"
+        }
+      ],
+      "queue": {
+        "q": [
+          "M3",
+          "M4",
+          "M5",
+          "M6",
+          "M7",
+          "M8",
+          "M9"
+        ]
+      },
+      "note": "继续取走，队列不再满"
+    },
+    {
+      "token": [
+        {
+          "edge": "closefull",
+          "label": "closed"
+        },
+        {
+          "edge": "closeempty",
+          "label": "closed"
+        }
+      ],
+      "tone": {
+        "cl": "hot"
+      },
+      "note": "close：先置 closed，再 notify_all"
+    },
+    {
+      "token": [
+        {
+          "edge": "wakeempty",
+          "label": "醒"
+        }
+      ],
+      "queue": {
+        "q": []
+      },
+      "set": {
+        "p": "新 send 返回 false",
+        "c": "取空后退出"
+      },
+      "note": "消费者排空后 recv 返回 nullopt；close 之后的新 send 立即返回 false"
+    }
+  ]
+}

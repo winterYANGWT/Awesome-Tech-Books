@@ -1,0 +1,25 @@
+{
+  "kind": "seq",
+  "title": "关闭顺序：close、唤醒、排空、join",
+  "alt": "close 置标志并唤醒全部；消费者取完剩余消息后 recv 返回 nullopt，join 才返回",
+  "lanes": [
+    {"id": "p", "label": "生产者"},
+    {"id": "ch", "label": "通道", "role": "memory"},
+    {"id": "c1", "label": "消费者 1"},
+    {"id": "c2", "label": "消费者 2"},
+    {"id": "main", "label": "主线程"}
+  ],
+  "state": [
+    {"id": "queue", "label": "队列长度", "value": "0"},
+    {"id": "closed", "label": "closed", "value": "false"}
+  ],
+  "steps": [
+    {"from": "p", "to": "ch", "text": "send 最后一条", "set": {"queue": "1"}, "lane": {"p": "done"}, "note": "生产者发完最后一条，准备关闭"},
+    {"at": "main", "text": "`close()`", "set": {"closed": "true"}, "lane": {"main": "new"}, "note": "主线程置 closed：不再接受新消息"},
+    {"ops": [{"from": "ch", "to": "c1", "text": "notify_all", "dashed": true}, {"from": "ch", "to": "c2", "text": "notify_all", "dashed": true}], "note": "唤醒所有睡在 not_empty 上的消费者"},
+    {"from": "ch", "to": "c1", "text": "取走最后一条", "set": {"queue": "0"}, "note": "先取完已入队的消息；若先销毁通道，这里就是悬空访问"},
+    {"from": "ch", "to": "c2", "text": "recv 返回 nullopt", "note": "队列空且 closed：recv 返回 nullopt"},
+    {"ops": [{"at": "c1", "text": "退出"}, {"at": "c2", "text": "退出"}], "lane": {"c1": "done", "c2": "done"}, "note": "两个消费者都排空后退出"},
+    {"at": "main", "text": "join 返回", "tone": "ok", "note": "主线程等到两个消费者汇入，才能销毁通道和状态"}
+  ]
+}

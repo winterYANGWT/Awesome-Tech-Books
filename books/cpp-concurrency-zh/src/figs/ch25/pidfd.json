@@ -1,0 +1,88 @@
+{
+  "kind": "seq",
+  "title": "pidfd：open、poll、waitid",
+  "alt": "pidfd 绑定子进程，退出后 poll 可读，waitid 取到状态 7，最后 close",
+  "speed": 1500,
+  "lanes": [
+    {
+      "id": "parent",
+      "label": "父进程",
+      "role": "process"
+    },
+    {
+      "id": "kernel",
+      "label": "内核",
+      "role": "kernel"
+    },
+    {
+      "id": "child",
+      "label": "子进程",
+      "role": "process"
+    }
+  ],
+  "state": [
+    {
+      "id": "pidfd",
+      "label": "pidfd",
+      "value": "—"
+    },
+    {
+      "id": "status",
+      "label": "退出状态",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "from": "parent",
+      "to": "child",
+      "text": "`fork()`",
+      "lane": {
+        "child": "new"
+      },
+      "note": "父进程 fork 出子进程，拿到 PID"
+    },
+    {
+      "from": "parent",
+      "to": "kernel",
+      "text": "`pidfd_open`",
+      "set": {
+        "pidfd": "fd"
+      },
+      "note": "得到一个绑定该进程的句柄，不怕 PID 复用"
+    },
+    {
+      "at": "child",
+      "text": "`_exit(7)`",
+      "lane": {
+        "child": "done"
+      },
+      "note": "子进程退出，状态 7 还在内核里"
+    },
+    {
+      "from": "parent",
+      "to": "kernel",
+      "text": "`poll`",
+      "dashed": true,
+      "note": "fd 变为可读，说明进程已经退出"
+    },
+    {
+      "from": "parent",
+      "to": "kernel",
+      "text": "`waitid(P_PIDFD)`",
+      "set": {
+        "status": "7"
+      },
+      "note": "取到 si_status=7，这一步仍然完成回收"
+    },
+    {
+      "at": "parent",
+      "text": "`close(pidfd)`",
+      "tone": "ok",
+      "set": {
+        "pidfd": "—"
+      },
+      "note": "关闭句柄，进程表项已经在 waitid 时释放"
+    }
+  ]
+}

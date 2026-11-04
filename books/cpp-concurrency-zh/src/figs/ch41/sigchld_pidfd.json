@@ -1,0 +1,106 @@
+{
+  "kind": "seq",
+  "title": "SIGCHLD 的唤醒窗口与 pidfd",
+  "alt": "SIGCHLD 在检查标志后到达，父进程仍睡死；pidfd 可读，不会错过退出",
+  "lanes": [
+    {
+      "id": "parent",
+      "label": "父进程"
+    },
+    {
+      "id": "child",
+      "label": "子进程",
+      "role": "process"
+    },
+    {
+      "id": "kern",
+      "label": "内核",
+      "role": "kernel"
+    }
+  ],
+  "state": [
+    {
+      "id": "flag",
+      "label": "SIGCHLD 标志",
+      "value": "0"
+    },
+    {
+      "id": "child_state",
+      "label": "子进程",
+      "value": "运行"
+    },
+    {
+      "id": "pidfd",
+      "label": "pidfd",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "at": "child",
+      "text": "运行中",
+      "note": "父进程 fork 出子进程，子进程还在跑"
+    },
+    {
+      "at": "parent",
+      "text": "`waitpid(WNOHANG)`",
+      "note": "返回 0：子进程还没退出，父进程准备去睡"
+    },
+    {
+      "at": "child",
+      "text": "退出",
+      "tone": "hot",
+      "note": "退出状态留在内核，子进程变成僵尸",
+      "lane": {
+        "child": "done"
+      },
+      "set": {
+        "child_state": "僵尸"
+      }
+    },
+    {
+      "from": "kern",
+      "to": "parent",
+      "text": "SIGCHLD 已处理",
+      "dashed": true,
+      "note": "信号在检查 flag 之后、sigsuspend 之前递送，flag 已置 1",
+      "set": {
+        "flag": "1"
+      }
+    },
+    {
+      "at": "parent",
+      "text": "`sigsuspend`",
+      "tone": "bad",
+      "note": "父进程仍去睡：flag 是 1，但不会再有信号叫醒它"
+    },
+    {
+      "at": "parent",
+      "text": "改用 `pidfd_open`",
+      "note": "换一条路：fork 后立刻拿到 pidfd，退出状态和它绑定",
+      "set": {
+        "pidfd": "fd"
+      }
+    },
+    {
+      "at": "kern",
+      "text": "pidfd 变为可读",
+      "note": "子进程退出时 pidfd 可读，不依赖 SIGCHLD 是否合并"
+    },
+    {
+      "from": "kern",
+      "to": "parent",
+      "text": "`poll` 返回",
+      "note": "poll 立刻返回，父进程不会再错过退出事件"
+    },
+    {
+      "at": "parent",
+      "text": "`waitid(P_PIDFD)`",
+      "note": "取到状态并完成回收，PID 复用也影响不到这个 fd",
+      "set": {
+        "flag": "不需要",
+        "child_state": "已回收"
+      }
+    }
+  ]
+}

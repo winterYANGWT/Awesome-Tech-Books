@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "块大小：总耗时",
+  "alt": "块太小被任务开销拖慢；块变大后总耗时下降并趋于平缓",
+  "type": "line",
+  "data": "code/ch17/17_5_chunk_size/output.out",
+  "x": {"label": "块大小（元素）", "scale": "log2"},
+  "y": {"label": "总耗时", "unit": "ms", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2；数字随机器和负载变化"
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "多线程进程 fork：子进程只剩一条线程",
+  "alt": "工作线程持锁睡眠，主线程 fork，子进程再锁同一把锁时永久阻塞",
+  "lanes": [
+    {"id": "main", "label": "主线程"},
+    {"id": "worker", "label": "工作线程"},
+    {"id": "child", "label": "子进程"},
+    {"id": "mu", "label": "全局 mutex", "role": "memory"}
+  ],
+  "state": [
+    {"id": "owner", "label": "mutex 持有者", "value": "无"},
+    {"id": "threads", "label": "子进程线程数", "value": "—"}
+  ],
+  "steps": [
+    {"at": "worker", "text": "`lock(mu)`", "set": {"owner": "工作线程"}, "note": "工作线程拿到全局 mutex"},
+    {"at": "worker", "text": "睡眠", "lane": {"worker": "sleeping"}, "note": "工作线程没有释放锁就睡了"},
+    {"at": "main", "text": "`fork()`", "note": "主线程调用 fork，复制整个地址空间"},
+    {"ops": [{"at": "main", "text": "父进程继续"}, {"at": "child", "text": "只有调用线程"}], "lane": {"child": "new"}, "set": {"threads": "1"}, "note": "子进程只复制了调用 fork 的主线程"},
+    {"at": "child", "text": "`lock(mu)`", "tone": "bad", "note": "子进程对同一把锁加锁"},
+    {"span": ["worker", "child"], "text": "持锁者不在子进程里", "tone": "bad", "note": "工作线程没有出现在子进程，锁却显示已被持有"},
+    {"at": "child", "text": "永久等待", "tone": "bad", "lane": {"child": "blocked"}, "note": "没有人会解锁，子进程卡死"}
+  ]
+}

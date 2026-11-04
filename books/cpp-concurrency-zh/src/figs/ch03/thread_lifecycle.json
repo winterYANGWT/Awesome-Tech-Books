@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "线程从创建到终止：join 和 detach 在哪里起作用",
+  "alt": "新线程就绪、运行、阻塞、被唤醒，最后终止；join 在终止后回收",
+  "lanes": [
+    {"id": "main", "label": "主线程"},
+    {"id": "kernel", "label": "内核", "role": "kernel"},
+    {"id": "worker", "label": "线程 T"},
+    {"id": "wait", "label": "I/O 或锁", "role": "device"}
+  ],
+  "steps": [
+    {"from": "main", "to": "kernel", "text": "clone", "lane": {"worker": "new"}, "note": "创建：内核分配 task、TID 和栈"},
+    {"from": "kernel", "to": "worker", "text": "就绪", "lane": {"worker": "running"}, "note": "放进就绪队列，等待 CPU"},
+    {"from": "main", "to": "worker", "text": "detach()", "dashed": true, "note": "detach 可在运行中调用；终止即回收，不能再 join"},
+    {"at": "worker", "text": "运行", "note": "被调度上 CPU，执行用户代码"},
+    {"from": "worker", "to": "wait", "text": "阻塞", "lane": {"worker": "blocked"}, "note": "等 I/O 或锁，让出 CPU"},
+    {"from": "wait", "to": "worker", "text": "唤醒", "lane": {"worker": "running"}, "note": "事件就绪，回到就绪队列"},
+    {"at": "worker", "text": "继续运行", "note": "再次被调度，从阻塞点继续"},
+    {"at": "worker", "text": "return", "lane": {"worker": "done"}, "note": "线程终止，退出值或返回值保留"},
+    {"span": ["main", "worker"], "text": "join()", "lane": {"main": "blocked"}, "note": "join 阻塞到线程终止，再回收；与 detach 二选一"},
+    {"span": ["main", "worker"], "text": "join 返回", "lane": {"main": "running"}, "note": "回收完成后 join 返回，主线程继续"}
+  ],
+  "speed": 1400
+}

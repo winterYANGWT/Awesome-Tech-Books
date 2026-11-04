@@ -1,0 +1,29 @@
+{
+  "kind": "seq",
+  "title": "任务在生产者手里：终止已经成立",
+  "alt": "主线程的回路还没入队，三个 worker 看到都空闲就退出，回路随后入队却没人处理",
+  "speed": 1500,
+  "lanes": [
+    {"id": "main", "label": "主线程"},
+    {"id": "t0", "label": "线程 0"},
+    {"id": "t1", "label": "线程 1"},
+    {"id": "t2", "label": "线程 2"},
+    {"id": "q", "label": "工作队列", "role": "memory"}
+  ],
+  "state": [
+    {"id": "qlen", "label": "队列任务数", "value": "0"},
+    {"id": "idle", "label": "空闲线程数", "value": "0"},
+    {"id": "finished", "label": "终止标志", "value": "否"}
+  ],
+  "steps": [
+    {"at": "main", "text": "手里有一条回路", "note": "主线程有一条新回路，还没写进队列"},
+    {"at": "t0", "text": "队列空，登记空闲", "set": {"idle": "1"}, "note": "线程 0 看队列为空，空闲数加一"},
+    {"at": "t1", "text": "也登记空闲", "set": {"idle": "2"}, "note": "线程 1 随后也登记空闲"},
+    {"at": "t2", "text": "最后一个空闲", "set": {"idle": "3"}, "note": "线程 2 最后登记，空闲数等于线程数 3"},
+    {"at": "t2", "text": "宣布结束", "tone": "bad", "set": {"finished": "是"}, "note": "它认为所有线程都空闲，宣布搜索结束"},
+    {"span": ["t0", "t1", "t2"], "text": "都退出", "set": {"idle": "0"}, "lane": {"t0": "done", "t1": "done", "t2": "done"}, "note": "三个 worker 都离开，队列仍空"},
+    {"from": "main", "to": "q", "text": "入队", "set": {"qlen": "1"}, "note": "主线程这时才把回路放进队列"},
+    {"at": "q", "text": "没人取", "tone": "bad", "note": "worker 都已退出，任务留在队列里"},
+    {"at": "main", "text": "等不到结果", "tone": "bad", "note": "没有 worker 取任务，搜索漏掉这条枝"}
+  ]
+}

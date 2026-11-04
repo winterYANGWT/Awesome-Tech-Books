@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "先行发生由序前于和同步于接成",
+  "alt": "A 写 data、A unlock、B lock、B 读 data 四条边接成一条链，传递出跨线程的先行发生",
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "a1", "label": "A 写 data", "at": [0, 0], "shape": "round"},
+    {"id": "b2", "label": "B 读 data", "at": [3, 0], "shape": "round"},
+    {"id": "a2", "label": "A unlock", "at": [0, 1], "shape": "round", "sub": "释放"},
+    {"id": "b1", "label": "B lock", "at": [2, 1], "shape": "round", "sub": "获取"}
+  ],
+  "edges": [
+    {"id": "sb1", "from": "a1", "to": "a2", "label": "序前于"},
+    {"id": "sw", "from": "a2", "to": "b1", "label": "同步于", "dashed": true},
+    {"id": "sb2", "from": "b1", "to": "b2", "label": "序前于"},
+    {"id": "hb", "from": "a1", "to": "b2", "label": "传递：先行发生", "fromSide": "right", "toSide": "left"}
+  ],
+  "steps": [
+    {"note": "实线是先行发生（线程内的序前于或传递结果），虚线是跨线程的同步于"},
+    {"tone": {"hb": "ok", "sw": "hot"}, "note": "A 写 → A unlock → B lock → B 读，传递出先行发生"}
+  ],
+  "static": true
+}

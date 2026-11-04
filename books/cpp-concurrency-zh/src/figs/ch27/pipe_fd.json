@@ -1,0 +1,21 @@
+{
+  "kind": "seq",
+  "title": "管道：写 3 字节、读 3 字节、关闭写端、EOF",
+  "alt": "父子各关不用的一端，最后一个写端关闭后 read 才返回 0",
+  "lanes": [
+    {"id": "child", "label": "子进程"},
+    {"id": "pipe", "label": "管道", "role": "memory"},
+    {"id": "parent", "label": "父进程"}
+  ],
+  "state": [
+    {"id": "buf", "label": "管道里的字节", "value": "—"},
+    {"id": "writers", "label": "写端数", "value": "2"}
+  ],
+  "steps": [
+    {"at": "child", "text": "`close(fd[1])`", "set": {"writers": "1"}, "note": "子进程先关掉自己的写端副本"},
+    {"from": "parent", "to": "pipe", "text": "write \"abc\"", "set": {"buf": "abc"}, "note": "父进程写 3 个字节，管道里有数据"},
+    {"from": "pipe", "to": "child", "text": "read 3 字节", "set": {"buf": "—"}, "note": "子进程读到 3，返回值是 3"},
+    {"at": "parent", "text": "`close(fd[1])`", "set": {"writers": "0"}, "note": "父进程关闭最后一个写端，此后没有写者"},
+    {"from": "pipe", "to": "child", "text": "read 返回 0", "tone": "ok", "note": "没有写端了，read 返回 0：这是 EOF，不是读到了空数据"}
+  ]
+}

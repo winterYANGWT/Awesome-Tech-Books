@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "relaxed：x、y 各有一条修改顺序",
+  "alt": "relaxed 下写线程先写 x 再写 y，读线程 B 先看到 y 的新值、再看 x 的旧值",
+  "lanes": [
+    {"id": "w", "label": "写线程"},
+    {"id": "x", "label": "x", "role": "memory"},
+    {"id": "y", "label": "y", "role": "memory"},
+    {"id": "a", "label": "读线程 A"},
+    {"id": "b", "label": "读线程 B"}
+  ],
+  "state": [
+    {"id": "x", "label": "x", "value": "0"},
+    {"id": "y", "label": "y", "value": "0"}
+  ],
+  "steps": [
+    {"from": "w", "to": "x", "text": "写 1", "set": {"x": "1"}, "note": "x 的修改顺序：0 之后是 1（relaxed 写）"},
+    {"from": "w", "to": "y", "text": "写 1", "set": {"y": "1"}, "note": "y 的修改顺序也是 0 之后是 1，和 x 没有先后约束（relaxed 写）"},
+    {"from": "y", "to": "a", "text": "读到 1", "note": "读线程 A 用 relaxed 先看 y，看到新值"},
+    {"from": "x", "to": "a", "text": "读到 1", "note": "A 再看 x，也看到新值"},
+    {"from": "y", "to": "b", "text": "读到 1", "note": "读线程 B 也先看 y，看到新值"},
+    {"from": "x", "to": "b", "text": "读到 0", "tone": "bad", "note": "在 relaxed 下，B 后看 x 却还是旧值：两条线各自单调，合起来没有统一时间线"}
+  ]
+}

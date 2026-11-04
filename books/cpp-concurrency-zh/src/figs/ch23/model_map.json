@@ -1,0 +1,158 @@
+{
+  "kind": "seq",
+  "title": "四套执行模型的旋钮对照",
+  "alt": "C++17 策略少旋钮；OpenMP 有子句；TBB 有 partitioner；C++26 交给 scheduler",
+  "static": true,
+  "lanes": [
+    {
+      "id": "p",
+      "label": "C++17 策略"
+    },
+    {
+      "id": "omp",
+      "label": "OpenMP"
+    },
+    {
+      "id": "tbb",
+      "label": "TBB"
+    },
+    {
+      "id": "ex",
+      "label": "std::execution"
+    }
+  ],
+  "steps": [
+    {
+      "label": "线程数",
+      "ops": [
+        {
+          "at": "p",
+          "text": "不能指定"
+        },
+        {
+          "at": "omp",
+          "text": "`num_threads`"
+        },
+        {
+          "at": "tbb",
+          "text": "`global_control`"
+        },
+        {
+          "at": "ex",
+          "text": "scheduler 决定"
+        }
+      ],
+      "note": "线程数：策略没有参数，OpenMP 和 TBB 各有自己的旋钮"
+    },
+    {
+      "label": "块大小",
+      "ops": [
+        {
+          "at": "p",
+          "text": "不能指定"
+        },
+        {
+          "at": "omp",
+          "text": "`schedule` 的 chunk"
+        },
+        {
+          "at": "tbb",
+          "text": "`blocked_range`"
+        },
+        {
+          "at": "ex",
+          "text": "scheduler 决定"
+        }
+      ],
+      "note": "块大小：只有 OpenMP 和 TBB 让调用者参与划分"
+    },
+    {
+      "label": "调度",
+      "ops": [
+        {
+          "at": "p",
+          "text": "不能指定"
+        },
+        {
+          "at": "omp",
+          "text": "static/dynamic"
+        },
+        {
+          "at": "tbb",
+          "text": "`partitioner`"
+        },
+        {
+          "at": "ex",
+          "text": "scheduler 决定"
+        }
+      ],
+      "note": "调度：TBB 的 partitioner 和 OpenMP 的 schedule 是两套不同接口"
+    },
+    {
+      "label": "归约",
+      "ops": [
+        {
+          "at": "p",
+          "text": "`reduce` 等"
+        },
+        {
+          "at": "omp",
+          "text": "`reduction`"
+        },
+        {
+          "at": "tbb",
+          "text": "`parallel_reduce`"
+        },
+        {
+          "at": "ex",
+          "text": "`when_all` + `then`"
+        }
+      ],
+      "note": "归约：四套模型都提供某种组合子，形状各不相同"
+    },
+    {
+      "label": "异常",
+      "ops": [
+        {
+          "at": "p",
+          "text": "terminate"
+        },
+        {
+          "at": "omp",
+          "text": "区内捕获"
+        },
+        {
+          "at": "tbb",
+          "text": "等待点重抛"
+        },
+        {
+          "at": "ex",
+          "text": "错误通道"
+        }
+      ],
+      "note": "异常：策略版直接终止；TBB 在等待点重抛；sender 走错误通道"
+    },
+    {
+      "label": "标准状态",
+      "ops": [
+        {
+          "at": "p",
+          "text": "C++17"
+        },
+        {
+          "at": "omp",
+          "text": "OpenMP 4.5"
+        },
+        {
+          "at": "tbb",
+          "text": "oneTBB 库"
+        },
+        {
+          "at": "ex",
+          "text": "C++26 未实现"
+        }
+      ],
+      "note": "标准状态：C++26 的 std::execution 本机编译器还没有实现"
+    }
+  ]
+}

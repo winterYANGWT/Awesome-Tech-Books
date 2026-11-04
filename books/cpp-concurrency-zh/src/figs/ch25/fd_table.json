@@ -1,0 +1,99 @@
+{
+  "kind": "flow",
+  "title": "fork 后父子共享同一个打开文件描述",
+  "alt": "父子的 fd 3 指向同一个打开文件描述，偏移和状态标志只有一份",
+  "static": true,
+  "grid": [
+    5,
+    3
+  ],
+  "bands": [
+    {
+      "label": "父进程",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "子进程（fork 后）",
+      "rows": [
+        2,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "pfdt",
+      "label": "父 fd 表",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "store",
+      "sub": "fd 3"
+    },
+    {
+      "id": "cfdt",
+      "label": "子 fd 表",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "store",
+      "sub": "fd 3"
+    },
+    {
+      "id": "ofd",
+      "label": "打开文件描述",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "store",
+      "sub": "offset + 状态标志"
+    },
+    {
+      "id": "file",
+      "label": "文件",
+      "at": [
+        4,
+        1
+      ],
+      "shape": "box",
+      "sub": "磁盘上的数据"
+    }
+  ],
+  "edges": [
+    {
+      "id": "p2o",
+      "from": "pfdt",
+      "to": "ofd",
+      "label": "同一项",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "c2o",
+      "from": "cfdt",
+      "to": "ofd",
+      "label": "同一项",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "o2f",
+      "from": "ofd",
+      "to": "file",
+      "label": "读/写",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ],
+  "steps": [
+    {
+      "note": "fd 表复制的是引用：父子各有一个 fd 3，但都指向同一个打开文件描述，共享偏移和状态标志"
+    }
+  ]
+}

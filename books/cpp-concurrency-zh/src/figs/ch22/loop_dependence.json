@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "Fibonacci 的循环携带依赖：读发生在写之前",
+  "alt": "线程 1 先读还没被线程 0 写入的 f[2]，读到 -1，算出的 f[3] 变成 0",
+  "speed": 1500,
+  "lanes": [
+    {"id": "t0", "label": "线程 0"},
+    {"id": "f", "label": "数组 f", "role": "memory"},
+    {"id": "t1", "label": "线程 1"}
+  ],
+  "state": [
+    {"id": "f2", "label": "f[2]", "value": "-1"},
+    {"id": "f3", "label": "f[3]", "value": "-1"}
+  ],
+  "steps": [
+    {"at": "t0", "text": "读 f[0], f[1]", "note": "线程 0 负责 f[2]，先读前两项"},
+    {"from": "f", "to": "t1", "text": "读 f[2] = -1", "tone": "bad", "note": "线程 1 负责 f[3]，但 f[2] 还没被写入"},
+    {"at": "t0", "text": "算 f[2] = 2", "tone": "hot", "note": "线程 0 这时才算出 f[2]"},
+    {"from": "t0", "to": "f", "text": "写 2", "set": {"f2": "2"}, "note": "线程 0 写入 f[2]"},
+    {"at": "t1", "text": "算 f[3] = 0", "tone": "bad", "note": "第 2 步的读发生在第 4 步的写之前，线程 1 用的是 -1"},
+    {"from": "t1", "to": "f", "text": "写 0", "tone": "bad", "set": {"f3": "0"}, "note": "错误的值被写进 f[3]"},
+    {"at": "f", "text": "检查：出现 0", "tone": "bad", "note": "最后数组里出现 0 或负数；换 schedule 不能消除依赖"}
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "atomic_ref：对象没变，访问方式变了",
+  "alt": "普通 int 数组的元素先过对齐检查，再包成 atomic_ref 视图",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "array", "label": "int 数组", "at": [0, 1], "shape": "store", "sub": "普通对象"},
+    {"id": "align", "label": "对齐检查", "at": [1, 1], "sub": "required_alignment"},
+    {"id": "r0", "label": "atomic_ref", "at": [2, 0], "shape": "round", "sub": "元素 0"},
+    {"id": "r1", "label": "atomic_ref", "at": [2, 2], "shape": "round", "sub": "元素 1"}
+  ],
+  "edges": [
+    {"id": "addr", "from": "array", "to": "align", "label": "取地址"},
+    {"id": "ref0", "from": "align", "to": "r0", "label": "通过"},
+    {"id": "ref1", "from": "align", "to": "r1", "label": "通过"}
+  ],
+  "static": true,
+  "steps": [
+    {"hi": ["array"], "note": "底层还是普通 int 数组，元素类型没有改"},
+    {"hi": ["align"], "note": "每个元素地址先满足 required_alignment"},
+    {"hi": ["r0", "r1"], "note": "两段访问各包一层 atomic_ref，所有访问都要走它"}
+  ]
+}

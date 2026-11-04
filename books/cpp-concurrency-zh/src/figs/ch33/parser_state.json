@@ -1,0 +1,29 @@
+{
+  "kind": "flow",
+  "title": "增量解析：半行停住，下次从下标继续",
+  "alt": "几次 recv 先后带来半行、换行和下一行，状态机在 Command/Key/Value/Done 之间前进",
+  "grid": [3, 2],
+  "nodes": [
+    {"id": "cmd", "label": "Command", "at": [0, 0], "sub": "读命令"},
+    {"id": "key", "label": "Key", "at": [1, 0], "sub": "读 key"},
+    {"id": "done", "label": "Done", "at": [2, 0], "sub": "吐出一个请求"},
+    {"id": "val", "label": "Value", "at": [1, 1], "sub": "SET 才有"},
+    {"id": "idx", "label": "三个下标", "at": [0, 1], "sub": "checked/read/start"},
+    {"id": "buf", "label": "缓冲区", "at": [2, 1], "sub": "SET a"}
+  ],
+  "edges": [
+    {"id": "cmd_key", "from": "cmd", "to": "key", "label": "空格"},
+    {"id": "key_val", "from": "key", "to": "val", "label": "SET 空格"},
+    {"id": "val_done", "from": "val", "to": "done", "label": "换行"},
+    {"id": "key_done", "from": "key", "to": "done", "label": "GET/DEL 换行"}
+  ],
+  "steps": [
+    {"token": [{"edge": "cmd_key", "label": "SET"}], "set": {"buf": "SET a", "idx": "5/5/0"}, "hi": ["cmd_key"], "note": "第一批只有 'SET a'，停在 Key"},
+    {"hi": ["key"], "note": "没有换行：返回，缓冲区原样保留"},
+    {"token": [{"edge": "val_done", "label": "换行"}], "set": {"buf": "SET a 1\\n", "idx": "8/8/8"}, "hi": ["val_done"], "note": "第二批带来 ' 1' 和换行，SET 行完成"},
+    {"token": [{"edge": "cmd_key", "label": "GET"}], "set": {"buf": "SET a 1\\nGET ", "idx": "12/12/8"}, "hi": ["cmd_key"], "note": "下一批带来 'GET '，从第 8 字节开始新的一行"},
+    {"hi": ["key"], "note": "从 checked_index=12 继续，不重新扫描前半行"},
+    {"token": [{"edge": "key_done", "label": "换行"}], "set": {"buf": "SET a 1\\nGET a\\n", "idx": "14/14/14"}, "hi": ["key_done"], "note": "GET 只有 key，收到 'a' 和换行就完成，start_line 移到 14"},
+    {"set": {"buf": "（已消费 14 字节）"}, "hi": ["done"], "note": "请求已取走；下一次 recv 追加到缓冲区尾部"}
+  ]
+}

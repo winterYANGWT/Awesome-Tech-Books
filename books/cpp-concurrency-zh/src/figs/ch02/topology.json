@@ -1,0 +1,132 @@
+{
+  "kind": "flow",
+  "title": "本机拓扑：16 核 32 线程、两块 L3",
+  "alt": "32 个逻辑 CPU 两两共享 16 个物理核；两个 32 MiB L3，一个 NUMA 节点",
+  "static": true,
+  "grid": [
+    3,
+    3
+  ],
+  "bands": [
+    {
+      "label": "一个 NUMA 节点",
+      "rows": [
+        0,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "cpuA",
+      "label": "逻辑 CPU 0–15",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "每核 1 个 SMT 线程"
+    },
+    {
+      "id": "cpuB",
+      "label": "逻辑 CPU 16–31",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "每核另 1 个 SMT 线程"
+    },
+    {
+      "id": "cores",
+      "label": "16 个物理核",
+      "at": [
+        0,
+        1
+      ],
+      "span": [
+        3,
+        1
+      ],
+      "sub": "每核私有 L1d 48 KiB\nL2 1 MiB"
+    },
+    {
+      "id": "l3a",
+      "label": "L3 0：32 MiB",
+      "at": [
+        0,
+        2
+      ],
+      "sub": "8 个物理核共享"
+    },
+    {
+      "id": "dram",
+      "label": "DRAM",
+      "at": [
+        1,
+        2
+      ],
+      "sub": "本地内存"
+    },
+    {
+      "id": "l3b",
+      "label": "L3 1：32 MiB",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "另 8 个物理核共享"
+    }
+  ],
+  "edges": [
+    {
+      "id": "smtA",
+      "from": "cpuA",
+      "to": "cores",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "smtB",
+      "from": "cpuB",
+      "to": "cores",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "coreA",
+      "from": "cores",
+      "to": "l3a",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "coreB",
+      "from": "cores",
+      "to": "l3b",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "memA",
+      "from": "l3a",
+      "to": "dram",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "memB",
+      "from": "l3b",
+      "to": "dram",
+      "fromSide": "left",
+      "toSide": "right"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "cpuA",
+        "cpuB"
+      ],
+      "note": "hardware_concurrency() 数到的是最上面这 32 个逻辑 CPU"
+    }
+  ]
+}

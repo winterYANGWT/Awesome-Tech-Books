@@ -1,0 +1,29 @@
+{
+  "kind": "flow",
+  "title": "四种结构：锁和队列的位置不同",
+  "alt": "同一份压测客户端分别走单线程 epoll、半同步/半反应堆、每 worker epoll 和进程池",
+  "grid": [3, 4],
+  "nodes": [
+    {"id": "client", "label": "同一个 kvbench", "at": [0, 0], "span": [1, 4], "shape": "round", "sub": "C 条连接"},
+    {"id": "epoll", "label": "单线程 epoll", "at": [1, 0], "sub": "无锁"},
+    {"id": "hsr", "label": "半同步/半反应堆", "at": [1, 1], "sub": "有界队列 + 锁"},
+    {"id": "per", "label": "每 worker epoll", "at": [1, 2], "sub": "无共享"},
+    {"id": "pool", "label": "进程池", "at": [1, 3], "sub": "共享内存 + 锁"},
+    {"id": "store", "label": "存储", "at": [2, 0], "span": [1, 4], "shape": "store", "sub": "桶锁 / 进程共享"}
+  ],
+  "edges": [
+    {"id": "c0", "from": "client", "to": "epoll"},
+    {"id": "c1", "from": "client", "to": "hsr"},
+    {"id": "c2", "from": "client", "to": "per"},
+    {"id": "c3", "from": "client", "to": "pool"},
+    {"id": "s0", "from": "epoll", "to": "store"},
+    {"id": "s1", "from": "hsr", "to": "store"},
+    {"id": "s2", "from": "per", "to": "store"},
+    {"id": "s3", "from": "pool", "to": "store"}
+  ],
+  "steps": [
+    {"hi": ["client"], "note": "同一份 kvbench，同一组连接数和请求数"},
+    {"tone": {"hsr": "wait", "pool": "wait"}, "note": "锁和队列的位置不同，瓶颈就不同"}
+  ],
+  "static": true
+}

@@ -1,0 +1,123 @@
+{
+  "kind": "flow",
+  "title": "单锁队列：一把锁串起生产、入队、取走",
+  "alt": "生产者和消费者都先过同一把 mutex；条件变量只负责等待和唤醒",
+  "grid": [
+    4,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "p",
+      "label": "生产者",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "lock",
+      "label": "mutex",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "唯一的一把"
+    },
+    {
+      "id": "q",
+      "label": "任务队列",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "queue",
+      "slots": 3
+    },
+    {
+      "id": "c",
+      "label": "消费者",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "cv",
+      "label": "条件变量",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "wait(lock, pred)"
+    }
+  ],
+  "edges": [
+    {
+      "id": "push",
+      "from": "p",
+      "to": "lock",
+      "label": "push"
+    },
+    {
+      "id": "enqueue",
+      "from": "lock",
+      "to": "q",
+      "label": "入队"
+    },
+    {
+      "id": "take",
+      "from": "q",
+      "to": "c",
+      "label": "wait_pop"
+    },
+    {
+      "id": "wait",
+      "from": "c",
+      "to": "cv",
+      "label": "wait / 唤醒",
+      "dashed": true,
+      "fromSide": "bottom",
+      "toSide": "right",
+      "route": "vh",
+      "arrow": "both"
+    },
+    {
+      "id": "notify",
+      "from": "p",
+      "to": "cv",
+      "label": "notify_one",
+      "dashed": true,
+      "fromSide": "bottom",
+      "toSide": "left",
+      "route": "vh"
+    }
+  ],
+  "steps": [
+    {
+      "queue": {
+        "q": [
+          "A"
+        ]
+      },
+      "token": [
+        {
+          "edge": "push",
+          "label": "A"
+        },
+        {
+          "edge": "notify",
+          "label": "notify_one"
+        }
+      ],
+      "hi": [
+        "lock",
+        "cv"
+      ],
+      "note": "生产者持锁入队，解锁后 notify_one；消费者被唤醒后重新拿同一把锁，先查谓词再取"
+    }
+  ],
+  "static": true
+}

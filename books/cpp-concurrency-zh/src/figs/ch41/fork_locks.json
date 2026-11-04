@@ -1,0 +1,148 @@
+{
+  "kind": "flow",
+  "title": "fork 复制了锁的状态，没复制锁的属主",
+  "alt": "fork 复制了锁的状态，没复制属主：子进程里的锁仍 locked，再 lock 就睡死",
+  "grid": [
+    3,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "parent",
+      "label": "父进程",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round",
+      "sub": "线程 1、线程 2"
+    },
+    {
+      "id": "plock",
+      "label": "`log_mutex`",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "store",
+      "sub": "已被线程 1 锁住"
+    },
+    {
+      "id": "fork",
+      "label": "`fork()`",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "round",
+      "sub": "只复制调用线程"
+    },
+    {
+      "id": "child",
+      "label": "子进程",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round",
+      "sub": "只剩线程 2",
+      "hidden": true
+    },
+    {
+      "id": "clock",
+      "label": "锁的副本",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "store",
+      "sub": "仍是 locked",
+      "hidden": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "call",
+      "from": "parent",
+      "to": "fork",
+      "label": "线程 2 调用"
+    },
+    {
+      "id": "copy",
+      "from": "fork",
+      "to": "child",
+      "label": "复制地址空间"
+    },
+    {
+      "id": "lockcopy",
+      "from": "plock",
+      "to": "clock",
+      "label": "原样复制",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "parent",
+        "plock"
+      ],
+      "note": "父进程有两个线程，线程 1 持有日志锁"
+    },
+    {
+      "token": [
+        {
+          "edge": "call",
+          "label": "fork"
+        }
+      ],
+      "hi": [
+        "fork"
+      ],
+      "note": "线程 2 调用 fork，另外的线程不会被复制"
+    },
+    {
+      "show": [
+        "child"
+      ],
+      "token": [
+        {
+          "edge": "copy",
+          "label": "COW"
+        }
+      ],
+      "note": "子进程只有线程 2，地址空间是写时复制"
+    },
+    {
+      "show": [
+        "clock"
+      ],
+      "token": [
+        {
+          "edge": "lockcopy",
+          "label": "locked"
+        }
+      ],
+      "note": "锁变量也复制了一份，状态还是“已加锁”"
+    },
+    {
+      "hi": [
+        "clock",
+        "child"
+      ],
+      "tone": {
+        "clock": "bad"
+      },
+      "note": "锁的属主线程 1 不在子进程里，永远没人解锁"
+    },
+    {
+      "hi": [
+        "child"
+      ],
+      "tone": {
+        "child": "bad"
+      },
+      "note": "子进程再 lock 就永远睡眠；不 exec 就只能退出"
+    }
+  ]
+}

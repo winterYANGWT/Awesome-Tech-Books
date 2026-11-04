@@ -1,0 +1,185 @@
+{
+  "kind": "flow",
+  "title": "provided buffer：内核挑一块",
+  "alt": "内核从注册的缓冲区池取一块写入，CQE 的 flags 带回 bid；用户处理完才能归还",
+  "grid": [
+    3,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "app",
+      "label": "用户线程",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "kernel",
+      "label": "内核",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "pool",
+      "label": "缓冲区池",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "queue",
+      "slots": 4,
+      "sub": "4 个空闲"
+    }
+  ],
+  "edges": [
+    {
+      "id": "reg",
+      "from": "app",
+      "to": "pool",
+      "label": "注册"
+    },
+    {
+      "id": "submit",
+      "from": "app",
+      "to": "kernel",
+      "label": "recv + BGID"
+    },
+    {
+      "id": "take",
+      "from": "pool",
+      "to": "kernel",
+      "label": "取 buffer"
+    },
+    {
+      "id": "post",
+      "from": "kernel",
+      "to": "app",
+      "label": "CQE bid"
+    },
+    {
+      "id": "give",
+      "from": "app",
+      "to": "pool",
+      "label": "归还",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "reg",
+          "label": "4 个"
+        }
+      ],
+      "queue": {
+        "pool": [
+          "b0",
+          "b1",
+          "b2",
+          "b3"
+        ]
+      },
+      "set": {
+        "pool": "4 个空闲"
+      },
+      "hi": [
+        "reg"
+      ],
+      "note": "用户把 4 块缓冲注册进 buffer ring，每块有自己的 bid"
+    },
+    {
+      "token": [
+        {
+          "edge": "submit",
+          "label": "recv"
+        }
+      ],
+      "hi": [
+        "submit"
+      ],
+      "set": {
+        "app": "等 CQE"
+      },
+      "note": "SQE 设 IOSQE_BUFFER_SELECT，地址填 NULL，只给 buffer group"
+    },
+    {
+      "token": [
+        {
+          "edge": "take",
+          "label": "b0"
+        }
+      ],
+      "queue": {
+        "pool": [
+          "b1",
+          "b2",
+          "b3"
+        ]
+      },
+      "set": {
+        "kernel": "写入 b0",
+        "pool": "3 个空闲"
+      },
+      "hi": [
+        "take"
+      ],
+      "note": "数据到达时内核才从池里取一块，不提前占内存"
+    },
+    {
+      "token": [
+        {
+          "edge": "post",
+          "label": "bid=0"
+        }
+      ],
+      "set": {
+        "kernel": "完成",
+        "app": "处理 26 字节"
+      },
+      "hi": [
+        "post"
+      ],
+      "note": "res 是字节数；IORING_CQE_F_BUFFER 置位时，flags 高 16 位是 bid"
+    },
+    {
+      "token": [
+        {
+          "edge": "give",
+          "label": "b0"
+        }
+      ],
+      "queue": {
+        "pool": [
+          "b1",
+          "b2",
+          "b3",
+          "b0"
+        ]
+      },
+      "set": {
+        "pool": "4 个空闲",
+        "app": "归还 b0"
+      },
+      "hi": [
+        "give"
+      ],
+      "note": "处理完才把 b0 加回 ring；CQE 回来之前不能复用"
+    },
+    {
+      "hi": [
+        "pool"
+      ],
+      "tone": {
+        "pool": "wait"
+      },
+      "note": "池空时 recv 以 -ENOBUFS 结束，multishot 也停；要及时归还或补缓冲"
+    }
+  ]
+}

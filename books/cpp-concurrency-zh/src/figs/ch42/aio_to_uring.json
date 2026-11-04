@@ -1,0 +1,169 @@
+{
+  "kind": "flow",
+  "title": "从 glibc AIO 到 io_uring",
+  "alt": "glibc AIO 用辅助线程模拟，内核 AIO 覆盖文件操作和 poll，io_uring 用 SQ/CQ 报完成",
+  "grid": [
+    4,
+    3
+  ],
+  "bands": [
+    {
+      "label": "glibc POSIX AIO",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "内核 AIO",
+      "rows": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "io_uring",
+      "rows": [
+        2,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "aio",
+      "label": "aio_read",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "helper",
+      "label": "辅助线程",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "round",
+      "sub": "用户态模拟"
+    },
+    {
+      "id": "submit",
+      "label": "io_submit",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "fileop",
+      "label": "文件/fsync/poll",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "无 accept/recv"
+    },
+    {
+      "id": "sqe",
+      "label": "SQE",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "queue",
+      "slots": 2
+    },
+    {
+      "id": "kernel",
+      "label": "内核执行",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "cqe",
+      "label": "CQE",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "queue",
+      "slots": 2
+    },
+    {
+      "id": "app",
+      "label": "应用收割",
+      "at": [
+        3,
+        2
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "aio",
+      "to": "helper",
+      "label": "交给线程"
+    },
+    {
+      "id": "e2",
+      "from": "submit",
+      "to": "fileop",
+      "label": "文件、poll"
+    },
+    {
+      "id": "e3",
+      "from": "sqe",
+      "to": "kernel",
+      "label": "提交"
+    },
+    {
+      "id": "e4",
+      "from": "kernel",
+      "to": "cqe",
+      "label": "完成"
+    },
+    {
+      "id": "e5",
+      "from": "cqe",
+      "to": "app",
+      "label": "res"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "hi": [
+        "aio",
+        "helper"
+      ],
+      "note": "aio_read 在 glibc 里交给用户态辅助线程，不是内核异步"
+    },
+    {
+      "hi": [
+        "submit",
+        "fileop"
+      ],
+      "note": "内核 AIO 的 opcode 有文件读写、fsync、poll，没有 accept/recv"
+    },
+    {
+      "hi": [
+        "sqe",
+        "kernel"
+      ],
+      "note": "io_uring 把请求写进 SQ，由内核执行"
+    },
+    {
+      "hi": [
+        "cqe",
+        "app"
+      ],
+      "note": "完成写进 CQ，应用读 res：完成式，不是就绪式"
+    }
+  ]
+}

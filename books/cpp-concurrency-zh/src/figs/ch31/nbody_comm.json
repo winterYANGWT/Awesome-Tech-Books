@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "n 体的两种通信模式",
+  "alt": "Allgather 每一步让所有 rank 互相广播位置，环形传递只和左右邻居交换，轮数随 p 增长",
+  "grid": [4, 3],
+  "static": true,
+  "nodes": [
+    {"id": "local", "label": "本地粒子块", "at": [0, 1], "shape": "store", "sub": "n/p 个粒子"},
+    {"id": "all", "label": "Allgather", "at": [1, 0], "sub": "所有 rank 互发\nO(n) 数据"},
+    {"id": "ring", "label": "环形传递", "at": [1, 2], "sub": "只发邻居\np−1 轮"},
+    {"id": "force", "label": "每步算力", "at": [2, 1], "sub": "本地粒子 × 全部粒子"},
+    {"id": "next", "label": "下一步", "at": [3, 1], "sub": "更新位置和速度"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "local", "to": "all", "label": "收集位置"},
+    {"id": "e2", "from": "local", "to": "ring", "label": "轮转位置"},
+    {"id": "e3", "from": "all", "to": "force"},
+    {"id": "e4", "from": "ring", "to": "force"},
+    {"id": "e5", "from": "force", "to": "next"}
+  ],
+  "steps": [
+    {"hi": ["local"], "note": "每个 rank 负责 n/p 个粒子的位置、速度和力"},
+    {"hi": ["all"], "tone": {"all": "hot"}, "note": "Allgather：每步所有 rank 互相广播，人人拿到全部位置"},
+    {"hi": ["ring"], "tone": {"ring": "hot"}, "note": "环形传递：只和左右邻居交换，但要走 p−1 轮才见全"},
+    {"hi": ["force", "next"], "note": "p 越大，Allgather 的参与者越多，环形的轮数也越多"}
+  ]
+}

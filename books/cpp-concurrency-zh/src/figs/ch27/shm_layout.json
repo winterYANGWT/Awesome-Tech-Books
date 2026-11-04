@@ -1,0 +1,19 @@
+{
+  "kind": "flow",
+  "title": "同一块物理页映射进两个地址空间",
+  "alt": "两个进程的虚拟地址不同，偏移相同；所以共享段里只能存偏移或下标",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "a", "label": "进程 A", "at": [0, 0], "shape": "round", "sub": "映射到 0x7f…1000"},
+    {"id": "b", "label": "进程 B", "at": [2, 0], "shape": "round", "sub": "映射到 0x7f…3000"},
+    {"id": "page", "label": "同一块物理页", "at": [1, 1], "shape": "store", "sub": "key/value 字节"},
+    {"id": "hint", "label": "指针不能过去", "at": [1, 2], "shape": "note", "sub": "0x7f…1050 ≠ 0x7f…3050"}
+  ],
+  "edges": [
+    {"id": "ea", "from": "a", "to": "page", "label": "mmap"},
+    {"id": "eb", "from": "b", "to": "page", "label": "mmap"}
+  ],
+  "steps": [
+    {"hi": ["page"], "note": "两个进程各有一张页表，页表项指向同一个物理页框"}
+  ]
+}

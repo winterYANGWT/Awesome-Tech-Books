@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "try_lock 失败就全放，退避后重试",
+  "alt": "A 拿到 m1 后试 m2 失败，释放 m1，等 B 离开后重试成功",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "m1", "label": "m1", "value": "空闲"},
+    {"id": "m2", "label": "m2", "value": "空闲"}
+  ],
+  "steps": [
+    {"at": "b", "text": "`lock(m2)` 成功", "set": {"m2": "B 持有"}, "note": "B 先占住 m2，正在临界区里"},
+    {"at": "a", "text": "`try_lock(m1)` 成功", "set": {"m1": "A 持有"}, "note": "A 先拿到 m1，这一步没有阻塞"},
+    {"at": "a", "text": "`try_lock(m2)` 失败", "tone": "wait", "note": "m2 在 B 手里；若用 lock(m2)，A 就停在这里"},
+    {"at": "a", "text": "释放 m1", "set": {"m1": "空闲"}, "note": "拿不到就全放，不持有半套锁"},
+    {"at": "b", "text": "释放 m2", "set": {"m2": "空闲"}, "note": "B 离开临界区，m2 空出来"},
+    {"at": "a", "text": "重试：两把都拿到", "set": {"m1": "A 持有", "m2": "A 持有"}, "note": "退避后重试，这次 m1 和 m2 都成功"},
+    {"at": "a", "text": "做完，释放两把", "set": {"m1": "空闲", "m2": "空闲"}, "note": "全锁或全不锁，不会留下半套"}
+  ]
+}

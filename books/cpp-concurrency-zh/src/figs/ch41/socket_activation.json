@@ -1,0 +1,133 @@
+{
+  "kind": "flow",
+  "title": "socket 激活：监听 fd 从 3 号进来",
+  "alt": "systemd 先监听，有连接才启动服务，监听 fd 作为 3 号传入，服务直接 accept",
+  "grid": [
+    3,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "systemd",
+      "label": "systemd",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round",
+      "sub": "按需启动"
+    },
+    {
+      "id": "sock",
+      "label": "监听 socket",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "queue",
+      "slots": 2,
+      "sub": "`.socket` 单元"
+    },
+    {
+      "id": "service",
+      "label": "服务进程",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round",
+      "sub": "fd 3，不设 CLOEXEC",
+      "hidden": true
+    },
+    {
+      "id": "client",
+      "label": "客户端",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "create",
+      "from": "systemd",
+      "to": "sock",
+      "label": "bind + listen"
+    },
+    {
+      "id": "start",
+      "from": "systemd",
+      "to": "service",
+      "label": "start",
+      "dashed": true
+    },
+    {
+      "id": "pass",
+      "from": "sock",
+      "to": "service",
+      "label": "fd 3",
+      "hidden": true
+    },
+    {
+      "id": "conn",
+      "from": "client",
+      "to": "sock",
+      "label": "connect"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "systemd",
+        "sock"
+      ],
+      "note": "systemd 先 bind/listen，服务还没启动"
+    },
+    {
+      "queue": {
+        "sock": [
+          "SYN"
+        ]
+      },
+      "token": [
+        {
+          "edge": "conn",
+          "label": "SYN"
+        }
+      ],
+      "note": "连接到达，进 backlog；服务没起也不丢连接"
+    },
+    {
+      "show": [
+        "service"
+      ],
+      "token": [
+        {
+          "edge": "start",
+          "label": "启动"
+        }
+      ],
+      "note": "systemd 按需启动服务进程"
+    },
+    {
+      "show": [
+        "pass"
+      ],
+      "token": [
+        {
+          "edge": "pass",
+          "label": "fd 3"
+        }
+      ],
+      "note": "监听 fd 作为 fd 3 传入，LISTEN_FDS=1"
+    },
+    {
+      "hi": [
+        "service"
+      ],
+      "note": "服务核对 LISTEN_PID，然后直接 accept(3)，不用自己 bind"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "kind": "seq",
+  "title": "关闭顺序：先全部请求停止，再统一 join",
+  "alt": "主线程依次对 A、B、C 发出停止请求，三个线程并行清理，主线程再逐个 join",
+  "lanes": [
+    {"id": "main", "label": "主线程"},
+    {"id": "a", "label": "线程 A"},
+    {"id": "b", "label": "线程 B"},
+    {"id": "c", "label": "线程 C"}
+  ],
+  "state": [
+    {"id": "a", "label": "A 状态", "value": "运行"},
+    {"id": "b", "label": "B 状态", "value": "运行"},
+    {"id": "c", "label": "C 状态", "value": "运行"}
+  ],
+  "steps": [
+    {"at": "main", "text": "`request_stop(A)`", "set": {"a": "已请求"},
+     "note": "先只发请求，不等待 A 结束"},
+    {"at": "main", "text": "`request_stop(B)`", "set": {"b": "已请求"},
+     "note": "B 也收到请求；A 可能已经开始清理"},
+    {"at": "main", "text": "`request_stop(C)`", "set": {"c": "已请求"},
+     "note": "第 3 步：全部请求发出，不必等前一个清理完"},
+    {"span": ["a", "b", "c"], "text": "三个线程都开始清理",
+     "set": {"a": "清理中", "b": "清理中", "c": "清理中"},
+     "note": "各线程在自己的栈上释放资源，互不等待"},
+    {"span": ["a", "b", "c"], "text": "清理并行进行",
+     "note": "第 5 步：清理并行进行，总时间接近最慢的那个线程"},
+    {"at": "main", "text": "`join(A)`", "lane": {"a": "done"}, "set": {"a": "退出"},
+     "note": "请求都发完了才开始等；A 的清理早已在进行"},
+    {"at": "main", "text": "`join(B)`", "lane": {"b": "done"}, "set": {"b": "退出"},
+     "note": "第 7 步：若改成通知一个等一个，清理会串行，甚至死锁"},
+    {"at": "main", "text": "`join(C)`", "lane": {"c": "done"}, "set": {"c": "退出"},
+     "note": "全部汇入后关闭完成；重复调用要幂等"}
+  ]
+}

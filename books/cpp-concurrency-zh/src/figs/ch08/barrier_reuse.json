@@ -1,0 +1,106 @@
+{
+  "kind": "seq",
+  "title": "一份信号量做两轮屏障：第二轮提前放行",
+  "alt": "最后到达的线程 post 后自己消费许可、提前通过第二轮，图里先到的线程仍在等第一轮",
+  "lanes": [
+    {
+      "id": "t0",
+      "label": "线程 0"
+    },
+    {
+      "id": "t1",
+      "label": "线程 1"
+    },
+    {
+      "id": "s",
+      "label": "barrier_sem",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "permits",
+      "label": "许可",
+      "value": "0"
+    },
+    {
+      "id": "round",
+      "label": "轮次",
+      "value": "1"
+    }
+  ],
+  "steps": [
+    {
+      "from": "t0",
+      "to": "s",
+      "text": "`sem_wait`",
+      "lane": {
+        "t0": "blocked"
+      },
+      "note": "第 1 轮：线程 0 先到，阻塞在 sem_wait"
+    },
+    {
+      "at": "t1",
+      "text": "最后到达",
+      "tone": "hot",
+      "note": "线程 1 是最后一个，按设计由它 sem_post 放行"
+    },
+    {
+      "from": "t1",
+      "to": "s",
+      "text": "`sem_post` × 1",
+      "set": {
+        "permits": "1"
+      },
+      "note": "线程 1 给 barrier_sem 加一个许可"
+    },
+    {
+      "at": "t1",
+      "text": "直接进入第 2 轮",
+      "set": {
+        "round": "2"
+      },
+      "note": "线程 1 不等待，接着开始下一轮"
+    },
+    {
+      "from": "s",
+      "to": "t1",
+      "text": "`sem_wait` 拿到许可",
+      "tone": "bad",
+      "set": {
+        "permits": "0"
+      },
+      "note": "线程 1 把刚 post 的许可自己消费掉，误以为第 2 轮也到齐了"
+    },
+    {
+      "at": "t0",
+      "text": "仍在第 1 轮等待",
+      "tone": "bad",
+      "lane": {
+        "t0": "blocked"
+      },
+      "note": "线程 0 还没被调度，第 1 轮的许可就没了"
+    },
+    {
+      "span": [
+        "t0",
+        "t1"
+      ],
+      "text": "两轮错位",
+      "tone": "bad",
+      "note": "线程 1 通过第 2 轮，线程 0 永久等待；每轮一个信号量或代计数才能修好"
+    },
+    {
+      "span": [
+        "t0",
+        "t1"
+      ],
+      "text": "有代计数：一起通过",
+      "tone": "ok",
+      "note": "对比：改成等代变化后，t0 不会被下一轮的许可带走，两个线程在同一轮对齐",
+      "lane": {
+        "t0": "running"
+      }
+    }
+  ]
+}

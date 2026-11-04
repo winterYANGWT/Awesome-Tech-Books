@@ -1,0 +1,16 @@
+{
+  "kind": "chart",
+  "title": "三个 MPI 案例的加速比",
+  "alt": "排序在进程数增加后很快饱和甚至变慢，n 体随进程数上升，TSP 受负载均衡影响明显",
+  "type": "line",
+  "data": "code/ch31/31_6_bench/output.out",
+  "x": {
+    "label": "进程数",
+    "scale": "log2"
+  },
+  "y": {
+    "label": "加速比",
+    "min": 0
+  },
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），Open MPI 5.0.10，GCC 15 -O2；数字随机器变化"
+}

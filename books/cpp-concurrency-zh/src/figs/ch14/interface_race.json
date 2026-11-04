@@ -1,0 +1,21 @@
+{
+  "kind": "seq",
+  "title": "empty() 和 pop() 之间锁已经释放",
+  "alt": "A 看到栈非空后锁已释放，B 弹走最后一个元素，A 再 pop 就在空栈上取数",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "s", "label": "栈", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "top", "label": "栈内元素", "value": "42"}
+  ],
+  "steps": [
+    {"at": "s", "text": "只剩 42", "note": "栈里只有一个元素 42"},
+    {"from": "s", "to": "a", "text": "`empty()` 非空", "note": "A 在锁内看到非空；函数返回时锁已经释放"},
+    {"at": "a", "text": "锁已释放", "tone": "wait", "note": "两次调用之间没有锁保护，状态可以被别人改"},
+    {"from": "s", "to": "b", "text": "`empty()` 非空", "note": "B 也看到非空，同样在返回时释放了锁"},
+    {"from": "b", "to": "s", "text": "`pop()` 取走 42", "set": {"top": "空"}, "note": "B 弹走最后一个元素，栈变空"},
+    {"from": "a", "to": "s", "text": "`pop()` 空栈", "tone": "bad", "note": "A 现在才 pop：在空栈上取数，未定义行为"}
+  ]
+}

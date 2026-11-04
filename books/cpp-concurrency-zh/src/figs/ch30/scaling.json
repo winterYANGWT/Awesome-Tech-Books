@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "矩阵-向量乘法的强可扩展性",
+  "alt": "固定 n，进程数增加后加速比很快变平，效率下降",
+  "type": "line",
+  "data": "code/ch30/30_5_matvec_scaling/output.out",
+  "x": {"label": "进程数 p", "scale": "log2"},
+  "y": {"label": "加速比 / 效率", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），n=8192，GCC 15 -O2"
+}

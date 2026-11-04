@@ -1,0 +1,96 @@
+{
+  "kind": "flow",
+  "title": "libstdc++ 的 PSTL：策略之下还有后端",
+  "alt": "算法调用策略重载，PSTL 分派到串行或 TBB 后端；TBB 后端才创建线程",
+  "static": true,
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "algo",
+      "label": "算法",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "`for_each(par,…)`"
+    },
+    {
+      "id": "policy",
+      "label": "执行策略",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "`par` / `seq`"
+    },
+    {
+      "id": "pstl",
+      "label": "PSTL",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "按后端分派"
+    },
+    {
+      "id": "serial",
+      "label": "串行后端",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "不建线程"
+    },
+    {
+      "id": "tbb",
+      "label": "TBB 后端",
+      "at": [
+        3,
+        2
+      ],
+      "sub": "TBB 头 + `-ltbb`"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "algo",
+      "to": "policy",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e2",
+      "from": "policy",
+      "to": "pstl",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e3",
+      "from": "pstl",
+      "to": "serial",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e4",
+      "from": "pstl",
+      "to": "tbb",
+      "fromSide": "right",
+      "toSide": "left",
+      "label": "TBB 建线程"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "tbb"
+      ],
+      "note": "装了 TBB 头才编译 TBB 后端；没有头就落到串行分支"
+    }
+  ]
+}

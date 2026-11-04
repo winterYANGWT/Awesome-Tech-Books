@@ -1,0 +1,32 @@
+{
+  "kind": "flow",
+  "title": "数据环境：每种子句一行",
+  "alt": "共享变量和线程副本之间：进入时拷贝、初值不拷贝、退出写回、直接读写",
+  "static": true,
+  "grid": [5, 4],
+  "bands": [
+    {"label": "firstprivate", "rows": [0, 0]},
+    {"label": "private", "rows": [1, 1]},
+    {"label": "lastprivate", "rows": [2, 2]},
+    {"label": "shared", "rows": [3, 3]}
+  ],
+  "nodes": [
+    {"id": "s0", "label": "共享 x", "at": [2, 0], "shape": "store", "sub": "7"},
+    {"id": "t0", "label": "线程副本", "at": [4, 0], "shape": "box", "sub": "7"},
+    {"id": "s1", "label": "共享 x", "at": [2, 1], "shape": "store"},
+    {"id": "t1", "label": "线程副本", "at": [4, 1], "shape": "box", "sub": "未初始化"},
+    {"id": "t2", "label": "线程副本", "at": [2, 2], "shape": "box", "sub": "最后一次"},
+    {"id": "s2", "label": "共享 x", "at": [4, 2], "shape": "store"},
+    {"id": "s3", "label": "counter", "at": [2, 3], "shape": "store", "sub": "0"},
+    {"id": "t3", "label": "线程", "at": [4, 3], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "first", "from": "s0", "to": "t0", "label": "进入时拷贝", "fromSide": "right", "toSide": "left"},
+    {"id": "priv", "from": "s1", "to": "t1", "label": "初值不拷贝", "fromSide": "right", "toSide": "left"},
+    {"id": "last", "from": "t2", "to": "s2", "label": "退出时写回", "fromSide": "right", "toSide": "left"},
+    {"id": "shared", "from": "s3", "to": "t3", "label": "直接读写", "arrow": "both", "fromSide": "right", "toSide": "left"}
+  ],
+  "steps": [
+    {"note": "进入时拷贝、初值不拷贝、退出写回、直接读写，各占一行"}
+  ]
+}

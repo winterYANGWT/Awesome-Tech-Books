@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "两个进程用 P/V 争一个二值信号量",
+  "alt": "A 先 P 到 0 进临界区，B 等待；A 的 V 唤醒 B，B 再 P",
+  "lanes": [
+    {"id": "a", "label": "进程 A"},
+    {"id": "sem", "label": "信号量", "role": "memory"},
+    {"id": "b", "label": "进程 B"}
+  ],
+  "state": [
+    {"id": "value", "label": "信号量的值", "value": "1"},
+    {"id": "owner", "label": "临界区", "value": "空闲"}
+  ],
+  "steps": [
+    {"from": "sem", "to": "a", "text": "P：1 → 0", "set": {"value": "0", "owner": "A"}, "note": "A 的 P 成功，值减到 0，进入临界区"},
+    {"at": "a", "text": "执行临界区", "note": "这段时间里只有 A 在临界区"},
+    {"at": "b", "text": "P：值为 0", "tone": "wait", "lane": {"b": "blocked"}, "note": "B 也要 P，值为 0，只能挂起等待"},
+    {"from": "a", "to": "sem", "text": "V：0 → 1", "set": {"value": "1", "owner": "空闲"}, "note": "A 离开临界区，V 把值加 1 并唤醒等待者"},
+    {"from": "sem", "to": "b", "text": "唤醒", "dashed": true, "lane": {"b": "running"}, "note": "B 被唤醒，重新尝试 P"},
+    {"from": "b", "to": "sem", "text": "P：1 → 0", "set": {"value": "0", "owner": "B"}, "note": "B 拿到信号量，进入临界区；值是 0 不是 1"}
+  ]
+}

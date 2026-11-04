@@ -1,0 +1,116 @@
+{
+  "kind": "flow",
+  "title": "原子类型：标准保证与实现决定",
+  "alt": "只有 atomic_flag 和两个整型别名由标准保证无锁，其余类型要查实现",
+  "grid": [
+    5,
+    2
+  ],
+  "bands": [
+    {
+      "label": "标准保证无锁",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "实现决定",
+      "rows": [
+        1,
+        1
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "flag",
+      "label": "atomic_flag",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "test/set/clear"
+    },
+    {
+      "id": "alias",
+      "label": "整型别名",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "signed/unsigned"
+    },
+    {
+      "id": "boolean",
+      "label": "atomic<bool>",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "load/store"
+    },
+    {
+      "id": "integer",
+      "label": "整型",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "fetch_add 等"
+    },
+    {
+      "id": "pointer",
+      "label": "指针",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "按元素偏移"
+    },
+    {
+      "id": "floating",
+      "label": "浮点",
+      "at": [
+        3,
+        1
+      ],
+      "sub": "C++20 加减"
+    },
+    {
+      "id": "udt",
+      "label": "atomic<UDT>",
+      "at": [
+        4,
+        1
+      ],
+      "sub": "按字节拷贝"
+    }
+  ],
+  "edges": [],
+  "static": true,
+  "steps": [
+    {
+      "hi": [
+        "flag",
+        "alias"
+      ],
+      "note": "只有 atomic_flag 和 C++20 的两个整型别名由标准保证无锁"
+    },
+    {
+      "hi": [
+        "boolean",
+        "integer",
+        "pointer"
+      ],
+      "note": "bool、整型、指针通常无锁，但标准不保证"
+    },
+    {
+      "hi": [
+        "floating",
+        "udt"
+      ],
+      "note": "浮点和 UDT 能不能无锁，取决于大小和平台"
+    }
+  ]
+}

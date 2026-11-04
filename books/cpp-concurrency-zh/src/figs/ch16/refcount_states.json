@@ -1,0 +1,29 @@
+{
+  "kind": "flow",
+  "title": "分离引用计数：两个计数都归零才删",
+  "alt": "外部计数从 1 加到 3；T1 弹出后 head 改指 B，A 的内部计数等 T2 释放才归零",
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "t1", "label": "线程 1", "at": [0, 0], "shape": "round"},
+    {"id": "t2", "label": "线程 2", "at": [1, 0], "shape": "round"},
+    {"id": "head", "label": "head", "sub": "ext=1", "at": [0, 1], "shape": "store"},
+    {"id": "a", "label": "节点 A", "sub": "internal=0", "at": [2, 1]},
+    {"id": "free", "label": "delete A", "at": [3, 1], "shape": "note", "hidden": true}
+  ],
+  "edges": [
+    {"id": "read1", "from": "t1", "to": "head", "label": "读"},
+    {"id": "read2", "from": "t2", "to": "head", "label": "读"},
+    {"id": "point", "from": "head", "to": "a", "label": "指向"},
+    {"id": "hold", "from": "t2", "to": "a", "label": "持有", "dashed": true},
+    {"id": "del", "from": "a", "to": "free", "hidden": true}
+  ],
+  "steps": [
+    {"note": "初始：head 持有 A，外部计数 1，内部计数 0"},
+    {"token": [{"edge": "read1", "label": "T1"}], "set": {"head": "ext=2"}, "hi": ["head"], "note": "T1 读 head，外部计数加到 2"},
+    {"token": [{"edge": "read2", "label": "T2"}], "set": {"head": "ext=3"}, "hi": ["head"], "note": "T2 也读，外部计数加到 3"},
+    {"hide": ["point"], "set": {"head": "→B ext=1", "a": "internal=1"}, "hi": ["a"], "note": "T1 弹出 A：head 改指 B，ext-2=1 并入 internal"},
+    {"show": ["free", "del"], "tone": {"a": "bad"}, "hi": ["del"], "note": "反例：internal 还是 1（T2 的引用），立刻 delete 会让 T2 访问已释放节点"},
+    {"hide": ["free", "del", "hold"], "set": {"a": "internal=0"}, "hi": ["a"], "note": "T2 的 CAS 失败，撤销自己的引用，internal 归零"},
+    {"show": ["free", "del"], "tone": {"a": "ok"}, "set": {"a": "已释放"}, "hi": ["a"], "note": "正确：最后一个引用释放后才 delete"}
+  ]
+}

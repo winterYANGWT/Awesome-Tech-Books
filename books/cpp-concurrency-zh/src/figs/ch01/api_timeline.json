@@ -1,0 +1,43 @@
+{
+  "kind": "seq",
+  "title": "四套 API 的时间线（按年代）",
+  "alt": "C++ 标准库从 C++11 才有线程，pthread、OpenMP、MPI 更早",
+  "static": true,
+  "lanes": [
+    {"id": "cpp", "label": "C++ 标准库"},
+    {"id": "posix", "label": "pthread/POSIX"},
+    {"id": "omp", "label": "OpenMP"},
+    {"id": "mpi", "label": "MPI"}
+  ],
+  "steps": [
+    {"label": "2000 年以前", "ops": [
+      {"at": "cpp", "text": "C++98 1998\n没有线程"},
+      {"at": "posix", "text": "POSIX.1c 1995\npthread"},
+      {"at": "omp", "text": "OpenMP 1.0\n1997"},
+      {"at": "mpi", "text": "MPI 1.0\n1994"}
+    ], "note": "C++98 不承认线程；pthread、OpenMP、MPI 已经在用"},
+    {"label": "2003–2011", "ops": [
+      {"at": "cpp", "text": "C++11 2011\nthread/mutex"},
+      {"at": "posix", "text": "NPTL 2003\n1:1"},
+      {"at": "omp", "text": "OpenMP 3.0\n2008"},
+      {"at": "mpi", "text": "MPI 2.2\n2009"}
+    ], "note": "NPTL 随 glibc 2.3.2 在 2003 年进来；C++11 补上线程库"},
+    {"label": "2014–2017", "ops": [
+      {"at": "cpp", "text": "C++14 2014\nC++17 2017"},
+      {"at": "posix", "text": "POSIX.1-2017\n2017"},
+      {"at": "omp", "text": "OpenMP 4.5\n2015"},
+      {"at": "mpi", "text": "MPI 3.1\n2015"}
+    ], "note": "C++17 加并行算法和 scoped_lock"},
+    {"label": "2020–2021", "ops": [
+      {"at": "cpp", "text": "C++20 2020\njthread/barrier"},
+      {"at": "posix", "text": "glibc 2.34\n2021"},
+      {"at": "omp", "text": "OpenMP 5.1 2020\n5.2 2021"},
+      {"at": "mpi", "text": "MPI 4.0\n2021"}
+    ], "note": "C++20 补 jthread、闩、屏障、信号量；libpthread 并入 libc"},
+    {"label": "2023 起", "ops": [
+      {"at": "cpp", "text": "C++23 2023\nC++26 2026"},
+      {"at": "posix", "text": "POSIX.1-2024\n2024"},
+      {"at": "mpi", "text": "MPI 4.1\n2023"}
+    ], "note": "OpenMP 5.2 在 2021 年，已放在上一行"}
+  ]
+}

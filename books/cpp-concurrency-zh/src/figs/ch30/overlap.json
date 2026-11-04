@@ -1,0 +1,104 @@
+{
+  "kind": "seq",
+  "title": "通信与计算重叠：阻塞版和非阻塞版",
+  "alt": "阻塞版通信和计算串行；非阻塞版提交后先计算，Wait 时再收结果",
+  "lanes": [
+    {
+      "id": "r",
+      "label": "rank",
+      "role": "process"
+    },
+    {
+      "id": "m",
+      "label": "MPI 进度",
+      "role": "kernel"
+    },
+    {
+      "id": "c",
+      "label": "本地计算",
+      "role": "thread"
+    }
+  ],
+  "state": [
+    {
+      "id": "buf",
+      "label": "接收缓冲区",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "at": "r",
+      "text": "`MPI_Allgather`",
+      "note": "阻塞版：调用后必须等通信完成才能继续"
+    },
+    {
+      "from": "r",
+      "to": "m",
+      "text": "开始收集",
+      "set": {
+        "buf": "传输中"
+      },
+      "note": "MPI 库在调用内部搬运各 rank 的数据"
+    },
+    {
+      "at": "r",
+      "text": "等待",
+      "lane": {
+        "r": "blocked"
+      },
+      "note": "rank 卡在 Allgather 里，本地计算不能开始"
+    },
+    {
+      "from": "m",
+      "to": "r",
+      "text": "数据到齐",
+      "set": {
+        "buf": "可读"
+      },
+      "lane": {
+        "r": "running"
+      },
+      "note": "Allgather 返回，接收缓冲区可以读"
+    },
+    {
+      "at": "c",
+      "text": "开始计算",
+      "note": "阻塞版：先通信、后计算，两段串行"
+    },
+    {
+      "at": "r",
+      "text": "`MPI_Iallgather`",
+      "set": {
+        "buf": "传输中"
+      },
+      "note": "非阻塞版：提交请求后立即返回"
+    },
+    {
+      "at": "c",
+      "text": "本地计算",
+      "tone": "hot",
+      "note": "标准不保证后台进度；通信靠 Wait/Test 或后续 MPI 调用推进"
+    },
+    {
+      "ops": [
+        {
+          "at": "r",
+          "text": "`MPI_Wait`"
+        },
+        {
+          "from": "m",
+          "to": "r",
+          "text": "完成"
+        }
+      ],
+      "set": {
+        "buf": "可读"
+      },
+      "lane": {
+        "m": "done"
+      },
+      "note": "Wait 返回后结果可用；重叠只在实现支持时发生"
+    }
+  ]
+}

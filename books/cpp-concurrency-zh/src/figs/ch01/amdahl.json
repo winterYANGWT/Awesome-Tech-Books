@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "10% 串行：加速比与上限",
+  "alt": "加速比随线程数上升，但离 10 的上限和 16 都还远",
+  "type": "line",
+  "data": "code/ch01/1_2_amdahl_ceiling.out",
+  "x": {"label": "线程数", "scale": "log2"},
+  "y": {"label": "加速比", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），数字随机器和负载变化"
+}

@@ -1,0 +1,32 @@
+{
+  "kind": "flow",
+  "title": "两阶段局部力数组：先各写各行，再按粒子求和",
+  "alt": "4 个线程各写自己的一行 loc_forces，屏障后按粒子累加写回 forces",
+  "grid": [4, 4],
+  "nodes": [
+    {"id": "t0", "label": "线程 0", "at": [0, 0], "shape": "round"},
+    {"id": "t1", "label": "线程 1", "at": [0, 1], "shape": "round"},
+    {"id": "t2", "label": "线程 2", "at": [0, 2], "shape": "round"},
+    {"id": "t3", "label": "线程 3", "at": [0, 3], "shape": "round"},
+    {"id": "loc", "label": "loc_forces", "at": [1, 0], "span": [1, 4], "shape": "store", "sub": "每线程一行"},
+    {"id": "bar", "label": "屏障", "at": [2, 1], "sub": "行都写完了"},
+    {"id": "forces", "label": "forces[n]", "at": [3, 2], "shape": "store", "sub": "按粒子求和"}
+  ],
+  "edges": [
+    {"id": "w0", "from": "t0", "to": "loc"},
+    {"id": "w1", "from": "t1", "to": "loc"},
+    {"id": "w2", "from": "t2", "to": "loc"},
+    {"id": "w3", "from": "t3", "to": "loc"},
+    {"id": "sync", "from": "loc", "to": "bar", "label": "到齐"},
+    {"id": "sum", "from": "bar", "to": "forces", "label": "求和"}
+  ],
+  "steps": [
+    {"token": [{"edge": "w0", "label": "T0"}, {"edge": "w1", "label": "T1"}, {"edge": "w2", "label": "T2"}, {"edge": "w3", "label": "T3"}], "note": "第一阶段：每个线程只写自己那一行，行内怎么改都没人抢"},
+    {"hi": ["loc"], "note": "行首按缓存行对齐，相邻两行不共用一条缓存行"},
+    {"hi": ["t0", "t1", "t2", "t3"], "note": "每个线程负责一段 q；k>q 的力同时加到这一行的 q 和 k"},
+    {"token": [{"edge": "sync", "label": "全部完成"}], "hi": ["bar"], "note": "屏障：必须等所有行都写完，才能读别人的行"},
+    {"token": [{"edge": "sum", "label": "累加"}], "hi": ["forces"], "note": "第二阶段：按粒子把 4 行加起来，写回 forces"},
+    {"tone": {"loc": "bad"}, "hi": ["loc"], "note": "若两行边界落在同一缓存行，第一阶段写行就会来回搬整行"},
+    {"tone": {"loc": "ok"}, "hi": ["forces"], "note": "对齐后各行独立；求和阶段只读，不再争缓存行"}
+  ]
+}

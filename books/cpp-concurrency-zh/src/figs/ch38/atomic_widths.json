@@ -1,0 +1,152 @@
+{
+  "kind": "grid",
+  "title": "16 字节原子：编译器和平台决定",
+  "alt": "GCC 15 加 -mcx16 仍非无锁；Clang 21 加 -mcx16 才无锁；别名只覆盖整型",
+  "rows": [
+    {
+      "label": "atomic_flag"
+    },
+    {
+      "label": "atomic<int>"
+    },
+    {
+      "label": "atomic<float>"
+    },
+    {
+      "label": "16B 默认"
+    },
+    {
+      "label": "16B -mcx16"
+    }
+  ],
+  "cols": 3,
+  "colLabels": [
+    "GCC",
+    "LLVM",
+    "别名"
+  ],
+  "legend": [
+    {
+      "key": "ok",
+      "label": "无锁"
+    },
+    {
+      "key": "bad",
+      "label": "内部用锁"
+    },
+    {
+      "key": "warn",
+      "label": "无此别名"
+    }
+  ],
+  "cells": [
+    [
+      "true",
+      "true",
+      "不适用"
+    ],
+    [
+      "true",
+      "true",
+      "有别名"
+    ],
+    [
+      "true",
+      "true",
+      "无"
+    ],
+    [
+      "false",
+      "false",
+      "无"
+    ],
+    [
+      "false",
+      "true",
+      "无"
+    ]
+  ],
+  "steps": [
+    {
+      "paint": [
+        {
+          "r": 0,
+          "c": 0,
+          "key": "ok"
+        },
+        {
+          "r": 0,
+          "c": 1,
+          "key": "ok"
+        },
+        {
+          "r": 0,
+          "c": 2,
+          "key": "warn"
+        },
+        {
+          "r": 1,
+          "c": 0,
+          "key": "ok"
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "key": "ok"
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "key": "ok"
+        },
+        {
+          "r": 2,
+          "c": 0,
+          "key": "ok"
+        },
+        {
+          "r": 2,
+          "c": 1,
+          "key": "ok"
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "key": "warn"
+        },
+        {
+          "r": 3,
+          "c": 0,
+          "key": "bad"
+        },
+        {
+          "r": 3,
+          "c": 1,
+          "key": "bad"
+        },
+        {
+          "r": 3,
+          "c": 2,
+          "key": "warn"
+        },
+        {
+          "r": 4,
+          "c": 0,
+          "key": "bad"
+        },
+        {
+          "r": 4,
+          "c": 1,
+          "key": "ok"
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "key": "warn"
+        }
+      ],
+      "note": "16B 默认两边都用锁；Clang 加 -mcx16 才无锁，GCC 加也还是用锁"
+    }
+  ],
+  "static": true
+}

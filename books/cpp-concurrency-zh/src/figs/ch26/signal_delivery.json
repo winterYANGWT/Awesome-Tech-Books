@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "标准信号从产生到执行处理函数",
+  "alt": "SIGUSR1 被掩码挡住，pending 位只保留一个，解除屏蔽后处理一次",
+  "lanes": [
+    {"id": "main", "label": "主线程"},
+    {"id": "kern", "label": "内核", "role": "kernel"},
+    {"id": "handler", "label": "处理函数"}
+  ],
+  "state": [
+    {"id": "pending", "label": "pending 位", "value": "0"},
+    {"id": "mask", "label": "SIGUSR1 掩码", "value": "屏蔽"},
+    {"id": "handled", "label": "处理次数", "value": "0"}
+  ],
+  "steps": [
+    {"at": "main", "text": "`raise(SIGUSR1)`", "note": "线程调用 raise，产生一个 SIGUSR1"},
+    {"from": "main", "to": "kern", "text": "产生信号", "set": {"pending": "1"}, "note": "内核把这个信号记为未决"},
+    {"at": "kern", "text": "查掩码", "note": "内核发现该线程屏蔽了 SIGUSR1"},
+    {"span": ["kern", "main"], "text": "暂不递送", "tone": "wait", "note": "信号留在 pending 位图里，等待解除屏蔽"},
+    {"at": "main", "text": "解除屏蔽", "set": {"mask": "放行"}, "note": "sigprocmask 把 SIGUSR1 从掩码里删掉"},
+    {"from": "kern", "to": "handler", "text": "递送", "note": "内核选择这个线程，转入处理函数"},
+    {"at": "handler", "text": "执行一次", "tone": "ok", "set": {"pending": "0", "handled": "1"}, "note": "标准信号不排队，处理函数只执行一次"}
+  ]
+}

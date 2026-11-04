@@ -1,0 +1,28 @@
+{
+  "kind": "flow",
+  "title": "ThreadSafeQueue：入队、取走、关闭",
+  "alt": "生产者 push 后通知；消费者取走任务；close 置 closed 后唤醒全部",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "p", "label": "生产者", "at": [0, 1], "shape": "round"},
+    {"id": "q", "label": "任务队列", "at": [1, 1], "shape": "queue", "slots": 4},
+    {"id": "c", "label": "消费者", "at": [2, 1], "shape": "round"},
+    {"id": "close", "label": "`close()`", "at": [1, 2], "sub": "置 closed"}
+  ],
+  "edges": [
+    {"id": "push", "from": "p", "to": "q", "label": "push"},
+    {"id": "take", "from": "q", "to": "c", "label": "取走"},
+    {"id": "setclose", "from": "close", "to": "q", "label": "closed", "fromSide": "top", "toSide": "bottom"},
+    {"id": "wake", "from": "close", "to": "c", "label": "notify_all", "dashed": true, "fromSide": "right", "toSide": "bottom", "route": "vh"}
+  ],
+  "steps": [
+    {"token": [{"edge": "push", "label": "A"}], "queue": {"q": ["A"]}, "hi": ["p"], "note": "生产者 push 任务 A"},
+    {"token": [{"edge": "take", "label": "A"}], "queue": {"q": []}, "set": {"c": "执行 A"}, "hi": ["c"], "note": "消费者被 notify_one 唤醒，取走 A"},
+    {"token": [{"edge": "push", "label": "B"}], "queue": {"q": ["B"]}, "note": "生产者 push 任务 B"},
+    {"token": [{"edge": "push", "label": "C"}], "queue": {"q": ["B", "C"]}, "note": "两个任务排队，消费者还在忙"},
+    {"token": [{"edge": "take", "label": "B"}], "queue": {"q": ["C"]}, "set": {"c": "执行 B"}, "note": "消费者取走 B"},
+    {"token": [{"edge": "take", "label": "C"}], "queue": {"q": []}, "set": {"c": "执行 C"}, "note": "消费者取走 C，队列取空"},
+    {"token": [{"edge": "setclose", "label": "closed"}], "tone": {"q": "bad"}, "hi": ["close"], "note": "close 先置 closed，再通知"},
+    {"token": [{"edge": "wake", "label": "notify_all"}], "tone": {"c": "hot"}, "hi": ["close"], "note": "notify_all 唤醒全部；取空后 wait_pop 返回 nullopt"}
+  ]
+}

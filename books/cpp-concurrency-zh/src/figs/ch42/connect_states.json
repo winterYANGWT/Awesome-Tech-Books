@@ -1,0 +1,19 @@
+{
+  "kind": "seq",
+  "title": "非阻塞 connect 与 SO_ERROR",
+  "alt": "connect 返回 EINPROGRESS；可写后 getsockopt 返回 0，错误码在 err 参数里",
+  "lanes": [
+    {"id": "app", "label": "应用"},
+    {"id": "sock", "label": "socket", "role": "kernel"},
+    {"id": "peer", "label": "对端", "role": "process"}
+  ],
+  "steps": [
+    {"from": "app", "to": "sock", "text": "connect()", "note": "fd 设为非阻塞，connect 不等待握手"},
+    {"at": "app", "text": "-1 / EINPROGRESS", "tone": "wait", "note": "返回 -1 只表示结果还没出来，不是失败"},
+    {"from": "sock", "to": "peer", "text": "SYN", "note": "三次握手在后台进行，应用去做别的事"},
+    {"from": "peer", "to": "sock", "text": "RST", "tone": "bad", "note": "对端端口关闭，socket 上留下待处理错误"},
+    {"from": "sock", "to": "app", "text": "EPOLLOUT", "tone": "hot", "note": "fd 变可写：有结果了，但结果可能是错误"},
+    {"at": "app", "text": "getsockopt 返回 0", "note": "系统调用成功；连接错误码在 err 参数里"},
+    {"at": "app", "text": "看 err，不看返回值", "tone": "bad", "note": "err=0 是成功，err=111 是 ECONNREFUSED"}
+  ]
+}

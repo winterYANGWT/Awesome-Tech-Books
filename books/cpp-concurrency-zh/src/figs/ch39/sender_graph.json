@@ -1,0 +1,162 @@
+{
+  "kind": "flow",
+  "title": "sender 图：组合、连接、三条完成通道",
+  "alt": "just 经 then 和 when_all 组合，connect 到 receiver 后走三条通道",
+  "grid": [
+    5,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "just",
+      "label": "just(42)",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "then",
+      "label": "then(f)",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "when_all",
+      "label": "when_all",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "receiver",
+      "label": "receiver",
+      "at": [
+        3,
+        1
+      ],
+      "sub": "三条完成通道"
+    },
+    {
+      "id": "sync_wait",
+      "label": "sync_wait",
+      "at": [
+        4,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "value",
+      "label": "set_value",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "note"
+    },
+    {
+      "id": "error",
+      "label": "set_error",
+      "at": [
+        3,
+        2
+      ],
+      "shape": "note"
+    },
+    {
+      "id": "stopped",
+      "label": "set_stopped",
+      "at": [
+        4,
+        2
+      ],
+      "shape": "note"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "just",
+      "to": "then",
+      "label": "值"
+    },
+    {
+      "id": "e2",
+      "from": "then",
+      "to": "when_all",
+      "label": "sender"
+    },
+    {
+      "id": "e3",
+      "from": "when_all",
+      "to": "receiver",
+      "label": "connect"
+    },
+    {
+      "id": "e4",
+      "from": "receiver",
+      "to": "value",
+      "label": "set_value"
+    },
+    {
+      "id": "e5",
+      "from": "receiver",
+      "to": "error",
+      "label": "set_error"
+    },
+    {
+      "id": "e6",
+      "from": "receiver",
+      "to": "stopped",
+      "label": "set_stopped"
+    },
+    {
+      "id": "e7",
+      "from": "receiver",
+      "to": "sync_wait",
+      "label": "唤醒",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "just"
+      ],
+      "tone": {
+        "just": "hot"
+      },
+      "note": "just(42) 立即完成，但不指定在哪个线程执行"
+    },
+    {
+      "hi": [
+        "then",
+        "when_all"
+      ],
+      "note": "| then 串联，when_all 等全部；这时还只是描述，没有开始"
+    },
+    {
+      "hi": [
+        "receiver",
+        "value",
+        "error",
+        "stopped"
+      ],
+      "note": "connect 后 start；三条通道只能走一条"
+    },
+    {
+      "hi": [
+        "sync_wait"
+      ],
+      "tone": {
+        "sync_wait": "ok"
+      },
+      "note": "sync_wait 等到三条通道之一：取值、重抛或返回空 optional"
+    }
+  ],
+  "static": true
+}

@@ -1,0 +1,266 @@
+{
+  "kind": "flow",
+  "title": "提交、取走、队列满与关闭",
+  "alt": "队列满时 submit 阻塞，取走一个就腾出空间；关闭先置 done 再唤醒全部",
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "sub",
+      "label": "提交者",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "q",
+      "label": "任务队列",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "queue",
+      "slots": 4,
+      "sub": "容量 4"
+    },
+    {
+      "id": "w0",
+      "label": "工作线程 0",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "w1",
+      "label": "工作线程 1",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "done",
+      "label": "`done` 标志",
+      "at": [
+        1,
+        2
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "submit",
+      "from": "sub",
+      "to": "q",
+      "label": "submit"
+    },
+    {
+      "id": "take0",
+      "from": "q",
+      "to": "w0",
+      "label": "取任务"
+    },
+    {
+      "id": "take1",
+      "from": "q",
+      "to": "w1",
+      "label": "取任务"
+    },
+    {
+      "id": "setdone",
+      "from": "sub",
+      "to": "done",
+      "label": "置 done",
+      "route": "vh"
+    },
+    {
+      "id": "wake",
+      "from": "done",
+      "to": "q",
+      "label": "notify_all",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "submit",
+          "label": "A"
+        }
+      ],
+      "queue": {
+        "q": [
+          "A"
+        ]
+      },
+      "hi": [
+        "sub"
+      ],
+      "note": "提交者把任务 A 放进队列"
+    },
+    {
+      "token": [
+        {
+          "edge": "take1",
+          "label": "A"
+        }
+      ],
+      "queue": {
+        "q": []
+      },
+      "set": {
+        "w1": "执行 A"
+      },
+      "hi": [
+        "w1"
+      ],
+      "note": "工作线程 1 取走 A，队列空"
+    },
+    {
+      "token": [
+        {
+          "edge": "submit",
+          "label": "B–E"
+        }
+      ],
+      "queue": {
+        "q": [
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      "tone": {
+        "sub": "ok"
+      },
+      "note": "工作线程还在忙 A，B–E 填满队列；这四次提交都成功"
+    },
+    {
+      "token": [
+        {
+          "edge": "submit",
+          "label": "F"
+        }
+      ],
+      "queue": {
+        "q": [
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      "tone": {
+        "sub": "wait"
+      },
+      "note": "队列已满：这次提交 F 才阻塞在 not_full_ 上"
+    },
+    {
+      "token": [
+        {
+          "edge": "take1",
+          "label": "B"
+        },
+        {
+          "edge": "submit",
+          "label": "F"
+        }
+      ],
+      "queue": {
+        "q": [
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "set": {
+        "w1": "执行 B"
+      },
+      "tone": {
+        "sub": "ok"
+      },
+      "note": "w1 取走 B 腾出一格，F 入队，submit 返回"
+    },
+    {
+      "token": [
+        {
+          "edge": "take0",
+          "label": "C"
+        }
+      ],
+      "queue": {
+        "q": [
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "set": {
+        "w0": "执行 C"
+      },
+      "hi": [
+        "w0"
+      ],
+      "note": "w0 也被唤醒，取走 C"
+    },
+    {
+      "token": [
+        {
+          "edge": "setdone",
+          "label": "done"
+        }
+      ],
+      "tone": {
+        "done": "hot"
+      },
+      "hi": [
+        "done"
+      ],
+      "note": "关闭开始：先置 done，再 notify_all"
+    },
+    {
+      "token": [
+        {
+          "edge": "wake",
+          "label": "notify_all"
+        }
+      ],
+      "queue": {
+        "q": [
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "set": {
+        "w0": "醒来，继续取",
+        "w1": "醒来，继续取"
+      },
+      "note": "notify_all 叫醒等待者；D、E、F 还在队列里"
+    },
+    {
+      "queue": {
+        "q": []
+      },
+      "set": {
+        "w0": "取空后退出",
+        "w1": "取空后退出"
+      },
+      "tone": {
+        "w0": "ok",
+        "w1": "ok"
+      },
+      "note": "取完 D、E、F，两个工作线程退出"
+    }
+  ]
+}

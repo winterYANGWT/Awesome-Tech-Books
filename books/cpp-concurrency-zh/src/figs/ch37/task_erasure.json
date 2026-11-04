@@ -1,0 +1,122 @@
+{
+  "kind": "flow",
+  "title": "任务队列用哪种类型擦除",
+  "alt": "std::function 要可拷贝，装不下 packaged_task；move_only_function 只移动",
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "task",
+      "label": "任务来源",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "lambda / packaged_task"
+    },
+    {
+      "id": "sf",
+      "label": "std::function",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "要求可拷贝"
+    },
+    {
+      "id": "mw",
+      "label": "function_wrapper",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "虚函数 + unique_ptr"
+    },
+    {
+      "id": "mof",
+      "label": "move_only_\nfunction",
+      "at": [
+        1,
+        2
+      ],
+      "sub": "只要求可移动"
+    },
+    {
+      "id": "q",
+      "label": "任务队列",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "queue",
+      "slots": 3,
+      "sub": "节点类型二选一"
+    },
+    {
+      "id": "fail",
+      "label": "packaged_task",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "note",
+      "sub": "不可拷贝"
+    }
+  ],
+  "edges": [
+    {
+      "id": "t_sf",
+      "from": "task",
+      "to": "sf",
+      "label": "拷贝"
+    },
+    {
+      "id": "t_mw",
+      "from": "task",
+      "to": "mw",
+      "label": "移动"
+    },
+    {
+      "id": "t_mof",
+      "from": "task",
+      "to": "mof",
+      "label": "移动"
+    },
+    {
+      "id": "sf_q",
+      "from": "sf",
+      "to": "q"
+    },
+    {
+      "id": "mw_q",
+      "from": "mw",
+      "to": "q"
+    },
+    {
+      "id": "mof_q",
+      "from": "mof",
+      "to": "q"
+    },
+    {
+      "id": "sf_fail",
+      "from": "sf",
+      "to": "fail",
+      "label": "装不下",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "q"
+      ],
+      "tone": {
+        "sf_fail": "bad"
+      },
+      "note": "std::function 要可拷贝，packaged_task 是 move-only，装不进去"
+    }
+  ],
+  "static": true
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "flow",
+  "title": "标准库、pthread 和内核的层次",
+  "alt": "应用调用标准库，标准库在 Linux 上建在 pthread 上，native_handle 暴露 pthread 句柄",
+  "grid": [2, 4],
+  "nodes": [
+    {"id": "app", "label": "应用代码", "at": [0, 0], "sub": "`std::thread`"},
+    {"id": "stdlib", "label": "C++ 标准库", "at": [0, 1], "sub": "`std::thread`"},
+    {"id": "native", "label": "`native_handle`", "at": [1, 1], "sub": "拿到 pthread_t"},
+    {"id": "pthread", "label": "pthread/系统调用", "at": [0, 2], "sub": "`pthread_create`"},
+    {"id": "kernel", "label": "内核", "at": [0, 3], "sub": "调度、futex、epoll"}
+  ],
+  "edges": [
+    {"id": "a1", "from": "app", "to": "stdlib", "label": "调用"},
+    {"id": "a2", "from": "stdlib", "to": "pthread", "label": "实现"},
+    {"id": "a3", "from": "pthread", "to": "kernel", "label": "系统调用"},
+    {"id": "a4", "from": "stdlib", "to": "native", "label": "暴露句柄", "dashed": true, "fromSide": "right", "toSide": "left"},
+    {"id": "a5", "from": "native", "to": "pthread", "dashed": true, "fromSide": "bottom", "toSide": "right"}
+  ],
+  "steps": [
+    {"note": "`native_handle()` 是出口：拿到 pthread_t 就能用 pthread 的属性"}
+  ],
+  "static": true
+}

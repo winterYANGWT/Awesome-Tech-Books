@@ -1,0 +1,27 @@
+{
+  "kind": "seq",
+  "title": "epoch：读者不等待，写者等宽限期",
+  "alt": "读者记下 epoch 后继续遍历；写者退休 X 后等全局 epoch 到 7、两个读者都离开才释放",
+  "lanes": [
+    {"id": "r1", "label": "读者 1"},
+    {"id": "r2", "label": "读者 2"},
+    {"id": "w", "label": "写者"},
+    {"id": "x", "label": "节点 X", "role": "memory"}
+  ],
+  "state": [
+    {"id": "epoch", "label": "global epoch", "value": "5"},
+    {"id": "e1", "label": "读者 1 的 epoch", "value": "—"},
+    {"id": "e2", "label": "读者 2 的 epoch", "value": "—"},
+    {"id": "x", "label": "X 的状态", "value": "在栈上"}
+  ],
+  "steps": [
+    {"at": "r1", "text": "进入，记下 epoch=5", "set": {"e1": "5"}, "note": "读者 1 进入临界区，只写自己的槽"},
+    {"at": "r2", "text": "进入，记下 epoch=5", "set": {"e2": "5"}, "note": "读者 2 也进入，仍然看到 epoch=5"},
+    {"at": "w", "text": "弹出 X", "set": {"x": "已删除"}, "tone": "hot", "note": "写者把 X 从结构里摘下来"},
+    {"at": "w", "text": "退休 X，epoch=5", "set": {"x": "待释放", "epoch": "6"}, "note": "记下 retire_epoch=5，g_epoch 加到 6"},
+    {"at": "w", "text": "再退休一个，epoch=7", "set": {"epoch": "7"}, "note": "释放 X 要等 now >= retire_epoch+2，所以还要再加一次"},
+    {"at": "r1", "text": "离开", "set": {"e1": "—"}, "lane": {"r1": "done"}, "note": "读者 1 走了，X 仍不能释放"},
+    {"at": "r2", "text": "离开", "set": {"e2": "—"}, "lane": {"r2": "done"}, "tone": "hot", "note": "最后一个旧 epoch 读者离开，宽限期到了"},
+    {"at": "w", "text": "释放 X", "set": {"x": "已释放"}, "tone": "ok", "note": "读者全程没有等待"}
+  ]
+}

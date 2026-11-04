@@ -1,0 +1,93 @@
+{
+  "kind": "seq",
+  "title": "两条消息按信封匹配，不按变量名",
+  "alt": "rank 1 先发 tag 1 再发 tag 2，rank 0 先收前者，再按 tag 2 收后者",
+  "lanes": [
+    {
+      "id": "s",
+      "label": "rank 1 发送"
+    },
+    {
+      "id": "q",
+      "label": "rank 0 的预计队列",
+      "role": "memory"
+    },
+    {
+      "id": "r",
+      "label": "rank 0 接收"
+    }
+  ],
+  "state": [
+    {
+      "id": "m1",
+      "label": "队列第一条",
+      "value": "—"
+    },
+    {
+      "id": "m2",
+      "label": "队列第二条",
+      "value": "—"
+    },
+    {
+      "id": "got",
+      "label": "最近收到",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "from": "s",
+      "to": "q",
+      "text": "`Send(tag=1)`",
+      "set": {
+        "m1": "tag 1"
+      },
+      "note": "第一条消息进队，信封是 source=1、tag=1"
+    },
+    {
+      "from": "s",
+      "to": "q",
+      "text": "`Send(tag=2)`",
+      "set": {
+        "m2": "tag 2"
+      },
+      "note": "第二条消息紧跟着进队"
+    },
+    {
+      "at": "q",
+      "text": "tag 1 在前",
+      "note": "两条都能匹配 `ANY_SOURCE`/`ANY_TAG` 接收，先发的 tag 1 不会被超越"
+    },
+    {
+      "from": "q",
+      "to": "r",
+      "text": "`Recv(ANY_SOURCE)`",
+      "set": {
+        "m1": "—",
+        "got": "tag 1"
+      },
+      "note": "source、tag 都用通配，匹配不看变量名"
+    },
+    {
+      "at": "r",
+      "text": "收到第一条",
+      "note": "ANY_SOURCE 先匹配最早到达的 tag 1"
+    },
+    {
+      "from": "q",
+      "to": "r",
+      "text": "`Recv(tag=2)`",
+      "set": {
+        "m2": "—",
+        "got": "tag 2"
+      },
+      "note": "指定 tag 2，取走剩下的那条"
+    },
+    {
+      "at": "r",
+      "text": "两条都收完",
+      "tone": "ok",
+      "note": "信封对上了才能取走，变量叫什么都无关"
+    }
+  ]
+}

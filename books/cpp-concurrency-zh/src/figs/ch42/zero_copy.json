@@ -1,0 +1,34 @@
+{
+  "kind": "flow",
+  "title": "四条路径的拷贝次数",
+  "alt": "read/write 经过用户缓冲两次拷贝；sendfile、splice、MSG_ZEROCOPY 各自绕过一部分",
+  "grid": [4, 4],
+  "bands": [
+    {"label": "两次拷贝", "rows": [0, 0]},
+    {"label": "内核内转发", "rows": [1, 1]},
+    {"label": "经管道", "rows": [2, 2]},
+    {"label": "发送不拷贝", "rows": [3, 3]}
+  ],
+  "nodes": [
+    {"id": "rw", "label": "read/write", "at": [0, 0], "sub": "2 次拷贝"},
+    {"id": "ubuf", "label": "用户缓冲", "at": [1, 0]},
+    {"id": "sf", "label": "sendfile", "at": [0, 1], "sub": "1 次 DMA"},
+    {"id": "sp", "label": "splice", "at": [0, 2], "sub": "经管道转发"},
+    {"id": "zc", "label": "MSG_ZEROCOPY", "at": [0, 3], "sub": "要收完成通知"},
+    {"id": "sock", "label": "socket", "at": [3, 0], "span": [1, 4]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "rw", "to": "ubuf", "label": "读"},
+    {"id": "e2", "from": "ubuf", "to": "sock", "label": "写"},
+    {"id": "e3", "from": "sf", "to": "sock", "label": "内核转发"},
+    {"id": "e4", "from": "sp", "to": "sock", "label": "管道转发"},
+    {"id": "e5", "from": "zc", "to": "sock", "label": "不拷贝"}
+  ],
+  "static": true,
+  "steps": [
+    {"hi": ["rw", "ubuf", "sock"], "note": "read/write 经过用户缓冲：内核到用户、用户到 socket 两次拷贝"},
+    {"hi": ["sf"], "note": "sendfile 从文件到 socket 不经过用户态，仍有 DMA 拷贝"},
+    {"hi": ["sp"], "note": "splice 经管道转发，适合代理；管道本身有开销"},
+    {"hi": ["zc"], "note": "MSG_ZEROCOPY 发送端不拷贝，但要处理完成通知；TLS 仍要拷贝"}
+  ]
+}

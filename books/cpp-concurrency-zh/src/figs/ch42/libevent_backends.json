@@ -1,0 +1,136 @@
+{
+  "kind": "flow",
+  "title": "event_init 换到 event_base_new",
+  "alt": "旧 API 依赖全局 current_base；新 API 先开线程支持，再建独立 base，经 eventop 选后端",
+  "grid": [
+    4,
+    2
+  ],
+  "bands": [
+    {
+      "label": "1.x 兼容写法",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "2.0 起的写法",
+      "rows": [
+        1,
+        1
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "init",
+      "label": "event_init",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "全局 current_base"
+    },
+    {
+      "id": "oldloop",
+      "label": "event_dispatch",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "隐式用全局 base"
+    },
+    {
+      "id": "thread",
+      "label": "先开线程支持",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "evthread_use_pthreads"
+    },
+    {
+      "id": "base",
+      "label": "event_base_new",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "每个 base 独立"
+    },
+    {
+      "id": "ops",
+      "label": "后端 eventop",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "epoll/select/poll"
+    },
+    {
+      "id": "loop",
+      "label": "base_dispatch",
+      "at": [
+        3,
+        1
+      ],
+      "sub": "event_base_dispatch"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "init",
+      "to": "oldloop",
+      "label": "旧路径"
+    },
+    {
+      "id": "e2",
+      "from": "thread",
+      "to": "base",
+      "label": "顺序不能反"
+    },
+    {
+      "id": "e3",
+      "from": "base",
+      "to": "ops",
+      "label": "按平台选"
+    },
+    {
+      "id": "e4",
+      "from": "ops",
+      "to": "loop",
+      "label": "事件循环"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "hi": [
+        "init",
+        "oldloop"
+      ],
+      "note": "event_init 设置全局 current_base；同进程多个 base 会互相覆盖"
+    },
+    {
+      "hi": [
+        "thread"
+      ],
+      "note": "线程支持必须先开：evthread_use_pthreads 早于 event_base_new"
+    },
+    {
+      "hi": [
+        "base"
+      ],
+      "note": "event_base_new 返回独立句柄，不再依赖全局变量"
+    },
+    {
+      "hi": [
+        "ops",
+        "loop"
+      ],
+      "note": "eventop 选 epoll/select/poll；回调仍在循环线程里串行"
+    }
+  ]
+}

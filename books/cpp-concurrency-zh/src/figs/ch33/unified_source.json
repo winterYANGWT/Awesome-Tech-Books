@@ -1,0 +1,209 @@
+{
+  "kind": "flow",
+  "title": "四类事件源汇入同一个 epoll",
+  "alt": "signalfd、timerfd、eventfd、连接 fd 一起等，按 data.ptr 的类型分派",
+  "grid": [
+    3,
+    4
+  ],
+  "nodes": [
+    {
+      "id": "sig",
+      "label": "signalfd",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "SIGTERM"
+    },
+    {
+      "id": "tfd",
+      "label": "timerfd",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "100ms"
+    },
+    {
+      "id": "efd",
+      "label": "eventfd",
+      "at": [
+        0,
+        2
+      ],
+      "sub": "计数 1"
+    },
+    {
+      "id": "conn",
+      "label": "连接 fd",
+      "at": [
+        0,
+        3
+      ],
+      "sub": "EPOLLIN"
+    },
+    {
+      "id": "ep",
+      "label": "epoll",
+      "at": [
+        1,
+        0
+      ],
+      "span": [
+        1,
+        4
+      ],
+      "sub": "data.ptr 类型标签"
+    },
+    {
+      "id": "hsig",
+      "label": "信号处理器",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "htfd",
+      "label": "定时处理器",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "hefd",
+      "label": "唤醒处理器",
+      "at": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "hconn",
+      "label": "连接处理器",
+      "at": [
+        2,
+        3
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "sig_ep",
+      "from": "sig",
+      "to": "ep",
+      "label": "SIGTERM"
+    },
+    {
+      "id": "tfd_ep",
+      "from": "tfd",
+      "to": "ep",
+      "label": "到期"
+    },
+    {
+      "id": "efd_ep",
+      "from": "efd",
+      "to": "ep",
+      "label": "唤醒"
+    },
+    {
+      "id": "conn_ep",
+      "from": "conn",
+      "to": "ep",
+      "label": "可读"
+    },
+    {
+      "id": "ep_hsig",
+      "from": "ep",
+      "to": "hsig"
+    },
+    {
+      "id": "ep_htfd",
+      "from": "ep",
+      "to": "htfd"
+    },
+    {
+      "id": "ep_hefd",
+      "from": "ep",
+      "to": "hefd"
+    },
+    {
+      "id": "ep_hconn",
+      "from": "ep",
+      "to": "hconn"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "sig_ep",
+          "label": "15"
+        }
+      ],
+      "hi": [
+        "sig_ep"
+      ],
+      "note": "信号先屏蔽，SIGTERM 只从 signalfd 出来"
+    },
+    {
+      "token": [
+        {
+          "edge": "tfd_ep",
+          "label": "1 次"
+        }
+      ],
+      "hi": [
+        "tfd_ep"
+      ],
+      "note": "timerfd 到期，read 得到到期次数"
+    },
+    {
+      "token": [
+        {
+          "edge": "efd_ep",
+          "label": "1"
+        }
+      ],
+      "hi": [
+        "efd_ep"
+      ],
+      "note": "工作线程写 eventfd，循环被唤醒"
+    },
+    {
+      "token": [
+        {
+          "edge": "conn_ep",
+          "label": "数据"
+        }
+      ],
+      "hi": [
+        "conn_ep"
+      ],
+      "note": "连接 fd 和上面三类在同一个兴趣表里"
+    },
+    {
+      "hi": [
+        "ep"
+      ],
+      "note": "同一个 epoll 实例；几路事件由不同的等待轮次返回"
+    },
+    {
+      "hi": [
+        "ep_hsig",
+        "ep_htfd",
+        "ep_hefd",
+        "ep_hconn"
+      ],
+      "note": "按 data.ptr 的类型标签分派到四个处理器"
+    },
+    {
+      "hi": [
+        "hconn"
+      ],
+      "note": "统一的是等待，不是处理函数"
+    }
+  ]
+}

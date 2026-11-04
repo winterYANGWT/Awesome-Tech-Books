@@ -1,0 +1,31 @@
+{
+  "kind": "flow",
+  "title": "并行快排：划分、递归、从叶子合并",
+  "alt": "根区间划分后左半区 async、右半区当前线程递归；到 cutoff 串行排序；父任务 get 后合并",
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "root", "label": "根区间", "at": [0, 1], "shape": "store", "sub": "pivot 归位"},
+    {"id": "left", "label": "左半区", "at": [1, 0], "sub": "async 任务"},
+    {"id": "right", "label": "右半区", "at": [1, 2], "sub": "当前线程递归"},
+    {"id": "lser", "label": "左半区", "at": [2, 0], "sub": "串行 std::sort"},
+    {"id": "rser", "label": "右半区", "at": [2, 2], "sub": "串行 std::sort"},
+    {"id": "merge", "label": "合并区间", "at": [3, 1], "shape": "store", "sub": "get 后返回"}
+  ],
+  "edges": [
+    {"id": "spawn", "from": "root", "to": "left", "label": "async"},
+    {"id": "stay", "from": "root", "to": "right", "label": "当前线程"},
+    {"id": "lcut", "from": "left", "to": "lser", "label": "cutoff"},
+    {"id": "rcut", "from": "right", "to": "rser", "label": "cutoff"},
+    {"id": "lget", "from": "lser", "to": "merge", "label": "get()"},
+    {"id": "rget", "from": "rser", "to": "merge", "label": "结果"}
+  ],
+  "steps": [
+    {"hi": ["root"], "note": "先选 pivot、做一次 partition；这一步仍是串行"},
+    {"token": [{"edge": "spawn", "label": "左半"}], "tone": {"left": "hot"}, "note": "左半区交给 async，父任务继续做右半区"},
+    {"token": [{"edge": "stay", "label": "右半"}], "tone": {"right": "hot"}, "note": "右半区在当前线程递归，不再新建任务"},
+    {"token": [{"edge": "lcut", "label": "小"}], "tone": {"lser": "ok"}, "note": "左半区小于 cutoff，改为串行 std::sort"},
+    {"token": [{"edge": "rcut", "label": "小"}], "tone": {"rser": "ok"}, "note": "右半区也到 cutoff，叶子不再开任务"},
+    {"token": [{"edge": "lget", "label": "get()"}], "tone": {"merge": "hot"}, "note": "父任务 get 左半区的 future，阻塞到它排好"},
+    {"token": [{"edge": "rget", "label": "合并"}], "tone": {"merge": "ok"}, "note": "两个有序区间合并，结果从叶子往根返回"}
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "三种内存序的每次操作耗时",
+  "alt": "本机 x86-64 上三种 fetch_add 几乎一样；seq_cst 的额外代价出现在 store 上",
+  "type": "bar",
+  "data": "code/ch13/13_6_order_cost.out",
+  "x": {"label": "内存序"},
+  "y": {"label": "每次操作耗时", "unit": "ns", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2；数字会随机器和负载变化"
+}

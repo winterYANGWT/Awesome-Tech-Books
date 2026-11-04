@@ -1,0 +1,19 @@
+{
+  "kind": "seq",
+  "title": "非阻塞 connect：可写不等于连接成功",
+  "alt": "connect 返回 EINPROGRESS；可写后读 SO_ERROR，0 成功，非 0 失败",
+  "lanes": [
+    {"id": "app", "label": "应用"},
+    {"id": "sock", "label": "socket", "role": "kernel"},
+    {"id": "peer", "label": "对端", "role": "process"}
+  ],
+  "steps": [
+    {"from": "app", "to": "sock", "text": "connect()", "note": "fd 是非阻塞的，connect 不会等到握手完成"},
+    {"at": "app", "text": "返回 EINPROGRESS", "tone": "wait", "note": "返回 -1 且 errno 是 EINPROGRESS：结果还没出来"},
+    {"from": "sock", "to": "peer", "text": "SYN", "note": "三次握手在后台进行，应用可以去做别的事"},
+    {"from": "peer", "to": "sock", "text": "SYN+ACK", "note": "握手完成或失败，socket 状态都会改变"},
+    {"from": "sock", "to": "app", "text": "fd 变可写", "tone": "hot", "note": "可写只说明有结果，不说明结果是什么"},
+    {"at": "app", "text": "SO_ERROR=0", "tone": "ok", "note": "getsockopt 返回 0 且 err 为 0，连接成功"},
+    {"at": "app", "text": "SO_ERROR 非 0", "tone": "bad", "note": "连接失败：close 这个 fd，错误码已经读出并被清除"}
+  ]
+}

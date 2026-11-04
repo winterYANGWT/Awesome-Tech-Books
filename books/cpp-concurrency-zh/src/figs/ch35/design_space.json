@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "两个问题划出的四种服务器结构",
+  "alt": "按谁 accept 和连接是否固定，把四种结构放进 2×2 的格子里",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "h1", "label": "主线程 accept", "at": [1, 0], "shape": "note"},
+    {"id": "h2", "label": "worker accept", "at": [2, 0], "shape": "note"},
+    {"id": "fixed", "label": "连接固定", "at": [0, 1], "shape": "note"},
+    {"id": "hsa", "label": "半同步/半异步", "at": [1, 1], "sub": "主线程分 fd\n给 worker 的 epoll"},
+    {"id": "per", "label": "每 worker epoll", "at": [2, 1], "sub": "各自 accept"},
+    {"id": "free", "label": "连接可跨", "at": [0, 2], "shape": "note"},
+    {"id": "hsr", "label": "半同步/半反应堆", "at": [1, 2], "sub": "请求队列，任意 worker"},
+    {"id": "lf", "label": "领导者/追随者", "at": [2, 2], "sub": "共享事件源，EPOLLONESHOT"}
+  ],
+  "edges": [],
+  "steps": [
+    {"note": "列是问题一：谁 accept；行是问题二：连接是否固定"},
+    {"tone": {"hsa": "hot", "hsr": "hot"}, "note": "左列主线程 accept：上面分给固定 worker，下面进请求队列"},
+    {"tone": {"per": "ok", "lf": "ok"}, "note": "右列 worker 自己 accept：上面各自监听，下面共享事件源"}
+  ],
+  "static": true
+}

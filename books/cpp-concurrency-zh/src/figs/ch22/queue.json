@@ -1,0 +1,154 @@
+{
+  "kind": "flow",
+  "title": "每线程一个队列：入队锁队尾，出队只在 size=1 时加锁",
+  "alt": "四个线程各有一个队列，发送者把消息放进目标队列的队尾，拥有者从自己的队头出队",
+  "grid": [
+    4,
+    4
+  ],
+  "static": true,
+  "nodes": [
+    {
+      "id": "t0",
+      "label": "线程 0",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round",
+      "sub": "收自己的队列"
+    },
+    {
+      "id": "t1",
+      "label": "线程 1",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round",
+      "sub": "收自己的队列"
+    },
+    {
+      "id": "t2",
+      "label": "线程 2",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "round",
+      "sub": "收自己的队列"
+    },
+    {
+      "id": "t3",
+      "label": "线程 3",
+      "at": [
+        0,
+        3
+      ],
+      "shape": "round",
+      "sub": "收自己的队列"
+    },
+    {
+      "id": "q0",
+      "label": "队列 0",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "queue",
+      "slots": 2
+    },
+    {
+      "id": "q1",
+      "label": "队列 1",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "queue",
+      "slots": 2
+    },
+    {
+      "id": "q2",
+      "label": "队列 2",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "queue",
+      "slots": 2
+    },
+    {
+      "id": "q3",
+      "label": "队列 3",
+      "at": [
+        2,
+        3
+      ],
+      "shape": "queue",
+      "slots": 2
+    },
+    {
+      "id": "tail",
+      "label": "队尾锁",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "store",
+      "sub": "所有入队"
+    },
+    {
+      "id": "note",
+      "label": "size>1：拥有者\n直接出队",
+      "at": [
+        3,
+        2
+      ],
+      "shape": "note"
+    }
+  ],
+  "edges": [
+    {
+      "id": "send1",
+      "from": "t0",
+      "to": "q1",
+      "label": "入队（critical）",
+      "route": "hv"
+    },
+    {
+      "id": "send2",
+      "from": "t3",
+      "to": "q3",
+      "label": "入队（critical）"
+    },
+    {
+      "id": "deq1",
+      "from": "q1",
+      "to": "t1",
+      "label": "size=1：加锁",
+      "route": "hv"
+    },
+    {
+      "id": "deq0",
+      "from": "q0",
+      "to": "t0",
+      "label": "size>1：免锁",
+      "route": "vh"
+    },
+    {
+      "id": "lock",
+      "from": "tail",
+      "to": "q1",
+      "label": "保护队尾",
+      "dashed": true,
+      "arrow": "none",
+      "route": "hv"
+    }
+  ],
+  "steps": [
+    {
+      "note": "入队锁队尾；size>1 时拥有者直接出队，size=1 时加锁"
+    }
+  ]
+}

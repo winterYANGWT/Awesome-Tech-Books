@@ -1,0 +1,31 @@
+{
+  "kind": "seq",
+  "title": "持锁做慢操作，还是把慢操作移到锁外",
+  "alt": "A 持锁读文件时 B 一直等；把读文件移到锁外后，B 只等一小段临界区",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "m", "label": "mutex", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "holder", "label": "锁的持有者", "value": "—"}
+  ],
+  "steps": [
+    {"from": "a", "to": "m", "text": "`lock()`", "tone": "hot", "set": {"holder": "A"}, "note": "A 拿到锁，进入临界区"},
+    {"from": "b", "to": "m", "text": "`lock()`", "tone": "wait", "lane": {"b": "blocked"}, "note": "B 请求同一把锁，被阻塞"},
+    {"at": "a", "text": "慢操作（持锁）", "tone": "bad", "note": "A 持锁读文件，B 只能一直等"},
+    {"ops": [
+      {"from": "a", "to": "m", "text": "`unlock()`", "tone": "ok"},
+      {"from": "m", "to": "b", "text": "唤醒", "dashed": true}
+    ], "set": {"holder": "—"}, "lane": {"b": "running"}, "note": "A 释放锁，B 终于能进入"},
+    {"at": "a", "text": "慢操作（不持锁）", "tone": "ok", "note": "第二段：A 先把慢操作做完，这时不持锁"},
+    {"ops": [
+      {"from": "a", "to": "m", "text": "`lock()`"},
+      {"from": "b", "to": "m", "text": "`lock()`", "tone": "wait"}
+    ], "set": {"holder": "A"}, "lane": {"b": "blocked"}, "note": "A 只锁住一小段；B 仍要等，但等待很短"},
+    {"ops": [
+      {"from": "a", "to": "m", "text": "`unlock()`", "tone": "ok"},
+      {"from": "m", "to": "b", "text": "唤醒", "dashed": true}
+    ], "set": {"holder": "—"}, "lane": {"b": "running"}, "note": "B 的等待从整个慢操作缩短到一小段临界区"}
+  ]
+}

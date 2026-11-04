@@ -1,0 +1,231 @@
+{
+  "kind": "flow",
+  "title": "日志计数：四块 map 两两合并",
+  "alt": "每块先做局部 page→count，再两两合并，最后与空 map 合并；合并要复制整张表",
+  "speed": 1500,
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "b0",
+      "label": "块 0",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "原始日志"
+    },
+    {
+      "id": "b1",
+      "label": "块 1",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "原始日志"
+    },
+    {
+      "id": "b2",
+      "label": "块 2",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "原始日志"
+    },
+    {
+      "id": "b3",
+      "label": "块 3",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "原始日志"
+    },
+    {
+      "id": "c01",
+      "label": "合并 0+1",
+      "at": [
+        0,
+        1
+      ],
+      "span": [
+        2,
+        1
+      ],
+      "sub": "两张局部 map"
+    },
+    {
+      "id": "c23",
+      "label": "合并 2+3",
+      "at": [
+        2,
+        1
+      ],
+      "span": [
+        2,
+        1
+      ],
+      "sub": "两张局部 map"
+    },
+    {
+      "id": "res",
+      "label": "结果 map",
+      "at": [
+        1,
+        2
+      ],
+      "span": [
+        2,
+        1
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "init",
+      "label": "空 map",
+      "at": [
+        3,
+        2
+      ],
+      "shape": "store",
+      "sub": "init"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "from": "b0",
+      "to": "c01",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "e1",
+      "from": "b1",
+      "to": "c01",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "e2",
+      "from": "b2",
+      "to": "c23",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "e3",
+      "from": "b3",
+      "to": "c23",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "e4",
+      "from": "c01",
+      "to": "res",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "label": "部分结果"
+    },
+    {
+      "id": "e5",
+      "from": "c23",
+      "to": "res",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "label": "部分结果"
+    },
+    {
+      "id": "e6",
+      "from": "init",
+      "to": "res",
+      "fromSide": "left",
+      "toSide": "right",
+      "label": "init"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "b0",
+        "b1",
+        "b2",
+        "b3"
+      ],
+      "note": "四块日志各自做 map：每行变成 page→count"
+    },
+    {
+      "set": {
+        "b0": "局部 map",
+        "b1": "局部 map",
+        "b2": "局部 map",
+        "b3": "局部 map"
+      },
+      "note": "四块各得一张局部 map，彼此不共享可变状态"
+    },
+    {
+      "token": [
+        {
+          "edge": "e0",
+          "label": "map"
+        },
+        {
+          "edge": "e1",
+          "label": "map"
+        }
+      ],
+      "note": "合并 0+1：把一张表插进另一张"
+    },
+    {
+      "hi": [
+        "c01"
+      ],
+      "note": "第 4 步：合并要遍历并复制整张表，这是主要成本"
+    },
+    {
+      "token": [
+        {
+          "edge": "e2",
+          "label": "map"
+        },
+        {
+          "edge": "e3",
+          "label": "map"
+        }
+      ],
+      "note": "合并 2+3：同样复制两张局部 map"
+    },
+    {
+      "token": [
+        {
+          "edge": "e4",
+          "label": "部分"
+        },
+        {
+          "edge": "e5",
+          "label": "部分"
+        }
+      ],
+      "note": "两边的部分结果再合并一次"
+    },
+    {
+      "set": {
+        "res": "page→count"
+      },
+      "note": "得到每个页面的访问次数；合并顺序由归约树决定"
+    },
+    {
+      "token": [
+        {
+          "edge": "e6",
+          "label": "空 map"
+        }
+      ],
+      "note": "init 以拷贝参与合并，返回类型由 init 决定"
+    }
+  ]
+}

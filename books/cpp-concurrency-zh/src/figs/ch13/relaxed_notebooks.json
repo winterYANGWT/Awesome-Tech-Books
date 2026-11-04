@@ -1,0 +1,78 @@
+{
+  "kind": "seq",
+  "title": "relaxed：每个变量一本记事本",
+  "alt": "x 和 y 各有一条修改顺序，两个线程各看一列，能拼出互相矛盾的两组值",
+  "lanes": [
+    {
+      "id": "a",
+      "label": "线程 A"
+    },
+    {
+      "id": "nx",
+      "label": "x 记事本",
+      "role": "memory"
+    },
+    {
+      "id": "ny",
+      "label": "y 记事本",
+      "role": "memory"
+    },
+    {
+      "id": "b",
+      "label": "线程 B"
+    }
+  ],
+  "state": [
+    {
+      "id": "x",
+      "label": "x",
+      "value": "false"
+    },
+    {
+      "id": "y",
+      "label": "y",
+      "value": "false"
+    }
+  ],
+  "steps": [
+    {
+      "from": "a",
+      "to": "nx",
+      "text": "追加 true",
+      "set": {
+        "x": "true"
+      },
+      "note": "A 把 x 的 true 追加到 x 的记事本"
+    },
+    {
+      "from": "b",
+      "to": "ny",
+      "text": "追加 true",
+      "set": {
+        "y": "true"
+      },
+      "note": "B 把 y 的 true 追加到 y 的记事本"
+    },
+    {
+      "at": "a",
+      "text": "写 x=true；读 y=false",
+      "tone": "bad",
+      "note": "A 先写 x，再读 y，看到 B 的写还没来"
+    },
+    {
+      "at": "b",
+      "text": "写 y=true；读 x=false",
+      "tone": "bad",
+      "note": "B 先写 y，再读 x，看到 A 的写还没来"
+    },
+    {
+      "span": [
+        "nx",
+        "ny"
+      ],
+      "text": "各自单调，合起来无序",
+      "tone": "bad",
+      "note": "两本记事本拼不出一条全局时间线"
+    }
+  ]
+}

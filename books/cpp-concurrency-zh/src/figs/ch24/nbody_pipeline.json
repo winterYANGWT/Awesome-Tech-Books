@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "简化版一个时间步：清零、算力、求和、更新",
+  "alt": "清零每线程清自己的行，算力循环划分，求和和更新块划分，三个 omp for 末尾各有屏障",
+  "grid": [5, 1],
+  "static": true,
+  "nodes": [
+    {"id": "zero", "label": "清零本行", "at": [0, 0], "sub": "每线程一行"},
+    {"id": "force", "label": "算力", "at": [1, 0], "sub": "循环划分"},
+    {"id": "sum", "label": "屏障后求和", "at": [2, 0], "sub": "块划分"},
+    {"id": "update", "label": "屏障后更新", "at": [3, 0], "sub": "块划分"},
+    {"id": "next", "label": "屏障后下一步", "at": [4, 0], "sub": "新位置可见"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "zero", "to": "force"},
+    {"id": "e2", "from": "force", "to": "sum"},
+    {"id": "e3", "from": "sum", "to": "update"},
+    {"id": "e4", "from": "update", "to": "next"}
+  ],
+  "steps": [
+    {"hi": ["zero"], "note": "清零不划分：每个线程清自己那一行"},
+    {"hi": ["force"], "note": "算力用循环划分，负载更均衡"},
+    {"hi": ["sum"], "note": "算力段末尾的隐式屏障保证所有行写完，再按粒子求和"},
+    {"hi": ["update"], "note": "求和段末尾的隐式屏障保证 forces 写完，再更新位置"},
+    {"hi": ["next"], "note": "更新段末尾的隐式屏障保证新位置写完，下一步才读"}
+  ]
+}

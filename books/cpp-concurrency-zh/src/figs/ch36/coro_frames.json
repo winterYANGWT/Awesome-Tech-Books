@@ -1,0 +1,74 @@
+{
+  "kind": "seq",
+  "title": "co_await：帧、executor、回调",
+  "alt": "协程在 await_suspend 里把 handle 交给 executor 后返回调用方，I/O 完成时回调恢复它",
+  "lanes": [
+    {
+      "id": "caller",
+      "label": "调用方"
+    },
+    {
+      "id": "frame",
+      "label": "协程帧"
+    },
+    {
+      "id": "exec",
+      "label": "executor"
+    },
+    {
+      "id": "done",
+      "label": "完成回调",
+      "role": "kernel"
+    }
+  ],
+  "steps": [
+    {
+      "at": "caller",
+      "text": "创建 task",
+      "note": "调用协程函数只建帧；initial_suspend 让它在起点挂起"
+    },
+    {
+      "from": "caller",
+      "to": "frame",
+      "text": "resume()",
+      "note": "调用方恢复协程，开始执行函数体"
+    },
+    {
+      "at": "frame",
+      "text": "执行到 co_await",
+      "note": "先问 await_ready；定时器还没到期，返回 false"
+    },
+    {
+      "from": "frame",
+      "to": "exec",
+      "text": "await_suspend(handle)",
+      "dashed": true,
+      "note": "把 coroutine_handle 交给 executor，协程在这里挂起"
+    },
+    {
+      "from": "frame",
+      "to": "caller",
+      "text": "返回调用方",
+      "dashed": true,
+      "note": "挂起后控制权回到调用方，调用方继续做别的事"
+    },
+    {
+      "from": "exec",
+      "to": "done",
+      "text": "I/O 完成",
+      "note": "内核或定时器就绪，executor 取出对应的完成回调"
+    },
+    {
+      "from": "done",
+      "to": "frame",
+      "text": "handle.resume()",
+      "note": "回调恢复协程，从刚才的挂起点继续执行"
+    },
+    {
+      "from": "frame",
+      "to": "caller",
+      "text": "co_return 42",
+      "note": "final_suspend 挂住帧；调用方读结果后再销毁它"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "数一数在 pop 里的线程",
+  "alt": "A 判断 count==1 后 B、C 才进来；摘链后再查一次，count=3，Y 挂回",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "b", "label": "线程 B"},
+    {"id": "c", "label": "线程 C"},
+    {"id": "q", "label": "待删链", "role": "memory"}
+  ],
+  "state": [
+    {"id": "count", "label": "count", "value": "0"},
+    {"id": "list", "label": "待删链", "value": "空"}
+  ],
+  "steps": [
+    {"at": "a", "text": "进入 pop，count=1", "set": {"count": "1"}, "note": "A 是当时唯一在 pop 里的线程"},
+    {"at": "b", "text": "进入 pop，读到 Y", "set": {"count": "2"}, "note": "B 把 Y 当作 old_head，还没读 next"},
+    {"at": "c", "text": "弹出 Y", "set": {"count": "3"}, "note": "C 把 Y 摘下，准备挂进待删链"},
+    {"from": "c", "to": "q", "text": "挂入 Y", "set": {"list": "Y"}, "note": "Y 不在栈上了，但 B 还拿着它"},
+    {"at": "a", "text": "exchange 摘下整条链", "set": {"list": "空"}, "tone": "hot", "note": "A 以为自己可以回收，先把链摘下来"},
+    {"at": "a", "text": "再查 count=3", "tone": "wait", "note": "摘下链之后还要再查一次计数"},
+    {"from": "a", "to": "q", "text": "把 Y 挂回", "set": {"list": "Y"}, "tone": "wait", "note": "B、C 还在 pop 里，Y 不能删"}
+  ]
+}

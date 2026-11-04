@@ -1,0 +1,31 @@
+{
+  "kind": "seq",
+  "title": "barrier 的三个阶段点",
+  "alt": "三个线程到达；线程 2 最后到达并 drop，完成函数运行后只释放线程 0 和 1",
+  "lanes": [
+    {"id": "t0", "label": "线程 0"},
+    {"id": "t1", "label": "线程 1"},
+    {"id": "t2", "label": "线程 2"},
+    {"id": "bar", "label": "barrier"}
+  ],
+  "state": [
+    {"id": "phase", "label": "阶段", "value": "1"},
+    {"id": "count", "label": "还差几个", "value": "3"}
+  ],
+  "steps": [
+    {"ops": [
+      {"at": "t0", "text": "阶段 1 工作"},
+      {"at": "t1", "text": "阶段 1 工作"},
+      {"at": "t2", "text": "阶段 1 工作"}
+    ], "note": "三个线程并行做第一阶段"},
+    {"from": "t0", "to": "bar", "text": "到达", "lane": {"t0": "blocked"}, "set": {"count": "2"}, "note": "线程 0 先到，等其他人"},
+    {"from": "t1", "to": "bar", "text": "到达", "lane": {"t1": "blocked"}, "set": {"count": "1"}, "note": "线程 1 也到，还差一个"},
+    {"from": "t2", "to": "bar", "text": "最后到达 + drop", "tone": "hot", "set": {"count": "0"}, "note": "线程 2 最后到达并 drop：当前阶段减到 0，下一轮只等 2 个"},
+    {"at": "bar", "text": "完成函数：阶段 1", "tone": "hot", "note": "完成函数只运行一次，不能改下一轮人数"},
+    {"span": ["t0", "t1"], "text": "释放线程 0、1", "tone": "ok", "set": {"phase": "2", "count": "2"}, "lane": {"t0": "running", "t1": "running", "t2": "done"}, "note": "阶段 1 结束；线程 2 已 drop，不进入阶段 2"},
+    {"ops": [
+      {"at": "t0", "text": "阶段 2 工作"},
+      {"at": "t1", "text": "阶段 2 工作"}
+    ], "note": "阶段 2 只有线程 0 和 1"}
+  ]
+}

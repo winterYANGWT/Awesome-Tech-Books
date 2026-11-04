@@ -1,0 +1,195 @@
+{
+  "kind": "flow",
+  "title": "stop_token：请求怎么传开",
+  "alt": "stop_source 发出请求，token 能查到，回调在 request_stop 的线程上执行",
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "src",
+      "label": "stop_source",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round",
+      "sub": "stop_state：未请求"
+    },
+    {
+      "id": "tok1",
+      "label": "stop_token 1",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "线程 1 持有"
+    },
+    {
+      "id": "tok2",
+      "label": "stop_token 2",
+      "at": [
+        1,
+        2
+      ],
+      "sub": "线程 2 持有"
+    },
+    {
+      "id": "cb1",
+      "label": "stop_callback A",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "唤醒条件变量"
+    },
+    {
+      "id": "cb2",
+      "label": "stop_callback B",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "关闭 fd"
+    },
+    {
+      "id": "w1",
+      "label": "等待中的线程",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "w2",
+      "label": "阻塞在 fd 的线程",
+      "at": [
+        3,
+        2
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "src",
+      "to": "tok1",
+      "label": "共享状态"
+    },
+    {
+      "id": "e2",
+      "from": "src",
+      "to": "tok2",
+      "label": "共享状态"
+    },
+    {
+      "id": "e3",
+      "from": "tok1",
+      "to": "cb1",
+      "label": "注册"
+    },
+    {
+      "id": "e4",
+      "from": "tok2",
+      "to": "cb2",
+      "label": "注册"
+    },
+    {
+      "id": "e5",
+      "from": "cb1",
+      "to": "w1",
+      "label": "notify_all",
+      "dashed": true
+    },
+    {
+      "id": "e6",
+      "from": "cb2",
+      "to": "w2",
+      "label": "close(fd)",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "src"
+      ],
+      "note": "stop_source 持有停止状态，初始没有请求"
+    },
+    {
+      "hi": [
+        "tok1",
+        "tok2"
+      ],
+      "note": "两个线程各持有一个 stop_token，指向同一停止状态"
+    },
+    {
+      "hi": [
+        "cb1",
+        "cb2"
+      ],
+      "note": "注册回调：一个负责唤醒等待，一个负责关闭 fd"
+    },
+    {
+      "token": [
+        {
+          "edge": "e1",
+          "label": "request_stop"
+        }
+      ],
+      "hi": [
+        "cb1",
+        "cb2"
+      ],
+      "tone": {
+        "src": "hot"
+      },
+      "set": {
+        "src": "stop_state：已请求"
+      },
+      "note": "第 4 步：回调在调用 request_stop 的线程上同步执行"
+    },
+    {
+      "token": [
+        {
+          "edge": "e5",
+          "label": "notify_all"
+        },
+        {
+          "edge": "e6",
+          "label": "close"
+        }
+      ],
+      "hi": [
+        "e5",
+        "e6"
+      ],
+      "note": "回调 A 叫醒条件变量，回调 B 让阻塞的 fd 返回"
+    },
+    {
+      "hi": [
+        "tok1",
+        "tok2"
+      ],
+      "tone": {
+        "tok1": "wait",
+        "tok2": "wait"
+      },
+      "note": "第 6 步：token 只是查询，不会打断线程"
+    },
+    {
+      "hi": [
+        "w1",
+        "w2"
+      ],
+      "tone": {
+        "w1": "ok",
+        "w2": "ok"
+      },
+      "note": "线程从等待返回，查到停止请求；清理后在检查点退出"
+    }
+  ]
+}

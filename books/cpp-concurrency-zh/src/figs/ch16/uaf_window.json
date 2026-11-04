@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "pop 的窗口：读 head 之后、读 next 之前",
+  "alt": "写线程在窗口里弹出并释放 A，读线程醒来解引用 A->next，ASan 报释放后使用",
+  "lanes": [
+    {"id": "r", "label": "读线程"},
+    {"id": "w", "label": "写线程"},
+    {"id": "h", "label": "栈 head", "role": "memory"}
+  ],
+  "state": [
+    {"id": "head", "label": "head", "value": "A→B"},
+    {"id": "p", "label": "读线程的 p", "value": "—"},
+    {"id": "data", "label": "读到的 data", "value": "—"},
+    {"id": "a", "label": "A 的存储", "value": "在用"}
+  ],
+  "steps": [
+    {"from": "h", "to": "r", "text": "读 head=A", "set": {"p": "A"}, "note": "读线程把 A 记进 p"},
+    {"at": "r", "text": "读 A->data", "set": {"data": "1"}, "note": "先读 data=1；next 还没读，窗口从这里开始"},
+    {"from": "w", "to": "h", "text": "CAS head: A→B", "set": {"head": "B"}, "note": "写线程把 A 弹出，head 变成 B"},
+    {"at": "w", "text": "delete A", "tone": "bad", "set": {"a": "已释放"}, "note": "A 的存储归还给分配器，p 仍是旧地址"},
+    {"at": "r", "text": "解引用 A->next", "tone": "bad", "note": "释放发生在读之前，解引用发生在释放之后"},
+    {"span": ["r", "w"], "text": "heap-use-after-free", "tone": "bad", "note": "两次访问之间没有同步，读到的是已释放内存"}
+  ]
+}

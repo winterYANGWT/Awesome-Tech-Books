@@ -1,0 +1,20 @@
+{
+  "kind": "seq",
+  "title": "持锁 join 形成的等待环",
+  "alt": "主线程持锁等 worker 结束，worker 等同一把锁，两边谁也不动",
+  "lanes": [
+    {"id": "main", "label": "主线程"},
+    {"id": "worker", "label": "工作线程"}
+  ],
+  "state": [
+    {"id": "m", "label": "m", "value": "空闲"}
+  ],
+  "steps": [
+    {"at": "main", "text": "`lock(m)` 成功", "set": {"m": "主线程持有"}, "note": "主线程先拿到 m，进入临界区"},
+    {"from": "main", "to": "worker", "text": "创建 worker", "lane": {"worker": "new"}, "note": "worker 启动，主线程还拿着 m"},
+    {"at": "main", "text": "`join(worker)`", "tone": "wait", "lane": {"main": "blocked"}, "note": "主线程在 join 上等 worker 结束"},
+    {"at": "worker", "text": "`lock(m)` → 阻塞", "tone": "wait", "lane": {"worker": "blocked"}, "note": "worker 第一件事就是锁 m，但 m 在主线程手里"},
+    {"span": ["main", "worker"], "text": "环：join 等线程，线程等锁", "tone": "bad", "note": "worker 不结束，join 不返回；主线程不释放锁"},
+    {"at": "main", "text": "jthread 析构也一样", "tone": "bad", "note": "析构在持锁作用域里发生时，同样会 join"}
+  ]
+}

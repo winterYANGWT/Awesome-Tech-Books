@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "Probe 只看信封，Get_count 定长度",
+  "alt": "消息带着未知长度的数组到达，rank 0 先 Probe 读信封，再 Get_count，分配空间后 Recv 取走",
+  "lanes": [
+    {"id": "w", "label": "rank 1"},
+    {"id": "q", "label": "rank 0 的队列", "role": "memory"},
+    {"id": "c", "label": "rank 0 代码"}
+  ],
+  "state": [
+    {"id": "len", "label": "消息长度", "value": "未知"},
+    {"id": "buf", "label": "接收缓冲区", "value": "未分配"}
+  ],
+  "steps": [
+    {"from": "w", "to": "q", "text": "`Send` vector", "note": "rank 1 发来一个长度随 rank 变化的数组"},
+    {"at": "q", "text": "消息到达", "set": {"len": "未知"}, "note": "消息进了预期队列，但 rank 0 还不知道有多长"},
+    {"from": "q", "to": "c", "text": "`MPI_Probe`", "note": "Probe 只读来源、tag 和长度信息，不取走数据"},
+    {"at": "c", "text": "`MPI_Get_count`", "set": {"len": "3"}, "note": "Probe 不删除消息；Get_count 按接收类型算出 3 个 double"},
+    {"at": "c", "text": "分配 vector", "set": {"buf": "3 个 double"}, "note": "有了长度才能分配正好大小的缓冲区"},
+    {"from": "q", "to": "c", "text": "`MPI_Recv`", "set": {"buf": "已填满"}, "note": "用相同信封 Recv，才把消息从队列里取走"}
+  ]
+}

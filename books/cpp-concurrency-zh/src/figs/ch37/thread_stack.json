@@ -1,0 +1,26 @@
+{
+  "kind": "flow",
+  "title": "线程栈、guard page 与 TLS",
+  "alt": "主线程栈可增长；每个新线程有固定大小的栈和 guard page，TLS 每线程一份",
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "code", "label": "代码与全局数据", "at": [0, 0], "shape": "store"},
+    {"id": "heap", "label": "堆", "at": [0, 1], "shape": "store"},
+    {"id": "main", "label": "主线程栈", "at": [0, 2], "shape": "store", "sub": "可增长"},
+    {"id": "tls", "label": "TLS", "at": [1, 0], "sub": "每线程一份"},
+    {"id": "s1", "label": "线程 1 栈", "at": [1, 1], "shape": "store", "sub": "默认 8 MiB"},
+    {"id": "s2", "label": "线程 2 栈", "at": [1, 2], "shape": "store", "sub": "默认 8 MiB"},
+    {"id": "guard", "label": "guard page", "at": [2, 1], "span": [1, 2], "shape": "note", "sub": "栈溢出先碰它"},
+    {"id": "attr", "label": "setstacksize", "at": [2, 0], "sub": "pthread_attr_*"}
+  ],
+  "edges": [
+    {"id": "s1_g", "from": "s1", "to": "guard"},
+    {"id": "s2_g", "from": "s2", "to": "guard"},
+    {"id": "a_s1", "from": "attr", "to": "s1", "label": "改这一段"},
+    {"id": "a_s2", "from": "attr", "to": "s2", "label": "改这一段"}
+  ],
+  "steps": [
+    {"hi": ["s1", "s2", "guard"], "tone": {"attr": "hot"}, "note": "setstacksize 只改线程栈的保留大小；guard page 由实现加"}
+  ],
+  "static": true
+}

@@ -1,0 +1,31 @@
+{
+  "kind": "flow",
+  "title": "三种划分方式与 Foster 四步",
+  "alt": "按数据、递归结构或任务类型拆；底部用划分、通信、凝聚、映射四步检查",
+  "static": true,
+  "grid": [4, 5],
+  "nodes": [
+    {"id": "problem", "label": "问题", "at": [0, 0], "sub": "拆成任务\n两个指标：均衡、通信"},
+    {"id": "data", "label": "按数据", "at": [0, 1], "sub": "负载易均衡\n通信少"},
+    {"id": "rec", "label": "按递归结构", "at": [1, 1], "sub": "边界要算出来\n任务进栈"},
+    {"id": "task", "label": "按任务类型", "at": [2, 1], "sub": "长度未知\n队列连接"},
+    {"id": "f1", "label": "1 划分", "at": [0, 4], "sub": "尽量细"},
+    {"id": "f2", "label": "2 通信", "at": [1, 4], "sub": "找依赖"},
+    {"id": "f3", "label": "3 凝聚", "at": [2, 4], "sub": "合并粒度"},
+    {"id": "f4", "label": "4 映射", "at": [3, 4], "sub": "分配执行体"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "problem", "to": "data", "label": "看边界"},
+    {"id": "e2", "from": "problem", "to": "rec", "label": "看递归"},
+    {"id": "e3", "from": "problem", "to": "task", "label": "看类型"},
+    {"id": "e4", "from": "f1", "to": "f2", "label": "再试"},
+    {"id": "e5", "from": "f2", "to": "f3", "label": ""},
+    {"id": "e6", "from": "f3", "to": "f4", "label": ""}
+  ],
+  "bands": [
+    {"label": "Foster 四步", "rows": [3, 4]}
+  ],
+  "steps": [
+    {"note": "先按三种方式拆，再用四步反复检查粒度、通信和映射"}
+  ]
+}

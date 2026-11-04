@@ -1,0 +1,28 @@
+{
+  "kind": "flow",
+  "title": "select 与 poll：每次调用都复制再扫描",
+  "alt": "用户态集合每次复制进内核，内核 O(n) 检查，返回后应用再 O(n) 扫描",
+  "grid": [2, 3],
+  "nodes": [
+    {"id": "u", "label": "用户态集合", "at": [0, 0], "shape": "store", "sub": "位图或数组"},
+    {"id": "c", "label": "select/poll", "at": [1, 0]},
+    {"id": "k", "label": "内核遍历", "at": [1, 1], "shape": "round"},
+    {"id": "r", "label": "回填结果", "at": [0, 1], "shape": "store", "sub": "revents"},
+    {"id": "s", "label": "应用再扫描", "at": [0, 2], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "copy", "from": "u", "to": "c", "label": "复制"},
+    {"id": "check", "from": "c", "to": "k", "label": "O(n)"},
+    {"id": "fill", "from": "k", "to": "r", "label": "就绪位"},
+    {"id": "ret", "from": "r", "to": "s", "label": "返回"},
+    {"id": "again", "from": "s", "to": "u", "label": "重建", "dashed": true, "fromSide": "left", "toSide": "left"}
+  ],
+  "steps": [
+    {"hi": ["u"], "note": "每次调用前都要重建位图或 pollfd 数组"},
+    {"token": [{"edge": "copy", "label": "整个集合"}], "note": "整个集合复制进内核，fd 越多复制越贵"},
+    {"hi": ["k"], "note": "内核逐个检查，开销是 O(n)，与活跃 fd 数无关"},
+    {"token": [{"edge": "fill", "label": "就绪位"}], "note": "内核把结果写回同一组集合"},
+    {"token": [{"edge": "ret", "label": "返回"}], "note": "返回后应用还要再扫描一遍，才能找出就绪的 fd"},
+    {"token": [{"edge": "again", "label": "下次"}], "note": "下次调用又从零开始：重复复制、重复扫描"}
+  ]
+}

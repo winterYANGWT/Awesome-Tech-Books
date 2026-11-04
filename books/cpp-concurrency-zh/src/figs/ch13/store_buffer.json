@@ -1,0 +1,21 @@
+{
+  "kind": "seq",
+  "title": "store buffer 与 release/acquire",
+  "alt": "release 只排前面的写，acquire 只排后面的读；两个线程都读到旧值",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "abuf", "label": "A 的缓冲", "role": "memory"},
+    {"id": "m", "label": "内存", "role": "memory"},
+    {"id": "bbuf", "label": "B 的缓冲", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "steps": [
+    {"at": "a", "text": "x.store(release)", "tone": "hot", "note": "A 用 release 写 x"},
+    {"from": "a", "to": "abuf", "text": "x=true 留在缓冲", "tone": "wait", "note": "别的核暂时看不到这条写"},
+    {"at": "b", "text": "读 x = false", "tone": "bad", "note": "B 的 acquire load 读到内存里的旧值"},
+    {"at": "b", "text": "y.store(release)", "tone": "hot", "note": "B 用 release 写 y"},
+    {"from": "b", "to": "bbuf", "text": "y=true 留在缓冲", "tone": "wait", "note": "A 也暂时看不到 B 的写"},
+    {"at": "a", "text": "读 y = false", "tone": "bad", "note": "A 的 acquire load 也读到旧值"},
+    {"span": ["a", "b"], "text": "两个都读到旧值", "tone": "bad", "note": "release/acquire 不排 store→load；写没丢，缓冲稍后刷出"}
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "服务器性能：四个杠杆和前置检查",
+  "alt": "先查资源上限，再从池化、少复制、控切换、少加锁四处下手",
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "pool", "label": "池化", "at": [0, 0], "sub": "线程/连接/缓冲"},
+    {"id": "copy", "label": "少复制", "at": [1, 0], "sub": "视图/零拷贝"},
+    {"id": "switch", "label": "控切换", "at": [2, 0], "sub": "线程数/事件循环"},
+    {"id": "lock", "label": "少加锁", "at": [3, 0], "sub": "无共享/细粒度"},
+    {"id": "limits", "label": "先查资源上限", "at": [1, 1], "span": [2, 1], "shape": "store", "sub": "fd / backlog / watch"}
+  ],
+  "edges": [
+    {"id": "l1", "from": "limits", "to": "pool", "fromSide": "top", "toSide": "bottom", "dashed": true},
+    {"id": "l2", "from": "limits", "to": "copy", "fromSide": "top", "toSide": "bottom", "dashed": true},
+    {"id": "l3", "from": "limits", "to": "switch", "fromSide": "top", "toSide": "bottom", "dashed": true},
+    {"id": "l4", "from": "limits", "to": "lock", "fromSide": "top", "toSide": "bottom", "dashed": true}
+  ],
+  "static": true,
+  "steps": [
+    {"hi": ["limits"], "note": "先查上限：RLIMIT_NOFILE 是每进程，backlog 受 somaxconn 封顶"},
+    {"hi": ["pool"], "note": "池化：改预分配；量命中率和等待时间；坑是池太小排长队"},
+    {"hi": ["copy"], "note": "少复制：改视图或 sendfile；量拷贝字节；要解析时省不掉"},
+    {"hi": ["switch"], "note": "控切换：改线程数或事件循环；量上下文切换次数"},
+    {"hi": ["lock"], "note": "少加锁：改无共享或细粒度；量争用和 p99；细粒度不一定快"}
+  ]
+}

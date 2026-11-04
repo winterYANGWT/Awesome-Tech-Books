@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "求和：加速比随线程数变化",
+  "alt": "线程数增加时加速比上升，但逐渐落在理想直线下面",
+  "type": "line",
+  "data": "code/ch18/18_1_speedup.out",
+  "x": {"label": "线程数", "scale": "log2"},
+  "y": {"label": "加速比", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2；数字随机器和负载变化"
+}

@@ -1,0 +1,16 @@
+{
+  "kind": "chart",
+  "title": "顺序访问与随机跳转：每元素耗时",
+  "alt": "顺序求和的每元素耗时远低于依赖式随机访问；差的是等待延迟，不是搬运带宽",
+  "type": "bar",
+  "data": "code/ch02/2_1_pointer_chase.out",
+  "x": {
+    "label": "访问方式"
+  },
+  "y": {
+    "label": "每元素耗时",
+    "unit": "ns",
+    "min": 0
+  },
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2；数字随机器变化"
+}

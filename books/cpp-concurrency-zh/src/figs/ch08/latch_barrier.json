@@ -1,0 +1,29 @@
+{
+  "kind": "seq",
+  "title": "latch 一次性放行，barrier 每轮都能复用",
+  "alt": "三个线程 count_down 后 latch 永久就绪，之后再 wait 立即返回；barrier 每轮到齐才继续",
+  "lanes": [
+    {"id": "m", "label": "主线程"},
+    {"id": "t1", "label": "线程 1"},
+    {"id": "t2", "label": "线程 2"},
+    {"id": "t3", "label": "线程 3"}
+  ],
+  "state": [
+    {"id": "latch", "label": "latch 计数", "value": "3"},
+    {"id": "round", "label": "barrier 轮次", "value": "0"}
+  ],
+  "steps": [
+    {"at": "t1", "text": "`count_down()`", "set": {"latch": "2"}, "note": "线程 1 准备好，latch 计数减一"},
+    {"at": "t2", "text": "`count_down()`", "set": {"latch": "1"}, "note": "线程 2 也到了，计数减到 1"},
+    {"at": "t3", "text": "`count_down()`", "set": {"latch": "0"}, "note": "线程 3 最后一个到达，计数到 0"},
+    {"at": "m", "text": "`wait()` 返回", "tone": "ok", "note": "主线程等到计数为 0，latch 从此永久就绪"},
+    {"ops": [
+      {"at": "t1", "text": "继续"},
+      {"at": "t2", "text": "继续"},
+      {"at": "t3", "text": "继续"}
+    ], "note": "三个线程继续执行；latch 不能重置，之后的 wait 立即返回"},
+    {"at": "t1", "text": "再 `wait()` 立即返回", "tone": "muted", "note": "latch 已经就绪，后来的 wait 不再阻塞"},
+    {"span": ["t1", "t2", "t3"], "text": "第 1 轮到齐", "set": {"round": "1"}, "note": "barrier 第 1 轮：三个线程都到齐才一起继续"},
+    {"span": ["t1", "t2", "t3"], "text": "第 2 轮到齐", "tone": "hot", "set": {"round": "2"}, "note": "同一个 barrier 直接用于第 2 轮，计数已经重置"}
+  ]
+}

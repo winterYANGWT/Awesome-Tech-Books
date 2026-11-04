@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "每个成员函数都加锁，接口仍然有竞争",
+  "alt": "A、B 都看到栈非空、都 top 到 42，A 先 pop 走，B 再 pop 就空了",
+  "lanes": [
+    {"id": "a", "label": "线程 A"},
+    {"id": "s", "label": "栈", "role": "memory"},
+    {"id": "b", "label": "线程 B"}
+  ],
+  "state": [
+    {"id": "top", "label": "栈顶", "value": "42"}
+  ],
+  "steps": [
+    {"at": "s", "text": "只有一个元素 42", "note": "栈里只剩一个元素 42"},
+    {"from": "s", "to": "a", "text": "`empty()` 非空", "note": "A 的 empty() 返回非空；函数返回时锁已释放"},
+    {"from": "s", "to": "b", "text": "`empty()` 非空", "note": "B 的 empty() 也返回非空；锁已释放"},
+    {"from": "s", "to": "a", "text": "`top()` = 42", "note": "A 的 top() 拿到 42；锁已释放"},
+    {"from": "s", "to": "b", "text": "`top()` = 42", "note": "B 的 top() 也拿到 42；锁已释放"},
+    {"from": "a", "to": "s", "text": "`pop()` 取走 42", "set": {"top": "空"}, "note": "A 的 pop() 取走 42，栈变空；锁已释放"},
+    {"from": "b", "to": "s", "text": "`pop()` 已经空", "tone": "bad", "note": "B 再 pop 只看到空栈：同一个 42 被两个线程都当成自己的任务"}
+  ]
+}

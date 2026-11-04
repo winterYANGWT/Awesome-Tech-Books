@@ -1,0 +1,92 @@
+{
+  "kind": "flow",
+  "title": "五层各自保证什么、不保证什么",
+  "alt": "编译器只保数据依赖，缓冲和失效队列延迟可见性，一致性只保同一地址，语言模型才定义先行发生",
+  "static": true,
+  "grid": [
+    1,
+    5
+  ],
+  "nodes": [
+    {
+      "id": "compiler",
+      "label": "编译器重排",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "保数据依赖\n可挪无关访存"
+    },
+    {
+      "id": "sb",
+      "label": "store buffer",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "隐藏写延迟\n写尚未可见"
+    },
+    {
+      "id": "iq",
+      "label": "invalidate queue",
+      "at": [
+        0,
+        2
+      ],
+      "sub": "延迟处理失效\n旧副本仍在"
+    },
+    {
+      "id": "coherence",
+      "label": "cache 一致性",
+      "at": [
+        0,
+        3
+      ],
+      "sub": "同一地址最终一致\n不排序不同地址"
+    },
+    {
+      "id": "model",
+      "label": "语言内存模型",
+      "at": [
+        0,
+        4
+      ],
+      "sub": "定义先行发生\n约束可见顺序"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "compiler",
+      "to": "sb",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "e2",
+      "from": "sb",
+      "to": "iq",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "e3",
+      "from": "iq",
+      "to": "coherence",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "e4",
+      "from": "coherence",
+      "to": "model",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "steps": [
+    {
+      "note": "上面四层是硬件和编译器的行为；最下面一层才是 C++ 给你的保证"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "kind": "seq",
+  "title": "栅栏位置：拦住谁，取决于它放在哪",
+  "alt": "正确侧栅栏夹在 store 与 load 之间；错误侧栅栏在 store 之前，两个读都可能落空",
+  "lanes": [
+    {"id": "ok_a", "label": "正确：线程 A"},
+    {"id": "ok_b", "label": "正确：线程 B"},
+    {"id": "bad_a", "label": "错误：线程 A"},
+    {"id": "bad_b", "label": "错误：线程 B"}
+  ],
+  "steps": [
+    {"at": "ok_a", "text": "x.store(true)", "tone": "hot", "note": "正确：A 先写 x"},
+    {"at": "ok_a", "text": "fence(seq_cst)", "tone": "ok", "note": "栅栏夹在 A 的 store 与 load 之间"},
+    {"at": "ok_b", "text": "y.store(true)", "tone": "hot", "note": "正确：B 也先写 y"},
+    {"at": "ok_b", "text": "fence(seq_cst)", "tone": "ok", "note": "B 的栅栏同样在 store 与 load 之间"},
+    {"at": "ok_a", "text": "读 y = true", "tone": "ok", "note": "A 的 load 在栅栏后，看到 B 的写"},
+    {"at": "ok_b", "text": "读 x = true", "tone": "ok", "note": "B 也看到 A 的写；两个读不会都落空"},
+    {"at": "bad_a", "text": "fence(seq_cst)", "tone": "bad", "note": "错误：A 的栅栏放在 store 之前"},
+    {"at": "bad_a", "text": "x.store(true)", "note": "栅栏在 store 之前，管不到这条 store"},
+    {"at": "bad_b", "text": "fence(seq_cst)", "tone": "bad", "note": "错误：B 的栅栏也在 store 之前"},
+    {"at": "bad_b", "text": "y.store(true)", "note": "B 的 store 同样没被栅栏管住"},
+    {"at": "bad_a", "text": "读 y = false", "tone": "bad", "note": "A 的 store 还在缓冲，读到 B 的旧值"},
+    {"at": "bad_b", "text": "读 x = false", "tone": "bad", "note": "B 也读到旧值；位置比数量重要"}
+  ]
+}

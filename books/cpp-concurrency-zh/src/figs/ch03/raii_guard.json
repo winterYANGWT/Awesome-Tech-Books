@@ -1,0 +1,162 @@
+{
+  "kind": "flow",
+  "title": "异常路径上的三种收尾方式",
+  "alt": "没有守卫时 terminate；有守卫时先 join；jthread 先 request_stop 再 join",
+  "grid": [
+    3,
+    3
+  ],
+  "bands": [
+    {
+      "label": "正常路径",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "异常路径",
+      "rows": [
+        1,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "work",
+      "label": "启动并工作",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "线程开始执行"
+    },
+    {
+      "id": "ok",
+      "label": "正常返回",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "join",
+      "label": "join()",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "boom",
+      "label": "主线程抛异常",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "naked",
+      "label": "裸 thread",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "没有守卫"
+    },
+    {
+      "id": "term",
+      "label": "terminate",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "guard",
+      "label": "守卫 / jthread",
+      "at": [
+        1,
+        2
+      ],
+      "sub": "析构负责收尾"
+    },
+    {
+      "id": "safe",
+      "label": "join 或 stop+join",
+      "at": [
+        2,
+        2
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "work",
+      "to": "ok",
+      "label": "返回"
+    },
+    {
+      "id": "e2",
+      "from": "ok",
+      "to": "join",
+      "label": "调用"
+    },
+    {
+      "id": "e3",
+      "from": "work",
+      "to": "boom",
+      "label": "抛异常",
+      "dashed": true
+    },
+    {
+      "id": "e4",
+      "from": "boom",
+      "to": "naked"
+    },
+    {
+      "id": "e5",
+      "from": "naked",
+      "to": "term"
+    },
+    {
+      "id": "e6",
+      "from": "boom",
+      "to": "guard"
+    },
+    {
+      "id": "e7",
+      "from": "guard",
+      "to": "safe"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "ok",
+        "join"
+      ],
+      "note": "正常路径：主线程在 join 处等到线程结束"
+    },
+    {
+      "hi": [
+        "naked",
+        "term"
+      ],
+      "tone": {
+        "term": "bad"
+      },
+      "note": "没有守卫：thread 析构时仍 joinable，调用 terminate"
+    },
+    {
+      "hi": [
+        "guard",
+        "safe"
+      ],
+      "note": "有守卫：栈展开先 join；jthread 先 request_stop 再 join"
+    }
+  ],
+  "static": true
+}

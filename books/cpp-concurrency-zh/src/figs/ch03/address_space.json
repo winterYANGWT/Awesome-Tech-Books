@@ -1,0 +1,29 @@
+{
+  "kind": "flow",
+  "title": "一个进程三个线程：共享地址空间，私有栈",
+  "alt": "三个线程共享代码、数据、堆和 fd 表，各自有栈、寄存器和 TLS",
+  "grid": [3, 3],
+  "bands": [
+    {"label": "用户空间", "rows": [0, 1]},
+    {"label": "内核空间", "rows": [2, 2]}
+  ],
+  "nodes": [
+    {"id": "proc", "label": "进程地址空间", "at": [0, 0], "span": [3, 1], "shape": "store", "sub": "代码 · 数据 · 堆 · fd 表"},
+    {"id": "t0", "label": "线程 0", "at": [0, 1], "shape": "round", "sub": "私有栈 · 寄存器 · TLS"},
+    {"id": "t1", "label": "线程 1", "at": [1, 1], "shape": "round", "sub": "私有栈 · 寄存器 · TLS"},
+    {"id": "t2", "label": "线程 2", "at": [2, 1], "shape": "round", "sub": "私有栈 · 寄存器 · TLS"},
+    {"id": "kernel", "label": "内核调度实体", "at": [0, 2], "span": [3, 1], "sub": "每个线程一个 task 结构"}
+  ],
+  "edges": [
+    {"id": "shared0", "from": "proc", "to": "t0", "label": "共享", "fromSide": "bottom", "toSide": "top"},
+    {"id": "shared1", "from": "proc", "to": "t1", "label": "共享", "fromSide": "bottom", "toSide": "top"},
+    {"id": "shared2", "from": "proc", "to": "t2", "label": "共享", "fromSide": "bottom", "toSide": "top"},
+    {"id": "sched0", "from": "t0", "to": "kernel", "label": "调度", "fromSide": "bottom", "toSide": "top"},
+    {"id": "sched1", "from": "t1", "to": "kernel", "label": "调度", "fromSide": "bottom", "toSide": "top"},
+    {"id": "sched2", "from": "t2", "to": "kernel", "label": "调度", "fromSide": "bottom", "toSide": "top"}
+  ],
+  "steps": [
+    {"hi": ["proc", "t1"], "note": "线程共享代码、数据、堆和 fd 表，各自的栈、寄存器和 TLS 私有"}
+  ],
+  "static": true
+}

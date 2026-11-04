@@ -1,0 +1,26 @@
+{
+  "kind": "flow",
+  "title": "for_each(par) 的后端选择",
+  "alt": "PSTL 在编译期选后端：有 TBB 才并行，没有 TBB 就串行",
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "call", "label": "`for_each(par)`", "at": [0, 0]},
+    {"id": "pstl", "label": "PSTL", "at": [1, 0]},
+    {"id": "choice", "label": "选择后端", "sub": "编译期", "at": [2, 0]},
+    {"id": "tbb", "label": "TBB 后端", "at": [3, 0]},
+    {"id": "serial", "label": "串行后端", "sub": "编译通过但串行", "at": [2, 1]}
+  ],
+  "edges": [
+    {"id": "to_pstl", "from": "call", "to": "pstl"},
+    {"id": "to_choice", "from": "pstl", "to": "choice"},
+    {"id": "to_tbb", "from": "choice", "to": "tbb", "label": "有 TBB"},
+    {"id": "to_serial", "from": "choice", "to": "serial", "label": "无 TBB"}
+  ],
+  "steps": [
+    {"hi": ["call"], "note": "调用 for_each(par)：只是给实现一个并行许可。"},
+    {"token": [{"edge": "to_pstl", "label": "par"}], "hi": ["pstl"], "note": "libstdc++ 把策略调用交给 PSTL。"},
+    {"token": [{"edge": "to_choice", "label": "选择"}], "hi": ["choice"], "note": "PSTL 在编译期选后端，运行时不问线程数。"},
+    {"token": [{"edge": "to_tbb", "label": "有 TBB"}], "hi": ["tbb"], "note": "有 TBB 头并链接 -ltbb：真正并行。"},
+    {"token": [{"edge": "to_serial", "label": "无 TBB"}], "hi": ["serial"], "tone": {"serial": "bad"}, "note": "没有 TBB 头：退回串行后端，只跑一个线程。"}
+  ]
+}

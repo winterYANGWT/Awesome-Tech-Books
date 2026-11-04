@@ -1,0 +1,21 @@
+{
+  "kind": "flow",
+  "title": "无锁性：标准、实现和本机",
+  "alt": "只有 atomic_flag 和整型别名由标准保证；16 字节和 shared_ptr 本机不是无锁",
+  "grid": [2, 4],
+  "nodes": [
+    {"id": "head", "label": "类型与无锁性", "at": [0, 0], "span": [2, 1], "shape": "note", "sub": "标准 / 实现 / 本机"},
+    {"id": "flag", "label": "atomic_flag", "at": [0, 1], "sub": "标准 是，本机 是"},
+    {"id": "alias", "label": "整型别名", "at": [1, 1], "sub": "标准 是，本机 是"},
+    {"id": "integer", "label": "普通整型", "at": [0, 2], "sub": "实现决定，本机 是"},
+    {"id": "pair", "label": "16 字节", "at": [1, 2], "sub": "实现决定，本机 否"},
+    {"id": "sp", "label": "shared_ptr", "at": [0, 3], "sub": "实现决定，本机 否"}
+  ],
+  "edges": [],
+  "static": true,
+  "steps": [
+    {"hi": ["flag", "alias"], "note": "只有 atomic_flag 和 C++20 的两个整型别名由标准保证无锁"},
+    {"hi": ["integer"], "note": "普通整型通常无锁，但标准不保证，要查实现"},
+    {"hi": ["pair", "sp"], "note": "16 字节结构体和 shared_ptr 本机都不是无锁"}
+  ]
+}

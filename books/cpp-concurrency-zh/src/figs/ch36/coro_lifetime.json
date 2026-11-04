@@ -1,0 +1,206 @@
+{
+  "kind": "flow",
+  "title": "连接、协程帧、socket、strand 的持有和释放",
+  "alt": "strand 调度协程帧，帧用 shared_ptr 持有连接，连接持有 socket；取消后按相反顺序释放",
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "server",
+      "label": "io_context",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round",
+      "sub": "跑事件循环"
+    },
+    {
+      "id": "strand",
+      "label": "连接 strand",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "串行化回调"
+    },
+    {
+      "id": "frame",
+      "label": "协程帧",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "挂起在 read"
+    },
+    {
+      "id": "conn",
+      "label": "连接对象",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "新建"
+    },
+    {
+      "id": "socket",
+      "label": "socket",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "open"
+    }
+  ],
+  "edges": [
+    {
+      "id": "dispatch",
+      "from": "server",
+      "to": "strand",
+      "label": "调度"
+    },
+    {
+      "id": "spawn",
+      "from": "strand",
+      "to": "frame",
+      "label": "co_spawn"
+    },
+    {
+      "id": "hold",
+      "from": "frame",
+      "to": "conn",
+      "label": "shared_ptr"
+    },
+    {
+      "id": "fd",
+      "from": "conn",
+      "to": "socket",
+      "label": "持有 fd"
+    },
+    {
+      "id": "cancel",
+      "from": "server",
+      "to": "frame",
+      "label": "terminal",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "server"
+      ],
+      "set": {
+        "conn": "新建",
+        "frame": "尚未创建"
+      },
+      "note": "accept 时先建新 strand、把 socket 绑上；返回后再建连接对象"
+    },
+    {
+      "token": [
+        {
+          "edge": "dispatch",
+          "label": "post"
+        }
+      ],
+      "hi": [
+        "dispatch"
+      ],
+      "set": {
+        "server": "运行中"
+      },
+      "note": "io_context 把该连接的回调都投递到它自己的 strand"
+    },
+    {
+      "token": [
+        {
+          "edge": "spawn",
+          "label": "协程"
+        }
+      ],
+      "hi": [
+        "spawn"
+      ],
+      "set": {
+        "frame": "挂起在 read"
+      },
+      "note": "co_spawn 建协程帧；外层帧捕获 shared_ptr，保证连接活着"
+    },
+    {
+      "token": [
+        {
+          "edge": "hold",
+          "label": "self"
+        }
+      ],
+      "hi": [
+        "hold"
+      ],
+      "set": {
+        "conn": "由帧持有"
+      },
+      "note": "协程帧持有连接对象，连接对象持有 socket"
+    },
+    {
+      "token": [
+        {
+          "edge": "fd",
+          "label": "fd"
+        }
+      ],
+      "hi": [
+        "fd"
+      ],
+      "set": {
+        "socket": "读等待中"
+      },
+      "note": "socket 的 fd 只由连接对象关闭，不交给裸指针"
+    },
+    {
+      "hi": [
+        "server"
+      ],
+      "tone": {
+        "server": "hot"
+      },
+      "set": {
+        "server": "SIGTERM"
+      },
+      "note": "收到 SIGTERM：停止 accept，遍历连接表"
+    },
+    {
+      "token": [
+        {
+          "edge": "cancel",
+          "label": "cancel"
+        }
+      ],
+      "hi": [
+        "cancel"
+      ],
+      "set": {
+        "frame": "收到取消"
+      },
+      "note": "对每个连接的 cancellation_signal 发 terminal"
+    },
+    {
+      "token": [
+        {
+          "edge": "hold",
+          "label": "释放"
+        }
+      ],
+      "set": {
+        "frame": "operation_aborted",
+        "conn": "已释放",
+        "socket": "closed"
+      },
+      "tone": {
+        "frame": "bad"
+      },
+      "note": "协程退出 -> 帧销毁 -> shared_ptr 释放 -> 连接对象和 socket 关闭"
+    }
+  ]
+}

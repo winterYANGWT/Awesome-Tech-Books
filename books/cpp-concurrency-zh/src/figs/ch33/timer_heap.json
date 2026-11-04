@@ -1,0 +1,203 @@
+{
+  "kind": "flow",
+  "title": "最小堆定时器与 epoll_wait 超时",
+  "alt": "插入上滤，堆顶给出最近截止时间；到期删堆顶后下滤恢复堆序",
+  "grid": [
+    4,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "insert",
+      "label": "插入定时器",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "O(lg n)"
+    },
+    {
+      "id": "siftup",
+      "label": "上滤",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "与父节点比"
+    },
+    {
+      "id": "top",
+      "label": "堆顶最早",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "取 O(1)"
+    },
+    {
+      "id": "wait",
+      "label": "epoll_wait",
+      "at": [
+        3,
+        0
+      ],
+      "sub": "超时=堆顶-now"
+    },
+    {
+      "id": "expire",
+      "label": "到期回调",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "del",
+      "label": "删堆顶",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "O(lg n)"
+    },
+    {
+      "id": "siftdown",
+      "label": "下滤",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "与子节点比"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "insert",
+      "to": "siftup",
+      "label": "push"
+    },
+    {
+      "id": "e2",
+      "from": "siftup",
+      "to": "top",
+      "label": "堆序"
+    },
+    {
+      "id": "e3",
+      "from": "top",
+      "to": "wait",
+      "label": "timeout"
+    },
+    {
+      "id": "e4",
+      "from": "wait",
+      "to": "expire",
+      "label": "返回 0",
+      "route": "straight"
+    },
+    {
+      "id": "e5",
+      "from": "expire",
+      "to": "del",
+      "label": "pop"
+    },
+    {
+      "id": "e6",
+      "from": "del",
+      "to": "siftdown",
+      "label": "新堆顶"
+    },
+    {
+      "id": "e7",
+      "from": "siftdown",
+      "to": "top",
+      "route": "straight"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "e1",
+          "label": "定时器"
+        }
+      ],
+      "hi": [
+        "e1"
+      ],
+      "note": "新定时器放到堆尾"
+    },
+    {
+      "token": [
+        {
+          "edge": "e2",
+          "label": "上滤"
+        }
+      ],
+      "hi": [
+        "e2"
+      ],
+      "note": "比父节点早到期就往上换"
+    },
+    {
+      "token": [
+        {
+          "edge": "e3",
+          "label": "最早"
+        }
+      ],
+      "hi": [
+        "e3"
+      ],
+      "note": "用堆顶到期时间算 epoll_wait 超时"
+    },
+    {
+      "hi": [
+        "wait"
+      ],
+      "note": "I/O 事件会提前打断等待"
+    },
+    {
+      "token": [
+        {
+          "edge": "e4",
+          "label": "0"
+        }
+      ],
+      "hi": [
+        "e4"
+      ],
+      "note": "超时返回 0，取到期定时器"
+    },
+    {
+      "token": [
+        {
+          "edge": "e5",
+          "label": "pop"
+        }
+      ],
+      "hi": [
+        "e5"
+      ],
+      "note": "先删堆顶，再执行回调"
+    },
+    {
+      "token": [
+        {
+          "edge": "e6",
+          "label": "下滤"
+        },
+        {
+          "edge": "e7",
+          "label": "回堆顶"
+        }
+      ],
+      "hi": [
+        "e6",
+        "e7"
+      ],
+      "note": "新堆顶下滤，恢复堆序"
+    }
+  ]
+}

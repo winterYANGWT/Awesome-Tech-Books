@@ -1,0 +1,116 @@
+{
+  "kind": "flow",
+  "title": "strtok 与 strtok_r 的状态",
+  "alt": "strtok 的状态只有一份、归库所有；strtok_r 的状态由调用者各带一份",
+  "grid": [
+    5,
+    3
+  ],
+  "bands": [
+    {
+      "label": "strtok：状态在库里",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "strtok_r：调用者",
+      "rows": [
+        2,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "a",
+      "label": "线程 A",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "lib",
+      "label": "静态指针",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "store",
+      "sub": "全局一份"
+    },
+    {
+      "id": "b",
+      "label": "线程 B",
+      "at": [
+        4,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "ap",
+      "label": "A 的 saveptr",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "store",
+      "sub": "A 私有"
+    },
+    {
+      "id": "fn",
+      "label": "`strtok_r`",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "无静态状态"
+    },
+    {
+      "id": "bp",
+      "label": "B 的 saveptr",
+      "at": [
+        4,
+        2
+      ],
+      "shape": "store",
+      "sub": "B 私有"
+    }
+  ],
+  "edges": [
+    {
+      "id": "aw",
+      "from": "a",
+      "to": "lib",
+      "label": "写 / 读"
+    },
+    {
+      "id": "bw",
+      "from": "b",
+      "to": "lib",
+      "label": "写 / 读"
+    },
+    {
+      "id": "ar",
+      "from": "ap",
+      "to": "fn",
+      "label": "传入并更新"
+    },
+    {
+      "id": "br",
+      "from": "bp",
+      "to": "fn",
+      "label": "传入并更新"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "note": "静态指针归库所有；saveptr 归调用者，两个线程各一份"
+    }
+  ]
+}

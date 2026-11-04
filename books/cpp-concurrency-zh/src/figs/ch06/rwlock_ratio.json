@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "不同读比例下两种锁的耗时",
+  "alt": "读占绝大多数时 shared_mutex 明显更快，写比例一高就落后于 mutex",
+  "type": "line",
+  "data": "code/ch06/6_1_rwlock_bench.out",
+  "x": {"label": "读比例（%）"},
+  "y": {"label": "耗时", "unit": "ms", "min": 0},
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2；数字会随机器和负载变化"
+}

@@ -1,0 +1,31 @@
+{
+  "kind": "seq",
+  "title": "条件变量的一次等待与唤醒",
+  "alt": "等待者持锁查谓词，wait 原子释放锁并睡眠；通知者改状态后通知；醒来重锁再查",
+  "lanes": [
+    {"id": "w", "label": "消费者"},
+    {"id": "m", "label": "mutex + 队列", "role": "memory"},
+    {"id": "n", "label": "生产者"},
+    {"id": "k", "label": "内核等待队列", "role": "kernel"}
+  ],
+  "state": [
+    {"id": "pred", "label": "谓词", "value": "假"},
+    {"id": "owner", "label": "锁持有者", "value": "—"},
+    {"id": "waiters", "label": "等待者", "value": "空"}
+  ],
+  "steps": [
+    {"from": "w", "to": "m", "text": "`lock()`", "set": {"owner": "消费者"}, "note": "消费者拿到锁，才能检查谓词"},
+    {"from": "m", "to": "w", "text": "队列空", "set": {"pred": "假"}, "note": "谓词在持锁状态下求值：队列为空"},
+    {"ops": [
+      {"from": "w", "to": "m", "text": "解锁"},
+      {"from": "w", "to": "k", "text": "睡眠"}
+    ], "lane": {"w": "blocked"}, "set": {"owner": "—", "waiters": "消费者"}, "note": "wait 原子地释放锁并挂到等待队列"},
+    {"from": "n", "to": "m", "text": "`lock()`", "set": {"owner": "生产者"}, "note": "生产者拿到同一把锁，准备改状态"},
+    {"from": "n", "to": "m", "text": "`push(任务)`", "set": {"pred": "真"}, "note": "共享状态改变：队列非空"},
+    {"from": "n", "to": "m", "text": "`unlock()`", "set": {"owner": "—"}, "note": "先改状态、再解锁"},
+    {"from": "n", "to": "k", "text": "`notify_one()`", "dashed": true, "tone": "hot", "note": "通知只负责唤醒，不携带数据"},
+    {"from": "k", "to": "w", "text": "唤醒", "lane": {"w": "running"}, "set": {"waiters": "空"}, "note": "内核把消费者放回可运行队列"},
+    {"from": "w", "to": "m", "text": "重新加锁", "set": {"owner": "消费者"}, "note": "醒来后先重新加锁，才能读共享状态"},
+    {"at": "w", "text": "再查谓词：真", "tone": "ok", "set": {"pred": "假"}, "note": "若谓词仍假（虚假唤醒），也回到这里再检查"}
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "kind": "flow",
+  "title": "Foster 四步：划分、通信、凝聚、映射",
+  "alt": "每个粒子每个时刻的 F/s/v 先划分成任务，按粒子把各时刻凝聚，再映射到 4 个线程",
+  "grid": [5, 4],
+  "nodes": [
+    {"id": "tasks", "label": "任务 (q,t)", "at": [0, 1], "sub": "F、s、v 各一个"},
+    {"id": "comp", "label": "复合任务 q", "at": [2, 1], "sub": "所有时刻合成"},
+    {"id": "t0", "label": "线程 0", "at": [4, 0], "shape": "round"},
+    {"id": "t1", "label": "线程 1", "at": [4, 1], "shape": "round"},
+    {"id": "t2", "label": "线程 2", "at": [4, 2], "shape": "round"},
+    {"id": "t3", "label": "线程 3", "at": [4, 3], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "merge", "from": "tasks", "to": "comp", "label": "凝聚"},
+    {"id": "m0", "from": "comp", "to": "t0", "label": "映射"},
+    {"id": "m1", "from": "comp", "to": "t1"},
+    {"id": "m2", "from": "comp", "to": "t2"},
+    {"id": "m3", "from": "comp", "to": "t3"}
+  ],
+  "steps": [
+    {"hi": ["tasks"], "note": "划分：把某个粒子在某个时刻的 F、s、v 各看成一个任务"},
+    {"hi": ["tasks"], "note": "通信：F(q,t) 要所有粒子在 t 时刻的位置和质量；s、v 要本粒子的状态"},
+    {"token": [{"edge": "merge", "label": "q"}], "hi": ["comp"], "note": "凝聚：把同一粒子在所有时刻的 F、s、v 合成一个任务"},
+    {"hi": ["comp"], "note": "每个时刻仍要读所有粒子的位置，所以每步有屏障"},
+    {"token": [{"edge": "m0", "label": "q"}, {"edge": "m1", "label": "q"}, {"edge": "m2", "label": "q"}, {"edge": "m3", "label": "q"}], "note": "映射：把复合任务按粒子分给 4 个线程"},
+    {"hi": ["t0"], "note": "同一 q 的所有时间步都在一个任务里，状态不用搬"},
+    {"hi": ["merge"], "note": "力在本地算完就丢掉，每步重新读位置"},
+    {"hi": ["t0", "t1", "t2", "t3"], "note": "屏障之后进入下一步；通信只发生在每步末尾"}
+  ]
+}

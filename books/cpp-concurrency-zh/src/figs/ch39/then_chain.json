@@ -1,0 +1,167 @@
+{
+  "kind": "flow",
+  "title": "then 链与 sender 组合：断点在哪",
+  "alt": "Concurrency TS 里 then 挂在 future 上，缺调度器和取消；sender 把组合和执行位置分开",
+  "grid": [
+    5,
+    3
+  ],
+  "bands": [
+    {
+      "label": "Concurrency TS",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "C++26 sender",
+      "rows": [
+        2,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "ts_future",
+      "label": "future<T>",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "TS 扩展"
+    },
+    {
+      "id": "ts_then1",
+      "label": "then(f)",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "ts_then2",
+      "label": "then(g)",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "break",
+      "label": "没有标准\n调度器",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "note"
+    },
+    {
+      "id": "just",
+      "label": "just(42)",
+      "at": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "s_then",
+      "label": "then(f)",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "when_all",
+      "label": "when_all",
+      "at": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "sync_wait",
+      "label": "sync_wait",
+      "at": [
+        3,
+        2
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "t1",
+      "from": "ts_future",
+      "to": "ts_then1"
+    },
+    {
+      "id": "t2",
+      "from": "ts_then1",
+      "to": "ts_then2"
+    },
+    {
+      "id": "t3",
+      "from": "ts_then2",
+      "to": "break",
+      "label": "断点",
+      "dashed": true
+    },
+    {
+      "id": "s1",
+      "from": "just",
+      "to": "s_then"
+    },
+    {
+      "id": "s2",
+      "from": "s_then",
+      "to": "when_all"
+    },
+    {
+      "id": "s3",
+      "from": "when_all",
+      "to": "sync_wait"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "ts_future",
+        "ts_then1"
+      ],
+      "note": "TS 的 then 直接挂在 future 上，执行位置没有统一标准"
+    },
+    {
+      "hi": [
+        "break"
+      ],
+      "tone": {
+        "break": "bad"
+      },
+      "note": "返回类型和错误传播 TS 已定；缺标准调度器和取消，是断点"
+    },
+    {
+      "hi": [
+        "just",
+        "s_then"
+      ],
+      "tone": {
+        "just": "ok"
+      },
+      "note": "sender 用 | then 组合，schedule(sched) 单独指定执行位置"
+    },
+    {
+      "hi": [
+        "when_all",
+        "sync_wait"
+      ],
+      "tone": {
+        "sync_wait": "ok"
+      },
+      "note": "when_all 等全部完成，sync_wait 在调用线程取结果"
+    }
+  ],
+  "static": true
+}

@@ -1,0 +1,124 @@
+{
+  "kind": "flow",
+  "title": "两种消息分派：variant 与 any",
+  "alt": "variant 用索引走编译期跳转表；any 带类型标签，运行期检查后才调用",
+  "grid": [
+    3,
+    4
+  ],
+  "bands": [
+    {
+      "label": "variant：封闭集合",
+      "rows": [
+        0,
+        1
+      ]
+    },
+    {
+      "label": "any：开放集合",
+      "rows": [
+        2,
+        3
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "vm",
+      "label": "variant 消息\n索引 + 值",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "visit",
+      "label": "`std::visit`\n编译期跳转表",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "hv",
+      "label": "处理函数",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "am",
+      "label": "any 消息\n类型标签 + 堆对象",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "cast",
+      "label": "`any_cast`\n运行期类型检查",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "ha",
+      "label": "处理函数",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "v1",
+      "from": "vm",
+      "to": "visit",
+      "label": "不额外分配"
+    },
+    {
+      "id": "v2",
+      "from": "visit",
+      "to": "hv",
+      "label": "编译期展开"
+    },
+    {
+      "id": "a1",
+      "from": "am",
+      "to": "cast",
+      "label": "通常堆分配"
+    },
+    {
+      "id": "a2",
+      "from": "cast",
+      "to": "ha",
+      "label": "类型匹配才调用"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "vm",
+        "visit",
+        "hv"
+      ],
+      "note": "variant：分支在编译期展开，访问器漏一个就编译失败"
+    },
+    {
+      "hi": [
+        "am",
+        "cast",
+        "ha"
+      ],
+      "note": "any：运行期比较 typeid，未命中返回空指针或抛异常"
+    }
+  ],
+  "static": true
+}

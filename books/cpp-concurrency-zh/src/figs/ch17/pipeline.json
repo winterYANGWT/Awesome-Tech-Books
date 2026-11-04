@@ -1,0 +1,40 @@
+{
+  "kind": "flow",
+  "title": "流水线：读、解析、计算、写，阶段之间有界队列",
+  "alt": "第一件走完全程决定首件延迟；中间阶段变慢后上游队列堆满，吞吐由最慢阶段决定",
+  "grid": [5, 4],
+  "nodes": [
+    {"id": "source", "label": "数据源", "at": [0, 0], "shape": "round", "sub": "逐个到达"},
+    {"id": "read", "label": "读", "at": [0, 1], "shape": "round", "sub": "20us"},
+    {"id": "q1", "label": "q1", "at": [1, 1], "shape": "queue", "slots": 4},
+    {"id": "parse", "label": "解析", "at": [2, 1], "shape": "round", "sub": "20us"},
+    {"id": "q2", "label": "q2", "at": [3, 1], "shape": "queue", "slots": 4},
+    {"id": "compute", "label": "计算", "at": [4, 1], "shape": "round", "sub": "10us"},
+    {"id": "q3", "label": "q3", "at": [4, 2], "shape": "queue", "slots": 4},
+    {"id": "write", "label": "写", "at": [4, 3], "shape": "round", "sub": "10us"}
+  ],
+  "edges": [
+    {"id": "arrive", "from": "source", "to": "read", "label": "数据项"},
+    {"id": "into_q1", "from": "read", "to": "q1", "label": "原始"},
+    {"id": "parse_in", "from": "q1", "to": "parse", "label": ""},
+    {"id": "into_q2", "from": "parse", "to": "q2", "label": "解析后"},
+    {"id": "compute_in", "from": "q2", "to": "compute", "label": ""},
+    {"id": "into_q3", "from": "compute", "to": "q3", "label": "结果"},
+    {"id": "write_in", "from": "q3", "to": "write", "label": ""}
+  ],
+  "steps": [
+    {"token": [{"edge": "arrive", "label": "首件"}], "note": "数据项逐个到达，读线程开始工作"},
+    {"token": [{"edge": "into_q1", "label": "原始"}], "queue": {"q1": ["1"]}, "note": "读线程把原始数据放进有界队列 q1"},
+    {"token": [
+      {"edge": "parse_in", "label": "1"},
+      {"edge": "into_q2", "label": "解析后"},
+      {"edge": "compute_in", "label": "1"},
+      {"edge": "into_q3", "label": "结果"},
+      {"edge": "write_in", "label": "1"}
+    ], "queue": {"q1": [], "q2": [], "q3": []}, "hi": ["write"], "note": "第 3 步：首件走到末尾，四段耗时之和是首件延迟的下界"},
+    {"queue": {"q1": ["4"], "q2": ["3"], "q3": ["2"]}, "note": "之后各阶段同时处理不同数据项，进入稳态"},
+    {"tone": {"compute": "bad"}, "set": {"compute": "慢 5 倍"}, "queue": {"q1": ["5"], "q2": ["3", "4"], "q3": []}, "note": "把中间的计算阶段人为放慢，q2 开始积压"},
+    {"queue": {"q1": ["7", "8"], "q2": ["3", "4", "5", "6"], "q3": []}, "tone": {"q2": "wait"}, "hi": ["q2"], "note": "第 6 步：上游 q2 堆满，解析线程被反压挡住"},
+    {"tone": {"q2": "bad", "compute": "bad"}, "note": "稳态吞吐受最慢阶段限制，其余阶段只能等它"}
+  ]
+}

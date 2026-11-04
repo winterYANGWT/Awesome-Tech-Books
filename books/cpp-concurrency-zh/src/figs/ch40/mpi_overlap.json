@@ -1,0 +1,18 @@
+{
+  "kind": "seq",
+  "title": "阻塞集合与非阻塞集合的时间线",
+  "alt": "阻塞版先通信再计算；非阻塞版提交请求后计算，通信与计算重叠",
+  "lanes": [
+    {"id": "app", "label": "rank 0"},
+    {"id": "mpi", "label": "MPI 通信", "role": "device"}
+  ],
+  "steps": [
+    {"from": "app", "to": "mpi", "text": "Allreduce", "note": "阻塞版：调用 MPI_Allreduce 后停在调用里。"},
+    {"at": "mpi", "text": "传输数据", "lane": {"app": "blocked"}, "note": "通信进行，应用线程不能往下走。"},
+    {"from": "mpi", "to": "app", "text": "返回", "lane": {"app": "running"}, "note": "通信结束才返回，之后才开始计算。"},
+    {"at": "app", "text": "本地计算", "note": "阻塞版：通信和计算首尾相接。"},
+    {"from": "app", "to": "mpi", "text": "Iallreduce", "note": "非阻塞版：提交请求后立刻返回。"},
+    {"ops": [{"at": "mpi", "text": "传输数据"}, {"at": "app", "text": "本地计算"}], "note": "通信和计算在同一段时间里并行。"},
+    {"from": "app", "to": "mpi", "text": "MPI_Wait", "note": "计算做完再等通信收尾，总时间取两者较大。"}
+  ]
+}

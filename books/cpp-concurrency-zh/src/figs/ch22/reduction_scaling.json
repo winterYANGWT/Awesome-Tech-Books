@@ -1,0 +1,17 @@
+{
+  "kind": "chart",
+  "title": "reduction 版 π：线程数与耗时",
+  "alt": "线程数翻倍时耗时接近减半，继续加线程后收益递减",
+  "type": "line",
+  "data": "code/ch22/22_3_pi_reduction.out",
+  "x": {
+    "label": "线程数",
+    "scale": "log2"
+  },
+  "y": {
+    "label": "耗时",
+    "unit": "ms",
+    "min": 0
+  },
+  "note": "本机一次运行（AMD Ryzen 9 9955HX，16 核 32 线程），GCC 15 -O2；数字随机器和负载变化"
+}

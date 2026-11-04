@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "epoll 与 io_uring：P99 随连接数变化",
+  "alt": "连接数增加时两版 P99 都上升，绝对值在同一数量级",
+  "type": "line",
+  "data": "code/ch36/36_6_uring_vs_epoll/p99.out",
+  "x": {"label": "连接数", "scale": "log2"},
+  "y": {"label": "P99 延迟", "unit": "us", "min": 0},
+  "note": "和上图同一次运行；延迟从请求进入输出缓冲算到收到响应，含排队时间"
+}
