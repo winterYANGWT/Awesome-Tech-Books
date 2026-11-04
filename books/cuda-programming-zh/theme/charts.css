@@ -1,8 +1,10 @@
-/* 第 1 章统计图：颜色、排版和交互反馈。图形本身由 charts.js 生成。 */
+/* 全书统计图：颜色、排版和交互反馈。图形本身由 charts.js 生成。 */
 
 .cu-chart {
   --cu-s1: #2a78d6;
   --cu-s2: #eb6834;
+  --cu-s3: #1baf7a;
+  --cu-s4: #eda100;
   --cu-ink: var(--fg);
   --cu-ink2: color-mix(in srgb, var(--fg) 70%, var(--bg));
   --cu-grid: color-mix(in srgb, var(--fg) 10%, var(--bg));
@@ -14,12 +16,18 @@
   font: inherit;
 }
 
-html.rust .cu-chart { --cu-s2: #c94f1f; }
+html.rust .cu-chart {
+  --cu-s2: #c94f1f;
+  --cu-s3: #14875e;
+  --cu-s4: #9c6a00;
+}
 html.coal .cu-chart,
 html.navy .cu-chart,
 html.ayu .cu-chart {
   --cu-s1: #3987e5;
   --cu-s2: #d95926;
+  --cu-s3: #199e70;
+  --cu-s4: #c98500;
 }
 
 .cu-chart > figcaption {
@@ -89,6 +97,32 @@ html.ayu .cu-chart {
   font: inherit;
 }
 
+/* 横轴名放在 SVG 下方，窄屏可以折行，不会被裁掉。 */
+.cu-chart-xlabel {
+  margin: 4px auto 0;
+  max-width: 100%;
+  color: var(--cu-ink2);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* 数据或配置有错时，在绘图区里留一行给作者看。 */
+.cu-chart-error {
+  padding: 8px 0;
+  color: var(--cu-ink2);
+  font-size: 12px;
+}
+
+.cu-chart-head-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-width: 0;
+}
+
 /* 只有命中区接收指针事件，线和点不会挡住交互。 */
 .cu-chart-plot svg :not(.cu-hit) {
   pointer-events: none;
@@ -96,14 +130,22 @@ html.ayu .cu-chart {
 
 .cu-chart .cu-s1 { color: var(--cu-s1); }
 .cu-chart .cu-s2 { color: var(--cu-s2); }
+.cu-chart .cu-s3 { color: var(--cu-s3); }
+.cu-chart .cu-s4 { color: var(--cu-s4); }
 
 .cu-chart .cu-legend-swatch.cu-s1 { background: var(--cu-s1); }
 .cu-chart .cu-legend-swatch.cu-s2 { background: var(--cu-s2); }
+.cu-chart .cu-legend-swatch.cu-s3 { background: var(--cu-s3); }
+.cu-chart .cu-legend-swatch.cu-s4 { background: var(--cu-s4); }
 
 .cu-chart .cu-bar.cu-s1 { fill: var(--cu-s1); }
 .cu-chart .cu-bar.cu-s2 { fill: var(--cu-s2); }
+.cu-chart .cu-bar.cu-s3 { fill: var(--cu-s3); }
+.cu-chart .cu-bar.cu-s4 { fill: var(--cu-s4); }
 .cu-chart .cu-dot.cu-s1 { fill: var(--cu-s1); }
 .cu-chart .cu-dot.cu-s2 { fill: var(--cu-s2); }
+.cu-chart .cu-dot.cu-s3 { fill: var(--cu-s3); }
+.cu-chart .cu-dot.cu-s4 { fill: var(--cu-s4); }
 
 .cu-chart .cu-line {
   fill: none;
@@ -113,6 +155,55 @@ html.ayu .cu-chart {
 }
 .cu-chart .cu-line.cu-s1 { stroke: var(--cu-s1); }
 .cu-chart .cu-line.cu-s2 { stroke: var(--cu-s2); }
+.cu-chart .cu-line.cu-s3 { stroke: var(--cu-s3); }
+.cu-chart .cu-line.cu-s4 { stroke: var(--cu-s4); }
+
+/* extraSeries 是配置里的推导值，用虚线区分程序输出。 */
+.cu-chart .cu-line.cu-dashed {
+  stroke-dasharray: 6 4;
+}
+
+.cu-chart .cu-chart-legend-swatch.cu-legend-dashed {
+  background: repeating-linear-gradient(
+    to bottom,
+    currentColor 0 2px,
+    transparent 2px 4px
+  );
+}
+
+.cu-chart .cu-roofline-upper {
+  stroke: var(--cu-ink2);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  fill: none;
+}
+
+.cu-chart .cu-roofline-point {
+  fill: var(--cu-s1);
+  stroke: var(--bg);
+  stroke-width: 2;
+  transition: filter 120ms ease;
+}
+
+.cu-chart .cu-roofline-point.cu-hot {
+  filter: brightness(1.15) saturate(1.08);
+}
+
+.cu-chart .cu-roofline-label,
+.cu-chart .cu-roofline-balance {
+  fill: var(--cu-ink);
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.cu-chart .cu-roofline-balance {
+  fill: var(--cu-ink2);
+  font-weight: 400;
+}
 
 .cu-chart .cu-dot {
   stroke: var(--bg);
@@ -159,6 +250,60 @@ html.ayu .cu-chart {
   filter: brightness(1.15) saturate(1.08);
 }
 
+/* 天平图的轨道：左右两段中间留 2px 缝，外端圆角、缝两侧直角。 */
+.cu-chart .cu-balance-seg {
+  transition: filter 120ms ease, opacity 120ms ease;
+}
+
+.cu-chart .cu-balance-seg.cu-s1 { fill: var(--cu-s1); }
+.cu-chart .cu-balance-seg.cu-s2 { fill: var(--cu-s2); }
+
+.cu-chart .cu-balance-seg.cu-hot {
+  filter: brightness(1.15) saturate(1.08);
+}
+
+.cu-chart .cu-task-line {
+  stroke: var(--cu-ink);
+  stroke-width: 1.5;
+  stroke-linecap: butt;
+}
+
+.cu-chart .cu-task-dot {
+  stroke: var(--bg);
+  stroke-width: 2;
+}
+
+.cu-chart .cu-task-dot.cu-s1 { fill: var(--cu-s1); }
+.cu-chart .cu-task-dot.cu-s2 { fill: var(--cu-s2); }
+.cu-chart .cu-task-dot.cu-s3 { fill: var(--cu-s3); }
+.cu-chart .cu-task-dot.cu-s4 { fill: var(--cu-s4); }
+
+.cu-chart .cu-balance-label {
+  fill: var(--cu-ink2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cu-chart .cu-task-label {
+  fill: var(--cu-ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 轨道上方和竖线顶端的文字都压着线，用页面背景色描边隔开。 */
+.cu-chart .cu-balance-label,
+.cu-chart .cu-task-label {
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.cu-chart .cu-note {
+  fill: var(--cu-ink2);
+  font-size: 12px;
+}
+
 /* SVG 文字：数字用等宽数字，字号和页面正文区分开。 */
 .cu-chart .cu-tick {
   fill: var(--cu-ink2);
@@ -191,6 +336,16 @@ html.ayu .cu-chart {
 .cu-chart .cu-axis-name {
   fill: var(--cu-ink2);
   font-size: 12px;
+}
+
+.cu-chart .cu-series-label {
+  fill: var(--cu-ink);
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+  stroke-linejoin: round;
 }
 
 .cu-chart .cu-point-label {
@@ -269,6 +424,10 @@ html.ayu .cu-chart {
   min-width: 0;
 }
 
+.cu-tip-name {
+  min-width: 0;
+}
+
 .cu-tip-key {
   flex: none;
   width: 12px;
@@ -279,6 +438,15 @@ html.ayu .cu-chart {
 
 .cu-tip-key.cu-s1 { background: var(--cu-s1); }
 .cu-tip-key.cu-s2 { background: var(--cu-s2); }
+.cu-tip-key.cu-s3 { background: var(--cu-s3); }
+.cu-tip-key.cu-s4 { background: var(--cu-s4); }
+.cu-tip-key.cu-axis { background: var(--cu-axis); }
+
+.cu-tip-key.cu-tip-square {
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+}
 
 .cu-tip-value {
   color: var(--cu-ink);
