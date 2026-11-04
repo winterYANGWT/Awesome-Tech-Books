@@ -51,6 +51,7 @@ int main() {
     // ANCHOR_END: host
 
     // ANCHOR: device
+    // ANCHOR: malloc
     // 2. 在显存里分配三个数组。
     float *d_a, *d_b, *d_c;
     CHECK(cudaMalloc(&d_a, bytes));
@@ -58,11 +59,14 @@ int main() {
     CHECK(cudaMalloc(&d_b, bytes));
     CHECK(cudaMalloc(&d_c, bytes));
     sw.lap("cudaMalloc d_b、d_c");
+    // ANCHOR_END: malloc
 
+    // ANCHOR: h2d
     // 3. 把输入拷到显存。
     CHECK(cudaMemcpy(d_a, h_a, bytes, cudaMemcpyHostToDevice));
     CHECK(cudaMemcpy(d_b, h_b, bytes, cudaMemcpyHostToDevice));
     sw.lap("cudaMemcpy 两个输入，主机 -> 显存");
+    // ANCHOR_END: h2d
     // ANCHOR_END: device
 
     // ANCHOR: launch
@@ -83,6 +87,7 @@ int main() {
     sw.lap("cudaDeviceSynchronize");
 
     // ANCHOR: finish
+    // ANCHOR: d2h
     // 5. 把结果拷回来，检查。
     CHECK(cudaMemcpy(h_c, d_c, bytes, cudaMemcpyDeviceToHost));
     sw.lap("cudaMemcpy 结果，显存 -> 主机");
@@ -90,7 +95,9 @@ int main() {
     for (int i = 0; i < n; ++i)
         if (fabsf(h_c[i] - 1.0f) > 1e-5f) ++bad;   // sin² + cos² = 1
     printf("%d 个元素不等于 1\n", bad);
+    // ANCHOR_END: d2h
 
+    // ANCHOR: free
     // 6. 释放：显存用 cudaFree，主机内存用 free。
     CHECK(cudaFree(d_a));
     CHECK(cudaFree(d_b));
@@ -99,5 +106,6 @@ int main() {
     free(h_b);
     free(h_c);
     return bad ? 1 : 0;
+    // ANCHOR_END: free
     // ANCHOR_END: finish
 }

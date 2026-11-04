@@ -1,0 +1,510 @@
+/* 第 2 章 vecadd 六步动画的样式。
+ *
+ * 颜色全部走 mdBook 的主题变量，在本文件里混出次要色和面板色；
+ * 系列色在浅色 / rust / 深色三套主题下各给一组值。不依赖 charts.css。
+ */
+
+/* mdBook 0.5 的 .content 带 overflow-y:auto，会拦掉 position:sticky。
+   只在含本章步骤卡的页面上放开它，别的章节不受影响。 */
+.content:has(.cu-steps) {
+    overflow-y: visible;
+}
+
+.cu-steps,
+.cu-steps *,
+.cu-steps *::before,
+.cu-steps *::after {
+    box-sizing: border-box;
+}
+
+.cu-steps {
+    --cu-s1: #2a78d6;
+    --cu-s2: #eb6834;
+    --cu-s3: #1baf7a;
+    --cu-ink: var(--fg);
+    --cu-ink2: color-mix(in srgb, var(--fg) 70%, var(--bg));
+    --cu-rule: color-mix(in srgb, var(--fg) 15%, var(--bg));
+    --cu-grid: color-mix(in srgb, var(--fg) 10%, var(--bg));
+    --cu-panel: color-mix(in srgb, var(--fg) 4%, var(--bg));
+    --cu-card: color-mix(in srgb, var(--fg) 4%, var(--bg));
+    --cu-accent: var(--links, var(--cu-s1));
+    --cu-rail-top: var(--menu-bar-height, 50px);
+
+    position: relative;
+    max-width: 100%;
+    margin: 1.5em 0 2em;
+    font: inherit;
+    overflow-wrap: anywhere;
+}
+
+html.rust .cu-steps {
+    --cu-s2: #c94f1f;
+    --cu-s3: #14875e;
+}
+
+html.coal .cu-steps,
+html.navy .cu-steps,
+html.ayu .cu-steps {
+    --cu-s1: #3987e5;
+    --cu-s2: #d95926;
+    --cu-s3: #199e70;
+}
+
+/* ------------------------------------------------------------------ *
+ * 吸顶进度条
+ * ------------------------------------------------------------------ */
+
+.cu-steps-rail {
+    position: sticky;
+    top: var(--cu-rail-top, var(--menu-bar-height, 50px));
+    z-index: 30;
+    margin: 0 0 20px;
+    padding: 3px 0 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--cu-rule);
+}
+
+.cu-steps-rail-inner {
+    position: relative;
+    display: flex;
+    gap: 2px;
+    padding: 0 0 7px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.cu-steps-rail-inner::-webkit-scrollbar {
+    display: none;
+}
+
+.cu-steps-rail-inner::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: var(--cu-progress, 0%);
+    height: 2px;
+    border-radius: 1px;
+    background: var(--cu-accent);
+    transition: width 0.3s ease;
+}
+
+.cu-steps-rail-btn {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    margin: 0;
+    padding: 5px 8px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--cu-ink2);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.cu-steps-rail-btn:hover {
+    color: var(--cu-ink);
+    background: var(--cu-panel);
+}
+
+.cu-steps-rail-btn:focus-visible {
+    outline: 2px solid var(--cu-accent);
+    outline-offset: -1px;
+}
+
+.cu-steps-rail-btn.cu-on {
+    color: var(--cu-ink);
+    font-weight: 700;
+    background: var(--cu-panel);
+}
+
+.cu-steps-rail-btn.cu-done {
+    color: var(--cu-ink2);
+}
+
+.cu-rail-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--cu-rule);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.cu-steps-rail-btn.cu-on .cu-rail-num {
+    color: var(--bg);
+    background: var(--cu-accent);
+    border-color: var(--cu-accent);
+}
+
+.cu-rail-tick {
+    display: none;
+    color: var(--cu-ink2);
+    font-size: 10px;
+}
+
+.cu-steps-rail-btn.cu-done .cu-rail-tick {
+    display: inline;
+}
+
+/* ------------------------------------------------------------------ *
+ * 场景卡
+ * ------------------------------------------------------------------ */
+
+.cu-step {
+    margin: 0 0 24px;
+    padding: 16px;
+    background: var(--cu-card);
+    border: 1px solid var(--cu-rule);
+    border-radius: 10px;
+}
+
+.cu-step:last-child {
+    margin-bottom: 0;
+}
+
+.cu-step-badge,
+.cu-step-time {
+    display: inline-block;
+    padding: 1px 9px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--fg) 7%, var(--bg));
+    color: var(--cu-ink2);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.cu-step-time {
+    margin-left: 6px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.cu-step-title {
+    margin: 0.55em 0 0.1em;
+    color: var(--cu-ink);
+    font-size: 1.25em;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.cu-step-stage {
+    position: relative;
+    margin: 12px 0 4px;
+}
+
+.cu-step-stage:empty {
+    height: 0;
+    margin: 0;
+}
+
+.cu-step-stage svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    font-family: inherit;
+}
+
+.cu-step-replay {
+    position: absolute;
+    right: 4px;
+    bottom: 0;
+    z-index: 2;
+    margin: 0;
+    padding: 2px 10px;
+    border: 1px solid var(--cu-rule);
+    border-radius: 999px;
+    background: var(--cu-panel);
+    color: var(--cu-ink2);
+    font: inherit;
+    font-size: 11px;
+    line-height: 1.6;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.cu-step-replay:hover {
+    color: var(--cu-ink);
+    border-color: var(--cu-ink2);
+}
+
+.cu-step-replay:focus-visible {
+    outline: 2px solid var(--cu-accent);
+    outline-offset: 1px;
+}
+
+/* ------------------------------------------------------------------ *
+ * SVG
+ * ------------------------------------------------------------------ */
+
+.cu-panel {
+    fill: var(--cu-panel);
+    stroke: var(--cu-rule);
+    stroke-width: 1;
+}
+
+.cu-panel-name {
+    fill: var(--cu-ink);
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+.cu-panel-sub {
+    fill: var(--cu-ink2);
+    font-size: 11px;
+}
+
+.cu-pcie {
+    fill: color-mix(in srgb, var(--fg) 3%, var(--bg));
+    stroke: var(--cu-grid);
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+    transition: fill 0.16s ease, stroke 0.16s ease;
+}
+
+.cu-pcie.cu-pcie-active {
+    fill: color-mix(in srgb, var(--cu-accent) 9%, var(--bg));
+    stroke: var(--cu-accent);
+    stroke-opacity: 0.8;
+    stroke-dasharray: none;
+}
+
+.cu-pcie-label {
+    fill: var(--cu-ink2);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+}
+
+.cu-context {
+    fill: var(--cu-panel);
+    stroke: var(--cu-rule);
+    stroke-width: 1;
+}
+
+.cu-context-text {
+    fill: var(--cu-ink2);
+    font-size: 10px;
+}
+
+.cu-array-name {
+    fill: var(--cu-ink2);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.cu-cell {
+    fill: none;
+    stroke: var(--cu-rule);
+    stroke-width: 1;
+}
+
+.cu-fill.cu-s1 {
+    fill: var(--cu-s1);
+}
+
+.cu-fill.cu-s2 {
+    fill: var(--cu-s2);
+}
+
+.cu-fill.cu-s3 {
+    fill: var(--cu-s3);
+}
+
+.cu-tag {
+    fill: var(--cu-panel);
+    stroke: var(--cu-rule);
+    stroke-width: 1;
+}
+
+.cu-tag-label {
+    fill: var(--cu-ink2);
+    font-size: 10px;
+}
+
+.cu-tag-text {
+    fill: var(--cu-ink2);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.cu-note {
+    fill: var(--cu-ink2);
+    font-size: 11px;
+}
+
+.cu-pointer-line {
+    fill: none;
+    stroke: var(--cu-ink2);
+    stroke-width: 1;
+    stroke-dasharray: 4 3;
+    opacity: 0.75;
+}
+
+.cu-arrow-head {
+    fill: var(--cu-ink2);
+}
+
+.cu-thread {
+    fill: var(--cu-s3);
+    stroke: var(--bg);
+    stroke-width: 1;
+}
+
+.cu-thread-label {
+    fill: var(--cu-ink2);
+    font-size: 9.5px;
+}
+
+.cu-status {
+    fill: var(--cu-ink2);
+    font-size: 12px;
+}
+
+.cu-packet.cu-s1 {
+    fill: var(--cu-s1);
+}
+
+.cu-packet.cu-s2 {
+    fill: var(--cu-s2);
+}
+
+.cu-packet.cu-s3 {
+    fill: var(--cu-s3);
+}
+
+.cu-packet {
+    stroke: var(--bg);
+    stroke-width: 1;
+}
+
+/* ------------------------------------------------------------------ *
+ * 折叠区
+ * ------------------------------------------------------------------ */
+
+.cu-step details.cu-step-more {
+    margin: 0.9rem 0 0.3rem;
+    padding: 0.5rem 0.8rem 0.55rem;
+    background: var(--bg);
+    border: 1px solid var(--cu-rule);
+    border-radius: 8px;
+}
+
+.cu-step-more summary {
+    color: var(--links);
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cu-step-more summary:hover {
+    text-decoration: underline;
+}
+
+.cu-step-more[open] > summary {
+    margin-bottom: 0.45rem;
+}
+
+.cu-step-more p {
+    margin: 0.5rem 0;
+    line-height: 1.7;
+}
+
+.cu-step pre {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* ------------------------------------------------------------------ *
+ * 入场
+ * ------------------------------------------------------------------ */
+
+.cu-step[data-cu-reveal] {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.cu-step[data-cu-reveal].cu-step-in {
+    opacity: 1;
+    transform: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * 窄屏
+ * ------------------------------------------------------------------ */
+
+@media (max-width: 560px) {
+    .cu-step {
+        padding: 12px;
+    }
+
+    .cu-steps-rail-btn {
+        gap: 4px;
+        padding: 5px 6px;
+        font-size: 11px;
+    }
+
+    .cu-rail-num {
+        width: 15px;
+        height: 15px;
+        font-size: 9px;
+    }
+}
+
+/* ------------------------------------------------------------------ *
+ * 减少动效
+ * ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+    .cu-step[data-cu-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    .cu-steps-rail-inner::after,
+    .cu-pcie {
+        transition: none !important;
+    }
+}
+
+/* ------------------------------------------------------------------ *
+ * 打印
+ * ------------------------------------------------------------------ */
+
+@media print {
+    .cu-steps-rail {
+        position: static;
+    }
+
+    .cu-step-replay {
+        display: none !important;
+    }
+
+    .cu-step[data-cu-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    .cu-step {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
