@@ -1,0 +1,349 @@
+/* 第 4 章 图 4.2：源码 / PTX / SASS 三栏对照。
+ *
+ * 颜色沿用 charts.css 里校验过的系列色，并在 rust / 深色主题下换成
+ * 同一组替代值。所有文字、边框都走主题变量，SVG 连线用 stroke，
+ * 不依赖 SVG 默认的黑色。
+ */
+
+.cu-xref,
+.cu-xref *,
+.cu-xref *::before,
+.cu-xref *::after {
+    box-sizing: border-box;
+}
+
+.cu-xref {
+    --cu-s1: #2a78d6;
+    --cu-s2: #eb6834;
+    --cu-s3: #1baf7a;
+    --cu-s4: #eda100;
+    --cu-xref-ink: var(--fg);
+    --cu-xref-ink2: color-mix(in srgb, var(--fg) 68%, var(--bg));
+    --cu-xref-rule: color-mix(in srgb, var(--fg) 16%, var(--bg));
+    --cu-xref-panel: color-mix(in srgb, var(--fg) 4%, var(--bg));
+    --cu-xref-hover: color-mix(in srgb, var(--fg) 8%, var(--bg));
+    --cu-xref-on: color-mix(in srgb, var(--cu-s1) 15%, var(--bg));
+    --cu-xref-link: var(--cu-s1);
+
+    position: relative;
+    max-width: 100%;
+    margin: 1.5em 0 1.8em;
+    text-align: left;
+    font: inherit;
+    overflow-wrap: anywhere;
+}
+
+html.rust .cu-xref {
+    --cu-s1: #2a78d6;
+    --cu-s2: #c94f1f;
+    --cu-s3: #14875e;
+    --cu-s4: #9c6a00;
+}
+
+html.coal .cu-xref,
+html.navy .cu-xref,
+html.ayu .cu-xref {
+    --cu-s1: #3987e5;
+    --cu-s2: #d95926;
+    --cu-s3: #199e70;
+    --cu-s4: #c98500;
+}
+
+.cu-xref > figcaption {
+    margin-top: 0.7em;
+    color: var(--cu-xref-ink2);
+    text-align: center;
+}
+
+.cu-xref-ui {
+    min-width: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * 分步按钮
+ * ------------------------------------------------------------------ */
+
+.cu-xref-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    margin: 0 0 0.3em;
+}
+
+.cu-xref-btn {
+    margin: 0;
+    padding: 4px 11px;
+    border: 1px solid var(--cu-xref-rule);
+    border-radius: 6px;
+    background: var(--cu-xref-panel);
+    color: var(--cu-xref-ink);
+    font: inherit;
+    font-size: 12.5px;
+    line-height: 1.5;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.cu-xref-btn:hover:not(:disabled) {
+    background: var(--cu-xref-hover);
+    border-color: color-mix(in srgb, var(--fg) 35%, var(--bg));
+}
+
+.cu-xref-btn:focus-visible {
+    outline: 2px solid var(--cu-s1);
+    outline-offset: 1px;
+}
+
+.cu-xref-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.cu-xref-step-count {
+    margin-left: auto;
+    color: var(--cu-xref-ink2);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.cu-xref-step-text {
+    margin: 0 0 0.8em;
+    color: var(--cu-xref-ink2);
+    font-size: 12.5px;
+    line-height: 1.65;
+}
+
+.cu-xref-step-text code {
+    color: var(--inline-code-color, inherit);
+    font-size: 0.95em;
+}
+
+/* ------------------------------------------------------------------ *
+ * 三栏
+ * ------------------------------------------------------------------ */
+
+.cu-xref-source-wrap {
+    min-width: 0;
+    margin: 0 0 12px;
+}
+
+.cu-xref-col-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0 0 4px;
+    padding: 0 3px;
+}
+
+.cu-xref-col-title {
+    color: var(--cu-xref-ink);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.cu-xref-col-note {
+    color: var(--cu-xref-ink2);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.cu-xref-pane {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 0;
+    border: 1px solid var(--cu-xref-rule);
+    border-radius: 8px;
+    background: var(--cu-xref-panel);
+    tab-size: 4;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+
+.cu-xref-body {
+    position: relative;
+    display: grid;
+    /* PTX 的行比 SASS 长，左栏略宽；两栏之间留出画连线的空间。 */
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+    gap: 56px;
+    min-width: 0;
+}
+
+.cu-xref-side {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.cu-xref-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9em;
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+    padding: 1.5px 10px;
+    border-radius: 3px;
+    color: var(--cu-xref-ink);
+    font-family: var(--mono-font);
+    font-size: 12px;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: opacity 0.18s ease, background-color 0.18s ease;
+}
+
+.cu-xref-row:hover {
+    background: var(--cu-xref-hover);
+}
+
+.cu-xref-row:focus-visible {
+    outline: 2px solid var(--cu-s1);
+    outline-offset: -2px;
+}
+
+.cu-xref-gutter {
+    flex: none;
+    width: 3.2em;
+    color: var(--cu-xref-ink2);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.cu-xref-code {
+    white-space: pre;
+}
+
+.cu-xref-source .cu-xref-row {
+    font-size: 12.5px;
+}
+
+/* 选中后其余行变淡，但不隐藏；点中的行用系列色做左边条。 */
+.cu-xref.is-selected .cu-xref-row {
+    opacity: 0.32;
+}
+
+.cu-xref.is-selected .cu-xref-row.is-on {
+    opacity: 1;
+    background: var(--cu-xref-on);
+    box-shadow: inset 2px 0 0 var(--cu-s1);
+}
+
+/* ------------------------------------------------------------------ *
+ * 连线
+ * ------------------------------------------------------------------ */
+
+.cu-xref-links {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.cu-xref-link {
+    fill: none;
+    stroke: var(--cu-xref-link);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    opacity: 0.85;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    animation: cu-xref-draw 0.36s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@keyframes cu-xref-draw {
+    from { stroke-dashoffset: 1; opacity: 0.15; }
+    to { stroke-dashoffset: 0; opacity: 0.85; }
+}
+
+/* 没有 JS 时的静态备用内容。 */
+.cu-xref-fallback {
+    max-width: 100%;
+    margin: 0 0 8px;
+    padding: 8px 10px;
+    overflow-x: auto;
+    border: 1px solid var(--cu-xref-rule);
+    border-radius: 8px;
+    background: var(--cu-xref-panel);
+    color: var(--cu-xref-ink);
+    font-family: var(--mono-font);
+    font-size: 11.5px;
+    line-height: 1.5;
+    tab-size: 4;
+}
+
+/* 读屏状态行，不占版面。 */
+.cu-xref-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * 窄屏：三栏上下排，不画连线
+ * ------------------------------------------------------------------ */
+
+@media (max-width: 699px) {
+    .cu-xref-body {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .cu-xref-links {
+        display: none;
+    }
+
+    .cu-xref-row {
+        font-size: 11.5px;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .cu-xref-step-count {
+        margin-left: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cu-xref-row {
+        transition: none !important;
+    }
+
+    .cu-xref-link {
+        animation: none !important;
+        stroke-dashoffset: 0;
+    }
+}
+
+@media print {
+    .cu-xref-toolbar,
+    .cu-xref-step-text,
+    .cu-xref-status,
+    .cu-xref-links {
+        display: none !important;
+    }
+
+    .cu-xref.is-selected .cu-xref-row {
+        opacity: 1 !important;
+    }
+
+    .cu-xref-pane {
+        overflow: visible;
+    }
+}

@@ -1,0 +1,85 @@
+$ nvcc -arch=native tiny.cu -o tiny
+$ cuobjdump --list-elf --list-ptx tiny
+ELF file    1: tiny.1.sm_120.cubin
+ELF file    2: tiny.2.sm_120.cubin
+cuobjdump info    : No PTX file found to extract from 'tiny'. You may try with -all option.
+$ ./tiny
+saxpy 运行成功
+
+$ nvcc -arch=sm_120 tiny.cu -o tiny
+$ cuobjdump --list-elf --list-ptx tiny
+ELF file    1: tiny.1.sm_120.cubin
+ELF file    2: tiny.2.sm_120.cubin
+PTX file    1: tiny.1.sm_120.ptx
+$ ./tiny
+saxpy 运行成功
+
+$ nvcc -arch=sm_90 tiny.cu -o tiny
+$ cuobjdump --list-elf --list-ptx tiny
+ELF file    1: tiny.1.sm_90.cubin
+ELF file    2: tiny.2.sm_90.cubin
+PTX file    1: tiny.1.sm_90.ptx
+$ ./tiny
+saxpy 运行成功
+
+$ nvcc -gencode arch=compute_90,code=sm_90 tiny.cu -o tiny
+$ cuobjdump --list-elf --list-ptx tiny
+ELF file    1: tiny.1.sm_90.cubin
+ELF file    2: tiny.2.sm_90.cubin
+cuobjdump info    : No PTX file found to extract from 'tiny'. You may try with -all option.
+$ ./tiny
+tiny.cu:29: cudaErrorNoKernelImageForDevice (no kernel image is available for execution on the device)
+
+$ nvcc -gencode arch=compute_86,code=sm_86 tiny.cu -o tiny
+$ cuobjdump --list-elf --list-ptx tiny
+ELF file    1: tiny.1.sm_86.cubin
+ELF file    2: tiny.2.sm_86.cubin
+cuobjdump info    : No PTX file found to extract from 'tiny'. You may try with -all option.
+$ ./tiny
+tiny.cu:29: cudaErrorNoKernelImageForDevice (no kernel image is available for execution on the device)
+
+$ nvcc -gencode arch=compute_121,code=sm_121 tiny.cu -o tiny
+$ cuobjdump --list-elf --list-ptx tiny
+ELF file    1: tiny.1.sm_121.cubin
+ELF file    2: tiny.2.sm_121.cubin
+cuobjdump info    : No PTX file found to extract from 'tiny'. You may try with -all option.
+$ ./tiny
+tiny.cu:29: cudaErrorNoKernelImageForDevice (no kernel image is available for execution on the device)
+
+$ nvcc -gencode arch=compute_80,code=compute_80 tiny.cu -o tiny
+$ cuobjdump --list-elf --list-ptx tiny
+PTX file    1: tiny.1.sm_80.ptx
+cuobjdump info    : No ELF file found to extract from 'tiny'. You may try with -all option.
+$ ./tiny
+saxpy 运行成功
+
+$ nvcc -arch=all tiny.cu -o tiny
+$ cuobjdump --list-elf --list-ptx tiny
+ELF file    1: tiny.1.sm_75.cubin
+ELF file    2: tiny.2.sm_80.cubin
+ELF file    3: tiny.3.sm_86.cubin
+ELF file    4: tiny.4.sm_87.cubin
+ELF file    5: tiny.5.sm_88.cubin
+ELF file    6: tiny.6.sm_89.cubin
+ELF file    7: tiny.7.sm_90.cubin
+ELF file    8: tiny.8.sm_100.cubin
+ELF file    9: tiny.9.sm_103.cubin
+ELF file   10: tiny.10.sm_110.cubin
+ELF file   11: tiny.11.sm_120.cubin
+ELF file   12: tiny.12.sm_121.cubin
+ELF file   13: tiny.13.sm_75.cubin
+ELF file   14: tiny.14.sm_80.cubin
+ELF file   15: tiny.15.sm_86.cubin
+ELF file   16: tiny.16.sm_87.cubin
+ELF file   17: tiny.17.sm_88.cubin
+ELF file   18: tiny.18.sm_89.cubin
+ELF file   19: tiny.19.sm_90.cubin
+ELF file   20: tiny.20.sm_100.cubin
+ELF file   21: tiny.21.sm_103.cubin
+ELF file   22: tiny.22.sm_110.cubin
+PTX file    1: tiny.1.sm_120.ptx
+ELF file   23: tiny.23.sm_120.cubin
+ELF file   24: tiny.24.sm_121.cubin
+$ ./tiny
+saxpy 运行成功
+

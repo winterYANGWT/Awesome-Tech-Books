@@ -60,11 +60,62 @@
     transition: opacity 0.2s ease;
 }
 
+/* 工具节点按五类上色，和图 4.1 的图例一致。charts.css 的 --cu-s*
+   只定义在 .cu-chart 里，这里按同样的主题覆盖另声明一份。 */
+.cu-map {
+    --cu-map-s1: #2a78d6;
+    --cu-map-s2: #eb6834;
+    --cu-map-s3: #1baf7a;
+    --cu-map-s4: #eda100;
+}
+
+html.rust .cu-map {
+    --cu-map-s2: #c94f1f;
+    --cu-map-s3: #14875e;
+    --cu-map-s4: #9c6a00;
+}
+
+html.coal .cu-map,
+html.navy .cu-map,
+html.ayu .cu-map {
+    --cu-map-s1: #3987e5;
+    --cu-map-s2: #d95926;
+    --cu-map-s3: #199e70;
+    --cu-map-s4: #c98500;
+}
+
+.cu-map-node[data-tool="gcc"] {
+    --cu-map-tool-color: var(--cu-map-s1);
+}
+
+.cu-map-node[data-tool="cudafe"] {
+    --cu-map-tool-color: var(--cu-map-s4);
+}
+
+.cu-map-node[data-tool="gpu"] {
+    --cu-map-tool-color: var(--cu-map-s3);
+}
+
+.cu-map-node[data-tool="pack"] {
+    --cu-map-tool-color: var(--cu-map-s2);
+}
+
 .cu-map-node rect {
     fill: var(--cu-map-node);
     stroke: var(--cu-map-rule);
     stroke-width: 1;
     transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+.cu-map-node[data-tool] rect {
+    fill: color-mix(in srgb, var(--cu-map-tool-color) 16%, var(--bg));
+    stroke: color-mix(in srgb, var(--cu-map-tool-color) 70%, var(--bg));
+}
+
+.cu-map-node[data-tool] .cu-map-label,
+.cu-map-node[data-tool] .cu-map-label-2,
+.cu-map-node[data-tool] .cu-map-label-sub {
+    fill: color-mix(in srgb, var(--cu-map-tool-color) 55%, var(--fg));
 }
 
 .cu-map-label {
@@ -170,6 +221,13 @@
 
 .cu-map.is-live .cu-map-narrow [data-part].is-on .cu-map-edge {
     marker-end: url(#cu-map-arrow-on-narrow);
+}
+
+/* 工具节点点亮时保留自己的类别色，只加粗边框；这样图例一直对得上。 */
+.cu-map.is-live .cu-map-node[data-tool].is-on rect {
+    fill: color-mix(in srgb, var(--cu-map-tool-color) 22%, var(--bg));
+    stroke: var(--cu-map-tool-color);
+    stroke-width: 2.5;
 }
 
 /* ------------------------------------------------------------------ *

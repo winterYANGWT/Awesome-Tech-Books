@@ -1,0 +1,289 @@
+/* 第 4 章图 4.1：nvcc 依次调用的 13 步。
+ *
+ * 纯 HTML + CSS，不依赖 JS。五类工具用 charts.css 里同一套系列色
+ * （浅色/深色都校验过），这里按同样的主题覆盖再声明一份，因为
+ * charts.css 的 --cu-s* 只定义在 .cu-chart 里面。
+ *
+ * 色块不是纯色填充：底色是系列色混一点页面背景，文字是系列色混
+ * 正文色。这样五个主题下文字和底色的对比度都够，色相也还认得出。
+ */
+
+.cu-toolchain,
+.cu-toolchain *,
+.cu-toolchain *::before,
+.cu-toolchain *::after {
+    box-sizing: border-box;
+}
+
+.cu-toolchain {
+    --cu-s1: #2a78d6;
+    --cu-s2: #eb6834;
+    --cu-s3: #1baf7a;
+    --cu-s4: #eda100;
+    --cu-tc-ink: var(--fg);
+    --cu-tc-ink2: color-mix(in srgb, var(--fg) 78%, var(--bg));
+    --cu-tc-muted: color-mix(in srgb, var(--fg) 78%, var(--bg));
+    --cu-tc-rule: color-mix(in srgb, var(--fg) 14%, var(--bg));
+
+    position: relative;
+    margin: 1.5em 0 1.6em;
+    padding: 0;
+    text-align: left;
+    font: inherit;
+    background: var(--bg);
+}
+
+html.rust .cu-toolchain {
+    --cu-s2: #c94f1f;
+    --cu-s3: #14875e;
+    --cu-s4: #9c6a00;
+}
+
+html.coal .cu-toolchain,
+html.navy .cu-toolchain,
+html.ayu .cu-toolchain {
+    --cu-s1: #3987e5;
+    --cu-s2: #d95926;
+    --cu-s3: #199e70;
+    --cu-s4: #c98500;
+}
+
+.cu-toolchain .cu-tc-gcc {
+    --cu-tc-tone: var(--cu-s1);
+}
+
+.cu-toolchain .cu-tc-cudafe {
+    --cu-tc-tone: var(--cu-s4);
+}
+
+.cu-toolchain .cu-tc-gpu {
+    --cu-tc-tone: var(--cu-s3);
+}
+
+.cu-toolchain .cu-tc-pack {
+    --cu-tc-tone: var(--cu-s2);
+}
+
+.cu-toolchain .cu-tc-rm {
+    --cu-tc-tone: var(--cu-tc-muted);
+}
+
+/* ------------------------------------------------------------------ *
+ * 图例
+ * ------------------------------------------------------------------ */
+
+.cu-tc-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3em 0.95em;
+    margin: 0 0 0.65em;
+    color: var(--cu-tc-ink2);
+    font-size: 0.78em;
+    line-height: 1.55;
+}
+
+.cu-tc-key {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-width: 0;
+}
+
+.cu-tc-swatch {
+    display: inline-block;
+    width: 0.85em;
+    height: 0.85em;
+    border-radius: 2px;
+    background: var(--cu-tc-tone);
+    flex: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * 13 步：桌面四列（序号、工具、动作、输入输出）
+ * ------------------------------------------------------------------ */
+
+.cu-tc-steps {
+    counter-reset: cu-tc;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--cu-tc-rule);
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.cu-tc-steps > li {
+    counter-increment: cu-tc;
+    display: grid;
+    grid-template-columns: 2.1em 9.4em minmax(0, 1.05fr) minmax(0, 1.2fr);
+    column-gap: 0.9em;
+    align-items: start;
+    padding: 0.48em 0.35em;
+    border-bottom: 1px solid var(--cu-tc-rule);
+}
+
+.cu-tc-steps > li::before {
+    content: counter(cu-tc);
+    grid-column: 1;
+    color: var(--cu-tc-ink2);
+    font-family: var(--mono-font, monospace);
+    font-size: 0.92em;
+    font-weight: 600;
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.cu-tc-name {
+    grid-column: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3em 0.4em;
+    min-width: 0;
+}
+
+.cu-tc-tool {
+    display: inline-block;
+    padding: 0.08em 0.45em;
+    border: 1px solid color-mix(in srgb, var(--cu-tc-tone) 55%, var(--bg));
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--cu-tc-tone) 16%, var(--bg));
+    color: color-mix(in srgb, var(--cu-tc-tone) 55%, var(--fg));
+    font-family: var(--mono-font, monospace);
+    font-size: 0.94em;
+    font-weight: 700;
+    line-height: 1.35;
+    white-space: nowrap;
+}
+
+.cu-tc-tag {
+    display: inline-block;
+    padding: 0 0.42em;
+    border: 1px solid var(--cu-tc-rule);
+    border-radius: 999px;
+    color: var(--cu-tc-ink2);
+    font-size: 0.7em;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.cu-tc-act {
+    grid-column: 3;
+    color: var(--cu-tc-ink);
+    min-width: 0;
+}
+
+.cu-tc-act code {
+    font-family: var(--mono-font, monospace);
+    font-size: 0.92em;
+    color: inherit;
+    background: none;
+    padding: 0;
+}
+
+.cu-tc-io {
+    grid-column: 4;
+    min-width: 0;
+    color: var(--cu-tc-ink2);
+    font-family: var(--mono-font, monospace);
+    font-size: 0.8em;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.cu-tc-io code {
+    font: inherit;
+    color: inherit;
+    background: none;
+    padding: 0;
+}
+
+/* 两行 rm 只是清理，整体压暗；不靠 opacity，文字对比度不跟着掉。 */
+.cu-tc-steps > li.cu-tc-rm {
+    background: color-mix(in srgb, var(--fg) 2%, var(--bg));
+}
+
+.cu-tc-steps > li.cu-tc-rm .cu-tc-act,
+.cu-tc-steps > li.cu-tc-rm .cu-tc-io {
+    color: var(--cu-tc-muted);
+}
+
+.cu-tc-steps > li.cu-tc-rm .cu-tc-tool {
+    border-color: var(--cu-tc-rule);
+    background: color-mix(in srgb, var(--fg) 6%, var(--bg));
+    color: var(--cu-tc-muted);
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ *
+ * 窄屏：序号在左，工具、动作、输入输出叠成一列
+ * ------------------------------------------------------------------ */
+
+@media (max-width: 600px) {
+    .cu-tc-legend {
+        gap: 0.25em 0.8em;
+        font-size: 0.8em;
+    }
+
+    .cu-tc-steps > li {
+        grid-template-columns: 1.9em minmax(0, 1fr);
+        grid-template-areas:
+            "n name"
+            "n act"
+            "n io";
+        column-gap: 0.55em;
+        row-gap: 0.18em;
+        padding: 0.5em 0.2em;
+    }
+
+    .cu-tc-steps > li::before {
+        grid-area: n;
+        text-align: left;
+    }
+
+    .cu-tc-steps > li .cu-tc-name {
+        grid-area: name;
+        grid-column: 2;
+    }
+
+    .cu-tc-steps > li .cu-tc-act {
+        grid-area: act;
+        grid-column: 2;
+    }
+
+    .cu-tc-steps > li .cu-tc-io {
+        grid-area: io;
+        grid-column: 2;
+    }
+}
+
+/* ------------------------------------------------------------------ *
+ * 图注
+ * ------------------------------------------------------------------ */
+
+.cu-toolchain > figcaption {
+    /* 和统计图的图注一致：居中，颜色、字号交给 custom.css 的 figcaption。 */
+    margin-top: 0.6em;
+    text-align: center;
+}
+
+.cu-toolchain > figcaption code {
+    font-size: 0.95em;
+    color: inherit;
+    background: none;
+    padding: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * 打印：保留工具色块
+ * ------------------------------------------------------------------ */
+
+@media print {
+    .cu-toolchain {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
