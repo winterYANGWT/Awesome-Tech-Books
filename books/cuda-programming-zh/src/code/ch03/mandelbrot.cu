@@ -25,6 +25,7 @@ __host__ __device__ uchar3 color(int iters) {
     return make_uchar3(255 * t * t, 255 * t, 128 + 127 * t);
 }
 
+// ANCHOR: escape
 __host__ __device__ int escape(float cx, float cy) {
     float x = 0, y = 0;
     int k = 0;
@@ -36,6 +37,7 @@ __host__ __device__ int escape(float cx, float cy) {
     }
     return k;
 }
+// ANCHOR_END: escape
 
 // ANCHOR: kernel
 // 像素 (px, py) 对应复平面上的点 (x0 + px*step, y0 + py*step)。
