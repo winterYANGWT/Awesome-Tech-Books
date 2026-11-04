@@ -6,8 +6,8 @@ language = "zh-CN"
 src = "src"
 
 [output.html]
-additional-css = ["theme/custom.css", "theme/charts.css", "theme/steps.css", "theme/map.css", "theme/toolchain.css", "theme/xref.css", "theme/fatbin.css"]
-additional-js = ["theme/charts.js", "theme/steps.js", "theme/map.js", "theme/xref.js", "theme/fatbin.js"]
+additional-css = ["theme/custom.css", "theme/charts.css", "theme/steps.css", "theme/toolchain.css", "theme/xref.css", "theme/fatbin.css"]
+additional-js = ["theme/charts.js", "theme/steps.js", "theme/xref.js", "theme/fatbin.js"]
 git-repository-url = "https://github.com/winterYANGWT/Awesome-Tech-Books/tree/main/books/cuda-programming-zh"
 no-section-label = true
 
