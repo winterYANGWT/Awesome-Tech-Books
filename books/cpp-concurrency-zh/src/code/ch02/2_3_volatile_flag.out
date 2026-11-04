@@ -1,0 +1,10 @@
+WARNING: ThreadSanitizer: data race
+Write of size 4 at 0x… by thread T2:
+    #0 writer() 2_3_volatile_flag.c:18
+Previous read of size 4 at 0x… by thread T1:
+    #0 reader() 2_3_volatile_flag.c:24
+  Thread T2 created by main thread at:
+    #0 main() 2_3_volatile_flag.c:34
+  Thread T1 created by main thread at:
+    #0 main() 2_3_volatile_flag.c:33
+SUMMARY: ThreadSanitizer: data race 2_3_volatile_flag.c:18 in writer

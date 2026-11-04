@@ -1,0 +1,7 @@
+buffer=262144 bytes
+buffer=524288 bytes
+buffer=786432 bytes
+buffer=1048576 bytes
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+（程序被信号 SIGABRT 终止）

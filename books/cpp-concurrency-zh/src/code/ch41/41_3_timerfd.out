@@ -1,0 +1,4 @@
+read #1: expirations=1
+read #2: expirations=1
+read #3: expirations=1
+reads=3, total expirations=3

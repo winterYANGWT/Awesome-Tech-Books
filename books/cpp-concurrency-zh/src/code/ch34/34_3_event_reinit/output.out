@@ -1,0 +1,14 @@
+== 调用 event_reinit ==
+child: event_reinit=0
+parent: write timer fired
+child: ET read fired (reads=1)
+child: dispatch=0 reads=1
+parent: dispatch=0
+child: exit=0
+
+== 不调用 event_reinit ==
+child: event_reinit skipped
+parent: write timer fired
+child: dispatch=0 reads=0
+parent: dispatch=0
+child: exit=0

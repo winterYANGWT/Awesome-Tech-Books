@@ -1,0 +1,3 @@
+父进程：准备 fork，prepare 会等 worker 放锁
+子进程：加锁成功，准备 _exit
+父进程：回收成功

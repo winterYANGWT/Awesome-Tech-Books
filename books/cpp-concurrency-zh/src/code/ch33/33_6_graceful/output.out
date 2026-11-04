@@ -1,0 +1,11 @@
+client: sent GET v
+client: VALUE hello
+client: recv=0 (server closed after full response)
+server: listening (SIGTERM stops accept, then drains)
+accepted fd=7
+request received, response delayed 500ms
+SIGTERM: stop accepting
+pending request: response ready
+response written
+closed fd=7 (drained)
+server: drain done, exit

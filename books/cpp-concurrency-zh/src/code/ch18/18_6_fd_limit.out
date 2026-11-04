@@ -1,0 +1,5 @@
+RLIMIT_NOFILE soft=524288 hard=524288  (每进程)
+fs.file-max=9223372036854775807  (系统级)
+somaxconn=4096  (系统级，封顶 listen backlog)
+tcp_max_syn_backlog=1024  (系统级，半连接队列)
+max_user_watches=3307163  (每用户，注册的 fd 总数)

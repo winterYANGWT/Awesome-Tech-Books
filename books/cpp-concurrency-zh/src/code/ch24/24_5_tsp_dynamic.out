@@ -1,0 +1,2 @@
+dynamic: cities=12 threads=4 cutoff=9 reps=20
+dynamic: best=60 splits=1027 nodes=4053988,3922133,4223894,4032673 total=16232688 ms_per_rep=4.905

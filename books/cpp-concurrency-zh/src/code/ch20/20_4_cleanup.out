@@ -1,0 +1,3 @@
+pthread_join 的退出值 == PTHREAD_CANCELED: 是
+清理函数执行次数: 1
+第二个线程拿到了互斥量: 是

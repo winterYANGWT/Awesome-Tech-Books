@@ -1,0 +1,16 @@
+ps -L -p 4145079（同一 PID 三行）：
+4145079 4145079 thread_ids
+4145079 4145081 thread_ids
+4145079 4145082 thread_ids
+ps -L 的线程数：3
+/proc/4145079/task 下的目录项：
+4145079 4145081 4145082 
+/proc/4145079/task 的目录项数：3
+程序输出：
+主线程：getpid() == gettid()：是
+/proc/self/task 的目录项数：3
+两个工作线程的 pthread_self 不同：是
+两个工作线程：gettid 不同：是
+两个工作线程：gettid 都不等于 PID：是
+两个线程栈上局部变量的地址差 > 1 MiB：是
+地址差落在 1–64 MiB：是

@@ -1,0 +1,4 @@
+第一次 sem_trywait: -1，errno=EAGAIN
+失败后计数仍为 0，没有把计数减成负数
+sem_post 之后计数为 1
+第二次 sem_trywait: 0，计数回到 0

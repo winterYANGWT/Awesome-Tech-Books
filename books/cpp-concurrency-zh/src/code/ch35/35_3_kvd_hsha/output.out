@@ -1,0 +1,16 @@
+epoll:
+requests=20000 errors=0 mismatches=0
+throughput=1080199.8 req/s p50=335 us p99=548 us
+server: mode=lt served=100
+hsha:
+requests=20000 errors=0 mismatches=0
+throughput=805383.4 req/s p50=431 us p99=2057 us
+hsha: workers=8 queue_cap=1024 requests=20000
+hsha: worker 0 served=2596
+hsha: worker 1 served=2444
+hsha: worker 2 served=2320
+hsha: worker 3 served=2364
+hsha: worker 4 served=2868
+hsha: worker 5 served=2428
+hsha: worker 6 served=2612
+hsha: worker 7 served=2368

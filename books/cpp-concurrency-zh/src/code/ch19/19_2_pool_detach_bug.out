@@ -1,0 +1,17 @@
+4 个任务完成，池对象即将析构
+析构返回，4 个工作线程仍阻塞在 sem_wait
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    main()  19_2_pool_detach_bug.cpp:89
+线程 2：
+    (anonymous namespace)::DetachedPool::run()  19_2_pool_detach_bug.cpp:50
+    (anonymous namespace)::DetachedPool::entry()  19_2_pool_detach_bug.cpp:44
+线程 3：
+    (anonymous namespace)::DetachedPool::run()  19_2_pool_detach_bug.cpp:50
+    (anonymous namespace)::DetachedPool::entry()  19_2_pool_detach_bug.cpp:44
+线程 4：
+    (anonymous namespace)::DetachedPool::run()  19_2_pool_detach_bug.cpp:50
+    (anonymous namespace)::DetachedPool::entry()  19_2_pool_detach_bug.cpp:44
+线程 5：
+    (anonymous namespace)::DetachedPool::run()  19_2_pool_detach_bug.cpp:50
+    (anonymous namespace)::DetachedPool::entry()  19_2_pool_detach_bug.cpp:44

@@ -1,0 +1,17 @@
+active: connected, sending for 2s
+active: 7 echoes
+idle: connected, sending nothing for 4s
+idle: recv=0 (server closed)
+server: listening (idle timeout 3s)
+accepted fd=5
+accepted fd=6
+echo fd=6 bytes=5
+echo fd=6 bytes=5
+echo fd=6 bytes=5
+echo fd=6 bytes=5
+echo fd=6 bytes=5
+echo fd=6 bytes=5
+echo fd=6 bytes=5
+closed fd=6 (peer closed)
+idle timeout fd=5
+closed fd=5 (idle timeout)

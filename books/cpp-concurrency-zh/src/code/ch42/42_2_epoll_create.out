@@ -1,0 +1,4 @@
+epoll_create(0)                  -> -1, errno=22 (Invalid argument)
+epoll_create(1)                  -> fd=3, FD_CLOEXEC=0
+epoll_create1(EPOLL_CLOEXEC)     -> fd=3, FD_CLOEXEC=1
+epoll_create1(0)                 -> fd=3, FD_CLOEXEC=0

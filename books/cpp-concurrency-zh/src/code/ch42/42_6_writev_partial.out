@@ -1,0 +1,5 @@
+pipe capacity = 8192, total = 131072
+first writev = 8192 (partial, not an error)
+writev calls = 31, iov left = 0
+total written = 131072
+remaining = 0

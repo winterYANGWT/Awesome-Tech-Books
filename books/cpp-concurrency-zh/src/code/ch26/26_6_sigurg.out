@@ -1,0 +1,3 @@
+发现方式：POLLPRI=1 SIGURG=1
+sockatmark=1
+普通数据=abcdef 带外数据=!

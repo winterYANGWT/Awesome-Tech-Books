@@ -1,0 +1,7 @@
+parent worker: forked, waiting for child
+child: calling log_line (needs log_mutex)
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    main()  41_4_fork_deadlock.c:69
+线程 2：
+    worker()  41_4_fork_deadlock.c:51

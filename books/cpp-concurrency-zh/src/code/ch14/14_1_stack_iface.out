@@ -1,0 +1,4 @@
+A 看到非空：是
+B 弹出 42
+/stl_stack.h:260: std::stack<_Tp, _Sequence>::reference std::stack<_Tp, _Sequence>::top() [with _Tp = int; _Sequence = std::vector<int>; reference = int&]: Assertion '!this->empty()' failed.
+（程序被信号 SIGABRT 终止）

@@ -1,0 +1,4 @@
+23_2_accumulate_par.cpp:12:31: error: no matching function for call to ‘accumulate(const __pstl::execution::v1::parallel_policy&, std::vector<int>::iterator, std::vector<int>::iterator, int)’
+23_2_accumulate_par.cpp:12:31: note: there are 2 candidates
+/stl_numeric.h:134:5: note: candidate 1: ‘template<class _InputIterator, class _Tp> constexpr _Tp std::accumulate(_InputIterator, _InputIterator, _Tp)’
+/stl_numeric.h:134:5: note: candidate expects 3 arguments, 4 provided

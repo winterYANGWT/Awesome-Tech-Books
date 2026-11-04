@@ -1,0 +1,6 @@
+WARNING: ThreadSanitizer: data race
+Read of size 4 at 0x… by main thread:
+    #0 main() 18_2_unsynced_timing.cpp:25
+Previous write of size 4 at 0x… by thread T1:
+    #0 operator() 18_2_unsynced_timing.cpp:18
+SUMMARY: ThreadSanitizer: data race 18_2_unsynced_timing.cpp:25 in main

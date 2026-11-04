@@ -1,0 +1,4 @@
+system_clock: is_steady=false, period=1/1000000000
+steady_clock: is_steady=true, period=1/1000000000
+high_resolution_clock: is_steady=false, period=1/1000000000
+high_resolution_clock 与 system_clock 同类型: 是

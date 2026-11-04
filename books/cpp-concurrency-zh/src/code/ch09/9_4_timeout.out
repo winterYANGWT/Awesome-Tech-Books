@@ -1,0 +1,4 @@
+future.wait_for(50ms): timeout
+cv.wait_for(50ms): timeout
+超时返回后任务仍在运行: 是
+最终结果: 42

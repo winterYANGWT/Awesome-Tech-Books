@@ -1,0 +1,10 @@
+生产者 signal（此时没有等待者）
+消费者进入 wait
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  7_6_cond_wrapper.cpp:72
+线程 2：
+    pthread_cond_wait
+    (anonymous namespace)::Cond::wait()  7_6_cond_wrapper.cpp:39
+    operator()  7_6_cond_wrapper.cpp:65

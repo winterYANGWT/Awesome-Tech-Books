@@ -1,0 +1,6 @@
+主线程已持有 mutex，准备 raise(SIGUSR1)
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    pthread_mutex_lock
+    on_usr1()  26_2_handler_mutex.c:16
+    main()  26_2_handler_mutex.c:38

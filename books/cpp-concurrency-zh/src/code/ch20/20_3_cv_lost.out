@@ -1,0 +1,11 @@
+消费者：已经检查过 stop=false，准备进入 wait
+主线程：置 stop=true，但不调用 notify_all
+主线程：join 等待消费者
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  20_3_cv_lost.cpp:43
+线程 2：
+    pthread_cond_wait
+    std::condition_variable::wait
+    operator()  20_3_cv_lost.cpp:28

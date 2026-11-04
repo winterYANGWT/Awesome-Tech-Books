@@ -1,0 +1,7 @@
+defer_lock 之后：owns_lock 0 0
+std::lock 之后：owns_lock 1 1
+解锁第一个之后：owns_lock 0 1
+移动之后：源 owns_lock 0，目标 owns_lock 1
+try_to_lock 抢已被占用的锁：owns_lock 0
+std::try_lock 全成功：返回 -1，owns_lock 1 1
+std::try_lock 第二个失败：返回 1，两个 owns_lock 都是 0 0

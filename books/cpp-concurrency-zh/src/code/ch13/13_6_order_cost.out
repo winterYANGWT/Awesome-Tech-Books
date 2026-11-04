@@ -1,0 +1,4 @@
+order,rmw_ns,store_ns
+relaxed,3.665,0.109
+acq_rel,3.677,0.183
+seq_cst,3.677,3.667

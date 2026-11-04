@@ -1,0 +1,5 @@
+sizeof(void*) = 8, sizeof(long) = 8, sizeof(intptr_t) = 8
+本机是指针和 long 等宽的 LP64：是
+long 往返：123456789 -> 123456789（一致）
+intptr_t 往返：123456789 -> 123456789（一致）
+把地址存进 long 再转回：一致

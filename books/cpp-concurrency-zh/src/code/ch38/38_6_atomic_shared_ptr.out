@@ -1,0 +1,5 @@
+initial use_count = 2
+is_lock_free = 0
+reader loads = 2000
+final version = 100
+final use_count = 2

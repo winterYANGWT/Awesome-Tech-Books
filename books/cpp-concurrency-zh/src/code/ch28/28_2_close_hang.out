@@ -1,0 +1,26 @@
+400 条全部取完，4 个消费者回到 not_empty 等待
+close() 只置 closed，没有 notify_all
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  28_2_close_hang.cpp:101
+线程 2：
+    pthread_cond_wait
+    std::condition_variable::wait
+    Channel<int>::recv()  28_2_close_hang.cpp:34
+    operator()  28_2_close_hang.cpp:81
+线程 3：
+    pthread_cond_wait
+    std::condition_variable::wait
+    Channel<int>::recv()  28_2_close_hang.cpp:34
+    operator()  28_2_close_hang.cpp:81
+线程 4：
+    pthread_cond_wait
+    std::condition_variable::wait
+    Channel<int>::recv()  28_2_close_hang.cpp:34
+    operator()  28_2_close_hang.cpp:81
+线程 5：
+    pthread_cond_wait
+    std::condition_variable::wait
+    Channel<int>::recv()  28_2_close_hang.cpp:34
+    operator()  28_2_close_hang.cpp:81

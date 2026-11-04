@@ -1,0 +1,4 @@
+round 1: fd=3
+round 1, before fcntl: child sees fd: yes
+round 1, after fcntl: child sees fd: no
+round 2, O_CLOEXEC: child sees fd: no

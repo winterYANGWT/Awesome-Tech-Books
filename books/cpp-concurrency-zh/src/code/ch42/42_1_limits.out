@@ -1,0 +1,6 @@
+FD_SETSIZE = 1024, sizeof(fd_set) = 128
+sizeof(nfds_t) = 8
+RLIMIT_NOFILE soft = 524288, hard = 524288
+fs.file-max = 9223372036854775807
+fs.nr_open = 2147483584
+poll(nfds=70000, last fd readable) = 1

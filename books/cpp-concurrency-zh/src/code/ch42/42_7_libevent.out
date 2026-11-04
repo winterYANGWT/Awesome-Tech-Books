@@ -1,0 +1,6 @@
+evthread_use_pthreads = 0
+method = epoll
+callback: 10 ms
+callback: 30 ms
+callback: 60 ms
+dispatch = 1 (no events left)

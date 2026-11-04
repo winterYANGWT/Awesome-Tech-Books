@@ -1,0 +1,7 @@
+hardware_concurrency=32
+affinity_cpus=32
+cgroup=/
+cpu.max=max 100000
+pids.max=17104
+rlimit_nproc=18446744073709551615
+threads_max=114029

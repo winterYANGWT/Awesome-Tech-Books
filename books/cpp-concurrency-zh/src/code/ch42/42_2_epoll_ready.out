@@ -1,0 +1,4 @@
+registered=4096 ready=1 median_ns=110
+registered=4096 ready=100 median_ns=2505
+registered=4096 ready=1000 median_ns=25378
+ratio 100/1 = 22.8, 1000/1 = 230.7

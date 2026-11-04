@@ -1,0 +1,5 @@
+socket blocking = 1
+queue_init = 0
+wait_cqe = 0
+completion res = 5
+data = hello

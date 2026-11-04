@@ -1,0 +1,3 @@
+parent: sent 1 fd
+child: received fd, read: hello over SCM_RIGHTS
+parent: child exited

@@ -1,0 +1,7 @@
+按值: worker=0x… main=0x… -> 不同
+按值: sum=7
+按引用: worker=0x… main=0x… -> 相同
+按引用: sum=7
+求值 B：第 1 个
+求值 A：第 2 个
+lambda: a=1 b=0 sum=1

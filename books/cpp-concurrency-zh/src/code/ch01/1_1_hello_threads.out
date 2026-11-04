@@ -1,0 +1,8 @@
+main：第 1 行
+main：第 2 行
+main：第 3 行
+worker：第 1 行
+worker：第 2 行
+worker：第 3 行
+worker：第 4 行
+main：join 返回，7 行都到齐了

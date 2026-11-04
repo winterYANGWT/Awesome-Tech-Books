@@ -1,0 +1,6 @@
+set a = 1
+set b = 2
+get a -> 1
+del a -> 1
+get a -> 缺失
+stop

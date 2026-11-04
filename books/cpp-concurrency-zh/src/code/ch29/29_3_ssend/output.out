@@ -1,0 +1,8 @@
+-- 先跑不加区分的 Ssend --
+rank 1：Ssend 10 给 2
+rank 3：Ssend 30 给 0
+rank 2：Ssend 20 给 3
+rank 0：Ssend 0 给 1
+naive Ssend：超时，deadlock detected
+-- 再跑偶数先发、奇数先收 --
+safe：4 个 rank 完成环交换，rank 0 收到 30

@@ -1,0 +1,3 @@
+push: 400000 次, pop: 400000 次
+栈为空: 是
+is_lock_free: true

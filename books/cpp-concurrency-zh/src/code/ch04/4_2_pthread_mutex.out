@@ -1,0 +1,2 @@
+counter = 2000000
+每个 pthread 调用都返回 0

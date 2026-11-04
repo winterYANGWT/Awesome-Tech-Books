@@ -1,0 +1,10 @@
+主线程：持有 m，准备 join
+工作线程：请求 m
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  5_4_join_under_lock.cpp:19
+线程 2：
+    pthread_mutex_lock
+    std::mutex::lock
+    worker()  5_4_join_under_lock.cpp:11

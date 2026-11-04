@@ -1,0 +1,3 @@
+parent: 3 个子进程已 fork，SIGCHLD 仍被屏蔽
+parent: 僵尸数=3，现在临时解除屏蔽
+parent: reaped=3，僵尸数=0

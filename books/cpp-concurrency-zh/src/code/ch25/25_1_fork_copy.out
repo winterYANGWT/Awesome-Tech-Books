@@ -1,0 +1,3 @@
+parent before fork: g_value=10 heap->value=20
+child:  g_value=11 heap->value=21
+parent after wait: g_value=10 heap->value=20

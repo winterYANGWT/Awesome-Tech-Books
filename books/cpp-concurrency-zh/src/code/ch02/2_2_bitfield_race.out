@@ -1,0 +1,10 @@
+WARNING: ThreadSanitizer: data race
+Write of size 1 at 0x… by thread T1:
+    #0 set_a() 2_2_bitfield_race.c:20
+Previous write of size 1 at 0x… by thread T2:
+    #0 set_b() 2_2_bitfield_race.c:27
+  Thread T1 created by main thread at:
+    #0 main() 2_2_bitfield_race.c:35
+  Thread T2 created by main thread at:
+    #0 main() 2_2_bitfield_race.c:36
+SUMMARY: ThreadSanitizer: data race 2_2_bitfield_race.c:20 in set_a

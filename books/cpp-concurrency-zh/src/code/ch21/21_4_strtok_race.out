@@ -1,0 +1,11 @@
+A:a1
+WARNING: ThreadSanitizer: data race
+Write of size 8 at 0x… by thread T2:
+    #0 legacy_strtok() 21_4_strtok_race.c:20
+Previous write of size 8 at 0x… by thread T1:
+    #0 legacy_strtok() 21_4_strtok_race.c:20
+  Thread T2 created by main thread at:
+    #0 main() 21_4_strtok_race.c:79
+  Thread T1 created by main thread at:
+    #0 main() 21_4_strtok_race.c:78
+SUMMARY: ThreadSanitizer: data race 21_4_strtok_race.c:20 in legacy_strtok

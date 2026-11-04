@@ -1,0 +1,6 @@
+__STDC_NO_THREADS__ 未定义
+析构线程 0
+析构线程 2
+析构线程 1
+destructor 调用次数: 3
+TSS_DTOR_ITERATIONS: 4

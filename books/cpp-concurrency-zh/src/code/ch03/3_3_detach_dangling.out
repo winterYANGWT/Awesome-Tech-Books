@@ -1,0 +1,69 @@
+=================================================================
+ERROR: AddressSanitizer: stack-use-after-scope on address 0x… at pc 0x… bp 0x… sp 0x…
+READ of size 4 at 0x… thread T1
+    #0 0x… in operator() 3_3_detach_dangling.cpp:17
+    #1 0x… in __invoke_impl<void, (anonymous namespace)::spawn_worker()::<lambda()> > /invoke.h:63
+    #2 0x… in __invoke<(anonymous namespace)::spawn_worker()::<lambda()> > /invoke.h:98
+    #3 0x… in _M_invoke<0> /std_thread.h:303
+    #4 0x… in operator() /std_thread.h:310
+    #5 0x… in _M_run /std_thread.h:255
+    #6 0x…  (/usr/lib/x86_64-linux-gnu/libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #7 0x… in asan_thread_start ../../../../asan_interceptors.cpp:246
+    #8 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0xa3df9) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #9 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x…) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+
+Address 0x… is located in stack of thread T0 at offset 160 in frame
+    #0 0x… in main 3_3_detach_dangling.cpp:25
+
+  This frame has 5 object(s):
+    [32, 40) '<unknown>'
+    [64, 72) 'worker' (line 15)
+    [96, 104) '<unknown>'
+    [128, 136) '<unknown>'
+    [160, 176) 'data' (line 14) <== Memory access at offset 160 is inside this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-use-after-scope 3_3_detach_dangling.cpp:17 in operator()
+Shadow bytes around the buggy address:
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: f1 f1 f1 f1 00 f2 f2 f2 f8 f2 f2 f2 f8 f2 f2 f2
+=>0x…: f8 f2 f2 f2[f8]f8 f3 f3 f3 f3 f3 f3 f3 f3 f3 f3
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+Thread T1 created by T0 here:
+    #0 0x… in pthread_create ../../../../asan_interceptors.cpp:257
+    #1 0x… in std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) (/usr/lib/x86_64-linux-gnu/libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 0x… in thread<(anonymous namespace)::spawn_worker()::<lambda()> > /std_thread.h:175
+    #3 0x… in spawn_worker 3_3_detach_dangling.cpp:19
+    #4 0x… in main 3_3_detach_dangling.cpp:26
+    #5 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #6 0x… in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #7 0x… in _start (3_3_detach_dangling.cpp/3_3_detach_dangling+0x3904) (BuildId: d4539121e456a3f9d42bd142b9664a382e323042)
+
+ABORTING
+（退出码 86）

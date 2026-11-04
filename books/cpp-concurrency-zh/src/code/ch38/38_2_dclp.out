@@ -1,0 +1,7 @@
+双重检查锁：构造函数里先发布指针，再填字段
+WARNING: ThreadSanitizer: data race
+Write of size 8 at 0x… by thread T2 (mutexes: write M0):
+    #0 Singleton::Singleton() 38_2_dclp.cpp:22
+Previous read of size 8 at 0x… by thread T1:
+    #0 operator() 38_2_dclp.cpp:43
+SUMMARY: ThreadSanitizer: data race 38_2_dclp.cpp:22 in Singleton::Singleton()

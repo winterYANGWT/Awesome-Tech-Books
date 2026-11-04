@@ -1,0 +1,6 @@
+WARNING: ThreadSanitizer: data race
+Read of size 8 at 0x… by thread T1:
+    #0 SpscRing<unsigned long, 1024ul>::pop() 15_4_spsc_relaxed.cpp:34
+Previous write of size 8 at 0x… by thread T2:
+    #0 SpscRing<unsigned long, 1024ul>::push() 15_4_spsc_relaxed.cpp:22
+SUMMARY: ThreadSanitizer: data race 15_4_spsc_relaxed.cpp:34 in SpscRing<unsigned long, 1024ul>::pop(unsigned long&)

@@ -1,0 +1,13 @@
+shape,threads,ms
+tall_thin,1,4.334
+square,1,18.049
+short_wide,1,20.380
+tall_thin,2,2.851
+square,2,9.278
+short_wide,2,23.106
+tall_thin,4,2.259
+square,4,5.449
+short_wide,4,33.607
+tall_thin,8,2.058
+square,8,3.623
+short_wide,8,35.309

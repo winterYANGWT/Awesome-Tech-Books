@@ -1,0 +1,11 @@
+读线程等待 ready 变成 true
+WARNING: ThreadSanitizer: data race
+Read of size 1 at 0x… by thread T2:
+    #0 reader() 11_3_plain_flag.c:32
+Previous write of size 1 at 0x… by thread T1:
+    #0 writer() 11_3_plain_flag.c:26
+  Thread T2 created by main thread at:
+    #0 main() 11_3_plain_flag.c:44
+  Thread T1 created by main thread at:
+    #0 main() 11_3_plain_flag.c:43
+SUMMARY: ThreadSanitizer: data race 11_3_plain_flag.c:32 in reader

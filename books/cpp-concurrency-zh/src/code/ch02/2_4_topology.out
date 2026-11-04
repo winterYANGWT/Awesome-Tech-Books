@@ -1,0 +1,10 @@
+hardware_concurrency() = 32
+sched_getaffinity cpus = 32 (0-31)
+Cpus_allowed_list:	0-31
+cache L1 Data = 48K
+cache L2 Unified = 1024K
+cache L3 Unified = 32768K
+L1d cache line = 64 B
+physical cores = 16
+L3 instances = 2
+NUMA nodes = 1 (online=0)

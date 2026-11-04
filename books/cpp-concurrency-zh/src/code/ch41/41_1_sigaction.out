@@ -1,0 +1,4 @@
+handler ran: yes
+handler on main thread: yes
+si_pid is our pid: yes
+si_code is SI_USER: yes

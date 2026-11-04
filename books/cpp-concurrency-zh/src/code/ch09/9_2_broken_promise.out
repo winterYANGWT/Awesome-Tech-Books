@@ -1,0 +1,6 @@
+promise 在设值前离开作用域
+future_error: std::future_error: Broken promise
+broken_promise: 是
+terminate called after throwing an instance of 'std::future_error'
+  what():  std::future_error: Broken promise
+（程序被信号 SIGABRT 终止）

@@ -1,0 +1,22 @@
+idle: connected, one request, then sleep 5s
+idle: recv=0 (server closed)
+active: connected, request every 500ms for 6s
+active: 12 pongs, still open
+server: listening, idle=3s
+accepted fd=6
+pong fd=6
+accepted fd=7
+pong fd=7
+pong fd=6
+pong fd=6
+pong fd=6
+pong fd=6
+pong fd=6
+pong fd=6
+close fd=7 (idle timeout)
+pong fd=6
+pong fd=6
+pong fd=6
+pong fd=6
+pong fd=6
+close fd=6 (peer closed)

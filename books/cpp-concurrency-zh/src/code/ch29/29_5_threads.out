@@ -1,0 +1,4 @@
+rank 0：provided=1（MPI_THREAD_FUNNELED），OpenMP 线程 2，局部和 499999500000
+rank 1：provided=1（MPI_THREAD_FUNNELED），OpenMP 线程 2，局部和 1499999500000
+rank 2：provided=1（MPI_THREAD_FUNNELED），OpenMP 线程 2，局部和 2499999500000
+rank 3：provided=1（MPI_THREAD_FUNNELED），OpenMP 线程 2，局部和 3499999500000

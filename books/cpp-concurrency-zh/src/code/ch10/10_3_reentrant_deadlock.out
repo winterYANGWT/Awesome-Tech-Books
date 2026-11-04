@@ -1,0 +1,10 @@
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  10_3_reentrant_deadlock.cpp:32
+线程 2：
+    pthread_mutex_lock
+    std::mutex::lock
+    Account::apply()  10_3_reentrant_deadlock.cpp:20
+    Account::deposit()  10_3_reentrant_deadlock.cpp:15
+    operator()  10_3_reentrant_deadlock.cpp:31

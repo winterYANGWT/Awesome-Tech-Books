@@ -1,0 +1,3 @@
+sizeof_packed=16 sizeof_padded=128 line=64
+packed_ms=20.519 padded_ms=5.449 ratio=3.77
+sums=200000000,200000000

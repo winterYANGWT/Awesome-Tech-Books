@@ -1,0 +1,3 @@
+队列长度达到 10000：没有上限，慢客户端把内存和尾延迟一起拖垮
+35_3_queue_unbounded: 35_3_queue_unbounded.cpp:53: int main(): Assertion `false && "request queue has no limit"' failed.
+（程序被信号 SIGABRT 终止）

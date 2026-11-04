@@ -1,0 +1,2 @@
+without SA_RESTART: read returned -1, EINTR: yes
+with SA_RESTART: read returned 1, byte: A

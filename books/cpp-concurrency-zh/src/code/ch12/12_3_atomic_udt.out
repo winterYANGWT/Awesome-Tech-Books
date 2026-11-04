@@ -1,0 +1,5 @@
+sizeof(std::atomic<Pair>) = 16
+alignof(std::atomic<Pair>) = 16
+is_always_lock_free = false
+is_lock_free() = false
+CAS 成功? true

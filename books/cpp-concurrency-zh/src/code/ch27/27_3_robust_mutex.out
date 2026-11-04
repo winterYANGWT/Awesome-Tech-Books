@@ -1,0 +1,4 @@
+child: 拿到锁，value=1，不解锁就 _exit
+parent: lock 返回 130 (EOWNERDEAD)
+parent: 修好临界区，value=1
+parent: 再次 lock 返回 0，value=2

@@ -1,0 +1,1 @@
+22_6_nowait_fail.c:9:26: error: ‘nowait’ is not valid for ‘#pragma omp parallel for’

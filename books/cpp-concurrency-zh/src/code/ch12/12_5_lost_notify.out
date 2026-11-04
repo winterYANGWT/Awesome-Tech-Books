@@ -1,0 +1,7 @@
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  12_5_lost_notify.cpp:37
+线程 2：
+    wait_ready()  12_5_lost_notify.cpp:15
+    consumer()  12_5_lost_notify.cpp:20

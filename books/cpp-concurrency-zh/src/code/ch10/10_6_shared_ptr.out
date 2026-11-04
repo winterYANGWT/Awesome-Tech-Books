@@ -1,0 +1,10 @@
+WARNING: ThreadSanitizer: data race
+Read of size 8 at 0x… by thread T2:
+    #0 reader() 10_6_shared_ptr.cpp:17
+Previous write of size 8 at 0x… by thread T1:
+    #0 writer() 10_6_shared_ptr.cpp:11
+  Thread T2 created by main thread at:
+    #0 main() 10_6_shared_ptr.cpp:24
+  Thread T1 created by main thread at:
+    #0 main() 10_6_shared_ptr.cpp:23
+SUMMARY: ThreadSanitizer: data race 10_6_shared_ptr.cpp:17 in reader()

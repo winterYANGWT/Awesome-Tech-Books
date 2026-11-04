@@ -1,0 +1,4 @@
+A: 这一行在 fork 前写进 stdio 缓冲
+A: 这一行在 fork 前写进 stdio 缓冲
+--- 第二遍：子进程改用 _exit ---
+B: 这一行在 fork 前写进 stdio 缓冲

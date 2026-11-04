@@ -1,0 +1,4 @@
+第一次: version=1 value=100
+重新构造: version=2 value=200
+std::launder: version=2 value=200
+地址相同: 是

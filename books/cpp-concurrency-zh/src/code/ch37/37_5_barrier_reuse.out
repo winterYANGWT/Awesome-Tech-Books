@@ -1,0 +1,22 @@
+thread 0: 到达第 1 轮
+thread 1: 到达第 1 轮
+thread 2: 到达第 1 轮
+thread 2: 通过第 1 轮
+thread 2: 到达第 2 轮
+thread 1: 通过第 1 轮
+thread 1: 到达第 2 轮
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    main()  37_5_barrier_reuse.c:57
+线程 2：
+    pthread_cond_wait
+    barrier_wait()  37_5_barrier_reuse.c:34
+    worker()  37_5_barrier_reuse.c:45
+线程 3：
+    pthread_cond_wait
+    barrier_wait()  37_5_barrier_reuse.c:34
+    worker()  37_5_barrier_reuse.c:45
+线程 4：
+    pthread_cond_wait
+    barrier_wait()  37_5_barrier_reuse.c:34
+    worker()  37_5_barrier_reuse.c:45

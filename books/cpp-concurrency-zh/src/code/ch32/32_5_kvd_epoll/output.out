@@ -1,0 +1,8 @@
+mode=lt
+requests=16000 errors=0 mismatches=0
+throughput=1180621.3 req/s p50=19 us p99=58 us
+server: mode=lt served=8
+mode=et
+requests=16000 errors=0 mismatches=0
+throughput=1357268.3 req/s p50=18 us p99=68 us
+server: mode=et served=8

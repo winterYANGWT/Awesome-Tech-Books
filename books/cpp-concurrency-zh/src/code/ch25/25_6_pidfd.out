@@ -1,0 +1,2 @@
+poll: pidfd 可读，进程已经退出
+waitid: si_pid 匹配=1 si_status=7

@@ -1,0 +1,2 @@
+22_2_default_none.c:11:9: error: ‘n’ not specified in enclosing ‘parallel’
+22_2_default_none.c:11:9: note: enclosing ‘parallel’

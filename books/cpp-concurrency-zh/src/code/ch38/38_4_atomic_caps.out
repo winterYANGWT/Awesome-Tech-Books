@@ -1,0 +1,6 @@
+atomic<int>:   is_lock_free=1 is_always_lock_free=1
+atomic<float>: is_lock_free=1 is_always_lock_free=1
+atomic<16B>:   is_lock_free=0 is_always_lock_free=0
+atomic<float> fetch_add/sub = 3.00
+atomic_ref<int> = 5, required_alignment = 4
+sum 1..10000000 via atomic_ref = 50000005000000 (expected 50000005000000)

@@ -1,0 +1,6 @@
+child: 拿到锁，不解锁就 _exit
+parent: 子进程已死，现在 lock 同一把锁
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    pthread_mutex_lock
+    main()  27_3_robust_mutex_bad.c:53

@@ -1,0 +1,2 @@
+没有 CLOEXEC: 重新 bind -> Address already in use
+SOCK_CLOEXEC: 重新 bind -> ok

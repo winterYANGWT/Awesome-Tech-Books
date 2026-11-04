@@ -1,0 +1,2 @@
+default: connections=100 wakeups=250 ratio=2.50
+EPOLLEXCLUSIVE: connections=100 wakeups=100 ratio=1.00

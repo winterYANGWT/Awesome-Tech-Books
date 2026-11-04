@@ -1,0 +1,2 @@
+parent read: hello from child via POSIX shm
+shm_unlink: ok

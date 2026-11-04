@@ -1,0 +1,3 @@
+mode,w0,w1,w2,w3
+exclusive,1062,116,16,6
+reuseport,299,337,278,286

@@ -1,0 +1,7 @@
+期望 counter = 2000000
+WARNING: ThreadSanitizer: data race
+Read of size 8 at 0x… by thread T2:
+    #0 operator() 11_1_lost_update.cpp:19
+Previous write of size 8 at 0x… by thread T1:
+    #0 operator() 11_1_lost_update.cpp:14
+SUMMARY: ThreadSanitizer: data race 11_1_lost_update.cpp:19 in operator()

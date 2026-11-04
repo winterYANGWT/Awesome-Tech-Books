@@ -1,0 +1,2 @@
+MPI_Reduce 到 root: 10
+Allreduce 各 rank: 10 10 10 10

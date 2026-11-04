@@ -1,0 +1,5 @@
+主线程 134964531156864 创建工作线程
+工作线程 134964531152576 开始
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  工作线程里没有 catch
+（程序被信号 SIGABRT 终止）

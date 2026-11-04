@@ -1,0 +1,13 @@
+第 1 次
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  5_6_deadlock_repro.cpp:24
+线程 2：
+    pthread_mutex_lock
+    std::mutex::lock
+    transfer()  5_6_deadlock_repro.cpp:13
+线程 3：
+    pthread_mutex_lock
+    std::mutex::lock
+    transfer()  5_6_deadlock_repro.cpp:13

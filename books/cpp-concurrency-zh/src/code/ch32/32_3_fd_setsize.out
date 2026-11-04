@@ -1,0 +1,50 @@
+=================================================================
+ERROR: AddressSanitizer: stack-buffer-overflow on address 0x… at pc 0x… bp 0x… sp 0x…
+READ of size 8 at 0x… thread T0
+    #0 0x… in main 32_3_fd_setsize.c:14
+    #1 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #2 0x… in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #3 0x… in _start (32_3_fd_setsize.c/32_3_fd_setsize+0x1364) (BuildId: b3c2ccaaee77ebea6cf7a5cde4334ebf46bc7e06)
+
+Address 0x… is located in stack of thread T0 at offset 192 in frame
+    #0 0x… in main 32_3_fd_setsize.c:9
+
+  This frame has 2 object(s):
+    [48, 52) 'is_set' (line 17)
+    [64, 192) 'set' (line 10) <== Memory access at offset 192 overflows this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-buffer-overflow 32_3_fd_setsize.c:14 in main
+Shadow bytes around the buggy address:
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: f1 f1 f1 f1 f1 f1 04 f2 00 00 00 00 00 00 00 00
+=>0x…: 00 00 00 00 00 00 00 00[f3]f3 f3 f3 f3 f3 f3 f3
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+ABORTING
+（退出码 86）

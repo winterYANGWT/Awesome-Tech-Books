@@ -1,0 +1,8 @@
+20 条连接，4 个子进程轮流 accept：
+client: connections=20
+processpool: started children=4
+child index=1 pid=10259 accepts=5
+child index=0 pid=10258 accepts=5
+child index=3 pid=10261 accepts=5
+child index=2 pid=10260 accepts=5
+processpool: stopped

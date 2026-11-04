@@ -1,0 +1,13 @@
+transfer-a 持有 account_mutex
+transfer-b 持有 log_mutex
+主线程等待两个工作线程 join
+Thread 1 "deadlock" received signal SIGINT, Interrupt.
+Thread 3 "transfer-b":
+# pthread_mutex_lock
+# transfer_b () at deadlock.cpp:41
+Thread 2 "transfer-a":
+# pthread_mutex_lock
+# transfer_a () at deadlock.cpp:29
+Thread 1 "deadlock":
+# std::thread::join()
+# main () at deadlock.cpp:52

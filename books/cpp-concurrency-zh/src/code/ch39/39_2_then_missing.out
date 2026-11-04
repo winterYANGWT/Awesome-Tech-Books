@@ -1,0 +1,1 @@
+39_2_then_missing.cpp:12:16: error: ‘class std::future<int>’ has no member named ‘then’

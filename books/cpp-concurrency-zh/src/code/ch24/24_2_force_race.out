@@ -1,0 +1,6 @@
+WARNING: ThreadSanitizer: data race
+Read of size 8 at 0x… by thread T2:
+    #0 worker() 24_2_force_race.cpp:36
+Previous write of size 8 at 0x… by thread T1:
+    #0 worker() 24_2_force_race.cpp:39
+SUMMARY: ThreadSanitizer: data race 24_2_force_race.cpp:36 in worker

@@ -1,0 +1,8 @@
+生产者 push 后 notify_one（此时没有等待者）
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  7_2_lost_wakeup.cpp:49
+线程 2：
+    pthread_cond_wait
+    operator()  7_2_lost_wakeup.cpp:34

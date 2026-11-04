@@ -1,0 +1,4 @@
+deferred 在 get 之前执行: 否
+async 在调用线程执行: 否
+deferred 在调用线程执行: 是
+两个任务都返回 7: 是

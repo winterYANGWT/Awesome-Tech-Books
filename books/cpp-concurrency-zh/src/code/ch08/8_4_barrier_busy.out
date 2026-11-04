@@ -1,0 +1,16 @@
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  8_4_barrier_busy.cpp:64
+线程 2：
+    BusyBarrier::spin()  8_4_barrier_busy.cpp:19
+    operator()  8_4_barrier_busy.cpp:48
+线程 3：
+    BusyBarrier::spin()  8_4_barrier_busy.cpp:19
+    operator()  8_4_barrier_busy.cpp:48
+线程 4：
+    BusyBarrier::spin()  8_4_barrier_busy.cpp:19
+    operator()  8_4_barrier_busy.cpp:48
+线程 5：
+    BusyBarrier::spin()  8_4_barrier_busy.cpp:19
+    operator()  8_4_barrier_busy.cpp:48

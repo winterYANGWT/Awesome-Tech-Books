@@ -1,0 +1,97 @@
+// mode: run
+// output: varies
+// expect: particles=800 steps=200
+#include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
+#include <vector>
+
+constexpr int N = 800;        // 粒子数
+constexpr int STEPS = 200;    // 时间步
+constexpr double DT = 0.001;
+constexpr double SOFTENING = 1e-9;
+
+struct Vec3 {
+    double x, y, z;
+};
+
+struct Particle {
+    Vec3 pos, vel;
+    double mass;
+};
+
+static std::vector<Particle> make_particles() {
+    std::vector<Particle> p(N);
+    std::uint64_t s = 12345;
+    auto rnd = [&s]() {
+        s = s * 6364136223846793005ULL + 1442695040888963407ULL;
+        return static_cast<double>(s >> 11) / 9007199254740992.0;
+    };
+    for (Particle& q : p) {
+        q.pos = {rnd() * 2 - 1, rnd() * 2 - 1, rnd() * 2 - 1};
+        q.vel = {rnd() * 0.1, rnd() * 0.1, rnd() * 0.1};
+        q.mass = 0.5 + rnd();
+    }
+    return p;
+}
+
+static double checksum(const std::vector<Particle>& p) {
+    double sum = 0;
+    for (const Particle& q : p)
+        sum += q.mass * (q.pos.x + 2 * q.pos.y + 3 * q.pos.z);
+    return sum;
+}
+
+static double simulate(std::vector<Particle> p, int steps) {
+    std::vector<Vec3> forces(N);
+    for (int step = 0; step < steps; ++step) {
+        // ANCHOR: force
+        for (int q = 0; q < N; ++q) forces[q] = {0, 0, 0};
+        for (int q = 0; q < N; ++q) {
+            Vec3& a = forces[q];
+            for (int k = 0; k < N; ++k) {
+                if (k == q) continue;
+                double dx = p[k].pos.x - p[q].pos.x;
+                double dy = p[k].pos.y - p[q].pos.y;
+                double dz = p[k].pos.z - p[q].pos.z;
+                double r2 = dx * dx + dy * dy + dz * dz + SOFTENING;
+                double inv = 1.0 / (r2 * std::sqrt(r2));
+                a.x += p[q].mass * p[k].mass * inv * dx;
+                a.y += p[q].mass * p[k].mass * inv * dy;
+                a.z += p[q].mass * p[k].mass * inv * dz;
+            }
+        }
+        // ANCHOR_END: force
+        for (int q = 0; q < N; ++q) {
+            p[q].vel.x += forces[q].x / p[q].mass * DT;
+            p[q].vel.y += forces[q].y / p[q].mass * DT;
+            p[q].vel.z += forces[q].z / p[q].mass * DT;
+            p[q].pos.x += p[q].vel.x * DT;
+            p[q].pos.y += p[q].vel.y * DT;
+            p[q].pos.z += p[q].vel.z * DT;
+        }
+    }
+    return checksum(p);
+}
+
+static double median(std::vector<double> v) {
+    std::sort(v.begin(), v.end());
+    return v[v.size() / 2];
+}
+
+int main() {
+    simulate(make_particles(), 3);   // 预热
+    std::vector<double> ms;
+    double sum = 0;
+    for (int r = 0; r < 3; ++r) {
+        auto t0 = std::chrono::steady_clock::now();
+        sum = simulate(make_particles(), STEPS);
+        auto t1 = std::chrono::steady_clock::now();
+        ms.push_back(std::chrono::duration<double, std::milli>(t1 - t0).count());
+    }
+    std::printf("particles=%d steps=%d\n", N, STEPS);
+    std::printf("serial: checksum=%.17g ms=%.3f\n", sum, median(ms));
+    return 0;
+}

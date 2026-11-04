@@ -1,0 +1,7 @@
+析构线程 0
+析构线程 1
+析构线程 2
+destructor 调用次数: 3
+未设置键的线程: 3
+PTHREAD_KEYS_MAX: 1024
+PTHREAD_DESTRUCTOR_ITERATIONS: 4

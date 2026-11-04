@@ -1,0 +1,22 @@
+leader 0: 收到事件，推选 follower 1（忘记唤醒）
+leader 0: 处理完，回到 follower
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  35_5_handoff_deadlock.cpp:83
+线程 2：
+    pthread_cond_wait
+    std::condition_variable::wait
+    (anonymous namespace)::worker()  35_5_handoff_deadlock.cpp:36
+线程 3：
+    pthread_cond_wait
+    std::condition_variable::wait
+    (anonymous namespace)::worker()  35_5_handoff_deadlock.cpp:36
+线程 4：
+    pthread_cond_wait
+    std::condition_variable::wait
+    (anonymous namespace)::worker()  35_5_handoff_deadlock.cpp:36
+线程 5：
+    pthread_cond_wait
+    std::condition_variable::wait
+    (anonymous namespace)::worker()  35_5_handoff_deadlock.cpp:60

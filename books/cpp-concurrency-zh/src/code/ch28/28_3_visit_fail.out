@@ -1,0 +1,7 @@
+/usr/include/c++/15/variant:1129:14: error: no type named ‘type’ in ‘struct std::invoke_result<overloaded<main()::<lambda(const set_msg&)>, main()::<lambda(const get_msg&)>, main()::<lambda(const del_msg&)> >, stop_msg&>’
+/usr/include/c++/15/variant:1948:29: error: non-constant condition for static assertion
+/usr/include/c++/15/variant:1055:31: error: no matching function for call to ‘__invoke(overloaded<main()::<lambda(const set_msg&)>, main()::<lambda(const get_msg&)>, main()::<lambda(const del_msg&)> >, stop_msg&)’
+/usr/include/c++/15/variant:1055:31: note: there is 1 candidate
+/invoke.h:92:5: note: candidate 1: ‘template<class _Callable, class ... _Args> constexpr typename std::__invoke_result<_Functor, _ArgTypes>::type std::__invoke(_Callable&&, _Args&& ...)’
+/invoke.h:92:5: note: template argument deduction/substitution failed:
+/invoke.h:92:5: error: no type named ‘type’ in ‘struct std::__invoke_result<overloaded<main()::<lambda(const set_msg&)>, main()::<lambda(const get_msg&)>, main()::<lambda(const del_msg&)> >, stop_msg&>’

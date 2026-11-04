@@ -1,0 +1,5 @@
+atomic<int> default = 0
+atomic_flag default test = 0
+test_and_set returns 0, test = 1
+after clear test = 0
+atomic<int>{7} = 7

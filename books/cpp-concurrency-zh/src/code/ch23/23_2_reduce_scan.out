@@ -1,0 +1,7 @@
+sum_accumulate=12500002500000
+sum_reduce=12500002500000
+pi_accumulate=3.1415926535895875
+pi_reduce=3.1415926535897953
+pi_ulp_diff=-468
+scan_inclusive=1 3 6 10 15 21 28 36 
+scan_exclusive_init100=100 101 103 106 110 115 121 128

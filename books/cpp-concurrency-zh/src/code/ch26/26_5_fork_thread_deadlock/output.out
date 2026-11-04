@@ -1,0 +1,7 @@
+2 秒后用 gdb 跟上 fork 出的子进程，取卡住时的栈：
+子进程（只剩调用线程）：
+#0  on_alarm (signo=14) at fork_thread_deadlock.c:15
+#1  <signal handler called>
+#2  0x… in ?? () from /usr/lib/x86_64-linux-gnu/libc.so.6
+#3  0x… in pthread_mutex_lock () from /usr/lib/x86_64-linux-gnu/libc.so.6
+#4  0x… in main () at fork_thread_deadlock.c:64

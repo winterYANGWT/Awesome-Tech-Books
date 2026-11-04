@@ -1,0 +1,78 @@
+A：弹出 1
+A：count==1，准备摘链
+B：读到 old_head = 2
+C：弹出 2，挂入待删链
+A：摘下待删链，直接 delete（没有第二次检查）
+=================================================================
+ERROR: AddressSanitizer: heap-use-after-free on address 0x… at pc 0x… bp 0x… sp 0x…
+READ of size 8 at 0x… thread T1
+    #0 0x… in operator() 16_2_early_reclaim.cpp:53
+    #1 0x… in __invoke_impl<void, main()::<lambda()> > /invoke.h:63
+    #2 0x… in __invoke<main()::<lambda()> > /invoke.h:98
+    #3 0x… in _M_invoke<0> /std_thread.h:303
+    #4 0x… in operator() /std_thread.h:310
+    #5 0x… in _M_run /std_thread.h:255
+    #6 0x…  (/usr/lib/x86_64-linux-gnu/libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #7 0x… in asan_thread_start ../../../../asan_interceptors.cpp:246
+    #8 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0xa3df9) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #9 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x…) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+
+0x… is located 8 bytes inside of 24-byte region [0x…,0x…)
+freed by thread T0 here:
+    #0 0x… in operator delete(void*, unsigned long) ../../../../asan_new_delete.cpp:190
+    #1 0x… in delete_list(Node*) 16_2_early_reclaim.cpp:29
+    #2 0x… in main 16_2_early_reclaim.cpp:84
+    #3 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #4 0x… in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #5 0x… in _start (16_2_early_reclaim.cpp/16_2_early_reclaim+0x5124) (BuildId: 2f9b7ba0502240be785bf8f960c1eac5eb798d62)
+
+previously allocated by thread T0 here:
+    #0 0x… in operator new(unsigned long) ../../../../asan_new_delete.cpp:109
+    #1 0x… in main 16_2_early_reclaim.cpp:42
+    #2 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #3 0x… in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #4 0x… in _start (16_2_early_reclaim.cpp/16_2_early_reclaim+0x5124) (BuildId: 2f9b7ba0502240be785bf8f960c1eac5eb798d62)
+
+Thread T1 created by T0 here:
+    #0 0x… in pthread_create ../../../../asan_interceptors.cpp:257
+    #1 0x… in std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) (/usr/lib/x86_64-linux-gnu/libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 0x… in thread<main()::<lambda()> > /std_thread.h:175
+    #3 0x… in main 16_2_early_reclaim.cpp:55
+    #4 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #5 0x… in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #6 0x… in _start (16_2_early_reclaim.cpp/16_2_early_reclaim+0x5124) (BuildId: 2f9b7ba0502240be785bf8f960c1eac5eb798d62)
+
+SUMMARY: AddressSanitizer: heap-use-after-free 16_2_early_reclaim.cpp:53 in operator()
+Shadow bytes around the buggy address:
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x…: fa fa 00 00 00 fa fa fa 00 00 00 fa fa fa fd[fd]
+  0x…: fd fa fa fa fd fd fd fa fa fa fa fa fa fa fa fa
+  0x…: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x…: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x…: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x…: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+ABORTING
+（退出码 86）

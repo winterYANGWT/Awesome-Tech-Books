@@ -1,0 +1,7 @@
+requests=4000 errors=0 mismatches=0
+throughput=350877.5 req/s p50=490 us p99=1069 us
+reuseport: workers=4
+reuseport: worker 0 requests=760
+reuseport: worker 1 requests=900
+reuseport: worker 2 requests=1180
+reuseport: worker 3 requests=1160

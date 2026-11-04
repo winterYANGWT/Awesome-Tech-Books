@@ -1,0 +1,3 @@
+12_1_copy_fail.cpp:7:26: error: use of deleted function ‘std::atomic<int>::atomic(const std::atomic<int>&)’
+/usr/include/c++/15/atomic:842:7: note: declared here
+12_1_copy_fail.cpp:7:26: note: use ‘-fdiagnostics-all-candidates’ to display considered candidates

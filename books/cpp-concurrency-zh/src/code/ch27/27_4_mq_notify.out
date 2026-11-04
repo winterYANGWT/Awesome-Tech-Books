@@ -1,0 +1,5 @@
+收到通知 1: signal=10 si_code=SI_MESGQ
+mq_receive 返回 6，内容="hello"，优先级=1
+收到通知 2: signal=10 si_code=SI_MESGQ
+mq_receive 返回 6，内容="world"，优先级=1
+总共收到 2 次通知

@@ -1,0 +1,2 @@
+38_8_pointer_safety.cpp:7:10: error: ‘pointer_safety’ is not a member of ‘std’
+38_8_pointer_safety.cpp:8:11: error: ‘s’ was not declared in this scope

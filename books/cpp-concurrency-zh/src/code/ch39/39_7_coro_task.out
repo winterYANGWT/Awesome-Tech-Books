@@ -1,0 +1,6 @@
+创建后 done=0
+开始
+第一次 resume 后 done=0
+恢复
+第二次 resume 后 done=1
+返回 42

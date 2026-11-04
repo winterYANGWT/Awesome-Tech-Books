@@ -1,0 +1,4 @@
+消费者进入等待
+主线程 request_stop
+wait 返回 false，stop_requested=1
+消费者退出

@@ -1,0 +1,14 @@
+正向：锁住 node1
+反向：锁住 node2
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  14_5_wrong_order.cpp:42
+线程 2：
+    pthread_mutex_lock
+    std::mutex::lock
+    (anonymous namespace)::backward()  14_5_wrong_order.cpp:33
+线程 3：
+    pthread_mutex_lock
+    std::mutex::lock
+    (anonymous namespace)::forward()  14_5_wrong_order.cpp:24

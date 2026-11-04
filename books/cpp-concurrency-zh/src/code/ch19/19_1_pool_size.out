@@ -1,0 +1,4 @@
+hardware_concurrency: 32
+sched_getaffinity: 32
+cgroup cpu.max: max 100000
+建议池大小: 32（CPU 密集型起点，I/O 密集型要另算）

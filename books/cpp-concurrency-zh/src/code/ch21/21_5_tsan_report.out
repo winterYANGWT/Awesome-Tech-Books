@@ -1,0 +1,10 @@
+WARNING: ThreadSanitizer: data race
+Read of size 8 at 0x… by thread T2:
+    #0 add_many() 21_5_tsan_report.cpp:12
+Previous write of size 8 at 0x… by thread T1:
+    #0 add_many() 21_5_tsan_report.cpp:12
+  Thread T2 created by main thread at:
+    #0 main() 21_5_tsan_report.cpp:21
+  Thread T1 created by main thread at:
+    #0 main() 21_5_tsan_report.cpp:20
+SUMMARY: ThreadSanitizer: data race 21_5_tsan_report.cpp:12 in add_many

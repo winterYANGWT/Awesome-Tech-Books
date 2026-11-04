@@ -1,0 +1,5 @@
+timerfd: 1 次到期
+worker: write eventfd
+eventfd: 计数 1，循环被唤醒
+signalfd: 收到信号 15
+exit 0

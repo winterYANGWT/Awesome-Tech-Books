@@ -1,0 +1,6 @@
+第一次 epoll_wait 返回 1
+第一次 accept 返回 6
+第二次 epoll_wait 返回 0（ET 没有新边沿）
+再 accept 仍能拿到连接: 7
+32_5_et_accept_once: 32_5_et_accept_once.c:96: main: Assertion `c2 < 0 && errno == EAGAIN' failed.
+（程序被信号 SIGABRT 终止）

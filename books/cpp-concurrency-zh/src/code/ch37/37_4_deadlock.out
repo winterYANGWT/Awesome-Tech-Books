@@ -1,0 +1,13 @@
+main: 两个线程已启动，等它们结束
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  37_4_deadlock.cpp:30
+线程 2：
+    pthread_mutex_lock
+    std::mutex::lock
+    worker_b()  37_4_deadlock.cpp:23
+线程 3：
+    pthread_mutex_lock
+    std::mutex::lock
+    worker_a()  37_4_deadlock.cpp:17

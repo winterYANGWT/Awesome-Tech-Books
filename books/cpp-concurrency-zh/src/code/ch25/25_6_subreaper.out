@@ -1,0 +1,3 @@
+subreaper: on
+child: exit=0
+grandchild: 被 subreaper 收养, exit=5

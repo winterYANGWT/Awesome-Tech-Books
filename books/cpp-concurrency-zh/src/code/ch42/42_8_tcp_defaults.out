@@ -1,0 +1,9 @@
+kernel = 7.0.0-42-generic
+tcp_syn_retries = 6, tcp_synack_retries = 5
+SYN retry time ~ 127 s (exponential backoff)
+tcp_congestion_control = cubic
+/proc/sys/net/ipv4/tcp_rmem = 4096 131072 33554432
+/proc/sys/net/ipv4/tcp_wmem = 4096 16384 4194304
+tcp_keepalive_time = 7200 s
+SO_KEEPALIVE default = 0
+TCP_KEEPIDLE default = 7200 s

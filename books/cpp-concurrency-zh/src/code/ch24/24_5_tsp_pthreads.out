@@ -1,0 +1,2 @@
+dynamic_pthreads: cities=12 threads=4 cutoff=9 reps=20
+dynamic_pthreads: best=60 splits=1114 nodes=4256580,4080610,3928930,3775275 total=16041395 ms_per_rep=13.670

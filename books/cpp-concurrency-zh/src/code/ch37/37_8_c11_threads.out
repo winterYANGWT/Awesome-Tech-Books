@@ -1,0 +1,3 @@
+consumer: 读到 42
+producer 返回 7（int，不是 void*）
+consumer 返回 0

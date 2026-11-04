@@ -1,0 +1,10 @@
+sizeof(Record)=24
+offsetof: a=0 b=8 id=16
+MPI_Get_address 偏移: a=0 b=8 id=16
+MPI_Type_size=20
+create_struct extent=24
+resized extent=24
+rank 0 收到: a=1.50 b=-2.50 id=7
+rank 1 收到: a=1.50 b=-2.50 id=7
+rank 2 收到: a=1.50 b=-2.50 id=7
+rank 3 收到: a=1.50 b=-2.50 id=7

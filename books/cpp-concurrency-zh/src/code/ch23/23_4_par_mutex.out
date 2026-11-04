@@ -1,0 +1,3 @@
+seq_ms=0.663 seq_size=200000 seq_checksum=40000000000
+par_ms=28.875 par_size=200000 par_checksum=40000000000
+par_slower=1

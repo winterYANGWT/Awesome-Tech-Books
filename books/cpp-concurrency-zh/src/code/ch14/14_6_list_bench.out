@@ -1,0 +1,4 @@
+impl,read_99_9,read_80_20
+whole_mutex,42.1,82.6
+per_node,170.9,377.2
+rwlock,12.2,64.6

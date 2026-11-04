@@ -1,0 +1,6 @@
+WARNING: ThreadSanitizer: data race
+Write of size 4 at 0x… by thread T2:
+    #0 operator() 24_6_best_cost_race.cpp:19
+Previous read of size 4 at 0x… by thread T1:
+    #0 operator() 24_6_best_cost_race.cpp:13
+SUMMARY: ThreadSanitizer: data race 24_6_best_cost_race.cpp:19 in operator()

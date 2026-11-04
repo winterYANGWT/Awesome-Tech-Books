@@ -1,0 +1,5 @@
+RLIMIT_NOFILE soft=524288 hard=524288
+soft < hard: no
+把软限制提高 1: 软限制已等于硬限制，要先提高硬限制
+把硬限制提高 1: ok
+把硬限制降低 1: ok

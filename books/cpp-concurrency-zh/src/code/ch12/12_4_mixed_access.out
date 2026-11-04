@@ -1,0 +1,6 @@
+WARNING: ThreadSanitizer: data race
+Atomic write of size 4 at 0x… by thread T1:
+    #0 operator() 12_4_mixed_access.cpp:17
+Previous read of size 4 at 0x… by thread T2:
+    #0 operator() 12_4_mixed_access.cpp:25
+SUMMARY: ThreadSanitizer: data race 12_4_mixed_access.cpp:17 in operator()

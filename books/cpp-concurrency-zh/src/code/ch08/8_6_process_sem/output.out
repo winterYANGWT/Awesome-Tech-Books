@@ -1,0 +1,4 @@
+子进程: 在 sem_wait 之前，counter = 0
+父进程: 子进程已准备，post 之前计数 = 0
+子进程: 被唤醒，counter = 1
+父进程: 子进程退出，counter = 1

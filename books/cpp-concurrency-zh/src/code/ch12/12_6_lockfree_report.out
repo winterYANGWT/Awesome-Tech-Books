@@ -1,0 +1,5 @@
+bool: sizeof = 1，is_always_lock_free = true，is_lock_free() = true
+int: sizeof = 4，is_always_lock_free = true，is_lock_free() = true
+void*: sizeof = 8，is_always_lock_free = true，is_lock_free() = true
+Pair（16 字节）: sizeof = 16，is_always_lock_free = false，is_lock_free() = false
+shared_ptr<int>: sizeof = 16，is_always_lock_free = false，is_lock_free() = false

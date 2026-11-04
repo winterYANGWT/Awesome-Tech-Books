@@ -1,0 +1,5 @@
+消费者进入等待
+主线程 request_stop
+stop_callback 执行：notify_all
+消费者被唤醒，stop_requested=1
+消费者退出

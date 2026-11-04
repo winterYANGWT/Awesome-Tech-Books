@@ -1,0 +1,9 @@
+rank 0: allreduce_sum=6291460 expected=6291460 checksum=959999988
+rank 1: allreduce_sum=6291460 expected=6291460 checksum=959999994
+rank 2: allreduce_sum=6291460 expected=6291460 checksum=960000000
+rank 3: allreduce_sum=6291460 expected=6291460 checksum=960000006
+mpi_version=3.1
+allreduce_ok=1
+blocking_ms=21.582
+overlap_ms=24.720
+blocking_over_overlap=0.873

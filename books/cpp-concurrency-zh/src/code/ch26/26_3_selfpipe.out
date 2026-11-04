@@ -1,0 +1,4 @@
+timerfd：定时到期
+eventfd：收到唤醒
+自管道：收到 SIGTERM
+三路 fd 都在同一个 epoll 里

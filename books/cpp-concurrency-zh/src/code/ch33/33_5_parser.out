@@ -1,0 +1,4 @@
+split=1: [SET alpha 1] [GET alpha] [DEL alpha] [GET missing] [SET beta 2]
+split=3: [SET alpha 1] [GET alpha] [DEL alpha] [GET missing] [SET beta 2]
+whole : [SET alpha 1] [GET alpha] [DEL alpha] [GET missing] [SET beta 2]
+identical: yes

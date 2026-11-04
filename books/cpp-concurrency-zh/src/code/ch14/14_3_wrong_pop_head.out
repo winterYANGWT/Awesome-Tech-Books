@@ -1,0 +1,6 @@
+WARNING: ThreadSanitizer: data race
+Read of size 8 at 0x… by thread T4:
+    #0 wrong_try_pop() 14_3_wrong_pop_head.cpp:36
+Previous write of size 8 at 0x… by thread T3 (mutexes: write M0):
+    #0 wrong_try_pop() 14_3_wrong_pop_head.cpp:44
+SUMMARY: ThreadSanitizer: data race 14_3_wrong_pop_head.cpp:36 in wrong_try_pop

@@ -1,0 +1,3 @@
+hardware_concurrency=32
+small_threads=1 small_checksum=24997500.000
+large_threads=32 large_checksum=361624.412

@@ -1,0 +1,2 @@
+parent read: hello from child via SysV shm
+shmctl(IPC_RMID): ok

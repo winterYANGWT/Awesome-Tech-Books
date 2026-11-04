@@ -1,0 +1,10 @@
+conn A: SET k 1
+OK
+conn B: GET k
+NOT_FOUND
+server and children:
+    PID    PPID STAT COMMAND
+   5723    5686 S    server
+   5734    5723 S    server
+server: connections=3 reaped=3
+residual zombie children: 0

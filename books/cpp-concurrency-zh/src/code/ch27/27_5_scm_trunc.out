@@ -1,0 +1,2 @@
+recvmsg 返回 1，数据="x"，MSG_CTRUNC=1
+控制信息截断，未使用 fd

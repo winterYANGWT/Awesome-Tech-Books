@@ -1,0 +1,11 @@
+期望 counter = 2000000
+WARNING: ThreadSanitizer: data race
+Read of size 8 at 0x… by thread T2:
+    #0 worker() 11_3_volatile_counter.c:25
+Previous write of size 8 at 0x… by thread T1:
+    #0 worker() 11_3_volatile_counter.c:25
+  Thread T2 created by main thread at:
+    #0 main() 11_3_volatile_counter.c:35
+  Thread T1 created by main thread at:
+    #0 main() 11_3_volatile_counter.c:34
+SUMMARY: ThreadSanitizer: data race 11_3_volatile_counter.c:25 in worker

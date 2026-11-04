@@ -1,0 +1,3 @@
+before wait: state=Z (zombie: yes)
+waitpid reaped child: yes
+after wait: state=? (stat gone: yes)

@@ -1,0 +1,4 @@
+23_6_ranges_par.cpp:12:26: error: no match for call to ‘(const std::ranges::__for_each_fn) (const __pstl::execution::v1::parallel_policy&, std::vector<int>&, main()::<lambda(int)>)’
+/ranges_algo.h:181:10: note: there are 2 candidates
+/ranges_algo.h:187:7: note: candidate 1: ‘template<class _Iter, class _Sent, class _Proj, class _Fun>  requires (input_iterator<_Iter>) && (sentinel_for<_Sent, _Iter>) && (indirectly_unary_invocable<_Fun, typename std::__detail::__projected<_Iter, _Proj>::__type>) constexpr std::ranges::for_each_result<_Iter, _Fun> std::ranges::__for_each_fn::operator()(_Iter, _Sent, _Fun, _Proj) const’
+/ranges_algo.h:187:7: note: template argument deduction/substitution failed:

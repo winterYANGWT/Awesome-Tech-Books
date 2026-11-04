@@ -1,0 +1,5 @@
+sizeof(Item) = 8
+fetch_add: 旧地址 - 新地址 = -1 个元素，字节差 = -8
+p++ 返回 items[1]，p 现在指向 items[2]
+++p 返回 items[3]
+p += 1 返回 items[4]

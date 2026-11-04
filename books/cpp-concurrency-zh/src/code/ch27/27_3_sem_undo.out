@@ -1,0 +1,4 @@
+child(undo=1): P 完成，信号量应为 0，直接 _exit 不 V
+with SEM_UNDO: value=1
+child(undo=0): P 完成，信号量应为 0，直接 _exit 不 V
+without SEM_UNDO: value=0

@@ -1,0 +1,19 @@
+sizeof(pthread_attr_t) = 56
+PTHREAD_STACK_MIN = 16384 字节，页大小 = 4096 字节
+RLIMIT_STACK 软限制 = 8388608 字节
+线程栈默认值取自进程启动时的 RLIMIT_STACK
+默认属性：
+  stacksize   = 8388608 字节（8192 KiB）
+  guardsize   = 4096 字节
+  detachstate = PTHREAD_CREATE_JOINABLE
+  schedpolicy = SCHED_OTHER
+  inheritsched= PTHREAD_INHERIT_SCHED
+  scope       = PTHREAD_SCOPE_SYSTEM
+setscope(PTHREAD_SCOPE_PROCESS) = 95（Operation not supported）
+设置 1 MiB 栈和 8 KiB 保护区之后：
+  stacksize   = 1048576 字节（1024 KiB）
+  guardsize   = 8192 字节
+  detachstate = PTHREAD_CREATE_JOINABLE
+  schedpolicy = SCHED_OTHER
+  inheritsched= PTHREAD_INHERIT_SCHED
+  scope       = PTHREAD_SCOPE_SYSTEM

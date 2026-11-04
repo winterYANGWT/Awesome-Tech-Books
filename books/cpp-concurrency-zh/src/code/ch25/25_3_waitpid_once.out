@@ -1,0 +1,7 @@
+parent: 3 个子进程已 fork，SIGCHLD 仍被屏蔽
+parent: 僵尸数=3，现在解除屏蔽
+handler: waitpid 只回收了 1 个
+parent: reaped=1，僵尸数=2
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    main()  25_3_waitpid_once.c:110

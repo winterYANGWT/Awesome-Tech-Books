@@ -1,0 +1,13 @@
+structure,conns,throughput,p99_us
+epoll          1     167565.1       10
+hsha           1      81437.4       21
+reuseport      1     159688.0       13
+shm            1     161048.1       10
+epoll         10     420467.2       62
+hsha          10     210288.7      100
+reuseport     10     295674.9       76
+shm           10     237324.0       39
+epoll        100     476498.8      314
+hsha         100     198464.9     1207
+reuseport    100     372613.9      560
+shm          100     368046.6       31

@@ -1,0 +1,8 @@
+WARNING: ThreadSanitizer: data race
+Read of size 4 at 0x… by main thread:
+    #0 main() 34_3_evthread_race.c:55
+Previous write of size 4 at 0x… by thread T1:
+    #0 worker() 34_3_evthread_race.c:34
+  Thread T1 created by main thread at:
+    #0 main() 34_3_evthread_race.c:53
+SUMMARY: ThreadSanitizer: data race 34_3_evthread_race.c:55 in main

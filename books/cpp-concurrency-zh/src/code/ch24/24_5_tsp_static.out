@@ -1,0 +1,2 @@
+static: cities=12 threads=4 initial_tours=11
+static: best=60 nodes=1706366,2949781,5162467,6355479 total=16174093 ms_per_rep=6.141

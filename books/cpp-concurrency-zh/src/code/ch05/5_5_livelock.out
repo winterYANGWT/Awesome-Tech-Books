@@ -1,0 +1,12 @@
+完成 0 次，重试 2522962 次
+完成 0 次，重试 5278842 次
+完成 0 次，重试 7718929 次
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    main()  5_5_livelock.cpp:60
+线程 2：
+    SpinBarrier::wait()  5_5_livelock.cpp:24
+    worker()  5_5_livelock.cpp:47
+线程 3：
+    SpinBarrier::wait()  5_5_livelock.cpp:24
+    worker()  5_5_livelock.cpp:41

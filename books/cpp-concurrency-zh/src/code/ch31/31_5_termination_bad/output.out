@@ -1,0 +1,5 @@
+rank 0: 等空闲通知，工作消息还没有取
+rank 0: 空闲计数=3，判定搜索结束
+丢失任务数=1
+termination_bad: termination_bad.cpp:47: int main(int, char**): Assertion `lost == 0 && "还有工作未处理"' failed.
+（子进程以退出码 134 结束）

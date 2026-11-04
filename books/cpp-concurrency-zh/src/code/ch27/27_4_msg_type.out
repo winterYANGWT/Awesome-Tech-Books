@@ -1,0 +1,6 @@
+child: 发送顺序 3, 1, 2
+msgrcv(type=1) 返回 4，mtype=1，内容="one"
+msgrcv(type=2) 返回 4，mtype=2，内容="two"
+msgrcv(type=3) 返回 6，mtype=3，内容="three"
+msgrcv(type=-25) 返回 4，mtype=10，内容="ten"
+msgrcv(type=-25) 返回 7，mtype=20，内容="twenty"

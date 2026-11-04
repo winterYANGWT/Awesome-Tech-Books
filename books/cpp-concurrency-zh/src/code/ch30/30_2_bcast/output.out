@@ -1,0 +1,11 @@
+派生类型一次 Bcast:
+  rank 0: x=1.50 y=-2.25 id=7
+  rank 1: x=1.50 y=-2.25 id=7
+  rank 2: x=1.50 y=-2.25 id=7
+  rank 3: x=1.50 y=-2.25 id=7
+三次 Bcast 对照:
+  rank 0: x=1.50 y=-2.25 id=7
+  rank 1: x=1.50 y=-2.25 id=7
+  rank 2: x=1.50 y=-2.25 id=7
+  rank 3: x=1.50 y=-2.25 id=7
+两次结果一致: true

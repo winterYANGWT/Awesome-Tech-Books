@@ -1,0 +1,2 @@
+阻塞 read 返回 -1，errno=Interrupted system call
+非阻塞 read 返回 -1，errno=Resource temporarily unavailable

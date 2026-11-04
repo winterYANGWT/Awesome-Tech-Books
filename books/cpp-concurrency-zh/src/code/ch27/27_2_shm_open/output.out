@@ -1,0 +1,4 @@
+writer: sizeof(Entry)=136 key_len 偏移=32 value_len 偏移=132
+writer: key=lang value=C++20，写完就退出
+--- writer 已退出 ---
+reader: key=lang value=C++20

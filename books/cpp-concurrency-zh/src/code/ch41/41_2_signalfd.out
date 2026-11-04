@@ -1,0 +1,2 @@
+signalfd reads=3, signo=SIGCHLD: yes
+reaped=3

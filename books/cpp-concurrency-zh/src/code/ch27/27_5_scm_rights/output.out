@@ -1,0 +1,5 @@
+child: 已读 5 字节 "01234"，偏移=5，发送 fd=4
+parent: 收到 fd=3（子进程的 fd 是 4），FD_CLOEXEC=1
+parent: O_NONBLOCK=1（子进程设的状态也带过来了）
+parent: 接着读到 "56789"，偏移=10
+child: 父进程读完后，我这边偏移=10

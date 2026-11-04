@@ -1,0 +1,15 @@
+# N=8388608, block_cyclic chunk=1024
+scheme,threads,ms
+block,1,2.409
+block,2,1.728
+block,4,1.783
+block,8,1.582
+cyclic,1,2.294
+cyclic,2,2.968
+cyclic,4,3.406
+cyclic,8,4.037
+block_cyclic,1,2.397
+block_cyclic,2,3.127
+block_cyclic,4,2.147
+block_cyclic,8,1.288
+# 校验: 通过

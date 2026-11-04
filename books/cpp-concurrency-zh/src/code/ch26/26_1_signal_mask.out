@@ -1,0 +1,3 @@
+raise 两次：raised=2
+解除屏蔽前：pending=1 handled=0
+解除屏蔽后：handled=1

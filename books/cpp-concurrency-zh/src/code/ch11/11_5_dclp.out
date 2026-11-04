@@ -1,0 +1,7 @@
+两个线程同时取 Config
+WARNING: ThreadSanitizer: data race
+Read of size 8 at 0x… by thread T2:
+    #0 get_config() 11_5_dclp.cpp:16
+Previous write of size 8 at 0x… by thread T1 (mutexes: write M0):
+    #0 get_config() 11_5_dclp.cpp:19
+SUMMARY: ThreadSanitizer: data race 11_5_dclp.cpp:16 in get_config()

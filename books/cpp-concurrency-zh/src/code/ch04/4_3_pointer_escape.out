@@ -1,0 +1,7 @@
+回调把内部缓冲区的地址存到了外面
+WARNING: ThreadSanitizer: data race
+Write of size 4 at 0x… by main thread:
+    #0 main() 4_3_pointer_escape.cpp:41
+Previous write of size 4 at 0x… by thread T1 (mutexes: write M0):
+    #0 operator() 4_3_pointer_escape.cpp:34
+SUMMARY: ThreadSanitizer: data race 4_3_pointer_escape.cpp:41 in main

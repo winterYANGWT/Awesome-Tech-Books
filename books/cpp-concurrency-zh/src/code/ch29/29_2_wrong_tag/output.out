@@ -1,0 +1,4 @@
+rank 0：给 rank 1 发 tag=1
+rank 1：等 rank 0 的 tag=2
+rank 0：Send 返回，改等 rank 1 的 tag=2
+（5 秒后仍未结束，强制终止）

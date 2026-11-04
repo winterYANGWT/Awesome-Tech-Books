@@ -1,0 +1,2 @@
+join 后 pthread_kill(t, 0)=0
+这个 0 只说明 glibc 没有认出旧句柄，不能说明线程还活着

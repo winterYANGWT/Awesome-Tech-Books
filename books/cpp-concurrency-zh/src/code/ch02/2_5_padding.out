@@ -1,0 +1,10 @@
+Plain: sizeof=16 alignof=8
+  a@0 b@8 distance=8 same_line=yes
+OneAligned: sizeof=64 alignof=64
+  a@0 b@8 distance=8 same_line=yes
+BothAligned: sizeof=128 alignof=64
+  a@0 b@64 distance=64 same_line=no
+Bitfields: sizeof=4 alignof=4
+  a 和 b 共用 4 字节
+HotCold: sizeof=64 alignof=8
+  key@0 value@8 name@16 same_line(key,name)=yes

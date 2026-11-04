@@ -1,0 +1,2 @@
+pthread_join 的退出值 == PTHREAD_CANCELED: 是
+清理函数执行次数: 1

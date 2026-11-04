@@ -1,0 +1,15 @@
+A 进入 wait_pop
+生产者放入唯一的任务并 notify_one
+A 在构造返回值时进入移动构造
+B 进入 wait_pop（队列为空）
+A 构造返回值抛异常：构造返回值时移动失败
+A 退出
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  21_2_notify_hole.cpp:105
+线程 2：
+    pthread_cond_wait
+    std::condition_variable::wait
+    (anonymous namespace)::ItemQueue::wait_pop()  21_2_notify_hole.cpp:57
+    operator()  21_2_notify_hole.cpp:98

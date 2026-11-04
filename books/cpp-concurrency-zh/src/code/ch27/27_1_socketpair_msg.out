@@ -1,0 +1,6 @@
+stream: read 6 bytes: "AAAABB"
+stream: read 6 bytes: "BBCCCC"
+stream: read 0 bytes (EOF)
+seqpacket: read 4 bytes: "AAAA"
+seqpacket: read 4 bytes: "BBBB"
+seqpacket: read 4 bytes: "CCCC"

@@ -1,0 +1,8 @@
+libevent 2.1.12-stable
+method: epoll
+features: ET|O1
+listener: registered
+1 timer：定时器先到，raise(SIGINT)
+2 SIGINT：信号事件，准备退出
+3 loop: rc=0 got_exit=1
+empty base: rc=1

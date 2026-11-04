@@ -1,0 +1,2 @@
+main: 写入 data=42
+consumer: 被唤醒后读到 42

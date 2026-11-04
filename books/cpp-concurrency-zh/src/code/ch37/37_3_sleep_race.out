@@ -1,0 +1,11 @@
+producer: 写入 42，睡 100ms
+WARNING: ThreadSanitizer: data race
+Read of size 4 at 0x… by thread T2:
+    #0 consumer() 37_3_sleep_race.c:31
+Previous write of size 4 at 0x… by thread T1:
+    #0 producer() 37_3_sleep_race.c:20
+  Thread T2 created by main thread at:
+    #0 main() 37_3_sleep_race.c:39
+  Thread T1 created by main thread at:
+    #0 main() 37_3_sleep_race.c:38
+SUMMARY: ThreadSanitizer: data race 37_3_sleep_race.c:31 in consumer

@@ -1,0 +1,5 @@
+定向后：sigwait 收到 SIGUSR1=0
+定向后：worker 的 pending=1
+sigwait 收到 SIGUSR1=0
+worker 解除屏蔽后：handler=1
+sigwait 收到 SIGTERM=1

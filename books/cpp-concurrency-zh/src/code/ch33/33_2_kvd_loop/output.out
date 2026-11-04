@@ -1,0 +1,26 @@
+requests=16000 errors=0 mismatches=0
+throughput=1366056.1 req/s p50=21 us p99=46 us
+hold: connected, 不发请求
+hold: recv=0 (server closed)
+server: listening, idle-timeout=2s
+accepted fd=7
+accepted fd=8
+accepted fd=9
+accepted fd=10
+accepted fd=11
+accepted fd=12
+accepted fd=13
+accepted fd=14
+closed fd=14 (peer closed)
+closed fd=11 (peer closed)
+closed fd=12 (peer closed)
+closed fd=7 (peer closed)
+closed fd=9 (peer closed)
+closed fd=13 (peer closed)
+closed fd=8 (peer closed)
+closed fd=10 (peer closed)
+accepted fd=7
+idle timeout fd=7
+closed fd=7 (idle timeout)
+signal 15: 停止事件循环
+server: connections=9 ticks=13 closed=9

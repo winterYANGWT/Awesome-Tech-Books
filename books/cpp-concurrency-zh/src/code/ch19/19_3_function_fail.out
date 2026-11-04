@@ -1,0 +1,2 @@
+/std_function.h:441:69: error: static assertion failed: std::function target must be copy-constructible
+/std_function.h:441:69: note: ‘std::integral_constant<bool, false>::value’ evaluates to false

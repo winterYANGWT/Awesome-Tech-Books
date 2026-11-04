@@ -1,0 +1,2 @@
+LT: epoll_wait 报告可读 10 次
+ET: epoll_wait 报告可读 1 次（读了 10 字节后停）

@@ -1,0 +1,6 @@
+listen_fds=1
+service: LISTEN_FDS=1
+client: sent ping
+client: received ping
+service: echoed 4 bytes
+server: child exit status=0

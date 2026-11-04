@@ -1,0 +1,13 @@
+主线程：只对 A 请求停止，然后 join A
+线程 A：清理时尝试锁 mutex_b
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  20_5_shutdown_deadlock.cpp:46
+线程 2：
+    pthread_cond_wait
+    worker_b()  20_5_shutdown_deadlock.cpp:35
+线程 3：
+    pthread_mutex_lock
+    std::mutex::lock
+    worker_a()  20_5_shutdown_deadlock.cpp:27

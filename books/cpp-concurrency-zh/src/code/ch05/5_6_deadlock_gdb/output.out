@@ -1,0 +1,9 @@
+main：join t1
+t1：join t2
+t2：join t1
+线程 1：
+#5  0x… in main () at main.cpp:27
+线程 2：
+#5  0x… in f2 () at main.cpp:19
+线程 3：
+#5  0x… in f1 () at main.cpp:13

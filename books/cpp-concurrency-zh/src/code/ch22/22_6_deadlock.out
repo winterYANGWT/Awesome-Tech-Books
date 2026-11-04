@@ -1,0 +1,8 @@
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    worker()  22_6_deadlock.c:18
+    main._omp_fn.0()  22_6_deadlock.c:35
+    main()  22_6_deadlock.c:33
+线程 2：
+    worker()  22_6_deadlock.c:22
+    main._omp_fn.0()  22_6_deadlock.c:35

@@ -1,0 +1,3 @@
+线程对象 joinable=1，main 不 join、不 detach，直接返回
+terminate called without an active exception
+（程序被信号 SIGABRT 终止）

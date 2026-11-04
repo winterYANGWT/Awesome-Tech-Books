@@ -1,0 +1,8 @@
+已为 1 条连接创建线程
+已为 64 条连接创建线程
+已为 128 条连接创建线程
+已为 192 条连接创建线程
+已为 256 条连接创建线程
+第 257 条连接：线程数已达到 256，pthread_create 返回 EAGAIN（模拟）
+35_2_thread_cap: 35_2_thread_cap.cpp:35: int main(): Assertion `false && "pthread_create: EAGAIN"' failed.
+（程序被信号 SIGABRT 终止）

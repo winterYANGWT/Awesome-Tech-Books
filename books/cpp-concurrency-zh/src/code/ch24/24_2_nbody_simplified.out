@@ -1,0 +1,6 @@
+particles=800 steps=200 line=64
+serial_simplified: checksum=95.076802168345438 ms=171.425
+threads=1 checksum=95.076802168345438 rel=0.000e+00 ms=174.995
+threads=2 checksum=95.076802168344628 rel=8.520e-15 ms=133.129
+threads=4 checksum=95.07680216834467 rel=8.071e-15 ms=82.344
+threads=8 checksum=95.076802168345225 rel=2.242e-15 ms=51.415

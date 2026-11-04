@@ -1,0 +1,12 @@
+A 锁住桶 0
+B 锁住桶 1
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  14_4_deadlock.cpp:34
+线程 2：
+    pthread_rwlock_wrlock
+    (anonymous namespace)::lock_pair()  14_4_deadlock.cpp:24
+线程 3：
+    pthread_rwlock_wrlock
+    (anonymous namespace)::lock_pair()  14_4_deadlock.cpp:24

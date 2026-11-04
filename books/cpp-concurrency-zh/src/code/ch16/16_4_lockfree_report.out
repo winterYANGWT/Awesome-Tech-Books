@@ -1,0 +1,9 @@
+sizeof(counted_node_ptr) = 16
+atomic<counted_node_ptr>::is_lock_free() = 0
+atomic<counted_node_ptr>::is_always_lock_free = 0
+atomic<shared_ptr<int>>::is_lock_free() = 0
+atomic<shared_ptr<int>>::is_always_lock_free = 0
+compiler = GCC
+<hazard_pointer> = 没有
+<rcu> = 没有
+对照：clang++ -std=c++20 -mcx16 … -latomic

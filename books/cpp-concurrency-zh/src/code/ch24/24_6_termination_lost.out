@@ -1,0 +1,10 @@
+worker: 队列为空，准备等待
+main: 任务已入队
+main: 已经 notify_one，等待 worker
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  24_6_termination_lost.cpp:45
+线程 2：
+    pthread_cond_wait
+    worker()  24_6_termination_lost.cpp:27

@@ -1,0 +1,19 @@
+[book]
+title = "C++ 并发与并行编程：线程、内存模型、并行计算与服务器"
+description = "从一个进程里的线程讲到同时应付大量连接的服务器：C++20 标准库为主线，pthread、OpenMP、MPI 和 Linux 系统调用并排对照；每个示例都实际编译运行，多线程示例都过一遍 ThreadSanitizer。"
+authors = ["winterYANGWT"]
+language = "zh-CN"
+src = "src"
+
+[output.html]
+additional-css = ["theme/fig.css"]
+additional-js = ["theme/fig.js"]
+git-repository-url = "https://github.com/winterYANGWT/Awesome-Tech-Books/tree/main/books/cpp-concurrency-zh"
+no-section-label = true
+
+[output.html.search]
+use-boolean-and = true
+
+[preprocessor.figs]
+command = "python3 theme/fig_preprocess.py"
+before = ["links"]

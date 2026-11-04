@@ -1,0 +1,78 @@
+线程 A: 读到 head，值是 1
+线程 B: 弹出并释放了节点 1
+=================================================================
+ERROR: AddressSanitizer: heap-use-after-free on address 0x… at pc 0x… bp 0x… sp 0x…
+READ of size 8 at 0x… thread T1
+    #0 0x… in reader() 15_3_pop_uaf.cpp:25
+    #1 0x…  (/usr/lib/x86_64-linux-gnu/libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 0x… in asan_thread_start ../../../../asan_interceptors.cpp:246
+    #3 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0xa3df9) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #4 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x…) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+
+0x… is located 8 bytes inside of 16-byte region [0x…,0x…)
+freed by thread T2 here:
+    #0 0x… in operator delete(void*, unsigned long) ../../../../asan_new_delete.cpp:190
+    #1 0x… in remover() 15_3_pop_uaf.cpp:36
+    #2 0x…  (/usr/lib/x86_64-linux-gnu/libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #3 0x… in asan_thread_start ../../../../asan_interceptors.cpp:246
+    #4 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0xa3df9) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+
+previously allocated by thread T0 here:
+    #0 0x… in operator new(unsigned long) ../../../../asan_new_delete.cpp:109
+    #1 0x… in main 15_3_pop_uaf.cpp:41
+    #2 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #3 0x… in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #4 0x… in _start (15_3_pop_uaf.cpp/15_3_pop_uaf+0x4814) (BuildId: b14117cebf030ea9a605fdac7682b10df978f0ae)
+
+Thread T1 created by T0 here:
+    #0 0x… in pthread_create ../../../../asan_interceptors.cpp:257
+    #1 0x… in std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) (/usr/lib/x86_64-linux-gnu/libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 0x… in std::thread::thread<void (&)(), , void>(void (&)()) /std_thread.h:175
+    #3 0x… in main 15_3_pop_uaf.cpp:42
+    #4 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #5 0x… in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #6 0x… in _start (15_3_pop_uaf.cpp/15_3_pop_uaf+0x4814) (BuildId: b14117cebf030ea9a605fdac7682b10df978f0ae)
+
+Thread T2 created by T0 here:
+    #0 0x… in pthread_create ../../../../asan_interceptors.cpp:257
+    #1 0x… in std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) (/usr/lib/x86_64-linux-gnu/libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 0x… in std::thread::thread<void (&)(), , void>(void (&)()) /std_thread.h:175
+    #3 0x… in main 15_3_pop_uaf.cpp:43
+    #4 0x…  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #5 0x… in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)
+    #6 0x… in _start (15_3_pop_uaf.cpp/15_3_pop_uaf+0x4814) (BuildId: b14117cebf030ea9a605fdac7682b10df978f0ae)
+
+SUMMARY: AddressSanitizer: heap-use-after-free 15_3_pop_uaf.cpp:25 in reader()
+Shadow bytes around the buggy address:
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x…: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x…: fa fa fd[fd]fa fa 00 00 fa fa 00 00 fa fa fd fd
+  0x…: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x…: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x…: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x…: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x…: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+ABORTING
+（退出码 86）

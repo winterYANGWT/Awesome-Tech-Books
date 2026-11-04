@@ -1,0 +1,4 @@
+工作线程：在第 4 个检查点退出
+request_stop 第一次: 1，第二次: 0
+join 后 stop_requested: 1
+主线程：清理 1 次，已处理 4 批

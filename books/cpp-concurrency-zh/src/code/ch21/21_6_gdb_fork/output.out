@@ -1,0 +1,9 @@
+Catchpoint 1 (fork)
+父进程启动
+Catchpoint 1 (fork -> child)
+父进程 fork 出子进程
+子进程调用 child_work
+#0  leaf () at fork_demo.cpp:10
+# child_work () at fork_demo.cpp:15
+# main () at fork_demo.cpp:32
+父进程 wait 到子进程退出

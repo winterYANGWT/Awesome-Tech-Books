@@ -1,0 +1,9 @@
+task 0 -> 0
+task 1 -> 1
+task 2 -> 4
+task 3 -> 9
+task 4 -> 16
+task 5 -> 25
+task 6 -> 36
+task 7 -> 49
+total=140

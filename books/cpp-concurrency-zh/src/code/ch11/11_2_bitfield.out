@@ -1,0 +1,7 @@
+两个线程各写一个相邻位域
+WARNING: ThreadSanitizer: data race
+Write of size 1 at 0x… by thread T2:
+    #0 operator() 11_2_bitfield.cpp:16
+Previous write of size 1 at 0x… by thread T1:
+    #0 operator() 11_2_bitfield.cpp:15
+SUMMARY: ThreadSanitizer: data race 11_2_bitfield.cpp:16 in operator()

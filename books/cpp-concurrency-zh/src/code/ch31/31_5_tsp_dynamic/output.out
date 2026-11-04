@@ -1,0 +1,4 @@
+best_cost=338
+best_tour= 0 1 9 2 5 7 8 4 11 10 3 6 0
+requests=113 splits=68 nodes=921935
+energy_total=4.000000

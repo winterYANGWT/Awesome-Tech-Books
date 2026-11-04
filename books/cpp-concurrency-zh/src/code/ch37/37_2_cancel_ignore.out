@@ -1,0 +1,8 @@
+worker: 取消已禁用，进入死循环
+main: 请求取消
+main: join（取消被禁用，等不到）
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    main()  37_2_cancel_ignore.c:57
+线程 2：
+    worker()  37_2_cancel_ignore.c:36

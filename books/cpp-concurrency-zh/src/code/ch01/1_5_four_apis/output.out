@@ -1,0 +1,15 @@
+== std::thread ==
+std::thread 执行流 2/4
+std::thread 执行流 3/4
+std::thread 执行流 1/4
+std::thread 执行流 0/4
+== pthread_create ==
+pthread 执行流 0/4
+pthread 执行流 2/4
+pthread 执行流 1/4
+pthread 执行流 3/4
+== OpenMP ==
+OpenMP 执行流 2/4
+OpenMP 执行流 0/4
+OpenMP 执行流 3/4
+OpenMP 执行流 1/4

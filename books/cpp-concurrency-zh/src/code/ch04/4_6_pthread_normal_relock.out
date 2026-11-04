@@ -1,0 +1,5 @@
+第一次 lock 返回，锁归当前线程
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    pthread_mutex_lock
+    main()  4_6_pthread_normal_relock.c:14

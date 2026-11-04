@@ -1,0 +1,4 @@
+async: wait_for(0s)=timeout, executed=0
+async: after get executed=1, result=7
+deferred: wait_for(0s)=deferred, executed=0
+deferred: after get executed=1, result=9

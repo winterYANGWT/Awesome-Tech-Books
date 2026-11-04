@@ -1,0 +1,5 @@
+主线程：调用 request_stop
+request_stop 返回: 1
+回调 A：在调用 request_stop 的线程上执行: 是
+回调 B：在调用 request_stop 的线程上执行: 是
+停止后注册的回调 C：构造返回前已执行: 是

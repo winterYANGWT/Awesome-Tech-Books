@@ -1,0 +1,4 @@
+first: OK
+second connection timed out
+accepted=1
+second epoll_wait=0 (no new edge)

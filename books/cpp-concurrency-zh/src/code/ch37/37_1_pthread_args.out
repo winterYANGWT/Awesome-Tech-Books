@@ -1,0 +1,3 @@
+thread 0: a=20 b=22 sum=42 ret=142
+thread 1: a=100 b=200 sum=300 ret=400
+main: 两个线程的结果合计 542

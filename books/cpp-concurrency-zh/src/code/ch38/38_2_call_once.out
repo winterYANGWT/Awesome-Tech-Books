@@ -1,0 +1,2 @@
+call_once: constructed=2 same_object=1
+local static: same_object=1

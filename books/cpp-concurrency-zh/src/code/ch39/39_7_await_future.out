@@ -1,0 +1,1 @@
+39_7_await_future.cpp:35:13: error: no member named ‘await_ready’ in ‘std::remove_reference<std::future<int>&>::type’ {aka ‘std::future<int>’}

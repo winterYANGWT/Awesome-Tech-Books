@@ -1,0 +1,32 @@
+4 个父任务都已开始，8 个子任务还在队列里
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    main()  19_4_wait_hang.cpp:104
+线程 2：
+    std::__atomic_futex_unsigned_base::_M_futex_wait_until
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_and_test_until
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_and_test
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_when_equal
+    operator()  19_4_wait_hang.cpp:96
+    operator()  19_4_wait_hang.cpp:39
+线程 3：
+    std::__atomic_futex_unsigned_base::_M_futex_wait_until
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_and_test_until
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_and_test
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_when_equal
+    operator()  19_4_wait_hang.cpp:96
+    operator()  19_4_wait_hang.cpp:39
+线程 4：
+    std::__atomic_futex_unsigned_base::_M_futex_wait_until
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_and_test_until
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_and_test
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_when_equal
+    operator()  19_4_wait_hang.cpp:96
+    operator()  19_4_wait_hang.cpp:39
+线程 5：
+    std::__atomic_futex_unsigned_base::_M_futex_wait_until
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_and_test_until
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_and_test
+    std::__atomic_futex_unsigned<2147483648u>::_M_load_when_equal
+    operator()  19_4_wait_hang.cpp:96
+    operator()  19_4_wait_hang.cpp:39

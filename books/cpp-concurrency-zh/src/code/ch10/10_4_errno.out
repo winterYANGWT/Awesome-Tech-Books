@@ -1,0 +1,2 @@
+线程 A: open 失败 errno=2 (ENOENT)
+线程 B: clock_gettime 失败 errno=22 (EINVAL)

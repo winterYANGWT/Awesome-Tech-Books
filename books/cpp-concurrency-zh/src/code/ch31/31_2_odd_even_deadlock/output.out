@@ -1,0 +1,3 @@
+所有 rank 先 Ssend 再 Recv：配对的 rank 互相等待
+环上等待：所有 rank 停在 MPI_Ssend（timeout 5s）
+safe：每对 rank 都完成了交换，rank 0 收到 101

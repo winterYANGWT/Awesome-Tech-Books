@@ -1,0 +1,6 @@
+leader/followers: connections=200
+thread 0: 50
+thread 1: 50
+thread 2: 50
+thread 3: 50
+total: 200

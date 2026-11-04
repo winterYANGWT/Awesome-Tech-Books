@@ -1,0 +1,3 @@
+version,ms
+seq_cst,125.408
+release_acquire,121.933

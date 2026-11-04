@@ -1,0 +1,3 @@
+默认处置：子进程被 SIGPIPE 终止
+忽略 SIGPIPE：write=-1 errno=EPIPE
+MSG_NOSIGNAL：send=-1 errno=EPIPE 正常退出

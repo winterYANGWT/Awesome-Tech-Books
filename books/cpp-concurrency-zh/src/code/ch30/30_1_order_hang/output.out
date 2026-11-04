@@ -1,0 +1,8 @@
+rank 3: 进入 MPI_Reduce
+rank 2: 进入 MPI_Reduce
+rank 2: 集合操作返回
+rank 0: 进入 MPI_Bcast(root=1)
+rank 3: 集合操作返回
+rank 1: 进入 MPI_Reduce
+rank 1: 集合操作返回
+10 秒后仍未结束：集合通信顺序不一致

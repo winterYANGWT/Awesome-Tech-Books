@@ -1,0 +1,13 @@
+生产者放入 1 个任务并 notify_one
+A 取到任务，构造返回值时抛异常：构造返回值时移动失败
+A 退出
+B 进入 wait_pop（队列为空，生产者已结束）
+（2 秒后仍未结束，gdb 取到的线程栈如下，随后强制终止）
+线程 1（主线程）：
+    std::thread::join
+    main()  7_4_notify_one_exception.cpp:95
+线程 2：
+    pthread_cond_wait
+    std::condition_variable::wait
+    (anonymous namespace)::JobQueue::wait_pop()  7_4_notify_one_exception.cpp:52
+    operator()  7_4_notify_one_exception.cpp:92

@@ -1,0 +1,11 @@
+两个线程各对 volatile long counter 自增 1000000 次
+WARNING: ThreadSanitizer: data race
+Read of size 8 at 0x… by thread T2:
+    #0 worker() 38_1_volatile_counter.c:15
+Previous write of size 8 at 0x… by thread T1:
+    #0 worker() 38_1_volatile_counter.c:15
+  Thread T2 created by main thread at:
+    #0 main() 38_1_volatile_counter.c:24
+  Thread T1 created by main thread at:
+    #0 main() 38_1_volatile_counter.c:23
+SUMMARY: ThreadSanitizer: data race 38_1_volatile_counter.c:15 in worker

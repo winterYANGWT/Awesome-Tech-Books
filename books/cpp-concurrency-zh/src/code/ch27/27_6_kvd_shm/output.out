@@ -1,0 +1,21 @@
+客户端 A: SET k 1
+OK
+客户端 B: GET k
+VALUE 1
+混合读写，4 个连接:
+requests=800 errors=0 mismatches=0
+让一个 worker 持锁停住，然后 kill -9:
+kill -9 worker 5807
+恢复后 GET k（旧表已丢弃）:
+NOT_FOUND
+恢复后 SET k 2 再 GET:
+OK
+VALUE 2
+恢复后再跑一轮混合读写:
+requests=800 errors=0 mismatches=0
+server: workers=4 buckets=64 entries=2048
+父进程: worker 5807 被信号 9 终止
+父进程: 已停掉其余 worker，恢复前已服务 802 个请求
+父进程: 新池已就绪，恢复前写入的数据已丢失
+父进程: 收到信号 15，关闭
+server: served_before_recovery=802 served_after_recovery=803

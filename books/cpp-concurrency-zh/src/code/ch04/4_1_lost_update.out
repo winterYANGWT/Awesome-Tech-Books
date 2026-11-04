@@ -1,0 +1,7 @@
+两个线程各对 counter 加 1000000 次
+WARNING: ThreadSanitizer: data race
+Read of size 8 at 0x… by thread T2:
+    #0 operator() 4_1_lost_update.cpp:19
+Previous write of size 8 at 0x… by thread T1:
+    #0 operator() 4_1_lost_update.cpp:14
+SUMMARY: ThreadSanitizer: data race 4_1_lost_update.cpp:19 in operator()
