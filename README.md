@@ -15,6 +15,7 @@
 | [Swift 编程语言](https://winteryangwt.github.io/Awesome-Tech-Books/swift-book-zh/) | [The Swift Programming Language](https://docs.swift.org/swift-book/) 的简体中文译本（Swift 6.4），译自 2026-09 上游版本（`1c05984`），语言指南 + 语言参考共 43 章 | Apache-2.0（附 Runtime Library Exception） | [`books/swift-book-zh/`](books/swift-book-zh/) |
 | [容器与 Kubernetes 实践](https://winteryangwt.github.io/Awesome-Tech-Books/container-k8s-zh/) | 原创中文教程，以 Kubernetes 1.37 / Docker Engine 29 官方文档为准，从 namespace、cgroup 讲到集群运维，9 部分 36 章，278 个示例均在 Docker-in-Docker 实验环境实测 | 文字 CC BY 4.0，代码 MIT | [`books/container-k8s-zh/`](books/container-k8s-zh/) |
 | [四足机器人控制：从关节电机到自主行走](https://winteryangwt.github.io/Awesome-Tech-Books/quadruped-control-zh/) | 原创中文教程，参考《四足机器人控制算法——建模、控制与实践》的章节结构、覆盖其全部 11 章内容，从关节电机讲到小跑和导航，70 个示例用 MuJoCo 仿真 Unitree A1 实测 | 文字 CC BY 4.0，代码 MIT | [`books/quadruped-control-zh/`](books/quadruped-control-zh/) |
+| [C++ 并发与并行编程：线程、内存模型、并行计算与服务器](https://winteryangwt.github.io/Awesome-Tech-Books/cpp-concurrency-zh/) | 原创中文教程，把三本并发与服务器编程书的内容按主题合编，C++20 标准库为主线，pthread、OpenMP、MPI 和 Linux 系统调用并排对照，10 部分 42 章，520 个示例均用 GCC 15 实测 | 文字 CC BY 4.0，代码 MIT | [`books/cpp-concurrency-zh/`](books/cpp-concurrency-zh/) |
 
 这些书都借助 AI 翻译或编写，难免有错，欢迎通过 issue 指正。
 
