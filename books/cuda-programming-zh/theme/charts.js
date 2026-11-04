@@ -1,15 +1,15 @@
 /*
  * CUDA 书全书的统计图引擎：柱状图（bars）、折线图（line）、天平图（balance）、
- * roofline 图。
+ * roofline 图、堆叠图（stack）。
  *
  * 数据不在脚本里，而是从 figure[data-source] 指向的元素里的程序输出原文解析：
  * 可以是页面上不显示的 <script type="text/plain">，也可以是含 <code> 的元素。
  * 配置只写 JSON；图中的颜色全部来自 charts.css，脚本只负责加 class。
  *
  * 纯函数（parseColumns / parseLead / parseLaps / pickRows / extractTable /
- * validateChart / parseXValue / formatXValue / byteLinearTicks /
- * rooflineLimit / findLabelOffset 等）挂在 module.exports 上，Node 测试和
- * 作者检查脚本直接用。
+ * validateChart / validateNotes / stackTotal / stackShare / formatShare /
+ * parseXValue / formatXValue / byteLinearTicks / rooflineLimit /
+ * findLabelOffset 等）挂在 module.exports 上，Node 测试和作者检查脚本直接用。
  */
 (function () {
   "use strict";
@@ -830,12 +830,29 @@
       throw new Error("缺少图表配置");
     }
     var kind = config.kind;
+    if (config.toggle !== undefined) {
+      if (typeof config.toggle !== "boolean") {
+        throw new Error("toggle 必须是布尔值");
+      }
+      if (config.toggle) {
+        if (kind !== "bars") {
+          throw new Error('toggle 只能用在 kind: "bars" 的图上');
+        }
+        if (!Array.isArray(config.series) || config.series.length < 2) {
+          throw new Error("toggle 需要至少 2 组 series");
+        }
+      }
+    }
+    if (kind === "stack") {
+      validateStackConfig(config, table);
+      return true;
+    }
     if (kind === "roofline") {
       validateRooflineConfig(config);
       return true;
     }
     if (kind !== "bars" && kind !== "line" && kind !== "balance") {
-      throw new Error("kind 必须是 bars、line、balance 或 roofline");
+      throw new Error("kind 必须是 bars、line、balance、roofline 或 stack");
     }
 
     if (kind === "balance") {
@@ -943,9 +960,15 @@
     }
 
     if (kind === "bars") {
-      if (config.log !== undefined && typeof config.log !== "boolean") {
-        throw new Error("log 必须是布尔值");
+      if (
+        config.log !== undefined &&
+        config.log !== true &&
+        config.log !== false &&
+        config.log !== "auto"
+      ) {
+        throw new Error('log 必须是布尔值或 "auto"');
       }
+      var logRequested = config.log === true || config.log === "auto";
       if (
         config.panels !== undefined &&
         config.panels !== "groups" &&
@@ -961,7 +984,7 @@
           if (!isFinite(refX)) {
             throw new Error("bars 的 refs 第 " + (br + 1) + " 项缺少数字 x");
           }
-          if (config.log && refX <= 0) {
+          if (logRequested && refX <= 0) {
             throw new Error("对数柱状图的参考线 x 必须大于 0");
           }
           if (barRef.label !== undefined && typeof barRef.label !== "string") {
@@ -988,7 +1011,7 @@
             logIndices.push(lc0);
           }
         }
-        if (config.log) {
+        if (logRequested) {
           for (var lr = 0; lr < group.rows.length; lr++) {
             for (var lc = 0; lc < logIndices.length; lc++) {
               if (group.rows[lr].values[logIndices[lc]].value <= 0) {
@@ -1178,6 +1201,253 @@
     if (config.tasks !== undefined && !Array.isArray(config.tasks)) {
       throw new Error("balance 图的 tasks 必须是数组");
     }
+  }
+
+  /* ---------------------------- 堆叠图纯函数 ---------------------------- */
+
+  // 原文数字的小数位数，用来决定合计保留几位。
+  function decimalPlaces(text) {
+    var match = /^-?\d[\d,]*(?:\.(\d+))?(?:[eE]([-+]?\d+))?$/.exec(
+      String(text)
+    );
+    if (!match) return 0;
+    var places = match[1] ? match[1].length : 0;
+    if (match[2]) places = Math.max(0, places - Number(match[2]));
+    return Math.min(places, 20);
+  }
+
+  // 一行三段的合计。小数位数取这一行原文里最多的位数。
+  function stackTotal(cells) {
+    if (!Array.isArray(cells) || !cells.length) {
+      throw new Error("stack 行没有数值");
+    }
+    var total = 0;
+    var decimals = 0;
+    for (var i = 0; i < cells.length; i++) {
+      var cell = cells[i];
+      if (isMissingCell(cell)) throw new Error("stack 不支持缺值");
+      var value = Number(cell.value);
+      if (!isFinite(value)) throw new Error("stack 的数值不是数字");
+      total += value;
+      decimals = Math.max(decimals, decimalPlaces(cell.text));
+    }
+    var text = total.toFixed(decimals);
+    if (/^-0(?:\.0+)?$/.test(text)) text = text.slice(1);
+    return { value: total, text: text, decimals: decimals };
+  }
+
+  function stackShare(value, total) {
+    var v = Number(value);
+    var t = Number(total);
+    if (!isFinite(v) || !isFinite(t) || t <= 0) return 0;
+    return (v / t) * 100;
+  }
+
+  function formatShare(percent) {
+    var value = Number(percent);
+    if (!isFinite(value) || value < 0) value = 0;
+    if (value < 0.1) return "<0.1%";
+    return value.toFixed(1) + "%";
+  }
+
+  function validateStackConfig(config, table) {
+    var format = config.format || "columns";
+    if (format !== "pick") {
+      throw new Error('stack 的 format 必须是 "pick"');
+    }
+    if (!table || !Array.isArray(table.groups) || !table.groups.length) {
+      throw new Error("表格没有分组");
+    }
+    if (table.groups.length !== 1) {
+      throw new Error("stack 只接受一个分组");
+    }
+
+    var group = table.groups[0];
+    if (!Array.isArray(group.columns) || group.columns.length < 2) {
+      throw new Error("stack 至少需要 2 列");
+    }
+    if (!Array.isArray(group.rows) || !group.rows.length) {
+      throw new Error("stack 没有数据行");
+    }
+    for (var c = 0; c < group.columns.length; c++) {
+      if (
+        !group.columns[c] ||
+        typeof group.columns[c].name !== "string" ||
+        !group.columns[c].name
+      ) {
+        throw new Error("stack 的第 " + (c + 1) + " 列缺少列名");
+      }
+    }
+
+    for (var r = 0; r < group.rows.length; r++) {
+      var row = group.rows[r];
+      if (!row || typeof row.label !== "string" || !row.label) {
+        throw new Error("stack 的第 " + (r + 1) + " 行缺少行名");
+      }
+      if (!Array.isArray(row.values) || row.values.length !== group.columns.length) {
+        throw new Error("stack 的行 " + row.label + " 值列数不一致");
+      }
+      for (var v = 0; v < row.values.length; v++) {
+        var cell = row.values[v];
+        if (isMissingCell(cell)) {
+          throw new Error("stack 不支持缺值：" + row.label);
+        }
+        if (!cell || typeof cell.value !== "number" || !isFinite(cell.value)) {
+          throw new Error("stack 的 " + row.label + " 第 " + (v + 1) + " 个值不是数字");
+        }
+        if (cell.value < 0) {
+          throw new Error("stack 的 " + row.label + " 第 " + (v + 1) + " 个值不能为负");
+        }
+      }
+    }
+
+    if (config.tabs !== undefined) {
+      if (!Array.isArray(config.tabs) || !config.tabs.length || config.tabs.length > 2) {
+        throw new Error("tabs 必须是 1–2 项");
+      }
+      var seen = {};
+      for (var t = 0; t < config.tabs.length; t++) {
+        var tab = config.tabs[t];
+        if (!tab || typeof tab !== "object") {
+          throw new Error("tabs 的第 " + (t + 1) + " 项无效");
+        }
+        if (tab.view !== "stack" && tab.view !== "columns") {
+          throw new Error('tabs 的 view 只能是 "stack" 或 "columns"');
+        }
+        if (Object.prototype.hasOwnProperty.call(seen, tab.view)) {
+          throw new Error("tabs 的 view 不能重复");
+        }
+        seen[tab.view] = true;
+        if (typeof tab.label !== "string" || !tab.label.trim()) {
+          throw new Error("tabs 的第 " + (t + 1) + " 项缺少 label");
+        }
+      }
+    }
+
+    if (config.unit !== undefined && typeof config.unit !== "string") {
+      throw new Error("stack 的 unit 必须是字符串");
+    }
+  }
+
+  // 说明是纯数据：{view, row, column}；校验规则和浏览器里的 DOM 无关。
+  function validateNotes(config, table, notes) {
+    if (!Array.isArray(notes)) {
+      throw new Error("说明必须是数组");
+    }
+    if (!config || typeof config !== "object") {
+      throw new Error("缺少图表配置");
+    }
+
+    var allowed = ["stack"];
+    if (config.tabs !== undefined) {
+      if (!Array.isArray(config.tabs) || !config.tabs.length) {
+        throw new Error("tabs 配置无效");
+      }
+      allowed = [];
+      for (var t = 0; t < config.tabs.length; t++) {
+        var tab = config.tabs[t] || {};
+        if (tab.view !== "stack" && tab.view !== "columns") {
+          throw new Error('tabs 的 view 只能是 "stack" 或 "columns"');
+        }
+        if (allowed.indexOf(tab.view) !== -1) {
+          throw new Error("tabs 的 view 不能重复");
+        }
+        allowed.push(tab.view);
+      }
+    }
+
+    var rowLabels = {};
+    var columnNames = {};
+    if (table && Array.isArray(table.groups)) {
+      for (var g = 0; g < table.groups.length; g++) {
+        var group = table.groups[g] || {};
+        for (var c = 0; c < (group.columns || []).length; c++) {
+          var column = group.columns[c] || {};
+          if (column.name !== undefined) columnNames[column.name] = true;
+        }
+        for (var r = 0; r < (group.rows || []).length; r++) {
+          var row = group.rows[r] || {};
+          if (row.label !== undefined) rowLabels[row.label] = true;
+        }
+      }
+    }
+
+    var states = {};
+    var hasDefaultStack = false;
+    for (var i = 0; i < notes.length; i++) {
+      var note = notes[i] || {};
+      var where = "第 " + (i + 1) + " 段说明";
+      var view = note.view;
+      if (typeof view !== "string" || !view) {
+        throw new Error(where + "缺少 data-view");
+      }
+      if (allowed.indexOf(view) === -1) {
+        throw new Error(where + "的 data-view 不在 tabs 里：" + view);
+      }
+
+      var rowName =
+        note.row === undefined || note.row === null ? null : note.row;
+      var columnName =
+        note.column === undefined || note.column === null
+          ? null
+          : note.column;
+
+      if (rowName !== null) {
+        if (typeof rowName !== "string" || !rowName) {
+          throw new Error(where + "的 data-row 无效");
+        }
+        if (!Object.prototype.hasOwnProperty.call(rowLabels, rowName)) {
+          throw new Error(where + "的 data-row 找不到对应的行：" + rowName);
+        }
+      }
+      if (columnName !== null) {
+        if (typeof columnName !== "string" || !columnName) {
+          throw new Error(where + "的 data-column 无效");
+        }
+        if (!Object.prototype.hasOwnProperty.call(columnNames, columnName)) {
+          throw new Error(
+            where + "的 data-column 找不到对应的列：" + columnName
+          );
+        }
+      }
+
+      var stateKey =
+        view + "\u0000" + (rowName === null ? "" : rowName) +
+        "\u0000" + (columnName === null ? "" : columnName);
+      if (states[stateKey]) {
+        throw new Error(where + "和前面的说明是同一个状态");
+      }
+      states[stateKey] = true;
+
+      if (view === "stack" && rowName === null && columnName === null) {
+        hasDefaultStack = true;
+      }
+    }
+
+    if (allowed.indexOf("stack") !== -1 && !hasDefaultStack) {
+      throw new Error('stack 视图缺少默认说明（data-view="stack"）');
+    }
+    return true;
+  }
+
+  // log: "auto" 时按当前显示中的数值决定刻度：最大值 / 最小正值 > 100 才用对数。
+  // true / false 保持原来的行为。纯函数，浏览器和测试共用。
+  function useLogScale(config, values) {
+    if (!config || config.log !== "auto") {
+      return !!(config && config.log === true);
+    }
+
+    var max = -Infinity;
+    var min = Infinity;
+    if (!values || typeof values.length !== "number") return false;
+    for (var i = 0; i < values.length; i++) {
+      var value = Number(values[i]);
+      if (!isFinite(value) || value <= 0) continue;
+      if (value > max) max = value;
+      if (value < min) min = value;
+    }
+    if (!isFinite(max) || !isFinite(min) || max <= 0 || min <= 0) return false;
+    return max / min > 100;
   }
 
   function log10Ticks(lo, hi) {
@@ -1441,11 +1711,18 @@
       validateChart: validateChart,
       validateExtraSeries: validateExtraSeries,
       validateRooflineConfig: validateRooflineConfig,
+      validateStackConfig: validateStackConfig,
+      validateNotes: validateNotes,
+      decimalPlaces: decimalPlaces,
+      stackTotal: stackTotal,
+      stackShare: stackShare,
+      formatShare: formatShare,
       parseXValue: parseXValue,
       isMissingCell: isMissingCell,
       splitLineSegments: splitLineSegments,
       pointValueText: pointValueText,
       assembleLapRows: assembleLapRows,
+      useLogScale: useLogScale,
       log10Ticks: log10Ticks,
       niceTicks: niceTicks,
       formatThreads: formatThreads,
@@ -1488,7 +1765,14 @@
     });
 
     document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape") hideAll();
+      if (event.key === "Escape") {
+        for (var i = 0; i < chartStates.length; i++) {
+          if (typeof chartStates[i].onEscape === "function") {
+            chartStates[i].onEscape();
+          }
+        }
+        hideAll();
+      }
     });
   }
 
@@ -1514,9 +1798,10 @@
         (config.kind !== "bars" &&
           config.kind !== "line" &&
           config.kind !== "balance" &&
-          config.kind !== "roofline")
+          config.kind !== "roofline" &&
+          config.kind !== "stack")
       ) {
-        throw new Error("kind 必须是 bars、line、balance 或 roofline");
+        throw new Error("kind 必须是 bars、line、balance、roofline 或 stack");
       }
       var data = null;
 
@@ -1558,6 +1843,7 @@
           if (config.kind === "bars") initBars(state);
           else if (config.kind === "line") initLine(state);
           else if (config.kind === "roofline") initRoofline(state);
+          else if (config.kind === "stack") initStack(state);
           else initBalance(state);
 
           state.render();
@@ -1577,6 +1863,8 @@
   function failFigure(fig, plot, error) {
     console.warn("[cu-chart] 图表渲染失败：", error);
     fig.classList.add("cu-chart-failed");
+    // 渲染失败时退回无 JS 的说明显示方式。
+    fig.classList.remove("cu-chart-ready");
     var message = error && error.message ? error.message : String(error);
     var oldLabel = fig.querySelector(".cu-chart-xlabel");
     if (oldLabel && oldLabel.parentNode) oldLabel.parentNode.removeChild(oldLabel);
@@ -1742,14 +2030,30 @@
     return lines;
   }
 
-  function hoverHint() {
+  function hoverHint(toggle) {
     try {
       if (window.matchMedia && window.matchMedia("(hover: hover)").matches) {
-        return "鼠标悬停查看数值";
+        return toggle
+          ? "点图例显示或隐藏，鼠标悬停查看数值"
+          : "鼠标悬停查看数值";
       }
-      return "点按查看数值";
+      // 触屏上没有“悬停”，沿用原来的点按提示；有图例时只提示图例。
+      return toggle ? "点图例显示或隐藏" : "点按查看数值";
     } catch (error) {
-      return "鼠标悬停查看数值";
+      return toggle
+        ? "点图例显示或隐藏，鼠标悬停查看数值"
+        : "鼠标悬停查看数值";
+    }
+  }
+
+  function reducedMotion() {
+    try {
+      return !!(
+        window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      );
+    } catch (error) {
+      return false;
     }
   }
 
@@ -1949,9 +2253,58 @@
     return legend;
   }
 
-  function makeRightControls() {
+  // 可切换的图例：每一项是按钮，aria-pressed 表示这一组当前是否显示。
+  // onToggle(index) 由调用方负责改状态和重画；左右键只在图例按钮之间移动焦点。
+  function makeToggleLegend(items, onToggle) {
+    var legend = element("div", "cu-chart-legend");
+    legend.setAttribute("role", "group");
+    legend.setAttribute("aria-label", "图例");
+    var buttons = [];
+
+    for (var i = 0; i < items.length; i++) {
+      (function (index) {
+        var button = element(
+          "button",
+          "cu-chart-legend-item cu-chart-legend-button"
+        );
+        button.type = "button";
+        button.setAttribute("aria-pressed", "true");
+        button.appendChild(
+          element(
+            "span",
+            "cu-chart-legend-swatch " +
+              items[index].className +
+              (items[index].dashed ? " cu-legend-dashed" : "")
+          )
+        );
+        button.appendChild(element("span", "", items[index].text));
+        button.addEventListener("click", function () {
+          onToggle(index);
+        });
+        button.addEventListener("keydown", function (event) {
+          if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+          // mdBook 用左右方向键翻章，焦点在图例上时不能让它收到。
+          event.preventDefault();
+          event.stopPropagation();
+          var next =
+            index + (event.key === "ArrowRight" ? 1 : -1);
+          if (next < 0) next = buttons.length - 1;
+          if (next >= buttons.length) next = 0;
+          buttons[next].focus();
+        });
+        legend.appendChild(button);
+        buttons.push(button);
+      })(i);
+    }
+
+    return { node: legend, buttons: buttons };
+  }
+
+  function makeRightControls(toggle) {
     var right = element("div", "cu-chart-right-controls");
-    right.appendChild(element("span", "cu-chart-hint", hoverHint()));
+    right.appendChild(
+      element("span", "cu-chart-hint", hoverHint(toggle === true))
+    );
     return right;
   }
 
@@ -2142,6 +2495,13 @@
     var data = state.data;
 
     var seriesMode = Array.isArray(config.series) && config.series.length > 0;
+    var toggleEnabled = config.toggle === true && seriesMode;
+    var visibleSeries = [];
+    var legendButtons = [];
+    var animateNextRender = false;
+    if (toggleEnabled) {
+      for (var ts = 0; ts < config.series.length; ts++) visibleSeries.push(true);
+    }
     var colorScale = buildColorScale(config, data, seriesMode);
     var panels = buildBarPanels(config, data, colorScale, seriesMode);
     var barRefs = Array.isArray(config.refs) ? config.refs : [];
@@ -2167,23 +2527,69 @@
           }
         }
       }
-      if (config.log) {
+      if (config.log === true || config.log === "auto") {
         if (maxValue <= 0) throw new Error("log 柱状图要求数值大于 0");
       }
       panels[p].max = maxValue;
     }
 
+    function visibleSeriesIndices() {
+      var indices = [];
+      for (var i = 0; i < visibleSeries.length; i++) {
+        if (visibleSeries[i]) indices.push(i);
+      }
+      return indices;
+    }
+
+    function updateLegendState() {
+      if (!toggleEnabled) return;
+      var count = visibleSeriesIndices().length;
+      for (var i = 0; i < legendButtons.length; i++) {
+        var button = legendButtons[i];
+        var shown = visibleSeries[i];
+        button.setAttribute("aria-pressed", shown ? "true" : "false");
+        if (shown && count === 1) {
+          button.setAttribute("aria-disabled", "true");
+          button.setAttribute("title", "至少显示一组");
+        } else {
+          button.removeAttribute("aria-disabled");
+          button.removeAttribute("title");
+        }
+      }
+    }
+
+    function toggleSeries(index) {
+      if (!toggleEnabled) return;
+      var wasShown = visibleSeries[index];
+      if (wasShown && visibleSeriesIndices().length <= 1) return;
+      visibleSeries[index] = !wasShown;
+      updateLegendState();
+      animateNextRender = true;
+      try {
+        // 重画开头的 hideTip 会清空 live 区，所以读屏提示要放在重画之后。
+        state.render(state.width || measureWidth(plot, fig));
+        state.live.textContent =
+          (wasShown ? "已隐藏 " : "已显示 ") + config.series[index];
+      } catch (error) {
+        state.failed = true;
+        failFigure(fig, plot, error);
+      }
+    }
+
     if (!seriesMode && config.color !== "single") {
       makeHead(fig, plot, makeLegend(colorScale.legend), makeRightControls());
     } else if (seriesMode) {
-      makeHead(
-        fig,
-        plot,
-        makeLegend(colorScale.series.map(function (item) {
-          return { text: item.name, className: item.className };
-        })),
-        makeRightControls()
-      );
+      var legendItems = colorScale.series.map(function (item) {
+        return { text: item.name, className: item.className };
+      });
+      if (toggleEnabled) {
+        var toggleLegend = makeToggleLegend(legendItems, toggleSeries);
+        legendButtons = toggleLegend.buttons;
+        makeHead(fig, plot, toggleLegend.node, makeRightControls(true));
+        updateLegendState();
+      } else {
+        makeHead(fig, plot, makeLegend(legendItems), makeRightControls());
+      }
     } else {
       makeHead(fig, plot, element("span", "cu-chart-ylabel"), makeRightControls());
     }
@@ -2205,11 +2611,53 @@
 
     state.render = function (requestedWidth) {
       var width = requestedWidth || measureWidth(plot, fig);
+      var animateBars = animateNextRender;
+      animateNextRender = false;
       state.width = width;
       hideTip(state);
       clearHot();
       hits = [];
       while (plot.firstChild) plot.removeChild(plot.firstChild);
+
+      var activeSeries = toggleEnabled ? visibleSeriesIndices() : null;
+      var renderPanels = panels;
+      if (toggleEnabled) {
+        renderPanels = [];
+        for (var dp = 0; dp < panels.length; dp++) {
+          var sourcePanel = panels[dp];
+          var filteredRows = [];
+          for (var fr = 0; fr < sourcePanel.rows.length; fr++) {
+            var sourceRow = sourcePanel.rows[fr];
+            var filteredValues = [];
+            var seriesIndices = [];
+            for (var fv = 0; fv < sourceRow.values.length; fv++) {
+              if (visibleSeries[fv]) {
+                filteredValues.push(sourceRow.values[fv]);
+                seriesIndices.push(fv);
+              }
+            }
+            filteredRows.push({
+              label: sourceRow.label,
+              group: sourceRow.group,
+              groupClass: sourceRow.groupClass,
+              values: filteredValues,
+              seriesIndices: seriesIndices,
+              fullValues: sourceRow.values,
+              note: sourceRow.note
+            });
+          }
+          renderPanels.push({
+            title: sourcePanel.title,
+            subtitle: sourcePanel.subtitle,
+            columnName: sourcePanel.columnName,
+            showColumnName: sourcePanel.showColumnName,
+            columns: sourcePanel.columns,
+            rows: filteredRows,
+            unit: sourcePanel.unit,
+            max: sourcePanel.max
+          });
+        }
+      }
 
       var family = getComputedStyle(fig).fontFamily || "sans-serif";
       var labelFont = 13;
@@ -2221,18 +2669,22 @@
       var gap = 16;
       var topPadding = 4;
       var narrow = width < 420;
-      var seriesCount = seriesMode ? config.series.length : 1;
+      var seriesCount = seriesMode
+        ? (toggleEnabled ? activeSeries.length : config.series.length)
+        : 1;
       var rowHeight = seriesMode
         ? Math.max(30, seriesCount * 12 + (seriesCount - 1) * 2 + 8)
         : 30;
-      if (seriesMode) barHeight = 12;
+      if (seriesMode) {
+        barHeight = toggleEnabled && seriesCount === 1 ? 18 : 12;
+      }
 
       var naturalLabelWidth = 0;
-      for (var p = 0; p < panels.length; p++) {
-        for (var r = 0; r < panels[p].rows.length; r++) {
+      for (var p = 0; p < renderPanels.length; p++) {
+        for (var r = 0; r < renderPanels[p].rows.length; r++) {
           naturalLabelWidth = Math.max(
             naturalLabelWidth,
-            textWidth(family, labelFont, 400, panels[p].rows[r].label)
+            textWidth(family, labelFont, 400, renderPanels[p].rows[r].label)
           );
         }
       }
@@ -2244,14 +2696,14 @@
 
       var tickSets = [];
       var tickScales = [];
+      var logFlags = [];
       var domains = [];
       var valueWidth = 0;
       var lastTickWidth = 0;
 
-      for (var pp = 0; pp < panels.length; pp++) {
-        var panel = panels[pp];
+      for (var pp = 0; pp < renderPanels.length; pp++) {
+        var panel = renderPanels[pp];
         var panelUnit = panel.unit;
-        var max = panel.max;
         var values = [];
         for (var pr = 0; pr < panel.rows.length; pr++) {
           for (var pc = 0; pc < panel.rows[pr].values.length; pc++) {
@@ -2259,7 +2711,35 @@
           }
         }
 
-        if (config.log) {
+        // 切换图例后只按显示中的组重新取范围；大小变化重画时也走这里。
+        var max = panel.max;
+        if (toggleEnabled || config.log === "auto") {
+          max = 0;
+          for (var mv = 0; mv < values.length; mv++) {
+            max = Math.max(max, values[mv]);
+          }
+          if (!seriesMode) {
+            for (var mr = 0; mr < panel.rows.length; mr++) {
+              var renderSpread = findSpread(
+                config,
+                panel.rows[mr].label,
+                panel.columns[0].name
+              );
+              if (renderSpread) {
+                max = Math.max(
+                  max,
+                  Number(renderSpread.lo),
+                  Number(renderSpread.hi)
+                );
+              }
+            }
+          }
+        }
+
+        var panelLog = useLogScale(config, values);
+        logFlags[pp] = panelLog;
+
+        if (panelLog) {
           var minPositive = Infinity;
           for (var lv = 0; lv < values.length; lv++) {
             if (values[lv] > 0) minPositive = Math.min(minPositive, values[lv]);
@@ -2313,12 +2793,12 @@
       var svgWidth = barsLeft + plotWidth + rightPadding;
 
       var barsHeights = [];
-      for (var bh = 0; bh < panels.length; bh++) {
-        barsHeights[bh] = panels[bh].rows.length * rowHeight;
+      for (var bh = 0; bh < renderPanels.length; bh++) {
+        barsHeights[bh] = renderPanels[bh].rows.length * rowHeight;
       }
 
       var panelHeights = [];
-      for (var ph = 0; ph < panels.length; ph++) {
+      for (var ph = 0; ph < renderPanels.length; ph++) {
         panelHeights[ph] = titleHeight + barsHeights[ph] + tickHeight;
       }
       var svgHeight =
@@ -2326,7 +2806,7 @@
         panelHeights.reduce(function (a, b) {
           return a + b;
         }, 0) +
-        Math.max(0, panels.length - 1) * gap +
+        Math.max(0, renderPanels.length - 1) * gap +
         8;
 
       var svg = svgElement("svg");
@@ -2338,14 +2818,15 @@
 
       var panelTop = topPadding;
 
-      for (var pi = 0; pi < panels.length; pi++) {
-        var currentPanel = panels[pi];
+      for (var pi = 0; pi < renderPanels.length; pi++) {
+        var currentPanel = renderPanels[pi];
         var panelUnit2 = currentPanel.unit;
         var barsTop = panelTop + titleHeight;
         var barsBottom = barsTop + barsHeights[pi];
         var max2 = currentPanel.axisMax;
         var ticks = tickSets[pi];
         var domain = domains[pi];
+        var useLog = logFlags[pi];
 
         if (currentPanel.title) {
           addText(svg, 0, panelTop + 15, currentPanel.title, "cu-panel-name");
@@ -2367,7 +2848,7 @@
         }
 
         function xOf(value) {
-          if (config.log) {
+          if (useLog) {
             var lr =
               (Math.log10(value) - Math.log10(domain.lo)) /
               (Math.log10(domain.hi) - Math.log10(domain.lo));
@@ -2379,7 +2860,7 @@
         }
 
         for (var t = 0; t < ticks.length; t++) {
-          var tickX = config.log
+          var tickX = useLog
             ? xOf(ticks[t])
             : barsLeft + (ticks[t] / max2) * plotWidth;
           if (ticks[t] > 0) {
@@ -2387,7 +2868,8 @@
           }
           var isLast = t === ticks.length - 1;
           var tickLabel =
-            formatMagnitudeTick(ticks[t], tickScales[pi]) +
+            // 对数轴跨好几个数量级，共用一个后缀会把 0.1 写成 1e-4K，所以逐个刻度选后缀。
+            formatMagnitudeTick(ticks[t], useLog ? magnitudeScale(ticks[t]) : tickScales[pi]) +
             (isLast && panelUnit2 ? " " + panelUnit2 : "");
           addText(svg, tickX, barsBottom + 17, tickLabel, "cu-tick", "middle");
         }
@@ -2443,10 +2925,11 @@
 
           for (var si = 0; si < row.values.length; si++) {
             var cell2 = row.values[si];
+            var seriesIndex = row.seriesIndices ? row.seriesIndices[si] : si;
             var barClass = seriesMode
-              ? "cu-bar " + SERIES_CLASSES[si]
+              ? "cu-bar " + SERIES_CLASSES[seriesIndex]
               : "cu-bar " + row.groupClass;
-            var barEnd = config.log
+            var barEnd = useLog
               ? xOf(cell2.value)
               : barsLeft + (cell2.value / max2) * plotWidth;
             if (barEnd < barsLeft + 2) barEnd = barsLeft + 2;
@@ -2455,9 +2938,11 @@
               : centerY - groupBarHeight / 2;
             var bottom = top + groupBarHeight;
             var bar = svgElement("path", barClass);
+            var barRadius =
+              seriesMode && !(toggleEnabled && seriesCount === 1) ? 2 : 4;
             bar.setAttribute(
               "d",
-              barPath(barsLeft, barEnd, top, bottom, seriesMode ? 2 : 4)
+              barPath(barsLeft, barEnd, top, bottom, barRadius)
             );
             svg.appendChild(bar);
             barInfos.push({
@@ -2478,10 +2963,10 @@
           }
           var spreadEnd = 0;
           if (spread) {
-            var lowX = config.log
+            var lowX = useLog
               ? xOf(Number(spread.lo))
               : barsLeft + (Number(spread.lo) / max2) * plotWidth;
-            var highX = config.log
+            var highX = useLog
               ? xOf(Number(spread.hi))
               : barsLeft + (Number(spread.hi) / max2) * plotWidth;
             spreadEnd = highX;
@@ -2528,6 +3013,7 @@
             svg: svg,
             panel: currentPanel,
             row: row,
+            rows: currentPanel.rows,
             barInfos: barInfos,
             unit: panelUnit2,
             config: config,
@@ -2551,8 +3037,8 @@
         for (var refIndex = 0; refIndex < barRefs.length; refIndex++) {
           var barRef = barRefs[refIndex] || {};
           var refValue = Number(barRef.x);
-          if (!isFinite(refValue) || (config.log && refValue <= 0)) continue;
-          var refX = config.log
+          if (!isFinite(refValue) || (useLog && refValue <= 0)) continue;
+          var refX = useLog
             ? xOf(refValue)
             : barsLeft + (refValue / max2) * plotWidth;
           if (refX < barsLeft - 0.5 || refX > barsLeft + plotWidth + 0.5) {
@@ -2585,6 +3071,7 @@
       }
 
       plot.appendChild(svg);
+      if (animateBars && !reducedMotion()) svg.classList.add("cu-bars-enter");
       if (config.xLabel) addXLabel(fig, plot, config.xLabel);
       else addXLabel(fig, plot, "");
 
@@ -2616,18 +3103,23 @@
             : null;
           for (var si = 0; si < info.row.values.length; si++) {
             var seriesCell = info.row.values[si];
-            var seriesName = info.panel.columns[si].name;
+            var seriesIndex = info.row.seriesIndices
+              ? info.row.seriesIndices[si]
+              : si;
+            var seriesName = info.panel.columns[seriesIndex].name;
             var valueText =
               seriesCell.text + (unit ? " " + unit : "");
             lines.push({
-              keyClass: SERIES_CLASSES[si],
+              keyClass: SERIES_CLASSES[seriesIndex],
               name: seriesName,
               value: valueText
             });
             aria.push(seriesName + " " + valueText);
 
             if (baselineRowSeries && info.row.label !== config.baseline) {
-              var baselineCell = baselineRowSeries.values[si];
+              var baselineValues =
+                baselineRowSeries.fullValues || baselineRowSeries.values;
+              var baselineCell = baselineValues[seriesIndex];
               if (baselineCell && seriesCell.value !== 0) {
                 var speedup =
                   config.better === "higher"
@@ -2648,9 +3140,10 @@
             }
 
             if (config.share) {
+              var shareRows = info.rows || info.panel.rows;
               var total = 0;
-              for (var sr = 0; sr < info.panel.rows.length; sr++) {
-                total += info.panel.rows[sr].values[si].value;
+              for (var sr = 0; sr < shareRows.length; sr++) {
+                total += shareRows[sr].values[si].value;
               }
               var ratio = total > 0 ? (seriesCell.value / total) * 100 : 0;
               var shareText =
@@ -2857,6 +3350,1145 @@
       round(x0) +
       " Z"
     );
+  }
+
+  /* ------------------------------ 堆叠图 ------------------------------ */
+
+  var stackSequence = 0;
+
+  function stackSeriesClass(index) {
+    return SERIES_CLASSES[index % SERIES_CLASSES.length];
+  }
+
+  function collectStackNotes(fig) {
+    var nodes = fig.querySelectorAll(".cu-chart-note");
+    var notes = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var node = nodes[i];
+      notes.push({
+        view: node.getAttribute("data-view") || "",
+        row: node.hasAttribute("data-row")
+          ? node.getAttribute("data-row")
+          : undefined,
+        column: node.hasAttribute("data-column")
+          ? node.getAttribute("data-column")
+          : undefined,
+        node: node
+      });
+    }
+    return notes;
+  }
+
+  function initStack(state) {
+    var fig = state.fig;
+    var plot = state.plot;
+    var config = state.config;
+    var data = state.data;
+    var group = data.groups[0];
+    var columns = group.columns;
+    var rows = group.rows;
+    var unit = config.unit || (columns[0] && columns[0].unit) || "";
+    var tabs = Array.isArray(config.tabs) ? config.tabs : null;
+    var views = tabs || [{ view: "stack", label: "整体时间" }];
+    var currentTab = 0;
+    var selectedRow = null;
+    var phase = 0;
+    var width = 0;
+    var stackRows = [];
+    var phaseBars = [];
+    var phaseFrame = 0;
+    var hotNodes = [];
+    var currentNote = null;
+    var uid = "cu-stack-" + (++stackSequence);
+    var notes = collectStackNotes(fig);
+
+    fig.classList.add("cu-chart-stack");
+    validateNotes(config, data, notes);
+
+    if (tabs) {
+      plot.id = uid + "-panel";
+      plot.setAttribute("role", "tabpanel");
+    }
+
+    var tabButtons = [];
+    var tablist = null;
+    if (tabs) {
+      tablist = element("div", "cu-chart-tabs");
+      tablist.setAttribute("role", "tablist");
+      tablist.setAttribute("aria-label", "图表视图");
+      for (var t = 0; t < tabs.length; t++) {
+        (function (index) {
+          var button = element("button", "cu-chart-tab");
+          button.type = "button";
+          button.id = uid + "-tab-" + index;
+          button.setAttribute("role", "tab");
+          button.setAttribute("aria-controls", plot.id);
+          button.textContent = tabs[index].label;
+          button.addEventListener("click", function () {
+            selectTab(index, false);
+          });
+          tablist.appendChild(button);
+          tabButtons.push(button);
+        })(t);
+      }
+      tablist.addEventListener("keydown", onTabKeydown);
+      fig.insertBefore(tablist, fig.firstChild);
+    }
+
+    var head = makeHead(
+      fig,
+      plot,
+      document.createDocumentFragment(),
+      makeRightControls()
+    );
+    var headLeft = head.querySelector(".cu-chart-head-left");
+
+    var legend = makeLegend(
+      columns.map(function (column, index) {
+        return { text: column.name, className: stackSeriesClass(index) };
+      })
+    );
+    var stageBar = element("div", "cu-chart-stage-buttons");
+    stageBar.setAttribute("role", "group");
+    stageBar.setAttribute("aria-label", "阶段");
+    var stageButtons = [];
+    for (var s = 0; s < columns.length; s++) {
+      (function (index) {
+        var button = element("button", "cu-chart-stage");
+        button.type = "button";
+        button.appendChild(
+          element(
+            "span",
+            "cu-chart-legend-swatch " + stackSeriesClass(index)
+          )
+        );
+        button.appendChild(element("span", "", columns[index].name));
+        button.addEventListener("click", function () {
+          selectPhase(index, false, true);
+        });
+        stageBar.appendChild(button);
+        stageButtons.push(button);
+      })(s);
+    }
+    stageBar.addEventListener("keydown", onStageKeydown);
+    headLeft.appendChild(legend);
+    headLeft.appendChild(stageBar);
+
+    updateTabs();
+    updatePhaseState();
+    updateViewVisibility();
+
+    fig.addEventListener("keydown", function (event) {
+      // 图内的左右键一律不交给 mdBook 翻章。
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.stopPropagation();
+      }
+    });
+
+    state.hide = function () {
+      clearHot();
+      hideTip(state);
+    };
+    state.onEscape = function () {
+      clearSelection(true);
+    };
+    state.render = function (requestedWidth) {
+      draw({ width: requestedWidth });
+    };
+
+    function currentView() {
+      return views[currentTab].view;
+    }
+
+    function updateTabs() {
+      if (!tabs) return;
+      for (var i = 0; i < tabButtons.length; i++) {
+        var active = i === currentTab;
+        tabButtons[i].setAttribute("aria-selected", active ? "true" : "false");
+        tabButtons[i].tabIndex = active ? 0 : -1;
+      }
+      plot.setAttribute("aria-labelledby", tabButtons[currentTab].id);
+    }
+
+    function updatePhaseState() {
+      for (var i = 0; i < stageButtons.length; i++) {
+        var active = i === phase;
+        stageButtons[i].setAttribute("aria-pressed", active ? "true" : "false");
+        stageButtons[i].tabIndex = active ? 0 : -1;
+      }
+    }
+
+    function updateViewVisibility() {
+      var stackView = currentView() === "stack";
+      legend.style.display = stackView ? "" : "none";
+      stageBar.style.display = stackView ? "none" : "";
+      if (tabs) {
+        plot.setAttribute("aria-labelledby", tabButtons[currentTab].id);
+      }
+    }
+
+    function selectTab(index, focusTab) {
+      if (!tabs) return;
+      var next = (index + tabs.length) % tabs.length;
+      if (next !== currentTab) {
+        currentTab = next;
+        updateTabs();
+        draw({ notesFade: true, viewFade: true });
+      }
+      if (focusTab) tabButtons[next].focus();
+    }
+
+    function selectPhase(index, focusButton, animate) {
+      var next = (index + columns.length) % columns.length;
+      var from = null;
+      if (next !== phase && animate && currentView() === "columns") {
+        from = capturePhaseWidths();
+      }
+      if (next !== phase) {
+        phase = next;
+        updatePhaseState();
+        if (currentView() === "columns") {
+          draw({ phaseFrom: from, notesFade: true });
+          setLive("分阶段对比：" + columns[phase].name);
+        }
+      }
+      if (focusButton) stageButtons[next].focus();
+    }
+
+    function onTabKeydown(event) {
+      if (!tabs) return;
+      var key = event.key;
+      if (
+        key !== "ArrowLeft" &&
+        key !== "ArrowRight" &&
+        key !== "Home" &&
+        key !== "End"
+      ) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      var next = currentTab;
+      if (key === "Home") next = 0;
+      else if (key === "End") next = tabs.length - 1;
+      else if (key === "ArrowRight") next = (currentTab + 1) % tabs.length;
+      else next = (currentTab - 1 + tabs.length) % tabs.length;
+      selectTab(next, true);
+    }
+
+    function onStageKeydown(event) {
+      var key = event.key;
+      if (
+        key !== "ArrowLeft" &&
+        key !== "ArrowRight" &&
+        key !== "Home" &&
+        key !== "End"
+      ) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      var next = phase;
+      if (key === "Home") next = 0;
+      else if (key === "End") next = columns.length - 1;
+      else if (key === "ArrowRight") next = (phase + 1) % columns.length;
+      else next = (phase - 1 + columns.length) % columns.length;
+      selectPhase(next, true, true);
+    }
+
+    function draw(options) {
+      options = options || {};
+      cancelPhaseAnimation();
+      var nextWidth = options.width || measureWidth(plot, fig);
+      width = nextWidth;
+      state.width = nextWidth;
+      hideTip(state);
+      clearHot();
+      while (plot.firstChild) plot.removeChild(plot.firstChild);
+      stackRows = [];
+      phaseBars = [];
+
+      if (currentView() === "stack") renderStackView();
+      else renderColumnsView(options.phaseFrom || null);
+
+      applySelection();
+      updateDetail(options.detailFade === true);
+      applyNotes(options.notesFade === true);
+      updateViewVisibility();
+      fig.classList.add("cu-chart-ready");
+      if (options.viewFade) animatePlotIn();
+    }
+
+    function animatePlotIn() {
+      if (reducedMotion()) return;
+      plot.classList.remove("cu-view-enter");
+      plot.offsetWidth;
+      plot.classList.add("cu-view-enter");
+    }
+
+    function clearHot() {
+      for (var i = 0; i < hotNodes.length; i++) {
+        hotNodes[i].classList.remove("cu-hot");
+      }
+      hotNodes = [];
+    }
+
+    function findNote(view, rowName, columnName) {
+      for (var i = 0; i < notes.length; i++) {
+        var note = notes[i];
+        var noteRow =
+          note.row === undefined || note.row === null ? null : note.row;
+        var noteColumn =
+          note.column === undefined || note.column === null
+            ? null
+            : note.column;
+        if (
+          note.view === view &&
+          noteRow === rowName &&
+          noteColumn === columnName
+        ) {
+          return note;
+        }
+      }
+      return null;
+    }
+
+    function applyNotes(animate) {
+      var view = currentView();
+      var match = null;
+      if (view === "stack") {
+        if (selectedRow !== null) {
+          match = findNote("stack", selectedRow, null);
+        }
+        if (!match) match = findNote("stack", null, null);
+      } else {
+        match = findNote("columns", null, columns[phase].name);
+      }
+
+      for (var i = 0; i < notes.length; i++) {
+        var node = notes[i].node;
+        node.classList.remove("cu-note-enter");
+        if (notes[i] === match) node.classList.add("cu-note-current");
+        else node.classList.remove("cu-note-current");
+      }
+
+      if (match && animate && match !== currentNote && !reducedMotion()) {
+        match.node.offsetWidth;
+        match.node.classList.add("cu-note-enter");
+      }
+      currentNote = match;
+    }
+
+    function findStackInfo(label) {
+      for (var i = 0; i < stackRows.length; i++) {
+        if (stackRows[i].label === label) return stackRows[i];
+      }
+      return null;
+    }
+
+    function applySelection() {
+      for (var i = 0; i < stackRows.length; i++) {
+        var info = stackRows[i];
+        var selected = selectedRow !== null && info.label === selectedRow;
+        if (selected) {
+          info.group.classList.add("cu-selected");
+          info.group.classList.remove("cu-dim");
+        } else if (selectedRow !== null) {
+          info.group.classList.remove("cu-selected");
+          info.group.classList.add("cu-dim");
+        } else {
+          info.group.classList.remove("cu-selected");
+          info.group.classList.remove("cu-dim");
+        }
+        info.hit.setAttribute("aria-pressed", selected ? "true" : "false");
+      }
+    }
+
+    function selectionMessage(label) {
+      var info = findStackInfo(label);
+      if (!info) return label;
+      var best = 0;
+      var bestIndex = 0;
+      for (var i = 0; i < info.row.values.length; i++) {
+        if (info.row.values[i].value > best) {
+          best = info.row.values[i].value;
+          bestIndex = i;
+        }
+      }
+      var share = stackShare(best, info.total.value);
+      return (
+        label +
+        "：合计 " +
+        info.total.text +
+        (unit ? " " + unit : "") +
+        "，" +
+        columns[bestIndex].name +
+        " 占 " +
+        formatShare(share)
+      );
+    }
+
+    function setLive(text) {
+      state.live.textContent = text;
+    }
+
+    function clearSelection(announce) {
+      if (selectedRow === null) return;
+      selectedRow = null;
+      hideTip(state);
+      applySelection();
+      updateDetail(false);
+      applyNotes(true);
+      if (announce !== false) setLive("已返回整体时间");
+    }
+
+    function toggleSelection(label) {
+      selectedRow = selectedRow === label ? null : label;
+      hideTip(state);
+      applySelection();
+      updateDetail(selectedRow !== null);
+      applyNotes(true);
+      if (selectedRow === null) setLive("已返回整体时间");
+      else setLive(selectionMessage(selectedRow));
+    }
+
+    function segmentAt(info, x) {
+      if (!info.segments.length) return 0;
+      if (x <= info.segments[0].start) return 0;
+      for (var i = 0; i < info.segments.length; i++) {
+        if (x <= info.segments[i].end) return i;
+      }
+      return info.segments.length - 1;
+    }
+
+    function renderStackView() {
+      var family = getComputedStyle(fig).fontFamily || "sans-serif";
+      var labelFont = 13;
+      var valueFont = 12;
+      var tickFont = 12;
+      var barHeight = 18;
+      var rowHeight = 30;
+      var tickHeight = 24;
+      var topPadding = 4;
+      var narrow = width < 420;
+
+      var naturalLabelWidth = 0;
+      var totals = [];
+      var maxTotal = 0;
+      for (var r = 0; r < rows.length; r++) {
+        naturalLabelWidth = Math.max(
+          naturalLabelWidth,
+          textWidth(family, labelFont, 400, rows[r].label)
+        );
+        var total = stackTotal(rows[r].values);
+        totals.push(total);
+        maxTotal = Math.max(maxTotal, total.value);
+      }
+
+      var naturalWithGap = Math.ceil(naturalLabelWidth) + 4;
+      var labelCap = narrow ? Math.floor(width * 0.45) : Infinity;
+      var labelWidth = Math.min(naturalWithGap, labelCap);
+      var wrapNeeded = labelWidth < naturalWithGap;
+      var wrapWidth = Math.max(20, labelWidth - 4);
+
+      var ticks = niceTicks(maxTotal > 0 ? maxTotal : 1, 4);
+      var axisMax = ticks[ticks.length - 1] || 1;
+      var tickScale = magnitudeScale(axisMax);
+
+      var totalWidth = 0;
+      for (var tw = 0; tw < totals.length; tw++) {
+        totalWidth = Math.max(
+          totalWidth,
+          textWidth(family, valueFont, 400, totals[tw].text + " " + unit)
+        );
+      }
+      var lastTickWidth = textWidth(
+        family,
+        tickFont,
+        400,
+        formatMagnitudeTick(axisMax, tickScale) + (unit ? " " + unit : "")
+      );
+
+      var barsLeft = labelWidth + 12;
+      var rightPadding = Math.ceil(
+        Math.max(totalWidth + 12, lastTickWidth / 2 + 10, 16)
+      );
+      var plotWidth = Math.max(60, width - barsLeft - rightPadding);
+      var svgWidth = barsLeft + plotWidth + rightPadding;
+      var barsTop = topPadding;
+      var barsBottom = barsTop + rows.length * rowHeight;
+      var svgHeight = barsBottom + tickHeight + 8;
+
+      var svg = svgElement("svg");
+      svg.setAttribute("width", String(svgWidth));
+      svg.setAttribute("height", String(svgHeight));
+      svg.setAttribute("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+      svg.setAttribute("role", "group");
+      svg.setAttribute("aria-label", captionText(fig));
+
+      for (var t = 0; t < ticks.length; t++) {
+        var tickX = barsLeft + (ticks[t] / axisMax) * plotWidth;
+        if (ticks[t] > 0) {
+          addLine(svg, tickX, barsTop, tickX, barsBottom, "cu-grid");
+        }
+        var isLast = t === ticks.length - 1;
+        addText(
+          svg,
+          tickX,
+          barsBottom + 17,
+          formatMagnitudeTick(ticks[t], tickScale) +
+            (isLast && unit ? " " + unit : ""),
+          "cu-tick",
+          "middle"
+        );
+      }
+      addLine(svg, barsLeft, barsBottom, barsLeft + plotWidth, barsBottom, "cu-axis");
+
+      for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+        var row = rows[rowIndex];
+        var rowTop = barsTop + rowIndex * rowHeight;
+        var centerY = rowTop + rowHeight / 2;
+        var barTop = centerY - barHeight / 2;
+        var barBottom = barTop + barHeight;
+        var info = {
+          label: row.label,
+          row: row,
+          total: totals[rowIndex],
+          group: svgElement("g", "cu-stack-row"),
+          centerY: centerY,
+          segments: [],
+          hit: null
+        };
+        info.group.setAttribute("data-label", row.label);
+
+        var labelLines = wrapText(
+          family,
+          labelFont,
+          400,
+          row.label,
+          wrapWidth,
+          2
+        );
+        if (wrapNeeded && labelLines.length === 2) {
+          addText(info.group, labelWidth, centerY - 1, labelLines[0], "cu-label", "end");
+          addText(info.group, labelWidth, centerY + 13, labelLines[1], "cu-label", "end");
+        } else {
+          addText(info.group, labelWidth, centerY + 4, row.label, "cu-label", "end");
+        }
+
+        var cumulative = 0;
+        for (var c = 0; c < row.values.length; c++) {
+          var cell = row.values[c];
+          var x0 = barsLeft + (cumulative / axisMax) * plotWidth;
+          cumulative += cell.value;
+          var x1 = barsLeft + (cumulative / axisMax) * plotWidth;
+          var drawEnd = c === row.values.length - 1 ? x1 : x1 - 1;
+          var segmentNode = null;
+          if (drawEnd - x0 > 0.01) {
+            segmentNode = svgElement(
+              "path",
+              "cu-bar cu-stack-seg " + stackSeriesClass(c)
+            );
+            segmentNode.setAttribute(
+              "d",
+              balanceSegmentPath(
+                x0,
+                drawEnd,
+                barTop,
+                barBottom,
+                c === 0,
+                c === row.values.length - 1
+              )
+            );
+            info.group.appendChild(segmentNode);
+          }
+          info.segments.push({
+            node: segmentNode,
+            start: x0,
+            end: x1,
+            cell: cell
+          });
+        }
+
+        var totalX = barsLeft + (info.total.value / axisMax) * plotWidth;
+        info.totalX = totalX;
+        addText(
+          info.group,
+          totalX + 6,
+          centerY + 4,
+          info.total.text + (unit ? " " + unit : ""),
+          "cu-value",
+          "start"
+        );
+
+        var hit = svgElement("rect", "cu-hit cu-stack-hit");
+        hit.setAttribute("x", "0");
+        hit.setAttribute("y", String(round(rowTop)));
+        hit.setAttribute("width", String(round(svgWidth)));
+        hit.setAttribute("height", String(rowHeight));
+        hit.setAttribute("tabindex", "0");
+        hit.setAttribute("role", "button");
+        hit.setAttribute("aria-pressed", "false");
+
+        var ariaParts = [row.label];
+        for (var ac = 0; ac < row.values.length; ac++) {
+          ariaParts.push(
+            columns[ac].name +
+              " " +
+              row.values[ac].text +
+              (unit ? " " + unit : "")
+          );
+        }
+        ariaParts.push(
+          "合计 " + info.total.text + (unit ? " " + unit : "")
+        );
+        hit.setAttribute("aria-label", ariaParts.join("，"));
+        info.hit = hit;
+
+        bindStackRow(info, rowIndex, hit);
+        svg.appendChild(info.group);
+        svg.appendChild(hit);
+        stackRows.push(info);
+      }
+
+      plot.appendChild(svg);
+    }
+
+    function bindStackRow(info, rowIndex, hit) {
+      function showPoint(event) {
+        var rect = svgRect(hit);
+        if (!rect) return;
+        var index = segmentAt(info, event.clientX - rect.left);
+        var segment = info.segments[index];
+        clearHot();
+        if (segment.node) {
+          segment.node.classList.add("cu-hot");
+          hotNodes.push(segment.node);
+        }
+        var share = stackShare(segment.cell.value, info.total.value);
+        var point = figurePoint(fig, event.clientX, event.clientY);
+        showTip(
+          state,
+          [
+            {
+              keyClass: stackSeriesClass(index),
+              text: info.label + " · " + columns[index].name
+            },
+            {
+              className: "cu-tip-value",
+              text:
+                segment.cell.text +
+                (unit ? " " + unit : "") +
+                "（" +
+                formatShare(share) +
+                "）"
+            }
+          ],
+          point.x,
+          point.y
+        );
+      }
+
+      function showFocused() {
+        var point = plotPoint(
+          fig,
+          plot,
+          Math.min(width - 4, info.totalX + 4),
+          info.centerY
+        );
+        clearHot();
+        showTip(
+          state,
+          [
+            { keyClass: "cu-axis", text: info.label + " · 合计" },
+            {
+              className: "cu-tip-value",
+              text: info.total.text + (unit ? " " + unit : "")
+            }
+          ],
+          point.x,
+          point.y
+        );
+      }
+
+      function clearRow() {
+        clearHot();
+        hideTip(state);
+      }
+
+      hit.addEventListener("pointerenter", function (event) {
+        if (event.pointerType === "touch") return;
+        showPoint(event);
+      });
+      hit.addEventListener("pointermove", showPoint);
+      hit.addEventListener("pointerdown", showPoint);
+      hit.addEventListener("pointerleave", function () {
+        if (document.activeElement !== hit) clearRow();
+      });
+      hit.addEventListener("focus", showFocused);
+      hit.addEventListener("blur", clearRow);
+      hit.addEventListener("click", function () {
+        toggleSelection(info.label);
+      });
+      hit.addEventListener("keydown", function (event) {
+        var key = event.key;
+        if (
+          key === "ArrowLeft" ||
+          key === "ArrowRight" ||
+          key === "ArrowUp" ||
+          key === "ArrowDown" ||
+          key === "Home" ||
+          key === "End"
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+          if (key === "ArrowLeft" || key === "ArrowRight") return;
+          var next = rowIndex;
+          if (key === "Home") next = 0;
+          else if (key === "End") next = stackRows.length - 1;
+          else if (key === "ArrowDown") {
+            next = Math.min(stackRows.length - 1, rowIndex + 1);
+          } else {
+            next = Math.max(0, rowIndex - 1);
+          }
+          if (stackRows[next]) stackRows[next].hit.focus();
+        } else if (key === "Enter" || key === " " || key === "Spacebar") {
+          event.preventDefault();
+          event.stopPropagation();
+          toggleSelection(info.label);
+        } else if (key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          clearSelection(true);
+        }
+      });
+    }
+
+    function svgRect(hit) {
+      var svg = hit.parentNode;
+      if (!svg || !svg.getBoundingClientRect) return null;
+      return svg.getBoundingClientRect();
+    }
+
+    function renderColumnsView(animateFrom) {
+      var family = getComputedStyle(fig).fontFamily || "sans-serif";
+      var labelFont = 13;
+      var valueFont = 12;
+      var tickFont = 12;
+      var barHeight = 18;
+      var rowHeight = 30;
+      var tickHeight = 24;
+      var topPadding = 4;
+      var narrow = width < 420;
+      var column = columns[phase];
+      var columnClass = stackSeriesClass(phase);
+      phaseHits = [];
+
+      var naturalLabelWidth = 0;
+      var maxValue = 0;
+      var valueWidth = 0;
+      for (var r = 0; r < rows.length; r++) {
+        naturalLabelWidth = Math.max(
+          naturalLabelWidth,
+          textWidth(family, labelFont, 400, rows[r].label)
+        );
+        var value = rows[r].values[phase].value;
+        maxValue = Math.max(maxValue, value);
+        valueWidth = Math.max(
+          valueWidth,
+          textWidth(
+            family,
+            valueFont,
+            400,
+            rows[r].values[phase].text + " " + unit
+          )
+        );
+      }
+
+      var naturalWithGap = Math.ceil(naturalLabelWidth) + 4;
+      var labelCap = narrow ? Math.floor(width * 0.45) : Infinity;
+      var labelWidth = Math.min(naturalWithGap, labelCap);
+      var wrapNeeded = labelWidth < naturalWithGap;
+      var wrapWidth = Math.max(20, labelWidth - 4);
+
+      var ticks = niceTicks(maxValue > 0 ? maxValue : 1, 4);
+      var axisMax = ticks[ticks.length - 1] || 1;
+      var tickScale = magnitudeScale(axisMax);
+      var lastTickWidth = textWidth(
+        family,
+        tickFont,
+        400,
+        formatMagnitudeTick(axisMax, tickScale) + (unit ? " " + unit : "")
+      );
+
+      var barsLeft = labelWidth + 12;
+      var rightPadding = Math.ceil(
+        Math.max(valueWidth + 12, lastTickWidth / 2 + 10, 16)
+      );
+      var plotWidth = Math.max(60, width - barsLeft - rightPadding);
+      var svgWidth = barsLeft + plotWidth + rightPadding;
+      var barsTop = topPadding;
+      var barsBottom = barsTop + rows.length * rowHeight;
+      var svgHeight = barsBottom + tickHeight + 8;
+
+      var svg = svgElement("svg");
+      svg.setAttribute("width", String(svgWidth));
+      svg.setAttribute("height", String(svgHeight));
+      svg.setAttribute("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+      svg.setAttribute("role", "group");
+      svg.setAttribute("aria-label", captionText(fig));
+
+      for (var t = 0; t < ticks.length; t++) {
+        var tickX = barsLeft + (ticks[t] / axisMax) * plotWidth;
+        if (ticks[t] > 0) {
+          addLine(svg, tickX, barsTop, tickX, barsBottom, "cu-grid");
+        }
+        var isLast = t === ticks.length - 1;
+        addText(
+          svg,
+          tickX,
+          barsBottom + 17,
+          formatMagnitudeTick(ticks[t], tickScale) +
+            (isLast && unit ? " " + unit : ""),
+          "cu-tick",
+          "middle"
+        );
+      }
+      addLine(svg, barsLeft, barsBottom, barsLeft + plotWidth, barsBottom, "cu-axis");
+
+      for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+        var row = rows[rowIndex];
+        var cell = row.values[phase];
+        var rowTop = barsTop + rowIndex * rowHeight;
+        var centerY = rowTop + rowHeight / 2;
+        var barTop = centerY - barHeight / 2;
+        var barBottom = barTop + barHeight;
+        var targetWidth = Math.max(2, (cell.value / axisMax) * plotWidth);
+        var startWidth = targetWidth;
+        if (
+          animateFrom &&
+          !reducedMotion() &&
+          typeof requestAnimationFrame === "function" &&
+          isFinite(animateFrom[rowIndex])
+        ) {
+          startWidth = Math.max(
+            2,
+            Math.min(plotWidth, animateFrom[rowIndex])
+          );
+        }
+
+        var labelLines = wrapText(
+          family,
+          labelFont,
+          400,
+          row.label,
+          wrapWidth,
+          2
+        );
+        if (wrapNeeded && labelLines.length === 2) {
+          addText(svg, labelWidth, centerY - 1, labelLines[0], "cu-label", "end");
+          addText(svg, labelWidth, centerY + 13, labelLines[1], "cu-label", "end");
+        } else {
+          addText(svg, labelWidth, centerY + 4, row.label, "cu-label", "end");
+        }
+
+        var bar = svgElement("path", "cu-bar " + columnClass);
+        bar.setAttribute(
+          "d",
+          barPath(barsLeft, barsLeft + startWidth, barTop, barBottom, 4)
+        );
+        svg.appendChild(bar);
+
+        var valueNode = addText(
+          svg,
+          barsLeft + startWidth + 6,
+          centerY + 4,
+          cell.text + (unit ? " " + unit : ""),
+          "cu-value",
+          "start"
+        );
+
+        var hit = svgElement("rect", "cu-hit");
+        hit.setAttribute("x", "0");
+        hit.setAttribute("y", String(round(rowTop)));
+        hit.setAttribute("width", String(round(svgWidth)));
+        hit.setAttribute("height", String(rowHeight));
+        hit.setAttribute("tabindex", "0");
+        hit.setAttribute("aria-label",
+          row.label +
+            " · " +
+            column.name +
+            "：" +
+            cell.text +
+            (unit ? " " + unit : "")
+        );
+        bindPhaseRow({
+          bar: bar,
+          valueNode: valueNode,
+          hit: hit,
+          row: row,
+          rowIndex: rowIndex,
+          centerY: centerY,
+          targetWidth: targetWidth,
+          left: barsLeft,
+          top: barTop,
+          bottom: barBottom
+        });
+        svg.appendChild(hit);
+        phaseHits.push(hit);
+
+        phaseBars.push({
+          bar: bar,
+          valueNode: valueNode,
+          left: barsLeft,
+          top: barTop,
+          bottom: barBottom,
+          currentWidth: startWidth,
+          startWidth: startWidth,
+          targetWidth: targetWidth
+        });
+      }
+
+      plot.appendChild(svg);
+      startPhaseAnimation(animateFrom);
+    }
+
+    function bindPhaseRow(info) {
+      function showPoint(event) {
+        clearHot();
+        info.bar.classList.add("cu-hot");
+        hotNodes = [info.bar];
+        var point = figurePoint(fig, event.clientX, event.clientY);
+        showTip(
+          state,
+          [
+            {
+              keyClass: stackSeriesClass(phase),
+              text: info.row.label + " · " + columns[phase].name
+            },
+            {
+              className: "cu-tip-value",
+              text:
+                info.row.values[phase].text + (unit ? " " + unit : "")
+            }
+          ],
+          point.x,
+          point.y
+        );
+      }
+
+      function showFocused() {
+        var point = plotPoint(
+          fig,
+          plot,
+          Math.min(width - 4, info.left + info.targetWidth + 4),
+          info.centerY
+        );
+        clearHot();
+        info.bar.classList.add("cu-hot");
+        hotNodes = [info.bar];
+        showTip(
+          state,
+          [
+            {
+              keyClass: stackSeriesClass(phase),
+              text: info.row.label + " · " + columns[phase].name
+            },
+            {
+              className: "cu-tip-value",
+              text:
+                info.row.values[phase].text + (unit ? " " + unit : "")
+            }
+          ],
+          point.x,
+          point.y
+        );
+      }
+
+      function clearRow() {
+        clearHot();
+        hideTip(state);
+      }
+
+      info.hit.addEventListener("pointerenter", function (event) {
+        if (event.pointerType === "touch") return;
+        showPoint(event);
+      });
+      info.hit.addEventListener("pointermove", showPoint);
+      info.hit.addEventListener("pointerdown", showPoint);
+      info.hit.addEventListener("pointerleave", function () {
+        if (document.activeElement !== info.hit) clearRow();
+      });
+      info.hit.addEventListener("focus", showFocused);
+      info.hit.addEventListener("blur", clearRow);
+      info.hit.addEventListener("keydown", function (event) {
+        var key = event.key;
+        if (
+          key === "ArrowLeft" ||
+          key === "ArrowRight" ||
+          key === "ArrowUp" ||
+          key === "ArrowDown" ||
+          key === "Home" ||
+          key === "End"
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+          if (key === "ArrowLeft" || key === "ArrowRight") return;
+          var next = info.rowIndex;
+          if (key === "Home") next = 0;
+          else if (key === "End") next = rows.length - 1;
+          else if (key === "ArrowDown") {
+            next = Math.min(rows.length - 1, info.rowIndex + 1);
+          } else {
+            next = Math.max(0, info.rowIndex - 1);
+          }
+          var target = phaseHits[next];
+          if (target) target.focus();
+        } else if (key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          clearRow();
+        }
+      });
+    }
+
+    var phaseHits = [];
+
+    function startPhaseAnimation(animateFrom) {
+      if (!animateFrom || reducedMotion()) return;
+      var moving = false;
+      for (var i = 0; i < phaseBars.length; i++) {
+        if (Math.abs(phaseBars[i].startWidth - phaseBars[i].targetWidth) > 0.5) {
+          moving = true;
+          break;
+        }
+      }
+      if (!moving) return;
+
+      var began = Date.now();
+      phaseFrame = requestAnimationFrame(function step() {
+        var progress = Math.min(1, (Date.now() - began) / 350);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        for (var i = 0; i < phaseBars.length; i++) {
+          var record = phaseBars[i];
+          var value =
+            record.startWidth +
+            (record.targetWidth - record.startWidth) * eased;
+          applyPhaseWidth(record, value);
+        }
+        if (progress < 1) {
+          phaseFrame = requestAnimationFrame(step);
+        } else {
+          for (var j = 0; j < phaseBars.length; j++) {
+            applyPhaseWidth(phaseBars[j], phaseBars[j].targetWidth);
+          }
+          phaseFrame = 0;
+        }
+      });
+    }
+
+    function applyPhaseWidth(record, value) {
+      record.currentWidth = value;
+      record.bar.setAttribute(
+        "d",
+        barPath(record.left, record.left + value, record.top, record.bottom, 4)
+      );
+      record.valueNode.setAttribute(
+        "x",
+        String(round(record.left + value + 6))
+      );
+    }
+
+    function capturePhaseWidths() {
+      var widths = [];
+      for (var i = 0; i < phaseBars.length; i++) {
+        widths.push(phaseBars[i].currentWidth);
+      }
+      return widths;
+    }
+
+    function cancelPhaseAnimation() {
+      if (!phaseFrame) return;
+      if (typeof cancelAnimationFrame === "function") {
+        cancelAnimationFrame(phaseFrame);
+      }
+      phaseFrame = 0;
+    }
+
+    function updateDetail(animate) {
+      var existing = plot.querySelector(".cu-stack-detail");
+      if (existing && existing.parentNode) {
+        existing.parentNode.removeChild(existing);
+      }
+      if (currentView() !== "stack" || selectedRow === null) return;
+
+      var info = findStackInfo(selectedRow);
+      if (!info) return;
+
+      var detail = element("div", "cu-stack-detail");
+      detail.setAttribute("role", "region");
+      detail.setAttribute("aria-label", info.label + " 的耗时占比");
+
+      var head = element("div", "cu-stack-detail-head");
+      head.appendChild(element("span", "cu-stack-detail-title", info.label));
+      head.appendChild(
+        element(
+          "span",
+          "cu-stack-detail-total",
+          "合计 " + info.total.text + (unit ? " " + unit : "")
+        )
+      );
+
+      var list = element("div", "cu-stack-detail-list");
+      var maxValue = 0;
+      for (var m = 0; m < info.row.values.length; m++) {
+        maxValue = Math.max(maxValue, info.row.values[m].value);
+      }
+      for (var c = 0; c < info.row.values.length; c++) {
+        var cell = info.row.values[c];
+        var row = element("div", "cu-stack-detail-row");
+        if (info.total.value > 0 && maxValue > 0 && cell.value === maxValue) {
+          row.classList.add("cu-stack-row-max");
+        }
+        row.appendChild(
+          element(
+            "span",
+            "cu-chart-legend-swatch " + stackSeriesClass(c)
+          )
+        );
+        row.appendChild(element("span", "cu-stack-detail-name", columns[c].name));
+        row.appendChild(
+          element(
+            "span",
+            "cu-stack-detail-value",
+            cell.text + (unit ? " " + unit : "")
+          )
+        );
+        row.appendChild(
+          element(
+            "span",
+            "cu-stack-share",
+            formatShare(stackShare(cell.value, info.total.value))
+          )
+        );
+        list.appendChild(row);
+      }
+
+      var back = element("button", "cu-stack-back", "返回整体");
+      back.type = "button";
+      back.addEventListener("click", function () {
+        clearSelection(true);
+      });
+
+      detail.appendChild(head);
+      detail.appendChild(list);
+      detail.appendChild(back);
+      plot.appendChild(detail);
+
+      if (animate && !reducedMotion()) {
+        detail.classList.add("cu-stack-detail-enter");
+      }
+    }
   }
 
   /* ------------------------------ 天平图 ------------------------------ */

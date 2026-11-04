@@ -80,6 +80,41 @@ html.ayu .cu-chart {
   background: currentColor;
 }
 
+/* 可点击的图例项：隐藏的组用空心色块和淡一点的字，仍保持可读。 */
+.cu-chart-legend-button {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cu-ink);
+  font: inherit;
+  font-size: 12px;
+  line-height: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cu-chart-legend-button[aria-pressed="false"] {
+  color: var(--cu-ink2);
+}
+
+.cu-chart .cu-chart-legend-button[aria-pressed="false"] .cu-chart-legend-swatch {
+  box-sizing: border-box;
+  border: 1px solid currentColor;
+  background: transparent;
+}
+
+.cu-chart-legend-button[aria-disabled="true"] {
+  cursor: default;
+}
+
+.cu-chart-legend-button:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--cu-s1);
+  outline-offset: 2px;
+}
+
 .cu-chart-ylabel,
 .cu-chart-hint {
   color: var(--cu-ink2);
@@ -244,6 +279,19 @@ html.ayu .cu-chart {
 
 .cu-chart .cu-bar {
   transition: filter 120ms ease, opacity 120ms ease;
+}
+
+.cu-chart .cu-bars-enter .cu-bar {
+  animation: cu-bar-fade-in 150ms ease;
+}
+
+@keyframes cu-bar-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .cu-chart .cu-bar.cu-hot {
@@ -543,5 +591,307 @@ html.ayu .cu-chart {
   .cu-chart-hint,
   .cu-chart-toggle {
     display: none !important;
+  }
+}
+
+/* ------------------------------ 堆叠图 ------------------------------ */
+
+.cu-chart-stack .cu-chart-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  margin: 0 0 8px;
+  border-bottom: 1px solid var(--cu-axis);
+}
+
+.cu-chart-stack .cu-chart-tab {
+  appearance: none;
+  margin: 0 0 -1px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 5px 5px 0 0;
+  background: transparent;
+  color: var(--cu-ink2);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease,
+    border-color 120ms ease;
+}
+
+.cu-chart-stack .cu-chart-tab:hover {
+  color: var(--cu-ink);
+}
+
+.cu-chart-stack .cu-chart-tab[aria-selected="true"] {
+  border-color: var(--cu-axis);
+  background: var(--cu-grid);
+  color: var(--cu-ink);
+}
+
+.cu-chart-stack .cu-chart-tab:focus-visible {
+  outline: 2px solid var(--cu-s1);
+  outline-offset: -2px;
+}
+
+.cu-chart-stack .cu-chart-stage-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.cu-chart-stack .cu-chart-stage {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 2px 8px;
+  border: 1px solid var(--cu-axis);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--cu-ink2);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.cu-chart-stack .cu-chart-stage:hover {
+  color: var(--cu-ink);
+}
+
+.cu-chart-stack .cu-chart-stage[aria-pressed="true"] {
+  border-color: var(--cu-ink2);
+  background: color-mix(in srgb, var(--fg) 14%, var(--bg));
+  color: var(--cu-ink);
+  font-weight: 600;
+}
+
+.cu-chart-stack .cu-chart-stage:focus-visible {
+  outline: 2px solid var(--cu-s1);
+  outline-offset: 2px;
+}
+
+.cu-chart-stack .cu-stack-row {
+  transition: opacity 120ms ease;
+}
+
+.cu-chart-stack .cu-stack-row.cu-dim {
+  opacity: 0.35;
+}
+
+.cu-chart-stack .cu-stack-row.cu-selected .cu-bar {
+  filter: brightness(1.08) saturate(1.05);
+}
+
+.cu-chart-stack .cu-stack-seg {
+  transition: filter 120ms ease, opacity 120ms ease;
+}
+
+.cu-chart-stack .cu-stack-seg.cu-hot {
+  filter: brightness(1.15) saturate(1.08);
+}
+
+.cu-chart-stack .cu-stack-detail {
+  margin: 12px 0 0;
+  padding: 10px 12px 12px;
+  border: 1px solid var(--cu-axis);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--fg) 3%, var(--bg));
+  color: var(--cu-ink);
+  font-size: inherit;
+  text-align: left;
+}
+
+.cu-chart-stack .cu-stack-detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.cu-chart-stack .cu-stack-detail-title {
+  overflow-wrap: anywhere;
+}
+
+.cu-chart-stack .cu-stack-detail-total {
+  color: var(--cu-ink2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cu-chart-stack .cu-stack-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cu-chart-stack .cu-stack-detail-row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.cu-chart-stack .cu-stack-detail-row.cu-stack-row-max {
+  font-weight: 700;
+}
+
+.cu-chart-stack .cu-stack-detail-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.cu-chart-stack .cu-stack-detail-value {
+  color: var(--cu-ink);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cu-chart-stack .cu-stack-share {
+  min-width: 52px;
+  color: var(--cu-ink2);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cu-chart-stack .cu-stack-row-max .cu-stack-share {
+  color: var(--cu-ink);
+}
+
+.cu-chart-stack .cu-stack-back {
+  appearance: none;
+  margin: 10px 0 0;
+  padding: 3px 10px;
+  border: 1px solid var(--cu-axis);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--cu-ink2);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.cu-chart-stack .cu-stack-back:hover {
+  background: var(--cu-grid);
+  color: var(--cu-ink);
+}
+
+.cu-chart-stack .cu-stack-back:focus-visible {
+  outline: 2px solid var(--cu-s1);
+  outline-offset: 2px;
+}
+
+.cu-chart-stack .cu-chart-plot.cu-view-enter {
+  animation: cu-stack-view-in 180ms ease;
+}
+
+.cu-chart-stack .cu-stack-detail.cu-stack-detail-enter {
+  animation: cu-stack-detail-in 150ms ease;
+}
+
+@keyframes cu-stack-view-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cu-stack-detail-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 说明区：字号跟随正文，不缩小。没有 JS 时全部显示并带所属行/阶段前缀。 */
+.cu-chart .cu-chart-notes {
+  margin: 10px 0 0;
+  color: var(--cu-ink);
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.cu-chart .cu-chart-note {
+  font-size: inherit;
+}
+
+.cu-chart .cu-chart-note p {
+  margin: 0.35em 0;
+}
+
+.cu-chart .cu-chart-note:first-child p:first-child {
+  margin-top: 0;
+}
+
+.cu-chart .cu-chart-note:last-child p:last-child {
+  margin-bottom: 0;
+}
+
+.cu-chart .cu-chart-note[data-row]::before {
+  content: attr(data-row) "：";
+  font-weight: 700;
+}
+
+.cu-chart .cu-chart-note[data-column]::before {
+  content: attr(data-column) "：";
+  font-weight: 700;
+}
+
+.cu-chart .cu-chart-note.cu-note-enter {
+  animation: cu-stack-note-in 150ms ease;
+}
+
+@keyframes cu-stack-note-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.cu-chart.cu-chart-ready .cu-chart-note {
+  display: none;
+}
+
+.cu-chart.cu-chart-ready .cu-chart-note.cu-note-current {
+  display: block;
+}
+
+.cu-chart.cu-chart-ready .cu-chart-note[data-row]::before,
+.cu-chart.cu-chart-ready .cu-chart-note[data-column]::before {
+  content: none;
+}
+
+/* 打印时回到无 JS 的样子：所有说明都印出来，带上所属行/阶段。 */
+@media print {
+  .cu-chart.cu-chart-ready .cu-chart-note {
+    display: block !important;
+  }
+
+  .cu-chart.cu-chart-ready .cu-chart-note[data-row]::before {
+    content: attr(data-row) "：" !important;
+  }
+
+  .cu-chart.cu-chart-ready .cu-chart-note[data-column]::before {
+    content: attr(data-column) "：" !important;
   }
 }
