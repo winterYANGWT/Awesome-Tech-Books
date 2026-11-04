@@ -6,13 +6,18 @@
  */
 
 .cu-xref,
+.cu-xref-tabs,
 .cu-xref *,
+.cu-xref-tabs *,
 .cu-xref *::before,
-.cu-xref *::after {
+.cu-xref-tabs *::before,
+.cu-xref *::after,
+.cu-xref-tabs *::after {
     box-sizing: border-box;
 }
 
-.cu-xref {
+.cu-xref,
+.cu-xref-tabs {
     --cu-s1: #2a78d6;
     --cu-s2: #eb6834;
     --cu-s3: #1baf7a;
@@ -34,7 +39,8 @@
     overflow-wrap: anywhere;
 }
 
-html.rust .cu-xref {
+html.rust .cu-xref,
+html.rust .cu-xref-tabs {
     --cu-s1: #2a78d6;
     --cu-s2: #c94f1f;
     --cu-s3: #14875e;
@@ -43,17 +49,134 @@ html.rust .cu-xref {
 
 html.coal .cu-xref,
 html.navy .cu-xref,
-html.ayu .cu-xref {
+html.ayu .cu-xref,
+html.coal .cu-xref-tabs,
+html.navy .cu-xref-tabs,
+html.ayu .cu-xref-tabs {
     --cu-s1: #3987e5;
     --cu-s2: #d95926;
     --cu-s3: #199e70;
     --cu-s4: #c98500;
 }
 
-.cu-xref > figcaption {
+.cu-xref > figcaption,
+.cu-xref-tabs > figcaption {
     margin-top: 0.7em;
     color: var(--cu-xref-ink2);
     text-align: center;
+}
+
+/* 整张图加宽时，图题保持正文列宽并和正文列对齐。 */
+.cu-xref-tabs > figcaption {
+    max-width: var(--cu-xref-col-width, 100%);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 带标签页的整张图：JS 在桌面端把宽度撑到正文列之外。 */
+.cu-xref-tabs {
+    --cu-xref-col-width: 100%;
+    position: relative;
+    max-width: 100%;
+    margin: 1.5em 0 1.8em;
+    text-align: left;
+    font: inherit;
+}
+
+.cu-xref-tabs.cu-xref-tabs-ready > .cu-xref[hidden] {
+    display: none;
+}
+
+.cu-xref-tabs.cu-xref-tabs-ready > .cu-xref-notes[hidden] {
+    display: none;
+}
+
+.cu-xref-tabs > .cu-xref {
+    margin: 0;
+}
+
+/* 无 JS / 打印时两个面板都显示，留一点间距。 */
+.cu-xref-tabs > .cu-xref + .cu-xref {
+    margin-top: 16px;
+}
+
+/* 标签栏：观感对齐图 4.4 的 .cu-chart-tab，但不引用它的类。 */
+.cu-xref-tabs-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 4px;
+    margin: 0 0 8px;
+    border-bottom: 1px solid var(--cu-xref-rule);
+}
+
+.cu-xref-tab {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0 0 -1px;
+    padding: 4px 10px;
+    border: 1px solid transparent;
+    border-bottom: 0;
+    border-radius: 5px 5px 0 0;
+    background: transparent;
+    color: var(--cu-xref-ink2);
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: background-color 120ms ease, color 120ms ease,
+        border-color 120ms ease;
+}
+
+.cu-xref-tab:hover {
+    color: var(--cu-xref-ink);
+}
+
+.cu-xref-tab[aria-selected="true"] {
+    border-color: var(--cu-xref-rule);
+    background: var(--cu-xref-panel);
+    color: var(--cu-xref-ink);
+}
+
+.cu-xref-tab:focus-visible {
+    outline: 2px solid var(--cu-s1);
+    outline-offset: -2px;
+}
+
+@keyframes cu-xref-tab-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.cu-xref-tab-enter {
+    animation: cu-xref-tab-fade 180ms ease both;
+}
+
+/* 图下的分析保持正文宽度，不跟着整张图变宽。 */
+.cu-xref-tabs > .cu-xref-notes {
+    max-width: var(--cu-xref-col-width, 100%);
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+}
+
+.cu-xref-notes li {
+    margin: 0.35em 0;
+    padding: 2px 8px 2px 10px;
+    border-radius: 4px;
+}
+
+.cu-xref-notes li[tabindex="0"] {
+    cursor: pointer;
+}
+
+.cu-xref-notes li[tabindex="0"]:focus-visible {
+    outline: 2px solid var(--cu-s1);
+    outline-offset: 1px;
+}
+
+.cu-xref-notes li.is-current {
+    background: color-mix(in srgb, var(--cu-note, var(--cu-s1)) 12%, var(--bg));
+    box-shadow: inset 3px 0 0 var(--cu-note, var(--cu-s1));
 }
 
 .cu-xref-ui {
@@ -187,6 +310,11 @@ html.ayu .cu-xref {
     min-width: 0;
 }
 
+/* 图 4.2：源码约 40%，PTX 约 60%，栏间距与 ptx-sass 相同。 */
+.cu-xref-body-cu-ptx {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+}
+
 .cu-xref-side {
     display: flex;
     flex-direction: column;
@@ -237,6 +365,24 @@ html.ayu .cu-xref {
 
 .cu-xref-code {
     white-space: pre;
+}
+
+/* 左栏源码自动折行，续行对齐到代码起点（行号只在第一行）。 */
+.cu-xref[data-mode="cu-ptx"] .cu-xref-source {
+    display: flex;
+    flex-direction: column;
+}
+
+.cu-xref[data-mode="cu-ptx"] .cu-xref-source .cu-xref-row {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+}
+
+.cu-xref[data-mode="cu-ptx"] .cu-xref-source .cu-xref-code {
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 /* 图 4.2：每一行左边一条色条。源码 4 行用 --cu-s1…--cu-s4；
@@ -308,7 +454,7 @@ html.ayu .cu-xref {
 
 .cu-xref-link {
     fill: none;
-    stroke: var(--cu-xref-link);
+    stroke: var(--cu-row, var(--cu-xref-link));
     stroke-width: 1.6;
     stroke-linecap: round;
     opacity: 0.85;
@@ -356,7 +502,8 @@ html.ayu .cu-xref {
  * ------------------------------------------------------------------ */
 
 @media (max-width: 699px) {
-    .cu-xref-body {
+    .cu-xref-body,
+    .cu-xref-body-cu-ptx {
         grid-template-columns: minmax(0, 1fr);
         gap: 12px;
     }
@@ -384,13 +531,20 @@ html.ayu .cu-xref {
         animation: none !important;
         stroke-dashoffset: 0;
     }
+
+    .cu-xref-tab,
+    .cu-xref-tab-enter {
+        animation: none !important;
+        transition: none !important;
+    }
 }
 
 @media print {
     .cu-xref-toolbar,
     .cu-xref-step-text,
     .cu-xref-status,
-    .cu-xref-links {
+    .cu-xref-links,
+    .cu-xref-tabs-bar {
         display: none !important;
     }
 
@@ -400,5 +554,17 @@ html.ayu .cu-xref {
 
     .cu-xref-pane {
         overflow: visible;
+    }
+
+    /* 打印时和无 JS 一样：两个面板上下排、两段说明都显示。 */
+    .cu-xref-tabs {
+        width: auto !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+    }
+
+    .cu-xref-tabs .cu-xref,
+    .cu-xref-tabs .cu-xref-notes {
+        display: block !important;
     }
 }

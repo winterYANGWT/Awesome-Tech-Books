@@ -1,8 +1,9 @@
 /* 第 4 章 图 4.2 / 图 4.3：源码 → PTX → SASS 对照。
  *
  * 页面里只放工具原样输出（text/plain），这里按 <figure data-mode> 分两种模式：
- *   - cu-ptx：源码和 PTX 上下排，按 .loc 给 PTX 着色；
+ *   - cu-ptx：源码在左、PTX 在右，按 .loc 着色并画对应连线；
  *   - ptx-sass：PTX 函数体和 SASS 左右排，中间画对应连线。
+ * 外层 figure.cu-xref-tabs 把两种模式做成标签页。
  *
  * 解析部分（parseSource / parsePtx / parseSass / stepSelection / checkCoverage ...）
  * 不碰 DOM，需要时由 Node 测试直接 require。
@@ -280,11 +281,124 @@
         };
     }
 
+    /* 一行属于哪一步：steps 里第 field 个字段（cu / ptx）包含 value 的步号，
+       从 1 开始；找不到返回 0。 */
+    function stepIndexFor(steps, field, value) {
+        var target = parseInt(value, 10);
+        if (!isFinite(target) || target < 1) return 0;
+        for (var i = 0; i < steps.length; i++) {
+            var list = steps[i][field] || [];
+            for (var j = 0; j < list.length; j++) {
+                if (list[j] === target) return i + 1;
+            }
+        }
+        return 0;
+    }
+
+    function sourceStepIndex(steps, line) {
+        return stepIndexFor(steps, "cu", line);
+    }
+
+    function ptxStepIndex(steps, line) {
+        return stepIndexFor(steps, "ptx", line);
+    }
+
+    function rowByLine(rows, line) {
+        var target = parseInt(line, 10);
+        for (var i = 0; i < rows.length; i++) {
+            if (rows[i].line === target) return rows[i];
+        }
+        return null;
+    }
+
+    function sassRowByAddr(rows, addr) {
+        var key = String(addr === null || addr === undefined ? "" : addr).toLowerCase();
+        for (var i = 0; i < rows.length; i++) {
+            if (String(rows[i].addr).toLowerCase() === key) return rows[i];
+        }
+        return null;
+    }
+
+    /* 图 4.2 左栏：源码行 → 包含该行的那一步。 */
+    function cuPtxStepForSource(steps, line) {
+        return sourceStepIndex(steps, line);
+    }
+
+    /* 图 4.2 左栏：PTX 行 → 它的 .loc 源码行 → 那一步。 */
+    function cuPtxStepForPtx(steps, ptxRows, line) {
+        var row = rowByLine(ptxRows, line);
+        if (!row || row.src === null || row.src === undefined) return 0;
+        return sourceStepIndex(steps, row.src);
+    }
+
+    /* 图 4.2 右栏：PTX 行 → 包含它的那一步。 */
+    function ptxSassStepForPtx(steps, line) {
+        return ptxStepIndex(steps, line);
+    }
+
+    /* 图 4.2 右栏：SASS 行 → 它的 PTX 行 → 那一步。 */
+    function ptxSassStepForSass(steps, sassRows, addr) {
+        var row = sassRowByAddr(sassRows, addr);
+        if (!row || row.ptx === null || row.ptx === undefined) return 0;
+        return ptxStepIndex(steps, row.ptx);
+    }
+
+    function selectedHas(collection, key) {
+        if (!collection) return false;
+        if (Array.isArray(collection)) {
+            for (var i = 0; i < collection.length; i++) {
+                if (String(collection[i]) === String(key)) return true;
+            }
+            return false;
+        }
+        return collection[key] === true || collection[String(key)] === true;
+    }
+
+    /* 图 4.2 左栏当前要画的连线：[源码行, PTX 行] 对。每条亮起的 PTX
+       都连到它 .loc 所属的源码行；选中状态可以是对象集合，也可以是数组。 */
+    function cuPtxLinkPairs(selectedSource, selectedPtx, ptxRows) {
+        var lines = [];
+        var seen = {};
+        var i;
+        if (Array.isArray(selectedSource)) {
+            for (i = 0; i < selectedSource.length; i++) {
+                var value = parseInt(selectedSource[i], 10);
+                if (isFinite(value) && value > 0 && !seen[value]) {
+                    seen[value] = true;
+                    lines.push(value);
+                }
+            }
+        } else if (selectedSource) {
+            for (var key in selectedSource) {
+                if (!Object.prototype.hasOwnProperty.call(selectedSource, key)) continue;
+                if (!selectedSource[key]) continue;
+                var parsed = parseInt(key, 10);
+                if (isFinite(parsed) && parsed > 0 && !seen[parsed]) {
+                    seen[parsed] = true;
+                    lines.push(parsed);
+                }
+            }
+        }
+        lines.sort(function (a, b) { return a - b; });
+
+        var out = [];
+        for (i = 0; i < lines.length; i++) {
+            for (var j = 0; j < ptxRows.length; j++) {
+                var row = ptxRows[j];
+                if (row.src === lines[i] && selectedHas(selectedPtx, row.line)) {
+                    out.push([lines[i], row.line]);
+                }
+            }
+        }
+        return out;
+    }
+
     /* ------------------------------------------------------------------ *
      * DOM
      * ------------------------------------------------------------------ */
 
     var contexts = [];
+    var tabSequence = 0;
     var WIDE = "(min-width: 700px)";
 
     function warn(message, err) {
@@ -359,12 +473,127 @@
         return "点“下一步”从函数入口开始，或直接点任意一行。";
     }
 
+    /* 图下面那段分析的第一个 <ol>：第 k 个 li 对应第 k 步。
+       条数和步数不等时只警告，图本身照常工作。 */
+    function setupNotes(ctx) {
+        var scope = ctx.figure.parentNode;
+        var notesEl = null;
+        if (scope && scope.classList && scope.classList.contains("cu-xref-tabs")) {
+            notesEl = scope.querySelector(
+                '.cu-xref-notes[data-for="' + ctx.mode + '"]');
+        } else {
+            notesEl = ctx.figure.querySelector(".cu-xref-notes");
+        }
+        if (!notesEl) return null;
+
+        var list = notesEl.querySelector("ol");
+        var items = [];
+        if (list) {
+            for (var i = 0; i < list.children.length; i++) {
+                if (String(list.children[i].tagName).toLowerCase() === "li") {
+                    items.push(list.children[i]);
+                }
+            }
+        }
+        if (!ctx.steps.length || items.length !== ctx.steps.length) {
+            warn("分析里的条目数（" + items.length + "）和步数（" +
+                ctx.steps.length + "）不一致，跳过分析和步骤的联动");
+            return null;
+        }
+
+        for (var k = 0; k < items.length; k++) {
+            (function (index) {
+                var item = items[index];
+                item.setAttribute("tabindex", "0");
+                item.addEventListener("click", function () {
+                    if (selectionInside(item)) return;
+                    goToNote(ctx, index + 1);
+                });
+                item.addEventListener("keydown", function (event) {
+                    if (event.key === "Enter" || event.key === " " ||
+                        event.key === "Spacebar") {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        goToNote(ctx, index + 1);
+                        return;
+                    }
+                    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+                        event.stopPropagation();
+                    }
+                });
+            })(k);
+        }
+        return { el: notesEl, items: items };
+    }
+
+    function selectionInside(node) {
+        if (typeof window === "undefined" || !window.getSelection) return false;
+        var selection = window.getSelection();
+        if (!selection || selection.isCollapsed || !selection.rangeCount) return false;
+        try {
+            return node.contains(selection.getRangeAt(0).commonAncestorContainer);
+        } catch (err) {
+            return false;
+        }
+    }
+
+    function goToNote(ctx, index) {
+        updateStep(ctx, index);
+        var panel = ctx.figure;
+        if (!panel || panel.getBoundingClientRect().top >= 0) return;
+        var reduce = false;
+        if (typeof window.matchMedia === "function") {
+            reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        }
+        try {
+            panel.scrollIntoView({
+                block: "nearest",
+                behavior: reduce ? "auto" : "smooth"
+            });
+        } catch (err) {
+            panel.scrollIntoView(false);
+        }
+    }
+
+    function setCurrentStep(ctx, index) {
+        ctx.currentStep = index;
+        if (!ctx.notes) return;
+        var items = ctx.notes.items;
+        for (var i = 0; i < items.length; i++) {
+            items[i].classList.remove("is-current");
+        }
+        if (index < 1 || index > items.length) return;
+        var item = items[index - 1];
+        item.classList.add("is-current");
+        var color = 1;
+        if (ctx.mode === "cu-ptx") {
+            var step = ctx.steps[index - 1];
+            color = step && step.cu.length
+                ? (ctx.sourceColor[step.cu[0]] || 0) : 0;
+        }
+        item.style.setProperty("--cu-note",
+            color ? "var(--cu-s" + color + ")" : "var(--cu-xref-neutral)");
+    }
+
+    /* 点某一行时，那一行属于哪一步；用于分析里 li 的高亮。 */
+    function stepForRow(ctx, kind, key) {
+        if (ctx.mode === "cu-ptx") {
+            if (kind === "source") return cuPtxStepForSource(ctx.steps, key);
+            if (kind === "ptx") return cuPtxStepForPtx(ctx.steps, ctx.ptxRows, key);
+            return 0;
+        }
+        if (kind === "ptx") return ptxSassStepForPtx(ctx.steps, key);
+        if (kind === "sass") return ptxSassStepForSass(ctx.steps, ctx.sassRows, key);
+        return 0;
+    }
+
     function setStepZero(ctx) {
         ctx.step = 0;
         if (ctx.steps.length) {
             ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
         }
         ctx.stepText.textContent = defaultStepText(ctx);
+        setCurrentStep(ctx, 0);
         apply(ctx, {}, {}, {}, 0);
     }
 
@@ -471,6 +700,10 @@
             body: null,
             svg: null,
             step: 0,
+            currentStep: 0,
+            notes: null,
+            visible: true,
+            sourceColor: {},
             selected: { source: {}, ptx: {}, sass: {} },
             wide: null,
             pendingFrame: false
@@ -516,36 +749,45 @@
             setStepZero(ctx);
         });
 
-        if (mode === "ptx-sass") {
-            if (typeof window.matchMedia === "function") {
-                ctx.wide = window.matchMedia(WIDE);
-                var onMode = function () { drawLinks(ctx); };
-                if (ctx.wide.addEventListener) ctx.wide.addEventListener("change", onMode);
-                else if (ctx.wide.addListener) ctx.wide.addListener(onMode);
-            }
-
-            window.addEventListener("resize", function () {
-                scheduleLinks(ctx);
-            });
-            if (typeof ResizeObserver === "function") {
-                new ResizeObserver(function () { scheduleLinks(ctx); }).observe(ctx.body);
-            }
-            if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
-                document.fonts.ready.then(function () { scheduleLinks(ctx); });
-            }
+        if (typeof window.matchMedia === "function") {
+            ctx.wide = window.matchMedia(WIDE);
+            var onMode = function () { scheduleRefresh(ctx); };
+            if (ctx.wide.addEventListener) ctx.wide.addEventListener("change", onMode);
+            else if (ctx.wide.addListener) ctx.wide.addListener(onMode);
         }
 
+        window.addEventListener("resize", function () {
+            scheduleRefresh(ctx);
+        });
+        if (typeof ResizeObserver === "function") {
+            var observer = new ResizeObserver(function () { scheduleRefresh(ctx); });
+            if (ctx.body) observer.observe(ctx.body);
+            if (ctx.sourcePane) observer.observe(ctx.sourcePane);
+            if (ctx.ptxPane) observer.observe(ctx.ptxPane);
+        }
+        if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+            document.fonts.ready.then(function () { scheduleRefresh(ctx); });
+        }
+
+        ctx.notes = setupNotes(ctx);
         setStepZero(ctx);
         return ctx;
     }
 
-    /* 图 4.2：源码在上，PTX 在下，各占整个正文宽度；不画连线。 */
+    /* 图 4.2 左栏：源码在左、PTX 在右，中间画对应连线。源码行自动折行，
+       PTX 保持单行、放不下时栏内横向滚动。 */
     function buildCuPtx(ctx, sourceRows, ptxRows, ranges) {
-        var sourceWrap = el("div", "cu-xref-block cu-xref-source-wrap");
+        var body = el("div", "cu-xref-body cu-xref-body-cu-ptx");
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("class", "cu-xref-links");
+        svg.setAttribute("aria-hidden", "true");
+        body.appendChild(svg);
+
+        var sourceSide = el("div", "cu-xref-side cu-xref-side-source");
         var sourceNote = sourceRows.length
             ? "第 " + sourceRows[0].line + "–" + sourceRows[sourceRows.length - 1].line + " 行"
             : "";
-        sourceWrap.appendChild(makeHead("源码", sourceNote));
+        sourceSide.appendChild(makeHead("源码", sourceNote));
 
         var sourcePane = el("div", "cu-xref-pane cu-xref-source");
         var colorIndex = {};
@@ -560,12 +802,11 @@
             sNode.className += " cu-xref-c" + sIndex;
             sourcePane.appendChild(sNode);
         }
-        sourceWrap.appendChild(sourcePane);
+        sourceSide.appendChild(sourcePane);
+        body.appendChild(sourceSide);
 
-        var ptxWrap = el("div", "cu-xref-block cu-xref-ptx-wrap");
-        var ptxHead = makeHead("PTX", ptxRows.length + " 行 · 颜色来自 .loc");
-        ptxWrap.appendChild(ptxHead);
-
+        var ptxSide = el("div", "cu-xref-side cu-xref-side-ptx");
+        ptxSide.appendChild(makeHead("PTX", ptxRows.length + " 行 · 颜色来自 .loc"));
         var ptxPane = el("div", "cu-xref-pane cu-xref-ptx");
         for (var q = 0; q < ptxRows.length; q++) {
             var prow = ptxRows[q];
@@ -584,15 +825,15 @@
             pNode.className += " cu-xref-c" + cIndex;
             ptxPane.appendChild(pNode);
         }
-        ptxWrap.appendChild(ptxPane);
+        ptxSide.appendChild(ptxPane);
+        body.appendChild(ptxSide);
 
-        var stack = el("div", "cu-xref-stack");
-        stack.appendChild(sourceWrap);
-        stack.appendChild(ptxWrap);
-        ctx.ui.appendChild(stack);
-
+        ctx.ui.appendChild(body);
+        ctx.body = body;
+        ctx.svg = svg;
         ctx.sourcePane = sourcePane;
         ctx.ptxPane = ptxPane;
+        ctx.sourceColor = colorIndex;
     }
 
     /* 图 4.3：PTX 函数体在左、SASS 在右，中间留出画连线的空间。 */
@@ -668,7 +909,7 @@
         ctx.prev.disabled = ctx.step <= 1;
         ctx.next.disabled = ctx.step >= ctx.steps.length || ctx.steps.length === 0;
         updateStatus(ctx);
-        if (ctx.mode === "ptx-sass") drawLinks(ctx);
+        scheduleRefresh(ctx);
     }
 
     function updateStep(ctx, index) {
@@ -682,6 +923,7 @@
         ctx.stepCount.textContent = "第 " + index + " / " + ctx.steps.length + " 步";
         ctx.stepText.textContent = "";
         renderRichText(ctx.stepText, step.label);
+        setCurrentStep(ctx, index);
         if (ctx.mode === "cu-ptx") {
             var sourceSelection = sourceStepSelection(step, ctx.ptxRows);
             apply(ctx, sourceSelection.source, sourceSelection.ptx, {}, index);
@@ -703,6 +945,7 @@
                 }
                 ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
                 ctx.stepText.textContent = defaultStepText(ctx);
+                setCurrentStep(ctx, stepForRow(ctx, kind, key));
                 apply(ctx, srcSet, ptxSet, {}, 0);
                 return;
             }
@@ -720,6 +963,7 @@
                 }
                 ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
                 ctx.stepText.textContent = defaultStepText(ctx);
+                setCurrentStep(ctx, stepForRow(ctx, kind, key));
                 apply(ctx, oneSrc, onePtx, {}, 0);
                 return;
             }
@@ -737,6 +981,7 @@
             }
             ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
             ctx.stepText.textContent = defaultStepText(ctx);
+            setCurrentStep(ctx, stepForRow(ctx, kind, key));
             apply(ctx, {}, ptxOne, sassOne, 0);
             return;
         }
@@ -749,6 +994,7 @@
         ptxKey[sassRow.ptx] = true;
         ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
         ctx.stepText.textContent = defaultStepText(ctx);
+        setCurrentStep(ctx, stepForRow(ctx, kind, key));
         apply(ctx, {}, ptxKey, sassKey, 0);
     }
 
@@ -805,76 +1051,304 @@
         ctx.status.textContent = "已选中：" + parts.join("；") + "。";
     }
 
-    /* 两条栏之间画当前 SASS 到它 PTX 行的连线。窄屏不画。 */
+    function findRowNode(ctx, kind, key) {
+        for (var i = 0; i < ctx.rows.length; i++) {
+            if (ctx.rows[i].getAttribute("data-kind") === kind &&
+                ctx.rows[i].getAttribute("data-key") === String(key)) {
+                return ctx.rows[i];
+            }
+        }
+        return null;
+    }
+
+    function isNarrowViewport() {
+        if (typeof window === "undefined") return false;
+        if (typeof window.matchMedia === "function") {
+            return window.matchMedia("(max-width: 699px)").matches;
+        }
+        return typeof window.innerWidth === "number" && window.innerWidth < 700;
+    }
+
+    function makeLink(svg, x1, y1, x2, y2, colorClass) {
+        var bend = Math.max(12, (x2 - x1) * 0.42);
+        var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("class", colorClass
+            ? "cu-xref-link " + colorClass : "cu-xref-link");
+        path.setAttribute("d",
+            "M" + x1.toFixed(1) + "," + y1.toFixed(1) +
+            " C" + (x1 + bend).toFixed(1) + "," + y1.toFixed(1) +
+            " " + (x2 - bend).toFixed(1) + "," + y2.toFixed(1) +
+            " " + x2.toFixed(1) + "," + y2.toFixed(1));
+        path.setAttribute("pathLength", "1");
+        svg.appendChild(path);
+    }
+
+    /* 两条栏之间画当前选中项的连线。cu-ptx 用源码行的颜色；
+       ptx-sass 固定用系列色 1。窄屏不画。 */
     function drawLinks(ctx) {
-        if (ctx.mode !== "ptx-sass" || !ctx.svg) return;
+        if (!ctx.svg || !ctx.body) return;
         var svg = ctx.svg;
         while (svg.firstChild) svg.removeChild(svg.firstChild);
+        if (ctx.visible === false || ctx.figure.hidden) return;
         if (ctx.wide && !ctx.wide.matches) return;
         if (typeof window === "undefined") return;
 
         var bodyRect = ctx.body.getBoundingClientRect();
-        var ptxRect = ctx.ptxPane.getBoundingClientRect();
-        var sassRect = ctx.sassPane.getBoundingClientRect();
         var width = Math.max(0, Math.round(bodyRect.width));
         var height = Math.max(0, Math.round(bodyRect.height));
         if (!width || !height) return;
+
+        var leftRect;
+        var rightRect;
+        var pairs = [];
+        var i;
+        if (ctx.mode === "cu-ptx") {
+            leftRect = ctx.sourcePane.getBoundingClientRect();
+            rightRect = ctx.ptxPane.getBoundingClientRect();
+            var linkPairs = cuPtxLinkPairs(ctx.selected.source, ctx.selected.ptx,
+                ctx.ptxRows);
+            for (i = 0; i < linkPairs.length; i++) {
+                var sourceLine = linkPairs[i][0];
+                var sourceNode = findRowNode(ctx, "source", sourceLine);
+                var targetNode = findRowNode(ctx, "ptx", linkPairs[i][1]);
+                if (!sourceNode || !targetNode) continue;
+                pairs.push({
+                    from: sourceNode,
+                    to: targetNode,
+                    color: "cu-xref-c" + (ctx.sourceColor[sourceLine] || 0)
+                });
+            }
+        } else {
+            leftRect = ctx.ptxPane.getBoundingClientRect();
+            rightRect = ctx.sassPane.getBoundingClientRect();
+            var sassKeys = Object.keys(ctx.selected.sass);
+            for (i = 0; i < sassKeys.length; i++) {
+                var sassRow = ctx.sassByAddr[sassKeys[i]];
+                if (!sassRow) continue;
+                if (!ctx.selected.ptx[sassRow.ptx]) continue;
+                var ptxNode = findRowNode(ctx, "ptx", sassRow.ptx);
+                var sassNode = findRowNode(ctx, "sass", sassRow.addr);
+                if (!ptxNode || !sassNode) continue;
+                pairs.push({ from: ptxNode, to: sassNode, color: "" });
+            }
+        }
+
         svg.setAttribute("width", String(width));
         svg.setAttribute("height", String(height));
         svg.setAttribute("viewBox", "0 0 " + width + " " + height);
 
-        var sassKeys = Object.keys(ctx.selected.sass);
-        for (var i = 0; i < sassKeys.length; i++) {
-            var sassRow = ctx.sassByAddr[sassKeys[i]];
-            if (!sassRow) continue;
-            var ptxRow = ctx.ptxByLine[sassRow.ptx];
-            if (!ptxRow || !ctx.selected.ptx[sassRow.ptx]) continue;
-            var ptxNode = null;
-            var sassNode = null;
-            var rows = ctx.rows;
-            for (var j = 0; j < rows.length; j++) {
-                if (rows[j].getAttribute("data-kind") === "ptx" &&
-                    rows[j].getAttribute("data-key") === String(sassRow.ptx)) ptxNode = rows[j];
-                if (rows[j].getAttribute("data-kind") === "sass" &&
-                    rows[j].getAttribute("data-key") === sassRow.addr) sassNode = rows[j];
-            }
-            if (!ptxNode || !sassNode) continue;
-            var r1 = ptxNode.getBoundingClientRect();
-            var r2 = sassNode.getBoundingClientRect();
-            var x1 = ptxRect.right - bodyRect.left + 4;
-            var x2 = sassRect.left - bodyRect.left - 4;
-            if (x2 <= x1) continue;
-            var y1 = r1.top + r1.height / 2 - bodyRect.top;
-            var y2 = r2.top + r2.height / 2 - bodyRect.top;
-            var bend = Math.max(12, (x2 - x1) * 0.42);
-            var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            path.setAttribute("class", "cu-xref-link");
-            path.setAttribute("d",
-                "M" + x1.toFixed(1) + "," + y1.toFixed(1) +
-                " C" + (x1 + bend).toFixed(1) + "," + y1.toFixed(1) +
-                " " + (x2 - bend).toFixed(1) + "," + y2.toFixed(1) +
-                " " + x2.toFixed(1) + "," + y2.toFixed(1));
-            path.setAttribute("pathLength", "1");
-            svg.appendChild(path);
+        var x1 = leftRect.right - bodyRect.left + 4;
+        var x2 = rightRect.left - bodyRect.left - 4;
+        if (x2 <= x1) return;
+        for (i = 0; i < pairs.length; i++) {
+            var r1 = pairs[i].from.getBoundingClientRect();
+            var r2 = pairs[i].to.getBoundingClientRect();
+            makeLink(svg, x1, r1.top + r1.height / 2 - bodyRect.top,
+                x2, r2.top + r2.height / 2 - bodyRect.top, pairs[i].color);
         }
     }
 
-    function scheduleLinks(ctx) {
-        if (ctx.mode !== "ptx-sass" || ctx.pendingFrame) return;
+    function refresh(ctx) {
+        if (!ctx || ctx.visible === false || ctx.figure.hidden) return;
+        drawLinks(ctx);
+    }
+
+    function scheduleRefresh(ctx) {
+        if (!ctx || ctx.pendingFrame) return;
         ctx.pendingFrame = true;
         var raf = typeof window.requestAnimationFrame === "function"
             ? window.requestAnimationFrame.bind(window)
             : function (fn) { return setTimeout(fn, 16); };
         raf(function () {
             ctx.pendingFrame = false;
-            drawLinks(ctx);
+            refresh(ctx);
         });
     }
 
+    /* 标签页：一次只显示一个面板和 data-for 等于它 data-mode 的说明。 */
+    function setupTabs(container) {
+        var panels = [];
+        for (var c = 0; c < container.children.length; c++) {
+            var child = container.children[c];
+            if (child.classList && child.classList.contains("cu-xref") &&
+                child.hasAttribute("data-tab")) {
+                panels.push(child);
+            }
+        }
+        if (!panels.length) return;
+
+        var panelCtx = [];
+        for (var p = 0; p < panels.length; p++) panelCtx.push(setup(panels[p]));
+
+        var base = container.id || ("cu-xref-tabs-" + (++tabSequence));
+        container.id = base;
+        container.classList.add("cu-xref-tabs-ready");
+
+        var bar = el("div", "cu-xref-tabs-bar");
+        bar.setAttribute("role", "tablist");
+        bar.setAttribute("aria-label", "图 4.2 的两次翻译");
+        var buttons = [];
+        var notes = [];
+        var noteNodes = container.querySelectorAll(".cu-xref-notes");
+        for (var j = 0; j < noteNodes.length; j++) notes.push(noteNodes[j]);
+
+        for (var t = 0; t < panels.length; t++) {
+            (function (index) {
+                var panel = panels[index];
+                panel.id = base + "-panel-" + index;
+                panel.setAttribute("role", "tabpanel");
+                var button = el("button", "cu-xref-tab", panel.getAttribute("data-tab"));
+                button.type = "button";
+                button.id = base + "-tab-" + index;
+                button.setAttribute("role", "tab");
+                button.setAttribute("aria-controls", panel.id);
+                panel.setAttribute("aria-labelledby", button.id);
+                button.addEventListener("click", function () {
+                    activate(index, false, true);
+                });
+                bar.appendChild(button);
+                buttons.push(button);
+            })(t);
+        }
+        container.insertBefore(bar, container.firstChild);
+
+        var current = 0;
+
+        function fade(node, animate) {
+            if (!node || !animate) return;
+            node.classList.remove("cu-xref-tab-enter");
+            void node.offsetWidth;
+            node.classList.add("cu-xref-tab-enter");
+            setTimeout(function () {
+                node.classList.remove("cu-xref-tab-enter");
+            }, 220);
+        }
+
+        function activate(index, focus, animate) {
+            if (index < 0) index = 0;
+            if (index >= panels.length) index = panels.length - 1;
+            current = index;
+            var mode = panels[index].getAttribute("data-mode");
+            for (var k = 0; k < panels.length; k++) {
+                var on = k === index;
+                panels[k].hidden = !on;
+                buttons[k].setAttribute("aria-selected", on ? "true" : "false");
+                buttons[k].tabIndex = on ? 0 : -1;
+                if (!on) panels[k].classList.remove("cu-xref-tab-enter");
+                if (panelCtx[k]) panelCtx[k].visible = on;
+            }
+            for (var n = 0; n < notes.length; n++) {
+                var show = (notes[n].getAttribute("data-for") || "") === mode;
+                notes[n].hidden = !show;
+                if (!show) notes[n].classList.remove("cu-xref-tab-enter");
+            }
+            if (animate) {
+                fade(panels[index], true);
+                for (var m = 0; m < notes.length; m++) {
+                    if (!notes[m].hidden) fade(notes[m], true);
+                }
+            }
+            for (var q = 0; q < panelCtx.length; q++) {
+                if (panelCtx[q] && panelCtx[q].visible) scheduleRefresh(panelCtx[q]);
+            }
+            if (focus) buttons[index].focus();
+        }
+
+        bar.addEventListener("keydown", function (event) {
+            var key = event.key;
+            if (key !== "ArrowLeft" && key !== "ArrowRight" &&
+                key !== "Home" && key !== "End") return;
+            // mdBook 在 document 上用左右键翻章；标签页里必须拦住。
+            event.preventDefault();
+            event.stopPropagation();
+            var to = current;
+            if (key === "ArrowLeft") to = (current - 1 + panels.length) % panels.length;
+            else if (key === "ArrowRight") to = (current + 1) % panels.length;
+            else if (key === "Home") to = 0;
+            else if (key === "End") to = panels.length - 1;
+            activate(to, true, true);
+        });
+
+        activate(0, false, false);
+    }
+
+    /* 桌面端让整张图比正文列宽：min(1040, 内容区可用宽度)，相对正文列居中。
+       用 ResizeObserver 盯着内容区和 <main>，侧栏、窗口、阅读器调宽度都会触发。 */
+    function fitTabsWidth(container) {
+        var content = document.getElementById("mdbook-content");
+        var main = content ? content.querySelector("main") : null;
+        if (!content || !main) return;
+        var mainRect = main.getBoundingClientRect();
+        var mainWidth = mainRect.width;
+        if (!mainWidth) return;
+        var style = window.getComputedStyle(content);
+        var padLeft = parseFloat(style.paddingLeft) || 0;
+        var padRight = parseFloat(style.paddingRight) || 0;
+        var available = Math.max(0, content.clientWidth - padLeft - padRight);
+        var target = Math.floor(Math.min(1040, available));
+        var narrow = isNarrowViewport();
+        container.style.setProperty("--cu-xref-col-width",
+            mainWidth.toFixed(2) + "px");
+        if (!narrow && target > mainWidth + 0.5) {
+            container.style.width = target + "px";
+            container.style.maxWidth = "none";
+            container.style.marginLeft =
+                ((mainWidth - target) / 2).toFixed(2) + "px";
+            container.classList.add("is-wide");
+        } else {
+            container.style.width = "";
+            container.style.maxWidth = "";
+            container.style.marginLeft = "";
+            container.classList.remove("is-wide");
+        }
+    }
+
+    function initTabsWidth(container) {
+        var content = document.getElementById("mdbook-content");
+        var main = content ? content.querySelector("main") : null;
+        if (!content || !main) return;
+        fitTabsWidth(container);
+        // 直接量、直接改：ResizeObserver 回调在绘制前执行，侧栏动画过程中
+        // 也不会出现某一帧图比可用宽度还宽、把页面撑出横向滚动条。
+        var schedule = function () { fitTabsWidth(container); };
+        if (typeof ResizeObserver === "function") {
+            var observer = new ResizeObserver(schedule);
+            observer.observe(content);
+            observer.observe(main);
+            container._cuXrefWidthObserver = observer;
+        }
+        window.addEventListener("resize", schedule);
+        if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+            document.fonts.ready.then(schedule);
+        }
+    }
+
+    function insideTabs(node) {
+        var parent = node.parentNode;
+        while (parent && parent !== document) {
+            if (parent.classList && parent.classList.contains("cu-xref-tabs")) {
+                return true;
+            }
+            parent = parent.parentNode;
+        }
+        return false;
+    }
+
     function init() {
+        var containers = document.querySelectorAll("figure.cu-xref-tabs");
+        for (var i = 0; i < containers.length; i++) {
+            try {
+                setupTabs(containers[i]);
+                initTabsWidth(containers[i]);
+            } catch (err) {
+                warn("标签页初始化失败", err);
+            }
+        }
+
         var roots = document.querySelectorAll(".cu-xref");
         if (!roots.length) return;
         Array.prototype.forEach.call(roots, function (root) {
+            if (insideTabs(root)) return;
             try {
                 setup(root);
             } catch (err) {
@@ -906,7 +1380,17 @@
             parseSteps: parseSteps,
             sourceStepSelection: sourceStepSelection,
             stepSelection: stepSelection,
-            checkCoverage: checkCoverage
+            checkCoverage: checkCoverage,
+            stepIndexFor: stepIndexFor,
+            sourceStepIndex: sourceStepIndex,
+            ptxStepIndex: ptxStepIndex,
+            rowByLine: rowByLine,
+            sassRowByAddr: sassRowByAddr,
+            cuPtxStepForSource: cuPtxStepForSource,
+            cuPtxStepForPtx: cuPtxStepForPtx,
+            ptxSassStepForPtx: ptxSassStepForPtx,
+            ptxSassStepForSass: ptxSassStepForSass,
+            cuPtxLinkPairs: cuPtxLinkPairs
         };
     }
 })();
