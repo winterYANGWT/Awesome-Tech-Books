@@ -1,4 +1,4 @@
-/* 第 4 章 图 4.2：源码 / PTX / SASS 三栏对照。
+/* 第 4 章 图 4.2 / 图 4.3：源码 → PTX → SASS 对照。
  *
  * 颜色沿用 charts.css 里校验过的系列色，并在 rust / 深色主题下换成
  * 同一组替代值。所有文字、边框都走主题变量，SVG 连线用 stroke，
@@ -23,6 +23,7 @@
     --cu-xref-panel: color-mix(in srgb, var(--fg) 4%, var(--bg));
     --cu-xref-hover: color-mix(in srgb, var(--fg) 8%, var(--bg));
     --cu-xref-on: color-mix(in srgb, var(--cu-s1) 15%, var(--bg));
+    --cu-xref-neutral: color-mix(in srgb, var(--fg) 30%, var(--bg));
     --cu-xref-link: var(--cu-s1);
 
     position: relative;
@@ -79,7 +80,7 @@ html.ayu .cu-xref {
     background: var(--cu-xref-panel);
     color: var(--cu-xref-ink);
     font: inherit;
-    font-size: 12.5px;
+    font-size: 13px;
     line-height: 1.5;
     cursor: pointer;
     appearance: none;
@@ -104,7 +105,7 @@ html.ayu .cu-xref {
 .cu-xref-step-count {
     margin-left: auto;
     color: var(--cu-xref-ink2);
-    font-size: 12px;
+    font-size: 12.5px;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
 }
@@ -112,7 +113,7 @@ html.ayu .cu-xref {
 .cu-xref-step-text {
     margin: 0 0 0.8em;
     color: var(--cu-xref-ink2);
-    font-size: 12.5px;
+    font-size: 13px;
     line-height: 1.65;
 }
 
@@ -122,12 +123,22 @@ html.ayu .cu-xref {
 }
 
 /* ------------------------------------------------------------------ *
- * 三栏
+ * 栏目标题、面板
  * ------------------------------------------------------------------ */
 
-.cu-xref-source-wrap {
+.cu-xref-block,
+.cu-xref-stack {
     min-width: 0;
-    margin: 0 0 12px;
+}
+
+.cu-xref-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cu-xref-source-wrap {
+    margin: 0;
 }
 
 .cu-xref-col-head {
@@ -149,15 +160,16 @@ html.ayu .cu-xref {
 
 .cu-xref-col-note {
     color: var(--cu-xref-ink2);
-    font-size: 11px;
+    font-size: 11.5px;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
 }
 
 .cu-xref-pane {
+    max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 4px 0;
+    padding: 5px 0;
     border: 1px solid var(--cu-xref-rule);
     border-radius: 8px;
     background: var(--cu-xref-panel);
@@ -181,19 +193,25 @@ html.ayu .cu-xref {
     min-width: 0;
 }
 
+/* ------------------------------------------------------------------ *
+ * 代码行
+ * ------------------------------------------------------------------ */
+
 .cu-xref-row {
+    position: relative;
     display: flex;
     align-items: baseline;
-    gap: 0.9em;
+    gap: 1em;
     width: max-content;
     min-width: 100%;
     margin: 0;
-    padding: 1.5px 10px;
+    padding: 4px 12px 4px 15px;
     border-radius: 3px;
     color: var(--cu-xref-ink);
     font-family: var(--mono-font);
-    font-size: 12px;
-    line-height: 1.5;
+    /* 不小于正文代码块（0.875em）的字号；行高放松，避免挤在一起。 */
+    font-size: 0.9em;
+    line-height: 1.75;
     cursor: pointer;
     transition: opacity 0.18s ease, background-color 0.18s ease;
 }
@@ -209,7 +227,7 @@ html.ayu .cu-xref {
 
 .cu-xref-gutter {
     flex: none;
-    width: 3.2em;
+    width: 3.4em;
     color: var(--cu-xref-ink2);
     text-align: right;
     font-variant-numeric: tabular-nums;
@@ -221,11 +239,42 @@ html.ayu .cu-xref {
     white-space: pre;
 }
 
-.cu-xref-source .cu-xref-row {
-    font-size: 12.5px;
+/* 图 4.2：每一行左边一条色条。源码 4 行用 --cu-s1…--cu-s4；
+   PTX 有 .loc 的用对应源码行的颜色，声明行用中性灰。 */
+.cu-xref[data-mode="cu-ptx"] .cu-xref-row::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 5px;
+    bottom: 5px;
+    width: 4px;
+    border-radius: 2px;
+    background: var(--cu-row, var(--cu-xref-neutral));
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
 }
 
-/* 选中后其余行变淡，但不隐藏；点中的行用系列色做左边条。 */
+.cu-xref .cu-xref-c0 {
+    --cu-row: var(--cu-xref-neutral);
+}
+
+.cu-xref .cu-xref-c1 {
+    --cu-row: var(--cu-s1);
+}
+
+.cu-xref .cu-xref-c2 {
+    --cu-row: var(--cu-s2);
+}
+
+.cu-xref .cu-xref-c3 {
+    --cu-row: var(--cu-s3);
+}
+
+.cu-xref .cu-xref-c4 {
+    --cu-row: var(--cu-s4);
+}
+
+/* 选中后其余行变淡，但不隐藏；点中的行用系列色背景。 */
 .cu-xref.is-selected .cu-xref-row {
     opacity: 0.32;
 }
@@ -233,7 +282,14 @@ html.ayu .cu-xref {
 .cu-xref.is-selected .cu-xref-row.is-on {
     opacity: 1;
     background: var(--cu-xref-on);
+}
+
+.cu-xref[data-mode="ptx-sass"].is-selected .cu-xref-row.is-on {
     box-shadow: inset 2px 0 0 var(--cu-s1);
+}
+
+.cu-xref[data-mode="cu-ptx"].is-selected .cu-xref-row.is-on::before {
+    width: 6px;
 }
 
 /* ------------------------------------------------------------------ *
@@ -270,15 +326,15 @@ html.ayu .cu-xref {
 .cu-xref-fallback {
     max-width: 100%;
     margin: 0 0 8px;
-    padding: 8px 10px;
+    padding: 10px 12px;
     overflow-x: auto;
     border: 1px solid var(--cu-xref-rule);
     border-radius: 8px;
     background: var(--cu-xref-panel);
     color: var(--cu-xref-ink);
     font-family: var(--mono-font);
-    font-size: 11.5px;
-    line-height: 1.5;
+    font-size: 0.9em;
+    line-height: 1.75;
     tab-size: 4;
 }
 
@@ -296,7 +352,7 @@ html.ayu .cu-xref {
 }
 
 /* ------------------------------------------------------------------ *
- * 窄屏：三栏上下排，不画连线
+ * 窄屏：两栏上下排，不画连线
  * ------------------------------------------------------------------ */
 
 @media (max-width: 699px) {
@@ -310,9 +366,8 @@ html.ayu .cu-xref {
     }
 
     .cu-xref-row {
-        font-size: 11.5px;
-        padding-left: 8px;
-        padding-right: 8px;
+        padding-left: 12px;
+        padding-right: 10px;
     }
 
     .cu-xref-step-count {

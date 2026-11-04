@@ -1,12 +1,11 @@
-/* 第 4 章 图 4.2：源码 / PTX / SASS 对照。
+/* 第 4 章 图 4.2 / 图 4.3：源码 → PTX → SASS 对照。
  *
- * 页面里只放工具原样输出（text/plain），这里负责解析：
- *   - PTX：按 .loc 把指令归到源码行，并记住它在原文里的行号；
- *   - SASS：按地址注释取指令，从 -g 和 -gp 两份输出里取源码行、PTX 行；
- *   - 分步：figure 里的 application/json 只写 PTX 行号和说明。
+ * 页面里只放工具原样输出（text/plain），这里按 <figure data-mode> 分两种模式：
+ *   - cu-ptx：源码和 PTX 上下排，按 .loc 给 PTX 着色；
+ *   - ptx-sass：PTX 函数体和 SASS 左右排，中间画对应连线。
  *
- * 纯函数（parseSource / parsePtx / parseSass / parseSteps ...）不碰 DOM，
- * 需要时由 Node 测试直接 require。
+ * 解析部分（parseSource / parsePtx / parseSass / stepSelection / checkCoverage ...）
+ * 不碰 DOM，需要时由 Node 测试直接 require。
  */
 (function () {
     "use strict";
@@ -105,6 +104,34 @@
         return out;
     }
 
+    /* 图 4.3 只显示 PTX 函数体：从 { 到最后的 }，去掉 .reg 声明。
+       .entry / .param 在图 4.2 已经看过，这里不再占地方；去掉的行也不参与对应。 */
+    function parsePtxBody(text) {
+        var rows = parsePtx(text);
+        var start = -1;
+        var end = -1;
+        var i;
+        for (i = 0; i < rows.length; i++) {
+            if (rows[i].text.trim() === "{") {
+                start = i;
+                break;
+            }
+        }
+        for (i = rows.length - 1; i >= 0; i--) {
+            if (rows[i].text.trim() === "}") {
+                end = i;
+                break;
+            }
+        }
+        if (start < 0 || end < start) return [];
+        var out = [];
+        for (i = start; i <= end; i++) {
+            if (/^\.reg\b/.test(rows[i].text.trim())) continue;
+            out.push(rows[i]);
+        }
+        return out;
+    }
+
     /* 从一份 nvdisasm -g / -gp 输出里取“地址 -> 行号”。 */
     function parseSassMap(text) {
         var lines = splitLines(text);
@@ -157,7 +184,18 @@
         return out;
     }
 
-    /* 分步配置：只接受 {ptx:[正整数], text:"说明"}。 */
+    function positiveInts(value) {
+        var out = [];
+        if (!value || typeof value.length !== "number") return out;
+        for (var i = 0; i < value.length; i++) {
+            var n = parseInt(value[i], 10);
+            if (isFinite(n) && n > 0) out.push(n);
+        }
+        return out;
+    }
+
+    /* 分步配置：{ptx:[正整数], cu:[正整数], label:"短标签"}。
+       text 是旧字段，仍兼容，统一放进 label 和 text 两个属性。 */
     function parseSteps(value) {
         var data = value;
         if (typeof value === "string") {
@@ -171,22 +209,32 @@
         var out = [];
         for (var i = 0; i < data.steps.length; i++) {
             var step = data.steps[i] || {};
-            var ptx = [];
-            if (step.ptx && typeof step.ptx.length === "number") {
-                for (var j = 0; j < step.ptx.length; j++) {
-                    var n = parseInt(step.ptx[j], 10);
-                    if (isFinite(n) && n > 0) ptx.push(n);
-                }
-            }
+            var label = step.label !== undefined && step.label !== null
+                ? step.label : step.text;
+            label = String(label === null || label === undefined ? "" : label);
             out.push({
-                ptx: ptx,
-                text: String(step.text === null || step.text === undefined ? "" : step.text)
+                ptx: positiveInts(step.ptx),
+                cu: positiveInts(step.cu),
+                label: label,
+                text: label
             });
         }
         return out;
     }
 
-    /* 一步对应的三栏集合。 */
+    /* 图 4.2 的一步：源码行集合 + 这些源码行对应的全部 PTX 行。 */
+    function sourceStepSelection(step, ptxRows) {
+        var sourceSet = {};
+        var ptxSet = {};
+        var i;
+        for (i = 0; i < step.cu.length; i++) sourceSet[step.cu[i]] = true;
+        for (i = 0; i < ptxRows.length; i++) {
+            if (sourceSet[ptxRows[i].src]) ptxSet[ptxRows[i].line] = true;
+        }
+        return { source: sourceSet, ptx: ptxSet };
+    }
+
+    /* 图 4.3 的一步：PTX 行集合 + 这些 PTX 行对应的 SASS。 */
     function stepSelection(step, ptxRows, sassRows) {
         var ptxSet = {};
         var srcSet = {};
@@ -296,38 +344,76 @@
         return row;
     }
 
+    function makeHead(title, note) {
+        var head = el("div", "cu-xref-col-head");
+        head.appendChild(el("span", "cu-xref-col-title", title));
+        if (note) head.appendChild(el("span", "cu-xref-col-note", note));
+        return head;
+    }
+
+    function defaultStepText(ctx) {
+        if (!ctx.steps.length) return "直接点任意一行查看对应关系。";
+        if (ctx.mode === "cu-ptx") {
+            return "点“下一步”按 " + ctx.steps.length + " 步看源码各行，或直接点任意一行。";
+        }
+        return "点“下一步”从函数入口开始，或直接点任意一行。";
+    }
+
+    function setStepZero(ctx) {
+        ctx.step = 0;
+        if (ctx.steps.length) {
+            ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
+        }
+        ctx.stepText.textContent = defaultStepText(ctx);
+        apply(ctx, {}, {}, {}, 0);
+    }
+
     function setup(figure) {
         if (!figure || figure.getAttribute("data-cu-xref-ready") === "1") return null;
         figure.setAttribute("data-cu-xref-ready", "1");
 
-        var sourceId = figure.getAttribute("data-cu");
-        var ptxId = figure.getAttribute("data-ptx");
-        var sassSrcId = figure.getAttribute("data-sass-src");
-        var sassPtxId = figure.getAttribute("data-sass-ptx");
-        var ranges = parseRanges(figure.getAttribute("data-lines"));
-        if (!ranges.length) ranges = parseRanges("17-20");
+        var mode = figure.getAttribute("data-mode");
+        if (mode !== "cu-ptx" && mode !== "ptx-sass") {
+            mode = figure.getAttribute("data-sass-src") ? "ptx-sass" : "cu-ptx";
+        }
 
-        var sourceAll = parseSource(readText(sourceId));
-        var sourceRows = sourceInRanges(sourceAll, ranges);
-        var ptxRows = parsePtx(readText(ptxId));
-        var sassRows = parseSass(readText(sassSrcId), readText(sassPtxId));
+        var sourceRows = [];
+        var ptxRows = [];
+        var sassRows = [];
+        var ranges = [];
+        var sourceAll = [];
+
+        if (mode === "cu-ptx") {
+            ranges = parseRanges(figure.getAttribute("data-lines"));
+            if (!ranges.length) ranges = parseRanges("17-20");
+            sourceAll = parseSource(readText(figure.getAttribute("data-cu")));
+            sourceRows = sourceInRanges(sourceAll, ranges);
+            ptxRows = parsePtx(readText(figure.getAttribute("data-ptx")));
+        } else {
+            ptxRows = parsePtxBody(readText(figure.getAttribute("data-ptx")));
+            sassRows = parseSass(readText(figure.getAttribute("data-sass-src")),
+                readText(figure.getAttribute("data-sass-ptx")));
+        }
         var steps = parseSteps(readJson(figure));
 
         if (!sourceRows.length && !ptxRows.length && !sassRows.length) {
-            warn("没有读到图 4.2 的数据");
+            warn("没有读到 " + mode + " 的数据");
             return null;
         }
 
-        for (var m = 0; m < sassRows.length; m++) {
-            if (sassRows[m].src === null || sassRows[m].ptx === null) {
-                warn("SASS " + sassRows[m].addr + " 缺少源码行或 PTX 行");
-                break;
+        if (mode === "ptx-sass") {
+            var j;
+            for (j = 0; j < sassRows.length; j++) {
+                if (sassRows[j].src === null || sassRows[j].ptx === null) {
+                    warn("SASS " + sassRows[j].addr + " 缺少源码行或 PTX 行");
+                    break;
+                }
             }
-        }
-        if (steps.length) {
-            var coverage = checkCoverage(steps, ptxRows, sassRows);
-            if (coverage.missing.length || coverage.duplicated.length) {
-                warn("分步没有恰好覆盖每条 SASS：" + JSON.stringify(coverage));
+            if (steps.length) {
+                var coverage = checkCoverage(steps, ptxRows, sassRows);
+                if (coverage.missing.length || coverage.duplicated.length) {
+                    warn("分步没有恰好覆盖每条 SASS：" + JSON.stringify(coverage));
+                }
             }
         }
 
@@ -357,74 +443,51 @@
         toolbar.appendChild(stepCount);
         ui.appendChild(toolbar);
 
-        var stepText = el("p", "cu-xref-step-text",
-            steps.length ? "点“下一步”从函数入口开始，或直接点任意一行。" : "直接点任意一行查看对应关系。");
+        var stepText = el("p", "cu-xref-step-text", "");
         stepText.setAttribute("aria-live", "polite");
         ui.appendChild(stepText);
 
-        var sourceHead = el("div", "cu-xref-col-head");
-        sourceHead.appendChild(el("span", "cu-xref-col-title", "源码"));
-        sourceHead.appendChild(el("span", "cu-xref-col-note",
-            sourceRows.length ? "第 " + ranges[0].from + "–" + ranges[0].to + " 行" : ""));
-        var sourcePane = el("div", "cu-xref-pane cu-xref-source");
-        for (var i = 0; i < sourceRows.length; i++) {
-            var srow = makeRow("source", sourceRows[i].line, String(sourceRows[i].line),
-                sourceRows[i].text, "源码第 " + sourceRows[i].line + " 行");
-            srow.setAttribute("data-line", String(sourceRows[i].line));
-            sourcePane.appendChild(srow);
-        }
-        var sourceWrap = el("div", "cu-xref-source-wrap");
-        sourceWrap.appendChild(sourceHead);
-        sourceWrap.appendChild(sourcePane);
-        ui.appendChild(sourceWrap);
+        var ctx = {
+            mode: mode,
+            figure: figure,
+            ui: ui,
+            stepCount: stepCount,
+            stepText: stepText,
+            status: null,
+            prev: prev,
+            next: next,
+            clear: clear,
+            steps: steps,
+            sourceRows: sourceRows,
+            ptxRows: ptxRows,
+            sassRows: sassRows,
+            ptxByLine: ptxByLine,
+            sassByAddr: sassByAddr,
+            sassByPtx: sassByPtx,
+            rows: [],
+            sourcePane: null,
+            ptxPane: null,
+            sassPane: null,
+            body: null,
+            svg: null,
+            step: 0,
+            selected: { source: {}, ptx: {}, sass: {} },
+            wide: null,
+            pendingFrame: false
+        };
 
-        var body = el("div", "cu-xref-body");
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("class", "cu-xref-links");
-        svg.setAttribute("aria-hidden", "true");
-        body.appendChild(svg);
-
-        var ptxSide = el("div", "cu-xref-side cu-xref-side-ptx");
-        var ptxHead = el("div", "cu-xref-col-head");
-        ptxHead.appendChild(el("span", "cu-xref-col-title", "PTX"));
-        ptxHead.appendChild(el("span", "cu-xref-col-note", "原文行号"));
-        var ptxPane = el("div", "cu-xref-pane cu-xref-ptx");
-        for (var q = 0; q < ptxRows.length; q++) {
-            var prow = ptxRows[q];
-            var sassHere = sassByPtx[prow.line] || [];
-            var plabel = "PTX 第 " + prow.line + " 行";
-            if (prow.src !== null && prow.src !== undefined) plabel += "，对应源码第 " + prow.src + " 行";
-            if (sassHere.length) plabel += "、SASS " + sassHere.join("、");
-            var pnode = makeRow("ptx", prow.line, String(prow.line), prow.text, plabel);
-            pnode.setAttribute("data-ptx-line", String(prow.line));
-            ptxPane.appendChild(pnode);
+        if (mode === "cu-ptx") {
+            buildCuPtx(ctx, sourceRows, ptxRows, ranges);
+        } else {
+            buildPtxSass(ctx, ptxRows, sassRows);
         }
-        ptxSide.appendChild(ptxHead);
-        ptxSide.appendChild(ptxPane);
-        body.appendChild(ptxSide);
-
-        var sassSide = el("div", "cu-xref-side cu-xref-side-sass");
-        var sassHead = el("div", "cu-xref-col-head");
-        sassHead.appendChild(el("span", "cu-xref-col-title", "SASS"));
-        sassHead.appendChild(el("span", "cu-xref-col-note", sassRows.length + " 条"));
-        var sassPane = el("div", "cu-xref-pane cu-xref-sass");
-        for (var r = 0; r < sassRows.length; r++) {
-            var arow = sassRows[r];
-            var alabel = "SASS " + arow.addr + "，对应源码第 " + arow.src + " 行、PTX 第 " + arow.ptx + " 行";
-            var anode = makeRow("sass", arow.addr, arow.addr, arow.text, alabel);
-            anode.setAttribute("data-sass-addr", arow.addr);
-            sassPane.appendChild(anode);
-        }
-        sassSide.appendChild(sassHead);
-        sassSide.appendChild(sassPane);
-        body.appendChild(sassSide);
-        ui.appendChild(body);
 
         var status = el("div", "cu-xref-status");
         status.setAttribute("role", "status");
         status.setAttribute("aria-live", "polite");
         status.textContent = "未选中任何行。";
         ui.appendChild(status);
+        ctx.status = status;
 
         var caption = figure.querySelector("figcaption");
         var noscript = figure.querySelector("noscript");
@@ -432,199 +495,304 @@
         if (anchor && anchor.parentNode === figure) figure.insertBefore(ui, anchor);
         else figure.appendChild(ui);
 
-        var ctx = {
-            figure: figure,
-            ui: ui,
-            stepCount: stepCount,
-            stepText: stepText,
-            status: status,
-            prev: prev,
-            next: next,
-            clear: clear,
-            steps: steps,
-            ptxRows: ptxRows,
-            sassRows: sassRows,
-            ptxByLine: ptxByLine,
-            sassByAddr: sassByAddr,
-            sassByPtx: sassByPtx,
-            rows: figure.querySelectorAll(".cu-xref-row"),
-            ptxPane: ptxPane,
-            sassPane: sassPane,
-            body: body,
-            svg: svg,
-            step: 0,
-            selected: { source: {}, ptx: {}, sass: {} },
-            wide: null,
-            pendingFrame: false
-        };
+        ctx.rows = figure.querySelectorAll(".cu-xref-row");
         contexts.push(ctx);
-
-        function apply(sourceSet, ptxSet, sassSet, stepIndex) {
-            ctx.step = stepIndex;
-            ctx.selected = {
-                source: sourceSet || {},
-                ptx: ptxSet || {},
-                sass: sassSet || {}
-            };
-            var any = false;
-            for (var i = 0; i < ctx.rows.length; i++) {
-                var row = ctx.rows[i];
-                var kind = row.getAttribute("data-kind");
-                var key = row.getAttribute("data-key");
-                var on = false;
-                if (kind === "source") on = !!ctx.selected.source[key];
-                else if (kind === "ptx") on = !!ctx.selected.ptx[key];
-                else if (kind === "sass") on = !!ctx.selected.sass[key];
-                row.classList.toggle("is-on", on);
-                setPressed(row, on);
-                if (on) any = true;
-            }
-            figure.classList.toggle("is-selected", any);
-            ctx.clear.disabled = !any && ctx.step === 0;
-            ctx.prev.disabled = ctx.step <= 1;
-            ctx.next.disabled = ctx.step >= ctx.steps.length || ctx.steps.length === 0;
-            updateStatus(ctx);
-            drawLinks(ctx);
-        }
-
-        function updateStep(index) {
-            if (!ctx.steps.length) return;
-            if (index < 1) {
-                ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
-                ctx.stepText.textContent = "点“下一步”从函数入口开始，或直接点任意一行。";
-                apply({}, {}, {}, 0);
-                return;
-            }
-            if (index > ctx.steps.length) index = ctx.steps.length;
-            var step = ctx.steps[index - 1];
-            var selection = stepSelection(step, ctx.ptxRows, ctx.sassRows);
-            ctx.stepCount.textContent = "第 " + index + " / " + ctx.steps.length + " 步";
-            ctx.stepText.textContent = "";
-            renderRichText(ctx.stepText, step.text);
-            apply(selection.src, selection.ptx, selection.sass, index);
-        }
-
-        function select(kind, key) {
-            if (kind === "source") {
-                var line = parseInt(key, 10);
-                var srcSet = {};
-                var ptxSet = {};
-                var sassSet = {};
-                srcSet[line] = true;
-                for (var i = 0; i < ctx.ptxRows.length; i++) {
-                    var prow = ctx.ptxRows[i];
-                    if (prow.src === line) ptxSet[prow.line] = true;
-                }
-                for (var j = 0; j < ctx.sassRows.length; j++) {
-                    if (ctx.sassRows[j].src === line) sassSet[ctx.sassRows[j].addr] = true;
-                }
-                ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
-                ctx.stepText.textContent = "点“下一步”按 " + ctx.steps.length + " 步走，或继续点任意一行。";
-                apply(srcSet, ptxSet, sassSet, 0);
-                return;
-            }
-            if (kind === "ptx") {
-                var ptxLine = parseInt(key, 10);
-                var row = ctx.ptxByLine[ptxLine];
-                var ptxOne = {};
-                var srcOne = {};
-                var sassOne = {};
-                ptxOne[ptxLine] = true;
-                if (row && row.src !== null && row.src !== undefined) srcOne[row.src] = true;
-                for (var k = 0; k < ctx.sassRows.length; k++) {
-                    if (ctx.sassRows[k].ptx === ptxLine) sassOne[ctx.sassRows[k].addr] = true;
-                }
-                ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
-                ctx.stepText.textContent = "点“下一步”按 " + ctx.steps.length + " 步走，或继续点任意一行。";
-                apply(srcOne, ptxOne, sassOne, 0);
-                return;
-            }
-            var sassRow = ctx.sassByAddr[key];
-            if (!sassRow) return;
-            var sassKey = {};
-            var ptxKey = {};
-            var srcKey = {};
-            sassKey[sassRow.addr] = true;
-            ptxKey[sassRow.ptx] = true;
-            srcKey[sassRow.src] = true;
-            ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
-            ctx.stepText.textContent = "点“下一步”按 " + ctx.steps.length + " 步走，或继续点任意一行。";
-            apply(srcKey, ptxKey, sassKey, 0);
-        }
-
-        function onRowKey(event) {
-            var row = event.currentTarget;
-            if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
-                event.preventDefault();
-                event.stopPropagation();
-                select(row.getAttribute("data-kind"), row.getAttribute("data-key"));
-                return;
-            }
-            if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-                // mdBook 在 document 上用左右键翻章；这里只拦住冒泡，保留栏内横向滚动。
-                event.stopPropagation();
-                return;
-            }
-            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-                event.preventDefault();
-                event.stopPropagation();
-                var pane = row.parentNode;
-                var rows = pane ? pane.querySelectorAll(".cu-xref-row") : [];
-                var at = -1;
-                for (var i = 0; i < rows.length; i++) if (rows[i] === row) at = i;
-                if (at < 0) return;
-                var to = event.key === "ArrowDown" ? at + 1 : at - 1;
-                if (to >= 0 && to < rows.length) rows[to].focus();
-            }
-        }
 
         for (var z = 0; z < ctx.rows.length; z++) {
             ctx.rows[z].addEventListener("click", function (event) {
                 var row = event.currentTarget;
-                select(row.getAttribute("data-kind"), row.getAttribute("data-key"));
+                select(ctx, row.getAttribute("data-kind"), row.getAttribute("data-key"));
             });
             ctx.rows[z].addEventListener("keydown", onRowKey);
         }
         prev.addEventListener("click", function () {
             if (ctx.step <= 1) return;
-            updateStep(ctx.step - 1);
+            updateStep(ctx, ctx.step - 1);
         });
         next.addEventListener("click", function () {
-            updateStep(Math.min(ctx.step + 1, ctx.steps.length));
+            updateStep(ctx, Math.min(ctx.step + 1, ctx.steps.length));
         });
         clear.addEventListener("click", function () {
-            ctx.step = 0;
-            if (ctx.steps.length) {
-                ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
-                ctx.stepText.textContent = "点“下一步”从函数入口开始，或直接点任意一行。";
+            setStepZero(ctx);
+        });
+
+        if (mode === "ptx-sass") {
+            if (typeof window.matchMedia === "function") {
+                ctx.wide = window.matchMedia(WIDE);
+                var onMode = function () { drawLinks(ctx); };
+                if (ctx.wide.addEventListener) ctx.wide.addEventListener("change", onMode);
+                else if (ctx.wide.addListener) ctx.wide.addListener(onMode);
             }
-            apply({}, {}, {}, 0);
-        });
 
-        if (typeof window.matchMedia === "function") {
-            ctx.wide = window.matchMedia(WIDE);
-            var onMode = function () { drawLinks(ctx); };
-            if (ctx.wide.addEventListener) ctx.wide.addEventListener("change", onMode);
-            else if (ctx.wide.addListener) ctx.wide.addListener(onMode);
+            window.addEventListener("resize", function () {
+                scheduleLinks(ctx);
+            });
+            if (typeof ResizeObserver === "function") {
+                new ResizeObserver(function () { scheduleLinks(ctx); }).observe(ctx.body);
+            }
+            if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+                document.fonts.ready.then(function () { scheduleLinks(ctx); });
+            }
         }
 
-        window.addEventListener("resize", function () {
-            scheduleLinks(ctx);
-        });
-        if (typeof ResizeObserver === "function") {
-            new ResizeObserver(function () { scheduleLinks(ctx); }).observe(ctx.body);
-        }
-        if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
-            document.fonts.ready.then(function () { scheduleLinks(ctx); });
-        }
-
-        apply({}, {}, {}, 0);
+        setStepZero(ctx);
         return ctx;
     }
 
+    /* 图 4.2：源码在上，PTX 在下，各占整个正文宽度；不画连线。 */
+    function buildCuPtx(ctx, sourceRows, ptxRows, ranges) {
+        var sourceWrap = el("div", "cu-xref-block cu-xref-source-wrap");
+        var sourceNote = sourceRows.length
+            ? "第 " + sourceRows[0].line + "–" + sourceRows[sourceRows.length - 1].line + " 行"
+            : "";
+        sourceWrap.appendChild(makeHead("源码", sourceNote));
+
+        var sourcePane = el("div", "cu-xref-pane cu-xref-source");
+        var colorIndex = {};
+        for (var i = 0; i < sourceRows.length; i++) {
+            var srow = sourceRows[i];
+            var sIndex = i < 4 ? i + 1 : 0;
+            colorIndex[srow.line] = sIndex;
+            var sLabel = "源码第 " + srow.line + " 行";
+            var sNode = makeRow("source", srow.line, String(srow.line), srow.text, sLabel);
+            sNode.setAttribute("data-line", String(srow.line));
+            sNode.setAttribute("data-src", String(srow.line));
+            sNode.className += " cu-xref-c" + sIndex;
+            sourcePane.appendChild(sNode);
+        }
+        sourceWrap.appendChild(sourcePane);
+
+        var ptxWrap = el("div", "cu-xref-block cu-xref-ptx-wrap");
+        var ptxHead = makeHead("PTX", ptxRows.length + " 行 · 颜色来自 .loc");
+        ptxWrap.appendChild(ptxHead);
+
+        var ptxPane = el("div", "cu-xref-pane cu-xref-ptx");
+        for (var q = 0; q < ptxRows.length; q++) {
+            var prow = ptxRows[q];
+            var cIndex = prow.src !== null && prow.src !== undefined
+                ? (colorIndex[prow.src] || 0) : 0;
+            var plabel = "PTX 第 " + prow.line + " 行";
+            if (prow.src !== null && prow.src !== undefined) {
+                plabel += "，对应源码第 " + prow.src + " 行";
+            } else {
+                plabel += "，没有源码行信息";
+            }
+            var pNode = makeRow("ptx", prow.line, String(prow.line), prow.text, plabel);
+            pNode.setAttribute("data-ptx-line", String(prow.line));
+            pNode.setAttribute("data-src",
+                prow.src === null || prow.src === undefined ? "" : String(prow.src));
+            pNode.className += " cu-xref-c" + cIndex;
+            ptxPane.appendChild(pNode);
+        }
+        ptxWrap.appendChild(ptxPane);
+
+        var stack = el("div", "cu-xref-stack");
+        stack.appendChild(sourceWrap);
+        stack.appendChild(ptxWrap);
+        ctx.ui.appendChild(stack);
+
+        ctx.sourcePane = sourcePane;
+        ctx.ptxPane = ptxPane;
+    }
+
+    /* 图 4.3：PTX 函数体在左、SASS 在右，中间留出画连线的空间。 */
+    function buildPtxSass(ctx, ptxRows, sassRows) {
+        var body = el("div", "cu-xref-body");
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("class", "cu-xref-links");
+        svg.setAttribute("aria-hidden", "true");
+        body.appendChild(svg);
+
+        var ptxSide = el("div", "cu-xref-side cu-xref-side-ptx");
+        ptxSide.appendChild(makeHead("PTX", ptxRows.length + " 行 · 函数体"));
+        var ptxPane = el("div", "cu-xref-pane cu-xref-ptx");
+        for (var q = 0; q < ptxRows.length; q++) {
+            var prow = ptxRows[q];
+            var sassHere = ctx.sassByPtx[prow.line] || [];
+            var plabel = "PTX 第 " + prow.line + " 行";
+            if (prow.src !== null && prow.src !== undefined) {
+                plabel += "，对应源码第 " + prow.src + " 行";
+            }
+            if (sassHere.length) plabel += "、SASS " + sassHere.join("、");
+            var pNode = makeRow("ptx", prow.line, String(prow.line), prow.text, plabel);
+            pNode.setAttribute("data-ptx-line", String(prow.line));
+            ptxPane.appendChild(pNode);
+        }
+        ptxSide.appendChild(ptxPane);
+        body.appendChild(ptxSide);
+
+        var sassSide = el("div", "cu-xref-side cu-xref-side-sass");
+        sassSide.appendChild(makeHead("SASS", sassRows.length + " 条"));
+        var sassPane = el("div", "cu-xref-pane cu-xref-sass");
+        for (var r = 0; r < sassRows.length; r++) {
+            var arow = sassRows[r];
+            var alabel = "SASS " + arow.addr;
+            if (arow.src !== null && arow.src !== undefined) alabel += "，对应源码第 " + arow.src + " 行";
+            if (arow.ptx !== null && arow.ptx !== undefined) alabel += "、PTX 第 " + arow.ptx + " 行";
+            var aNode = makeRow("sass", arow.addr, arow.addr, arow.text, alabel);
+            aNode.setAttribute("data-sass-addr", arow.addr);
+            sassPane.appendChild(aNode);
+        }
+        sassSide.appendChild(sassPane);
+        body.appendChild(sassSide);
+        ctx.ui.appendChild(body);
+
+        ctx.body = body;
+        ctx.svg = svg;
+        ctx.ptxPane = ptxPane;
+        ctx.sassPane = sassPane;
+    }
+
+    function apply(ctx, sourceSet, ptxSet, sassSet, stepIndex) {
+        ctx.step = stepIndex;
+        ctx.selected = {
+            source: sourceSet || {},
+            ptx: ptxSet || {},
+            sass: sassSet || {}
+        };
+        var any = false;
+        for (var i = 0; i < ctx.rows.length; i++) {
+            var row = ctx.rows[i];
+            var kind = row.getAttribute("data-kind");
+            var key = row.getAttribute("data-key");
+            var on = false;
+            if (kind === "source") on = !!ctx.selected.source[key];
+            else if (kind === "ptx") on = !!ctx.selected.ptx[key];
+            else if (kind === "sass") on = !!ctx.selected.sass[key];
+            row.classList.toggle("is-on", on);
+            setPressed(row, on);
+            if (on) any = true;
+        }
+        ctx.figure.classList.toggle("is-selected", any);
+        ctx.clear.disabled = !any && ctx.step === 0;
+        ctx.prev.disabled = ctx.step <= 1;
+        ctx.next.disabled = ctx.step >= ctx.steps.length || ctx.steps.length === 0;
+        updateStatus(ctx);
+        if (ctx.mode === "ptx-sass") drawLinks(ctx);
+    }
+
+    function updateStep(ctx, index) {
+        if (!ctx.steps.length) return;
+        if (index < 1) {
+            setStepZero(ctx);
+            return;
+        }
+        if (index > ctx.steps.length) index = ctx.steps.length;
+        var step = ctx.steps[index - 1];
+        ctx.stepCount.textContent = "第 " + index + " / " + ctx.steps.length + " 步";
+        ctx.stepText.textContent = "";
+        renderRichText(ctx.stepText, step.label);
+        if (ctx.mode === "cu-ptx") {
+            var sourceSelection = sourceStepSelection(step, ctx.ptxRows);
+            apply(ctx, sourceSelection.source, sourceSelection.ptx, {}, index);
+        } else {
+            var selection = stepSelection(step, ctx.ptxRows, ctx.sassRows);
+            apply(ctx, {}, selection.ptx, selection.sass, index);
+        }
+    }
+
+    function select(ctx, kind, key) {
+        if (ctx.mode === "cu-ptx") {
+            if (kind === "source") {
+                var line = parseInt(key, 10);
+                var srcSet = {};
+                var ptxSet = {};
+                srcSet[line] = true;
+                for (var i = 0; i < ctx.ptxRows.length; i++) {
+                    if (ctx.ptxRows[i].src === line) ptxSet[ctx.ptxRows[i].line] = true;
+                }
+                ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
+                ctx.stepText.textContent = defaultStepText(ctx);
+                apply(ctx, srcSet, ptxSet, {}, 0);
+                return;
+            }
+            if (kind === "ptx") {
+                var ptxLine = parseInt(key, 10);
+                var row = ctx.ptxByLine[ptxLine];
+                var onePtx = {};
+                var oneSrc = {};
+                onePtx[ptxLine] = true;
+                if (row && row.src !== null && row.src !== undefined) {
+                    oneSrc[row.src] = true;
+                    for (var j = 0; j < ctx.ptxRows.length; j++) {
+                        if (ctx.ptxRows[j].src === row.src) onePtx[ctx.ptxRows[j].line] = true;
+                    }
+                }
+                ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
+                ctx.stepText.textContent = defaultStepText(ctx);
+                apply(ctx, oneSrc, onePtx, {}, 0);
+                return;
+            }
+            return;
+        }
+
+        if (kind === "ptx") {
+            var lineNo = parseInt(key, 10);
+            var ptxRow = ctx.ptxByLine[lineNo];
+            var ptxOne = {};
+            var sassOne = {};
+            ptxOne[lineNo] = true;
+            for (var k = 0; k < ctx.sassRows.length; k++) {
+                if (ctx.sassRows[k].ptx === lineNo) sassOne[ctx.sassRows[k].addr] = true;
+            }
+            ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
+            ctx.stepText.textContent = defaultStepText(ctx);
+            apply(ctx, {}, ptxOne, sassOne, 0);
+            return;
+        }
+
+        var sassRow = ctx.sassByAddr[key];
+        if (!sassRow) return;
+        var sassKey = {};
+        var ptxKey = {};
+        sassKey[sassRow.addr] = true;
+        ptxKey[sassRow.ptx] = true;
+        ctx.stepCount.textContent = "第 0 / " + ctx.steps.length + " 步";
+        ctx.stepText.textContent = defaultStepText(ctx);
+        apply(ctx, {}, ptxKey, sassKey, 0);
+    }
+
+    function onRowKey(event) {
+        var row = event.currentTarget;
+        if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
+            event.preventDefault();
+            event.stopPropagation();
+            var ctx = contextFor(row);
+            if (ctx) select(ctx, row.getAttribute("data-kind"), row.getAttribute("data-key"));
+            return;
+        }
+        if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+            // mdBook 在 document 上用左右键翻章；这里只拦住冒泡，保留栏内横向滚动。
+            event.stopPropagation();
+            return;
+        }
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            event.stopPropagation();
+            var pane = row.parentNode;
+            var rows = pane ? pane.querySelectorAll(".cu-xref-row") : [];
+            var at = -1;
+            for (var i = 0; i < rows.length; i++) if (rows[i] === row) at = i;
+            if (at < 0) return;
+            var to = event.key === "ArrowDown" ? at + 1 : at - 1;
+            if (to >= 0 && to < rows.length) rows[to].focus();
+        }
+    }
+
+    function contextFor(node) {
+        for (var i = 0; i < contexts.length; i++) {
+            if (contexts[i].figure.contains(node)) return contexts[i];
+        }
+        return null;
+    }
+
+    function sortNumeric(keys) {
+        return keys.sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); });
+    }
+
     function updateStatus(ctx) {
-        var src = Object.keys(ctx.selected.source);
-        var ptx = Object.keys(ctx.selected.ptx);
+        var src = sortNumeric(Object.keys(ctx.selected.source));
+        var ptx = sortNumeric(Object.keys(ctx.selected.ptx));
         var sass = Object.keys(ctx.selected.sass);
         if (!src.length && !ptx.length && !sass.length) {
             ctx.status.textContent = "未选中任何行。";
@@ -639,6 +807,7 @@
 
     /* 两条栏之间画当前 SASS 到它 PTX 行的连线。窄屏不画。 */
     function drawLinks(ctx) {
+        if (ctx.mode !== "ptx-sass" || !ctx.svg) return;
         var svg = ctx.svg;
         while (svg.firstChild) svg.removeChild(svg.firstChild);
         if (ctx.wide && !ctx.wide.matches) return;
@@ -691,7 +860,7 @@
     }
 
     function scheduleLinks(ctx) {
-        if (ctx.pendingFrame) return;
+        if (ctx.mode !== "ptx-sass" || ctx.pendingFrame) return;
         ctx.pendingFrame = true;
         var raf = typeof window.requestAnimationFrame === "function"
             ? window.requestAnimationFrame.bind(window)
@@ -703,7 +872,7 @@
     }
 
     function init() {
-        var roots = document.querySelectorAll(".cu-xref[data-cu]");
+        var roots = document.querySelectorAll(".cu-xref");
         if (!roots.length) return;
         Array.prototype.forEach.call(roots, function (root) {
             try {
@@ -730,10 +899,12 @@
             parseRanges: parseRanges,
             sourceInRanges: sourceInRanges,
             parsePtx: parsePtx,
+            parsePtxBody: parsePtxBody,
             parseSassMap: parseSassMap,
             parseSass: parseSass,
             isUnconditionalExit: isUnconditionalExit,
             parseSteps: parseSteps,
+            sourceStepSelection: sourceStepSelection,
             stepSelection: stepSelection,
             checkCoverage: checkCoverage
         };
