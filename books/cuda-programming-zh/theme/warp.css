@@ -1,0 +1,830 @@
+/* 第 6 章：warp / lane 示意图（图 6.1）和 warp 调度图（图 6.5）。
+ * 颜色只来自主题变量和这里定义的变量；不依赖 charts.css 的选择器。 */
+
+.cu-warp,
+.cu-warpsched {
+  --cu-s1: #2a78d6;
+  --cu-s2: #eb6834;
+  --cu-s3: #1baf7a;
+  --cu-s4: #eda100;
+  --cu-ink: var(--fg);
+  --cu-ink2: color-mix(in srgb, var(--fg) 72%, var(--bg));
+  --cu-grid: color-mix(in srgb, var(--fg) 10%, var(--bg));
+  --cu-grid-strong: color-mix(in srgb, var(--fg) 22%, var(--bg));
+  --cu-panel: color-mix(in srgb, var(--fg) 4%, var(--bg));
+  --cu-focus: var(--cu-s1);
+  --cu-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  position: relative;
+  max-width: 100%;
+  margin: 1.5em 0;
+  text-align: left;
+  font: inherit;
+  overflow-wrap: anywhere;
+}
+
+html.rust .cu-warp,
+html.rust .cu-warpsched {
+  --cu-s2: #c94f1f;
+  --cu-s3: #14875e;
+  --cu-s4: #9c6a00;
+}
+
+html.coal .cu-warp,
+html.coal .cu-warpsched,
+html.navy .cu-warp,
+html.navy .cu-warpsched,
+html.ayu .cu-warp,
+html.ayu .cu-warpsched {
+  --cu-s1: #3987e5;
+  --cu-s2: #d95926;
+  --cu-s3: #199e70;
+  --cu-s4: #c98500;
+}
+
+.cu-warp > figcaption,
+.cu-warpsched > figcaption {
+  margin-top: 0.6em;
+  text-align: center;
+}
+
+.cu-sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ------------------------------------------------------------------------- */
+/* 图 6.1：block / warp / lane                                                */
+/* ------------------------------------------------------------------------- */
+
+.cu-warp-body {
+  width: 100%;
+  max-width: 100%;
+}
+
+.cu-warp-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  overflow: hidden;
+  font: inherit;
+}
+
+.cu-warp text {
+  fill: var(--cu-ink);
+  font-family: inherit;
+}
+
+.cu-warp .cu-warp-mono {
+  font-family: var(--cu-mono);
+  font-size: 13px;
+}
+
+.cu-warp-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cu-warp-seg {
+  cursor: pointer;
+  outline: none;
+}
+
+.cu-warp-seg-bg {
+  fill: color-mix(in srgb, var(--warp-color) 22%, var(--bg));
+  stroke: color-mix(in srgb, var(--warp-color) 42%, var(--bg));
+  stroke-width: 1;
+  transition: fill 120ms ease, stroke 120ms ease, stroke-width 120ms ease;
+}
+
+.cu-warp-seg:hover .cu-warp-seg-bg {
+  fill: color-mix(in srgb, var(--warp-color) 32%, var(--bg));
+}
+
+.cu-warp-seg.is-selected .cu-warp-seg-bg {
+  fill: color-mix(in srgb, var(--warp-color) 55%, var(--bg));
+  stroke: var(--warp-color);
+  stroke-width: 2;
+}
+
+.cu-warp-seg:focus-visible .cu-warp-seg-bg {
+  stroke: var(--cu-focus);
+  stroke-width: 3;
+}
+
+.cu-warp-tick {
+  stroke: color-mix(in srgb, var(--warp-color) 55%, var(--bg));
+  stroke-width: 1.2;
+  transition: stroke 100ms ease, stroke-width 100ms ease;
+}
+
+.cu-warp-tick.is-active {
+  stroke: var(--warp-color);
+  stroke-width: 2.6;
+}
+
+.cu-warp-hit {
+  cursor: pointer;
+}
+
+.cu-warp-warp-label {
+  font-size: 14px;
+  font-weight: 600;
+  paint-order: stroke fill;
+  stroke: var(--bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.cu-warp text.cu-warp-range {
+  font-size: 13px;
+  fill: var(--cu-ink2);
+  paint-order: stroke fill;
+  stroke: var(--bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.cu-warp-trap {
+  fill: none;
+  stroke: var(--cu-grid-strong);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+}
+
+.cu-warp-instr-box {
+  fill: var(--cu-panel);
+  stroke: var(--cu-grid-strong);
+  stroke-width: 1;
+}
+
+.cu-warp text.cu-warp-instr-text {
+  font-size: 14px;
+}
+
+.cu-warp-bus-line,
+.cu-warp-drop {
+  fill: none;
+  stroke: var(--cu-grid-strong);
+  stroke-width: 1;
+}
+
+.cu-warp text.cu-warp-fan-label {
+  font-size: 13px;
+  fill: var(--cu-ink2);
+  paint-order: stroke fill;
+  stroke: var(--bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.cu-warp-cell {
+  cursor: pointer;
+  outline: none;
+}
+
+.cu-warp-cell-bg {
+  fill: color-mix(in srgb, var(--warp-color) 22%, var(--bg));
+  stroke: color-mix(in srgb, var(--warp-color) 55%, var(--bg));
+  stroke-width: 1;
+  transition: fill 100ms ease, stroke 100ms ease, stroke-width 100ms ease;
+}
+
+.cu-warp-cell:hover .cu-warp-cell-bg {
+  fill: color-mix(in srgb, var(--warp-color) 34%, var(--bg));
+}
+
+.cu-warp-cell.is-active .cu-warp-thread-num {
+  fill: var(--cu-ink);
+}
+
+.cu-warp-cell.is-active .cu-warp-cell-bg {
+  fill: color-mix(in srgb, var(--warp-color) 36%, var(--bg));
+  stroke: var(--warp-color);
+  stroke-width: 2.5;
+}
+
+.cu-warp-cell.is-selected .cu-warp-cell-bg {
+  fill: color-mix(in srgb, var(--warp-color) 42%, var(--bg));
+  stroke-width: 3;
+}
+
+.cu-warp-cell:focus-visible .cu-warp-cell-bg {
+  stroke: var(--cu-focus);
+  stroke-width: 3;
+}
+
+.cu-warp-lane-num {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.cu-warp text.cu-warp-thread-num {
+  font-family: var(--cu-mono);
+  font-size: 13px;
+  fill: var(--cu-ink2);
+}
+
+.cu-warp-readout {
+  min-height: 1.6em;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--cu-ink);
+}
+
+.cu-warp-readout.is-default {
+  color: var(--cu-ink2);
+}
+
+.cu-warp-readout code {
+  padding: 0 3px;
+  border-radius: 3px;
+  background: var(--cu-panel);
+  font-family: var(--cu-mono);
+  font-size: 13px;
+  color: var(--cu-ink);
+  overflow-wrap: anywhere;
+}
+
+.cu-warp-fallback {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--cu-grid-strong);
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* ------------------------------------------------------------------------- */
+/* 图 6.5：warp 调度                                                         */
+/* ------------------------------------------------------------------------- */
+
+.cu-warpsched {
+  --cu-w0: var(--cu-s1);
+  --cu-w1: var(--cu-s2);
+  --cu-w2: var(--cu-s3);
+  --cu-w3: var(--cu-s4);
+  --cu-w4: color-mix(in srgb, var(--cu-s1) 62%, var(--fg));
+  --cu-w5: color-mix(in srgb, var(--cu-s2) 62%, var(--fg));
+  --cu-w6: color-mix(in srgb, var(--cu-s3) 62%, var(--fg));
+  --cu-w7: color-mix(in srgb, var(--cu-s4) 62%, var(--fg));
+}
+
+.cu-warpsched-body {
+  width: 100%;
+  max-width: 100%;
+}
+
+.cu-warpsched-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 10px;
+}
+
+.cu-warpsched-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+
+.cu-warpsched-picker-label {
+  font-size: 13px;
+  color: var(--cu-ink2);
+}
+
+.cu-warpsched-warpbuttons {
+  display: flex;
+  gap: 4px;
+}
+
+.cu-warpsched-warpbtn,
+.cu-warpsched-button {
+  box-sizing: border-box;
+  min-height: 30px;
+  margin: 0;
+  padding: 0 10px;
+  border: 1px solid var(--cu-grid-strong);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--cu-ink);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.cu-warpsched-warpbtn {
+  min-width: 32px;
+  padding: 0 8px;
+}
+
+.cu-warpsched-warpbtn:hover,
+.cu-warpsched-button:hover {
+  background: var(--cu-panel);
+  border-color: var(--cu-ink2);
+}
+
+.cu-warpsched-warpbtn[aria-pressed="true"] {
+  border-color: var(--cu-s1);
+  background: color-mix(in srgb, var(--cu-s1) 24%, var(--bg));
+  font-weight: 600;
+}
+
+.cu-warpsched-button:active {
+  background: color-mix(in srgb, var(--fg) 8%, var(--bg));
+}
+
+.cu-warpsched-warpbtn:focus-visible,
+.cu-warpsched-button:focus-visible {
+  outline: 2px solid var(--cu-focus);
+  outline-offset: 2px;
+}
+
+.cu-warpsched-transport {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.cu-warpsched-cycle {
+  margin-left: auto;
+  color: var(--cu-ink);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.cu-warpsched-cycle-now,
+.cu-warpsched-cycle-total {
+  font-family: var(--cu-mono);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cu-warpsched-stage {
+  position: relative;
+  padding-right: 24px;
+}
+
+.cu-warpsched-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cu-warpsched-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 72px;
+  gap: 10px;
+  align-items: center;
+  min-height: 36px;
+  padding: 3px 0;
+  border-radius: 5px;
+  transition: background-color 120ms ease;
+}
+
+.cu-warpsched-row.is-issued-now {
+  background: color-mix(in srgb, var(--warp-color) 12%, var(--bg));
+}
+
+.cu-warpsched-row-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cu-warpsched-swatch {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--warp-color);
+}
+
+.cu-warpsched-row-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cu-warpsched-seq {
+  display: flex;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cu-warpsched-seq-item {
+  box-sizing: border-box;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px dashed var(--cu-grid-strong);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--cu-ink2);
+  font-family: var(--cu-mono);
+  font-size: 13px;
+  line-height: 1;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.cu-warpsched-seq-item.is-load {
+  border-style: solid;
+}
+
+.cu-warpsched-seq-item.is-issued {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--warp-color) 55%, var(--bg));
+  background: color-mix(in srgb, var(--warp-color) 30%, var(--bg));
+  color: var(--cu-ink);
+}
+
+.cu-warpsched-seq-item.is-just {
+  background: color-mix(in srgb, var(--warp-color) 38%, var(--bg));
+}
+
+.cu-warpsched-seq-item.is-next {
+  outline: 2px solid var(--warp-color);
+  outline-offset: 1px;
+}
+
+.cu-warpsched-status {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cu-warpsched-status-text {
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--cu-ink);
+}
+
+.cu-warpsched-row.is-issued-now .cu-warpsched-status-text {
+  color: var(--warp-color);
+  font-weight: 600;
+}
+
+.cu-warpsched-row.is-wait .cu-warpsched-status-text {
+  color: var(--cu-ink2);
+}
+
+.cu-warpsched-waitbar {
+  display: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--cu-grid);
+  overflow: hidden;
+}
+
+.cu-warpsched-waitbar.is-visible {
+  display: block;
+}
+
+.cu-warpsched-waitfill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--fg) 38%, var(--bg));
+  transition: width 120ms ease;
+}
+
+.cu-warpsched-sched {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.cu-warpsched-sched-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--cu-grid-strong);
+  border-radius: 6px;
+  background: var(--cu-panel);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.cu-warpsched-sched-name {
+  font-weight: 600;
+}
+
+.cu-warpsched-sched-state {
+  color: var(--cu-ink2);
+}
+
+.cu-warpsched-sched-box.is-idle .cu-warpsched-sched-state {
+  font-style: italic;
+}
+
+.cu-warpsched-arrow {
+  position: absolute;
+  right: 10px;
+  width: 10px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 120ms ease, top 120ms ease, height 120ms ease;
+}
+
+.cu-warpsched-arrow.is-visible {
+  opacity: 1;
+}
+
+.cu-warpsched-arrow-line {
+  position: absolute;
+  left: 4px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--warp-color, var(--cu-ink2));
+}
+
+.cu-warpsched-arrow-head {
+  position: absolute;
+  left: -4px;
+  top: -1px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 9px solid var(--warp-color, var(--cu-ink2));
+}
+
+.cu-warpsched-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.cu-warpsched-timeline-row {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.cu-warpsched-timeline-label {
+  color: var(--cu-ink2);
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.cu-warpsched-timeline-cells {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 19), minmax(0, 1fr));
+  gap: 2px;
+  min-width: 0;
+}
+
+.cu-warpsched-cell {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background-color: var(--cu-panel);
+  background-image: none;
+  color: var(--cu-ink2);
+  font-family: var(--cu-mono);
+  font-size: 13px;
+  line-height: 1;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.cu-warpsched-cell.is-filled {
+  border-color: color-mix(in srgb, var(--warp-color) 60%, var(--bg));
+  background-color: color-mix(in srgb, var(--warp-color) 36%, var(--bg));
+  background-image: none;
+  color: var(--cu-ink);
+}
+
+.cu-warpsched-cell.is-idle {
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0,
+    transparent 3px,
+    var(--cu-grid) 3px,
+    var(--cu-grid) 4px
+  );
+  color: transparent;
+}
+
+.cu-warpsched-cell.is-load::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--warp-color);
+}
+
+.cu-warpsched-cell.is-current {
+  outline: 2px solid var(--cu-ink);
+  outline-offset: 1px;
+  z-index: 1;
+}
+
+.cu-warpsched-stats {
+  margin-top: 10px;
+  color: var(--cu-ink);
+  font-size: 14px;
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+}
+
+.cu-warpsched-notes {
+  margin-top: 8px;
+}
+
+.cu-warpsched-note {
+  display: block;
+}
+
+.cu-warpsched-note p {
+  margin: 0.35em 0;
+  font-size: 1em;
+  line-height: 1.7;
+}
+
+.cu-warpsched.cu-warpsched-ready .cu-warpsched-note {
+  display: none;
+}
+
+.cu-warpsched.cu-warpsched-ready .cu-warpsched-note.is-current {
+  display: block;
+}
+
+.cu-warpsched.cu-warpsched-ready .cu-warpsched-note.is-current p {
+  padding-left: 10px;
+  border-left: 3px solid var(--cu-s1);
+}
+
+/* ------------------------------------------------------------------------- */
+/* 窄屏                                                                      */
+/* ------------------------------------------------------------------------- */
+
+@media (max-width: 700px) {
+  .cu-warp-lane-num {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .cu-warpsched-stage {
+    padding-right: 22px;
+  }
+
+  .cu-warpsched-row {
+    grid-template-columns: 60px minmax(0, 1fr) 66px;
+    gap: 8px;
+  }
+
+  .cu-warpsched-seq {
+    gap: 2px;
+  }
+
+  .cu-warpsched-seq-item {
+    width: 18px;
+    height: 18px;
+  }
+
+  .cu-warpsched-timeline-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .cu-warpsched-timeline-label {
+    font-size: 13px;
+  }
+
+  .cu-warpsched-timeline-cells {
+    gap: 1px;
+  }
+
+  .cu-warpsched-cell {
+    height: 16px;
+    font-size: 11px;
+    border-radius: 2px;
+  }
+
+  .cu-warpsched-cell.is-load::after {
+    top: 2px;
+    right: 2px;
+    width: 3px;
+    height: 3px;
+  }
+
+  .cu-warpsched-cycle {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .cu-warpsched-seq-item {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+@media (max-width: 340px) {
+  .cu-warpsched-seq {
+    gap: 1px;
+  }
+
+  .cu-warpsched-seq-item {
+    width: 14px;
+  }
+}
+
+/* ------------------------------------------------------------------------- */
+/* 减少动态效果                                                              */
+/* ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .cu-warp *,
+  .cu-warpsched * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------------- */
+/* 打印                                                                      */
+/* ------------------------------------------------------------------------- */
+
+@media print {
+  .cu-warp,
+  .cu-warpsched {
+    break-inside: avoid;
+  }
+
+  .cu-warp-readout,
+  .cu-warpsched-controls {
+    display: none !important;
+  }
+
+  .cu-warp *,
+  .cu-warpsched * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .cu-warpsched.cu-warpsched-ready .cu-warpsched-note {
+    display: block !important;
+  }
+
+  .cu-warpsched.cu-warpsched-ready .cu-warpsched-note.is-current p {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .cu-warpsched-cell {
+    height: 20px;
+    font-size: 11px;
+  }
+
+  .cu-warpsched-cell.is-load::after {
+    top: 2px;
+    right: 2px;
+    width: 3px;
+    height: 3px;
+  }
+}
