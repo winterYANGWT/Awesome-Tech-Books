@@ -1,0 +1,26 @@
+{
+ "kind": "flow",
+ "title": "按预算裁剪的先后顺序",
+ "alt": "先保护系统提示，再保留最近对话，然后清旧工具结果、成对删中间轮，最后才动摘要",
+ "grid": [3, 2],
+ "static": true,
+ "nodes": [
+  {"id": "sys", "label": "系统提示", "sub": "保护", "at": [0, 0]},
+  {"id": "recent", "label": "最近 4 条", "sub": "保留", "at": [1, 0]},
+  {"id": "old", "label": "旧工具结果", "sub": "先换 stub", "at": [2, 0]},
+  {"id": "mid", "label": "中间轮", "sub": "成对删除", "at": [2, 1]},
+  {"id": "sum", "label": "摘要", "sub": "留关键事实", "at": [1, 1]},
+  {"id": "budget", "label": "预算线", "sub": "输入 + 输出", "at": [0, 1], "shape": "note"}
+ ],
+ "edges": [
+  {"id": "e1", "from": "sys", "to": "recent", "label": "保留"},
+  {"id": "e2", "from": "recent", "to": "old", "label": "仍超"},
+  {"id": "e3", "from": "old", "to": "mid", "label": "仍超"},
+  {"id": "e4", "from": "mid", "to": "sum", "label": "仍超"},
+  {"id": "e5", "from": "sum", "to": "budget", "label": "对照"}
+ ],
+ "steps": [
+  {"hi": ["old"], "tone": {"old": "wait"},
+   "note": "先清旧工具结果；不够再成对删中间轮，最后才动摘要"}
+ ]
+}

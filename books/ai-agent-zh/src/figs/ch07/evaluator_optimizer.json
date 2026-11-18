@@ -1,0 +1,29 @@
+{
+  "kind": "seq",
+  "title": "评估者-优化者：写一版、评一版、改一版",
+  "alt": "生成者先承诺今天退 680 元，评估者指出越权，第二版改成提交主管后通过",
+  "lanes": [
+    {"id": "orch", "label": "编排者"},
+    {"id": "gen", "label": "生成者"},
+    {"id": "eval", "label": "评估者"}
+  ],
+  "state": [
+    {"id": "round", "label": "轮次", "value": "—"},
+    {"id": "draft", "label": "当前草稿", "value": "—"}
+  ],
+  "steps": [
+    {"from": "orch", "to": "gen", "text": "T13 工单", "note": "编排者把 A1680 的退款工单交给生成者"},
+    {"from": "orch", "to": "gen", "text": "事实和政策", "note": "编排者同时给出订单事实和退款条款，生成者不再查"},
+    {"from": "gen", "to": "eval", "text": "草稿 1", "tone": "bad", "set": {"round": "1", "draft": "v1"},
+     "note": "草稿 1 仍承诺“今天退 680 元”：越权"},
+    {"at": "eval", "text": "score=2", "tone": "bad", "note": "评估者给出 2 分，指出超权承诺"},
+    {"from": "eval", "to": "gen", "text": "issues", "note": "issues 原样交给生成者：改主管审批"},
+    {"at": "gen", "text": "按 issues 改", "tone": "hot", "set": {"draft": "v2"},
+     "note": "生成者只改被指出的地方，不重写整篇"},
+    {"from": "gen", "to": "eval", "text": "草稿 2", "tone": "ok", "set": {"round": "2"},
+     "note": "草稿 2 改成“提交主管审批”，不再承诺今天退款"},
+    {"at": "eval", "text": "pass=True", "tone": "ok", "note": "第二轮通过；最多两轮，不再循环"},
+    {"from": "eval", "to": "orch", "text": "转主管", "tone": "ok",
+     "note": "编排者执行最终动作：escalate_to_supervisor"}
+  ]
+}

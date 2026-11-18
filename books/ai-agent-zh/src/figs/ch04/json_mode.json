@@ -1,0 +1,60 @@
+{
+  "kind": "seq",
+  "title": "JSON 模式：谁保证哪一步",
+  "alt": "请求里带 json 提示，客户端仍要 json.loads、校验枚举和空内容分支",
+  "lanes": [
+    {
+      "id": "c",
+      "label": "客户端"
+    },
+    {
+      "id": "m",
+      "label": "模型",
+      "role": "device"
+    },
+    {
+      "id": "v",
+      "label": "校验器",
+      "role": "process"
+    }
+  ],
+  "steps": [
+    {
+      "from": "c",
+      "to": "m",
+      "text": "请求 + json 例子",
+      "note": "提示里出现 json 这个词，并给一个目标格式的例子"
+    },
+    {
+      "from": "m",
+      "to": "c",
+      "text": "合法 JSON（非空）",
+      "tone": "hot",
+      "note": "json_object 在非空时是合法 JSON；空 content 单独判失败"
+    },
+    {
+      "at": "c",
+      "text": "`json.loads`",
+      "note": "仍要自己解析：模型给的是字符串，不是对象"
+    },
+    {
+      "from": "c",
+      "to": "v",
+      "text": "查字段和枚举",
+      "note": "不是 schema：字段、类型、枚举都要手写检查"
+    },
+    {
+      "from": "v",
+      "to": "c",
+      "text": "通过 → 下游",
+      "tone": "ok",
+      "note": "通过以后才把对象交给业务代码"
+    },
+    {
+      "at": "c",
+      "text": "空 content → 重试",
+      "tone": "bad",
+      "note": "另开分支：全空格也当失败，不猜内容"
+    }
+  ]
+}

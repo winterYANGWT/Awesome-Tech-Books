@@ -1,0 +1,31 @@
+{
+  "kind": "seq",
+  "title": "暂停、写 pending、换一个进程恢复",
+  "alt": "ask 在退款前退出，审批人批准后 resume 从 pending.json 接着执行",
+  "lanes": [
+    {"id": "ask", "label": "ask 进程", "role": "process"},
+    {"id": "p", "label": "pending.json", "role": "memory"},
+    {"id": "a", "label": "审批人", "role": "thread"},
+    {"id": "r", "label": "resume 进程", "role": "process"},
+    {"id": "m", "label": "模型", "role": "device"}
+  ],
+  "state": [
+    {"id": "req", "label": "request_id", "value": "—"},
+    {"id": "status", "label": "状态", "value": "—"},
+    {"id": "refund", "label": "退款条数", "value": "0"}
+  ],
+  "steps": [
+    {"from": "m", "to": "ask", "text": "要退款", "tone": "hot", "note": "模型生成了退款工具调用，但还没执行"},
+    {"from": "ask", "to": "p", "text": "写 pending", "set": {"req": "R-0001", "status": "pending"}, "tone": "wait", "note": "把工具、参数、消息和 tool_call_id 写进文件"},
+    {"at": "ask", "text": "进程退出", "lane": {"ask": "done"}, "tone": "muted", "note": "同步 approve 会一直等；这里选择退出进程"},
+    {"from": "p", "to": "a", "text": "读出卡片", "note": "审批人看到的是待执行的动作"},
+    {"from": "a", "to": "p", "text": "批准", "set": {"status": "approved"}, "tone": "ok", "note": "审批结果写回同一个 request_id"},
+    {"from": "p", "to": "r", "text": "resume 读 pending", "lane": {"p": "done"}, "set": {"status": "恢复中"}, "note": "新进程只读文件，不重新问模型"},
+    {"at": "r", "text": "查 actions：未执行", "note": "先查幂等，避免重复退款"},
+    {"at": "r", "text": "执行退款", "tone": "hot", "note": "直接执行已批准的工具，不再走 approve"},
+    {"at": "r", "text": "已退款", "set": {"refund": "1", "status": "done"}, "tone": "ok", "note": "工具结果写回 actions"},
+    {"from": "r", "to": "m", "text": "run(messages) 继续", "note": "把 tool 结果追加到原消息后继续"},
+    {"from": "m", "to": "r", "text": "回答顾客", "tone": "ok", "note": "模型只负责写最终回答"}
+  ],
+  "speed": 1500
+}

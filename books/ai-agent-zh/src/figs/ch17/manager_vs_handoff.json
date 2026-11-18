@@ -1,0 +1,35 @@
+{
+ "kind": "flow",
+ "title": "两条控制路径：manager 调用，分诊交接",
+ "alt": "manager 调用专员并收回结果；分诊把控制权交给专员后不再收回",
+ "grid": [3, 4],
+ "bands": [
+  {"label": "manager", "rows": [0, 1]},
+  {"label": "handoff", "rows": [2, 3]}
+ ],
+ "nodes": [
+  {"id": "u1", "label": "用户", "at": [0, 0]},
+  {"id": "manager", "label": "manager", "sub": "持有对话", "at": [1, 0], "shape": "round"},
+  {"id": "m_log", "label": "物流专员", "at": [2, 0]},
+  {"id": "m_ref", "label": "退款专员", "at": [2, 1]},
+  {"id": "u2", "label": "用户", "at": [0, 2]},
+  {"id": "triage", "label": "分诊", "sub": "只做路由", "at": [1, 2], "shape": "round"},
+  {"id": "h_log", "label": "物流专员", "at": [2, 2]},
+  {"id": "h_ref", "label": "退款专员", "sub": "接着对话", "at": [2, 3]}
+ ],
+ "edges": [
+  {"id": "a1", "from": "u1", "to": "manager", "arrow": "both"},
+  {"id": "m1", "from": "manager", "to": "m_log", "arrow": "both", "label": "调用"},
+  {"id": "m2", "from": "manager", "to": "m_ref", "arrow": "both", "label": "调用"},
+  {"id": "a2", "from": "u2", "to": "triage"},
+  {"id": "t1", "from": "triage", "to": "h_log", "dashed": true},
+  {"id": "t2", "from": "triage", "to": "h_ref", "dashed": true, "label": "交接"},
+  {"id": "back", "from": "h_ref", "to": "u2", "dashed": true, "label": "直接回答"}
+ ],
+ "steps": [
+  {"hi": ["manager", "m1"], "token": [{"edge": "m1", "label": "查物流"}], "note": "manager 面对用户，把物流问题交给物流专员，像调用一个工具"},
+  {"hi": ["manager", "m2"], "token": [{"edge": "m2", "label": "算退款"}], "note": "结果回到 manager，它再调用退款专员；最后由 manager 汇总回答"},
+  {"hi": ["triage", "t2"], "token": [{"edge": "t2", "label": "交接"}], "note": "分诊只决定交给谁：交接以后控制权给了退款专员"},
+  {"hi": ["h_ref", "back"], "tone": {"h_ref": "ok"}, "note": "退款专员直接回答用户，分诊不再收回控制权"}
+ ]
+}

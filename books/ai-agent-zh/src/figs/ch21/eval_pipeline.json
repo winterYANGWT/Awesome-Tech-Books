@@ -1,0 +1,107 @@
+{
+  "kind": "flow",
+  "title": "评估流水线：从 30 个工单到一次回归判断",
+  "alt": "30 个工单跑 agent 后分两路：查 actions 和评委打分，汇总成指标，再和基线比回归",
+  "grid": [
+    4,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "tickets",
+      "label": "评测集",
+      "sub": "30 个工单",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "agent",
+      "label": "跑 agent",
+      "sub": "每个工单独立 Store",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "end",
+      "label": "终态检查",
+      "sub": "查 actions",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "judge",
+      "label": "评委",
+      "sub": "回复质量",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "metrics",
+      "label": "指标",
+      "sub": "通过率 / 成本",
+      "at": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "regress",
+      "label": "回归",
+      "sub": "对比基线",
+      "at": [
+        3,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_run",
+      "from": "tickets",
+      "to": "agent"
+    },
+    {
+      "id": "e_state",
+      "from": "agent",
+      "to": "end"
+    },
+    {
+      "id": "e_judge",
+      "from": "agent",
+      "to": "judge",
+      "label": "回答"
+    },
+    {
+      "id": "e_end",
+      "from": "end",
+      "to": "metrics",
+      "label": "终态"
+    },
+    {
+      "id": "e_score",
+      "from": "judge",
+      "to": "metrics",
+      "label": "分数"
+    },
+    {
+      "id": "e_reg",
+      "from": "metrics",
+      "to": "regress",
+      "label": "跑完"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "note": "工单先跑 agent；终态和回答分开检查，最后汇总成指标，和基线比一次回归"
+    }
+  ]
+}

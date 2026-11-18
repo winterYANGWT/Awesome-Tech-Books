@@ -1,0 +1,111 @@
+{
+ "kind": "seq",
+ "title": "680 元退款：input_required 后重试",
+ "alt": "server 回 inputRequests 和 state，client 问主管后换新 id 重试",
+ "lanes": [
+  {
+   "id": "model",
+   "label": "模型"
+  },
+  {
+   "id": "harness",
+   "label": "harness"
+  },
+  {
+   "id": "client",
+   "label": "client"
+  },
+  {
+   "id": "server",
+   "label": "server"
+  },
+  {
+   "id": "boss",
+   "label": "主管"
+  }
+ ],
+ "state": [
+  {
+   "id": "result",
+   "label": "resultType",
+   "value": "—"
+  },
+  {
+   "id": "id",
+   "label": "JSON-RPC id",
+   "value": "—"
+  }
+ ],
+ "steps": [
+  {
+   "from": "model",
+   "to": "harness",
+   "text": "refund(A1680, 680)",
+   "note": "模型决定调退款工具，把订单号和金额交给 harness"
+  },
+  {
+   "from": "harness",
+   "to": "client",
+   "text": "tools/call（id=1）",
+   "set": {
+    "id": "1"
+   },
+   "note": "harness 通过 MCP client 发出 tools/call，id 是 1"
+  },
+  {
+   "from": "client",
+   "to": "server",
+   "text": "tools/call（id=1）",
+   "note": "server 收到请求：680 元超过 500 元上限"
+  },
+  {
+   "from": "server",
+   "to": "client",
+   "text": "input_required",
+   "tone": "hot",
+   "set": {
+    "result": "input_required"
+   },
+   "note": "server 先不退款，回 input_required，附上问题和不透明的 state"
+  },
+  {
+   "from": "client",
+   "to": "boss",
+   "text": "批准 680 元？",
+   "note": "client 把 elicitation/create 交给主管界面"
+  },
+  {
+   "from": "boss",
+   "to": "client",
+   "text": "accept（M01）",
+   "tone": "ok",
+   "note": "主管批准，带回批准号 M01"
+  },
+  {
+   "from": "client",
+   "to": "server",
+   "text": "重试（id=2）",
+   "set": {
+    "id": "2"
+   },
+   "note": "带回 inputResponses 和原样的 requestState，id 换成 2"
+  },
+  {
+   "from": "server",
+   "to": "client",
+   "text": "CallToolResult",
+   "tone": "ok",
+   "set": {
+    "result": "complete"
+   },
+   "note": "server 校验 state，退款完成，resultType 变成 complete"
+  },
+  {
+   "from": "client",
+   "to": "harness",
+   "text": "结果给模型",
+   "tone": "ok",
+   "note": "client 把最终结果交回 harness，模型只看到这一次结果"
+  }
+ ]
+}

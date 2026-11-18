@@ -1,0 +1,29 @@
+{
+  "kind": "flow",
+  "title": "先量，再选单 agent、manager 或 handoff",
+  "alt": "工具重叠或提示分叉时才拆；要一个声音用 manager，要交出控制权用 handoff",
+  "grid": [4, 3],
+  "static": true,
+  "nodes": [
+    {"id": "q1", "label": "工具重叠或\n提示分叉？", "sub": "先跑 12 个工单", "at": [0, 1]},
+    {"id": "single", "label": "单 agent", "sub": "工具少且不重叠", "at": [1, 0]},
+    {"id": "q2", "label": "要一个声音？", "sub": "统一口径/汇总", "at": [1, 1]},
+    {"id": "manager", "label": "manager", "sub": "专员当工具", "at": [2, 0]},
+    {"id": "q3", "label": "要交出控制权？", "sub": "分诊/升级", "at": [2, 2]},
+    {"id": "handoff", "label": "handoff", "sub": "新 agent 接管", "at": [3, 1]},
+    {"id": "orch", "label": "orchestrator\n-workers", "sub": "第 18 章 · 并行", "at": [3, 2]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "q1", "to": "single", "label": "否"},
+    {"id": "e2", "from": "q1", "to": "q2", "label": "是"},
+    {"id": "e3", "from": "q2", "to": "manager", "label": "是"},
+    {"id": "e4", "from": "q2", "to": "q3", "label": "否"},
+    {"id": "e5", "from": "q3", "to": "handoff", "label": "是"},
+    {"id": "e6", "from": "q3", "to": "orch", "label": "并行"}
+  ],
+  "steps": [
+    {"hi": ["q1"], "note": "先量 12 个工单：哪类选错工具、终态不对"},
+    {"hi": ["q2", "manager"], "note": "工具确实重叠，又要一个统一口径：manager"},
+    {"hi": ["q3", "handoff", "orch"], "note": "要把控制权交出去用 handoff；并行调研用第 18 章"}
+  ]
+}

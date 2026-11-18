@@ -1,0 +1,33 @@
+{
+  "kind": "grid",
+  "title": "前缀一样才命中，开头一变后面全失效",
+  "alt": "A 组第二次命中前 20 格；B 组时间戳放在开头，第二次一格都不命中",
+  "rows": [
+    {"label": "A 第 1 次"},
+    {"label": "A 第 2 次"},
+    {"label": "B 第 1 次"},
+    {"label": "B 第 2 次"}
+  ],
+  "cols": 24,
+  "legend": [
+    {"key": "base", "label": "首次请求"},
+    {"key": "hit", "label": "命中缓存"},
+    {"key": "miss", "label": "未命中"},
+    {"key": "split", "label": "分叉点"}
+  ],
+  "static": true,
+  "steps": [
+    {
+      "paint": [
+        {"r": 0, "c": "0-23", "key": "base"},
+        {"r": 1, "c": "0-19", "key": "hit"},
+        {"r": 1, "c": "20-23", "key": "miss"},
+        {"r": 2, "c": "0-23", "key": "base"},
+        {"r": 3, "c": 0, "key": "split"},
+        {"r": 3, "c": "1-23", "key": "miss"}
+      ],
+      "mark": [{"r": 1, "c": "20-23", "tone": "hot"}, {"r": 3, "c": 0, "tone": "bad"}],
+      "note": "A 组前缀固定，第二次命中前 20 格；B 组第 1 格就换了时间戳，后面全部重算"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "kind": "seq",
+  "title": "一次工具调用里模型看到什么",
+  "alt": "工具定义每轮都随请求发送，工具结果再作为一条消息进入上下文",
+  "lanes": [
+    {
+      "id": "user",
+      "label": "顾客"
+    },
+    {
+      "id": "h",
+      "label": "harness",
+      "role": "process"
+    },
+    {
+      "id": "llm",
+      "label": "模型",
+      "role": "device"
+    },
+    {
+      "id": "tool",
+      "label": "工具",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "ctx",
+      "label": "输入上下文",
+      "value": "系统提示"
+    },
+    {
+      "id": "defs",
+      "label": "工具定义",
+      "value": "未发送"
+    },
+    {
+      "id": "result",
+      "label": "工具结果",
+      "value": "0 条"
+    },
+    {
+      "id": "turn",
+      "label": "轮次",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "from": "user",
+      "to": "h",
+      "text": "A1670 到哪了",
+      "set": {
+        "ctx": "系统+问题"
+      },
+      "note": "顾客只发来一句问题"
+    },
+    {
+      "from": "h",
+      "to": "llm",
+      "text": "system + tools + 历史",
+      "set": {
+        "defs": "9 个",
+        "turn": "1"
+      },
+      "note": "工具定义和系统提示一起进请求"
+    },
+    {
+      "from": "llm",
+      "to": "h",
+      "text": "tool_calls: get_order",
+      "tone": "hot",
+      "set": {
+        "ctx": "系统+问题+tool_calls"
+      },
+      "note": "模型只返回工具名和参数，不写答案"
+    },
+    {
+      "from": "h",
+      "to": "tool",
+      "text": "校验参数后执行",
+      "note": "harness 按 schema 检查参数并调用本地函数"
+    },
+    {
+      "from": "tool",
+      "to": "h",
+      "text": "JSON：物流、金额",
+      "tone": "wait",
+      "set": {
+        "result": "1 条"
+      },
+      "note": "结果可以是几百个字符，也可以是一整页订单"
+    },
+    {
+      "from": "h",
+      "to": "llm",
+      "text": "role: tool 的结果",
+      "set": {
+        "ctx": "系统+问题+调用+结果",
+        "turn": "2"
+      },
+      "note": "结果作为新消息追加，下一轮整段再发"
+    },
+    {
+      "from": "llm",
+      "to": "h",
+      "text": "给顾客的回答",
+      "set": {
+        "ctx": "含答案"
+      },
+      "note": "模型看到的是定义和结果，不是数据库"
+    }
+  ]
+}

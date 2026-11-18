@@ -1,0 +1,179 @@
+{
+  "kind": "flow",
+  "title": "Send 把一张工单扇出给三个检查器",
+  "alt": "plan 按 CHECKS 发出三个 Send，三个 worker 并行检查，reduce 按 check 排序汇总",
+  "grid": [
+    5,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "plan",
+      "label": "plan",
+      "sub": "一份回复草稿",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "w1",
+      "label": "退货政策",
+      "sub": "检查金额和依据",
+      "at": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "w2",
+      "label": "口径",
+      "sub": "检查承诺用语",
+      "at": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "w3",
+      "label": "隐私",
+      "sub": "检查他人信息",
+      "at": [
+        3,
+        2
+      ]
+    },
+    {
+      "id": "reduce",
+      "label": "reduce",
+      "sub": "按 check 排序",
+      "at": [
+        4,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "s1",
+      "from": "plan",
+      "to": "w1",
+      "label": "Send",
+      "dashed": true
+    },
+    {
+      "id": "s2",
+      "from": "plan",
+      "to": "w2",
+      "label": "Send",
+      "dashed": true
+    },
+    {
+      "id": "s3",
+      "from": "plan",
+      "to": "w3",
+      "label": "Send",
+      "dashed": true
+    },
+    {
+      "id": "r1",
+      "from": "w1",
+      "to": "reduce"
+    },
+    {
+      "id": "r2",
+      "from": "w2",
+      "to": "reduce"
+    },
+    {
+      "id": "r3",
+      "from": "w3",
+      "to": "reduce"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "plan"
+      ],
+      "note": "plan 拿到待检查的回复草稿"
+    },
+    {
+      "token": [
+        {
+          "edge": "s1",
+          "label": "退货"
+        },
+        {
+          "edge": "s2",
+          "label": "口径"
+        },
+        {
+          "edge": "s3",
+          "label": "隐私"
+        }
+      ],
+      "note": "三个 Send 同时把各自的检查项送进 worker"
+    },
+    {
+      "token": [
+        {
+          "edge": "r1",
+          "label": "通过"
+        }
+      ],
+      "hi": [
+        "w1"
+      ],
+      "set": {
+        "w1": "金额对，通过"
+      },
+      "note": "退货政策先返回一条结果"
+    },
+    {
+      "token": [
+        {
+          "edge": "r2",
+          "label": "不通过"
+        }
+      ],
+      "hi": [
+        "w2"
+      ],
+      "set": {
+        "w2": "承诺日期"
+      },
+      "note": "口径检查发现“今天一定到账”"
+    },
+    {
+      "token": [
+        {
+          "edge": "r3",
+          "label": "通过"
+        }
+      ],
+      "hi": [
+        "w3"
+      ],
+      "set": {
+        "w3": "无他人信息"
+      },
+      "note": "隐私检查只看本工单顾客"
+    },
+    {
+      "hi": [
+        "reduce"
+      ],
+      "note": "reduce 收到的顺序不保证，按 check 排序"
+    },
+    {
+      "hi": [
+        "reduce"
+      ],
+      "tone": {
+        "reduce": "ok"
+      },
+      "note": "排序后打印三条结果和总 token"
+    }
+  ]
+}

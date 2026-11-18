@@ -1,0 +1,141 @@
+{
+  "kind": "seq",
+  "title": "退款前崩溃，新 harness 从 seq=6 接着跑",
+  "alt": "第 2 轮的 tool_calls 写进日志后进程被杀；新 harness 读取事件、执行退款并完成回答",
+  "speed": 1500,
+  "lanes": [
+    {
+      "id": "a",
+      "label": "harness A",
+      "role": "process"
+    },
+    {
+      "id": "s",
+      "label": "session",
+      "role": "memory"
+    },
+    {
+      "id": "m",
+      "label": "模型",
+      "role": "device"
+    },
+    {
+      "id": "t",
+      "label": "工具",
+      "role": "process"
+    },
+    {
+      "id": "b",
+      "label": "harness B",
+      "role": "process"
+    }
+  ],
+  "state": [
+    {
+      "id": "seq",
+      "label": "最后 seq",
+      "value": "5"
+    },
+    {
+      "id": "refund",
+      "label": "退款",
+      "value": "未"
+    }
+  ],
+  "steps": [
+    {
+      "from": "a",
+      "to": "s",
+      "text": "写 seq 1–5",
+      "set": {
+        "seq": "5"
+      },
+      "note": "user、get_order 的调用和结果都已落盘"
+    },
+    {
+      "from": "a",
+      "to": "m",
+      "text": "第 2 轮",
+      "note": "harness 从日志重建消息再调模型"
+    },
+    {
+      "from": "m",
+      "to": "a",
+      "text": "要 issue_refund",
+      "tone": "hot",
+      "note": "模型返回 tool_calls，还没执行"
+    },
+    {
+      "from": "a",
+      "to": "s",
+      "text": "写 seq=6",
+      "set": {
+        "seq": "6"
+      },
+      "note": "assistant 事件先追加，再准备执行工具"
+    },
+    {
+      "at": "a",
+      "text": "os._exit(9)",
+      "tone": "bad",
+      "lane": {
+        "a": "done"
+      },
+      "note": "进程在工具执行前被杀，内存里的 messages 全没了"
+    },
+    {
+      "at": "b",
+      "text": "wake(sessionId)",
+      "tone": "hot",
+      "lane": {
+        "b": "new"
+      },
+      "note": "新 harness 启动，不恢复旧进程"
+    },
+    {
+      "from": "b",
+      "to": "s",
+      "text": "getSession",
+      "note": "按 id 取回同一份事件日志"
+    },
+    {
+      "from": "s",
+      "to": "b",
+      "text": "事件 1–6",
+      "note": "最后一条 assistant 带 tool_calls，却没有 tool_result"
+    },
+    {
+      "from": "b",
+      "to": "t",
+      "text": "issue_refund(82)",
+      "tone": "wait",
+      "note": "补执行没做完的调用"
+    },
+    {
+      "from": "t",
+      "to": "b",
+      "text": "已退款",
+      "set": {
+        "refund": "已"
+      },
+      "tone": "ok",
+      "note": "结果字符串先写回日志，再交给模型"
+    },
+    {
+      "from": "b",
+      "to": "m",
+      "text": "写回结果",
+      "note": "tool_call 写 seq=7、tool_result 写 seq=8，再重建消息",
+      "set": {
+        "seq": "8"
+      }
+    },
+    {
+      "from": "m",
+      "to": "b",
+      "text": "最终回答",
+      "tone": "ok",
+      "note": "第 3 轮不再要工具，循环结束"
+    }
+  ]
+}

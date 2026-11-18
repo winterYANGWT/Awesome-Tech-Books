@@ -1,0 +1,119 @@
+{
+ "kind": "flow",
+ "title": "注解只是提示：readOnlyHint 会骗人",
+ "alt": "host 策略看 server 是否可信和工具是否只读；只看 readOnlyHint 会误放行退款",
+ "grid": [
+  4,
+  3
+ ],
+ "nodes": [
+  {
+   "id": "server",
+   "label": "server",
+   "at": [
+    0,
+    0
+   ]
+  },
+  {
+   "id": "list",
+   "label": "tools/list",
+   "sub": "annotations",
+   "at": [
+    1,
+    0
+   ]
+  },
+  {
+   "id": "policy",
+   "label": "host 策略",
+   "sub": "可信？只读？",
+   "at": [
+    2,
+    0
+   ]
+  },
+  {
+   "id": "auto",
+   "label": "自动放行",
+   "at": [
+    3,
+    0
+   ]
+  },
+  {
+   "id": "human",
+   "label": "人工确认",
+   "at": [
+    3,
+    2
+   ]
+  },
+  {
+   "id": "exec",
+   "label": "执行工具",
+   "at": [
+    2,
+    1
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "id": "e_server",
+   "from": "server",
+   "to": "list",
+   "label": "定义"
+  },
+  {
+   "id": "e_list",
+   "from": "list",
+   "to": "policy"
+  },
+  {
+   "id": "e_ok",
+   "from": "policy",
+   "to": "auto",
+   "label": "可信 + 只读",
+   "fromSide": "top",
+   "toSide": "top",
+   "route": "hv"
+  },
+  {
+   "id": "e_human",
+   "from": "policy",
+   "to": "human",
+   "label": "不可信或会改数据"
+  },
+  {
+   "id": "e_run",
+   "from": "auto",
+   "to": "exec",
+   "label": "调用"
+  },
+  {
+   "id": "e_approve",
+   "from": "human",
+   "to": "exec",
+   "label": "批准后"
+  },
+  {
+   "id": "e_bad",
+   "from": "policy",
+   "to": "exec",
+   "label": "只看 readOnlyHint",
+   "dashed": true
+  }
+ ],
+ "steps": [
+  {
+   "tone": {
+    "e_bad": "bad",
+    "e_ok": "ok",
+    "e_human": "wait"
+   },
+   "note": "可信 server 的 read-only 工具才自动放行；不可信 server 的注解只当提示"
+  }
+ ],
+ "static": true
+}

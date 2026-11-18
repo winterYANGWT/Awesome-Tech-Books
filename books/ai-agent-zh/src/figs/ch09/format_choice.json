@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "三种返回格式：按自己的评测选",
+  "alt": "同一份订单结果分成 JSON、Markdown、compact 三路，比较 token 和正确率后选一种",
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "order", "label": "订单结果", "sub": "同样的字段", "at": [0, 1]},
+    {"id": "json", "label": "JSON", "sub": "转义多、好解析", "at": [1, 0]},
+    {"id": "md", "label": "Markdown", "sub": "表格省表头", "at": [1, 1]},
+    {"id": "compact", "label": "compact", "sub": "key=value 最省", "at": [1, 2]},
+    {"id": "eval", "label": "自己的评测", "sub": "token + 正确率", "at": [2, 1]},
+    {"id": "pick", "label": "选一种", "sub": "没有万能格式", "at": [3, 1]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "order", "to": "json"},
+    {"id": "e2", "from": "order", "to": "md"},
+    {"id": "e3", "from": "order", "to": "compact"},
+    {"id": "e4", "from": "json", "to": "eval"},
+    {"id": "e5", "from": "md", "to": "eval"},
+    {"id": "e6", "from": "compact", "to": "eval"},
+    {"id": "e7", "from": "eval", "to": "pick"}
+  ],
+  "steps": [
+    {"hi": ["eval"], "note": "同一份结果分三路；用同一组任务比较 token 和正确率，再选一种"}
+  ],
+  "static": true
+}

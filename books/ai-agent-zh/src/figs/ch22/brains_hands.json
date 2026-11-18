@@ -1,0 +1,99 @@
+{
+  "kind": "flow",
+  "title": "大脑和双手：三个可以各自替换的对象",
+  "alt": "harness 读写 session 日志，通过 execute 调 sandbox，模型只负责推理",
+  "static": true,
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "session",
+      "label": "session 日志",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "store",
+      "sub": "append-only"
+    },
+    {
+      "id": "harness",
+      "label": "harness",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "round",
+      "sub": "无状态循环"
+    },
+    {
+      "id": "model",
+      "label": "模型",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round",
+      "sub": "推理"
+    },
+    {
+      "id": "sandbox",
+      "label": "sandbox",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "round",
+      "sub": "execute → string"
+    }
+  ],
+  "edges": [
+    {
+      "id": "read",
+      "from": "session",
+      "to": "harness",
+      "label": "getEvents"
+    },
+    {
+      "id": "write",
+      "from": "harness",
+      "to": "session",
+      "label": "emitEvent"
+    },
+    {
+      "id": "call",
+      "from": "harness",
+      "to": "model",
+      "label": "调用"
+    },
+    {
+      "id": "calls",
+      "from": "model",
+      "to": "harness",
+      "label": "tool_calls"
+    },
+    {
+      "id": "exec",
+      "from": "harness",
+      "to": "sandbox",
+      "label": "execute"
+    },
+    {
+      "id": "result",
+      "from": "sandbox",
+      "to": "harness",
+      "label": "string"
+    }
+  ],
+  "steps": [
+    {
+      "note": "session 在 harness 外；harness 崩了日志还在，调 sandbox 像调工具。",
+      "hi": [
+        "harness",
+        "exec"
+      ]
+    }
+  ]
+}

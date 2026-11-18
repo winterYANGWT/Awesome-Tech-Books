@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "闸门的三个出口：通过、重写、转人工",
+  "alt": "闸门查字段、金额、政策和措辞；草稿缺订单号可回到草稿重写最多两次，摘要缺字段、金额超限直接转人工",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "draft", "label": "草稿", "at": [0, 0]},
+    {"id": "gate", "label": "闸门", "sub": "字段/金额/政策/措辞", "at": [1, 0]},
+    {"id": "pass", "label": "通过", "at": [2, 0]},
+    {"id": "rewrite", "label": "重写", "sub": "≤ 2 次", "at": [0, 1]},
+    {"id": "human", "label": "转人工", "at": [2, 1]},
+    {"id": "stop", "label": "停止并记录", "at": [2, 2]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "draft", "to": "gate", "label": "提交"},
+    {"id": "e2", "from": "gate", "to": "pass", "label": "全过", "dashed": false},
+    {"id": "e3", "from": "gate", "to": "rewrite", "label": "可重试", "dashed": true},
+    {"id": "e4", "from": "rewrite", "to": "draft", "label": "回填错误", "dashed": true},
+    {"id": "e5", "from": "gate", "to": "human", "label": "不可重试", "dashed": true},
+    {"id": "e6", "from": "human", "to": "stop", "label": "记录原因"}
+  ],
+  "static": true,
+  "steps": [
+    {"hi": ["gate", "pass"], "tone": {"pass": "ok"}, "note": "四类检查全过才发出"},
+    {"hi": ["rewrite", "human", "stop"], "tone": {"human": "bad"}, "note": "草稿缺订单号可带错误重写；摘要缺字段、金额超限或政策不允许则直接转人工，重试不是万能"}
+  ]
+}

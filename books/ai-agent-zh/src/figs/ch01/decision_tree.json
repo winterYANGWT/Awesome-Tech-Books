@@ -1,0 +1,30 @@
+{
+  "kind": "flow",
+  "title": "选做法：先排除简单的，再考虑 agent",
+  "alt": "能一次答就单次调用，步骤固定就写代码；写不死又要审计就转人工，必须多轮工具才进 agent",
+  "static": true,
+  "grid": [4, 4],
+  "nodes": [
+    {"id": "once", "label": "能一次回答?", "at": [0, 0]},
+    {"id": "fixed_steps", "label": "步骤固定?", "at": [1, 1]},
+    {"id": "audit", "label": "要可审计?", "at": [2, 2]},
+    {"id": "multi", "label": "多轮工具?", "at": [2, 3]},
+    {"id": "single", "label": "单次调用", "at": [3, 0], "sub": "缺信息先补检索"},
+    {"id": "fixed", "label": "固定流程", "at": [3, 1], "sub": "日志和审批"},
+    {"id": "human", "label": "转人工", "at": [3, 2], "sub": "超权限或无法判断"},
+    {"id": "agent", "label": "agent", "at": [3, 3], "sub": "模型改下一步"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "once", "to": "single", "label": "是"},
+    {"id": "e2", "from": "once", "to": "fixed_steps", "label": "否"},
+    {"id": "e3", "from": "fixed_steps", "to": "fixed", "label": "是"},
+    {"id": "e4", "from": "fixed_steps", "to": "audit", "label": "否"},
+    {"id": "e5", "from": "audit", "to": "human", "label": "是"},
+    {"id": "e6", "from": "audit", "to": "multi", "label": "否"},
+    {"id": "e7", "from": "multi", "to": "agent", "label": "是"},
+    {"id": "e8", "from": "multi", "to": "human", "label": "否", "route": "hv"}
+  ],
+  "steps": [
+    {"note": "先问一次答；再问步骤固定；写不死时，要审计就转人工，要多轮工具才进 agent"}
+  ]
+}

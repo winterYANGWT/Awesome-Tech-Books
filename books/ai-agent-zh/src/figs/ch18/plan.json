@@ -1,0 +1,129 @@
+{
+ "kind": "flow",
+ "title": "开放问题先拆成三条互不重叠的调查线",
+ "alt": "计划器把问题分给 SQL、评论、政策三个任务，三份结果汇到汇总器写成报告",
+ "static": true,
+ "grid": [
+  5,
+  3
+ ],
+ "nodes": [
+  {
+   "id": "q",
+   "label": "问题",
+   "at": [
+    0,
+    1
+   ],
+   "sub": "Q3 与 Q4"
+  },
+  {
+   "id": "planner",
+   "label": "计划器",
+   "at": [
+    1,
+    1
+   ],
+   "sub": "3 个任务"
+  },
+  {
+   "id": "sql",
+   "label": "SQL 任务",
+   "at": [
+    2,
+    0
+   ],
+   "sub": "数量与比例"
+  },
+  {
+   "id": "reviews",
+   "label": "评论任务",
+   "at": [
+    2,
+    1
+   ],
+   "sub": "原话与缺口"
+  },
+  {
+   "id": "policy",
+   "label": "政策任务",
+   "at": [
+    2,
+    2
+   ],
+   "sub": "条款与日期"
+  },
+  {
+   "id": "synth",
+   "label": "汇总器",
+   "at": [
+    3,
+    2
+   ],
+   "sub": "对齐与引用"
+  },
+  {
+   "id": "report",
+   "label": "报告",
+   "at": [
+    4,
+    2
+   ],
+   "sub": "5 段"
+  }
+ ],
+ "edges": [
+  {
+   "id": "p1",
+   "from": "q",
+   "to": "planner"
+  },
+  {
+   "id": "p2",
+   "from": "planner",
+   "to": "sql",
+   "label": "任务 1"
+  },
+  {
+   "id": "p3",
+   "from": "planner",
+   "to": "reviews",
+   "label": "任务 2"
+  },
+  {
+   "id": "p4",
+   "from": "planner",
+   "to": "policy",
+   "label": "任务 3"
+  },
+  {
+   "id": "p5",
+   "from": "sql",
+   "to": "synth"
+  },
+  {
+   "id": "p6",
+   "from": "reviews",
+   "to": "synth"
+  },
+  {
+   "id": "p7",
+   "from": "policy",
+   "to": "synth"
+  },
+  {
+   "id": "p8",
+   "from": "synth",
+   "to": "report"
+  }
+ ],
+ "steps": [
+  {
+   "hi": [
+    "q",
+    "planner"
+   ],
+   "note": "主 agent 先读问题，产出三条调查线的计划"
+  }
+ ]
+}

@@ -1,0 +1,144 @@
+{
+  "kind": "flow",
+  "title": "五层防线：任一层缺失就穿透",
+  "alt": "同意、host 策略、server 校验、sandbox 隔离、vault 分开；缺一层凭据就到 sandbox",
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "user",
+      "label": "用户",
+      "sub": "同意",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "host",
+      "label": "host 策略",
+      "sub": "Origin + 最小 scope",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "server",
+      "label": "MCP server",
+      "sub": "schema + 路径校验",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "sandbox",
+      "label": "sandbox",
+      "sub": "无凭据",
+      "at": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "proxy",
+      "label": "MCP 代理",
+      "sub": "token 隔离",
+      "at": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "vault",
+      "label": "vault",
+      "sub": "上游 token",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "audit",
+      "label": "审计",
+      "sub": "高风险调用",
+      "at": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "api",
+      "label": "外部 API",
+      "at": [
+        3,
+        2
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_user",
+      "from": "user",
+      "to": "host",
+      "label": "同意"
+    },
+    {
+      "id": "e_host",
+      "from": "host",
+      "to": "server",
+      "label": "请求"
+    },
+    {
+      "id": "e_run",
+      "from": "server",
+      "to": "sandbox",
+      "label": "执行"
+    },
+    {
+      "id": "e_tool",
+      "from": "sandbox",
+      "to": "proxy",
+      "label": "工具调用"
+    },
+    {
+      "id": "e_lookup",
+      "from": "proxy",
+      "to": "vault",
+      "label": "查表"
+    },
+    {
+      "id": "e_api",
+      "from": "proxy",
+      "to": "api",
+      "label": "上游 token"
+    },
+    {
+      "id": "e_audit",
+      "from": "proxy",
+      "to": "audit",
+      "label": "记录"
+    },
+    {
+      "id": "e_red",
+      "from": "vault",
+      "to": "sandbox",
+      "label": "缺一层\n凭据可达",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "tone": {
+        "e_red": "bad",
+        "e_lookup": "ok",
+        "e_api": "ok"
+      },
+      "note": "每层各守一个默认值；红边是任一层缺失时凭据回到 sandbox 的路径"
+    }
+  ],
+  "static": true
+}

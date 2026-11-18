@@ -1,0 +1,26 @@
+{
+  "kind": "seq",
+  "title": "approve 回调：先查批准单，再执行工具",
+  "alt": "harness 在 risky 工具执行前调用 approve，批准单和参数都对上才放行",
+  "lanes": [
+    {"id": "m", "label": "模型", "role": "device"},
+    {"id": "h", "label": "harness", "role": "process"},
+    {"id": "g", "label": "审批门", "role": "process"},
+    {"id": "t", "label": "工具", "role": "memory"}
+  ],
+  "state": [
+    {"id": "approval", "label": "批准单", "value": "—"},
+    {"id": "actions", "label": "actions 条数", "value": "0"}
+  ],
+  "steps": [
+    {"from": "m", "to": "h", "text": "要 issue_refund_approved", "tone": "hot", "note": "模型只提议调用，还没有执行"},
+    {"from": "h", "to": "g", "text": "risky：查批准单", "set": {"approval": "R-0001"}, "note": "harness 只对 risky 工具调用 approve"},
+    {"at": "g", "text": "状态 approved，参数一致", "set": {"approval": "已核对"}, "tone": "ok", "note": "审批门只校验，不再问人"},
+    {"from": "g", "to": "h", "text": "放行", "tone": "ok", "note": "返回 True，才轮到工具"},
+    {"from": "h", "to": "t", "text": "执行退款", "tone": "hot", "note": "到这里才真正改数据"},
+    {"from": "t", "to": "h", "text": "已退款", "set": {"actions": "1"}, "tone": "ok", "note": "actions 里留下退款记录"},
+    {"from": "h", "to": "m", "text": "role: tool", "note": "结果作为一条 tool 消息放回对话"},
+    {"from": "m", "to": "h", "text": "回答顾客", "tone": "ok", "note": "模型看到结果后再组织回答"}
+  ],
+  "speed": 1400
+}

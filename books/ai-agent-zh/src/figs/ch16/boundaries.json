@@ -1,0 +1,25 @@
+{
+  "kind": "flow",
+  "title": "系统提示、Skill、MCP、子 agent 各管什么",
+  "alt": "用户问题交给 agent；agent 从系统提示和 Skill 取知识，从 MCP 取能力，用子 agent 隔离上下文",
+  "grid": [3, 5],
+  "nodes": [
+    {"id": "user", "label": "用户问题", "shape": "round", "at": [0, 2]},
+    {"id": "agent", "label": "agent", "shape": "round", "at": [1, 2], "sub": "组合使用"},
+    {"id": "prompt", "label": "系统提示", "at": [2, 0], "sub": "常驻知识"},
+    {"id": "skill", "label": "Skill", "at": [2, 1], "sub": "按需知识"},
+    {"id": "mcp", "label": "MCP 工具", "at": [2, 3], "sub": "外部能力"},
+    {"id": "sub", "label": "子 agent", "at": [2, 4], "sub": "隔离上下文"}
+  ],
+  "edges": [
+    {"id": "ask", "from": "user", "to": "agent", "label": "问题"},
+    {"id": "k1", "from": "agent", "to": "prompt", "label": "知识"},
+    {"id": "k2", "from": "agent", "to": "skill", "label": "知识"},
+    {"id": "cap", "from": "agent", "to": "mcp", "label": "能力"},
+    {"id": "iso", "from": "agent", "to": "sub", "label": "隔离"}
+  ],
+  "static": true,
+  "steps": [
+    {"note": "四者互补：提示放常驻规则，Skill 放按需规程，MCP 接外部系统，子 agent 隔离上下文"}
+  ]
+}

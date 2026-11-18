@@ -1,0 +1,151 @@
+{
+  "kind": "flow",
+  "title": "流水线：计划、并行、汇总、评估、动作",
+  "alt": "工单经编排者和三个工作者汇到汇总者，规则检查后回复或转人工",
+  "grid": [
+    5,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "ticket",
+      "label": "工单",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "orch",
+      "label": "编排者",
+      "sub": "最多 4 个任务",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "order",
+      "label": "订单",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "policy",
+      "label": "政策",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "review",
+      "label": "评论",
+      "at": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "synth",
+      "label": "汇总者",
+      "sub": "写草稿",
+      "at": [
+        3,
+        2
+      ]
+    },
+    {
+      "id": "check",
+      "label": "规则/评估",
+      "sub": "超 500 才评估",
+      "at": [
+        4,
+        2
+      ]
+    },
+    {
+      "id": "reply",
+      "label": "回复/人工",
+      "at": [
+        4,
+        0
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "ticket",
+      "to": "orch"
+    },
+    {
+      "id": "e2",
+      "from": "orch",
+      "to": "order",
+      "label": "T1"
+    },
+    {
+      "id": "e3",
+      "from": "orch",
+      "to": "policy",
+      "label": "T2"
+    },
+    {
+      "id": "e4",
+      "from": "orch",
+      "to": "review",
+      "label": "T3"
+    },
+    {
+      "id": "e5",
+      "from": "order",
+      "to": "synth",
+      "route": "hv",
+      "fromSide": "right",
+      "toSide": "top"
+    },
+    {
+      "id": "e6",
+      "from": "policy",
+      "to": "synth"
+    },
+    {
+      "id": "e7",
+      "from": "review",
+      "to": "synth"
+    },
+    {
+      "id": "e8",
+      "from": "synth",
+      "to": "check"
+    },
+    {
+      "id": "e9",
+      "from": "check",
+      "to": "reply",
+      "label": "通过"
+    },
+    {
+      "id": "r2",
+      "from": "check",
+      "to": "synth",
+      "label": "改一版",
+      "dashed": true,
+      "route": "hv",
+      "fromSide": "top",
+      "toSide": "top"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "check"
+      ],
+      "note": "规则先查金额和订单号；超过 500 元再调评估者；上限触发就停"
+    }
+  ],
+  "static": true
+}

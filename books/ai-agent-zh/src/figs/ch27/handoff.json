@@ -1,0 +1,102 @@
+{
+  "kind": "flow",
+  "title": "分诊把控制权交给三个专门 agent",
+  "alt": "triage 调 transfer_to_* 后退出，三个专员之一接手并直接回答",
+  "grid": [
+    2,
+    3
+  ],
+  "static": true,
+  "nodes": [
+    {
+      "id": "triage",
+      "label": "分诊 triage",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "只做 handoff"
+    },
+    {
+      "id": "logistics",
+      "label": "物流 logistics",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "get_order"
+    },
+    {
+      "id": "refunds",
+      "label": "退款 refunds",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "查订单 + 退款"
+    },
+    {
+      "id": "policy",
+      "label": "政策 policy",
+      "at": [
+        1,
+        2
+      ],
+      "sub": "search_policies"
+    }
+  ],
+  "edges": [
+    {
+      "id": "t1",
+      "from": "triage",
+      "to": "logistics",
+      "label": "transfer_to_logistics"
+    },
+    {
+      "id": "t2",
+      "from": "triage",
+      "to": "refunds",
+      "label": "transfer_to_refunds"
+    },
+    {
+      "id": "t3",
+      "from": "triage",
+      "to": "policy",
+      "label": "transfer_to_policy"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "triage"
+      ],
+      "note": "triage 面对用户，但它只判断类别，不处理工单"
+    },
+    {
+      "hi": [
+        "t1",
+        "t2",
+        "t3"
+      ],
+      "tone": {
+        "t1": "hot",
+        "t2": "hot",
+        "t3": "hot"
+      },
+      "note": "模型调用 handoff 工具，工具名由 SDK 按 agent name 生成"
+    },
+    {
+      "hi": [
+        "logistics",
+        "refunds",
+        "policy"
+      ],
+      "tone": {
+        "logistics": "ok",
+        "refunds": "ok",
+        "policy": "ok"
+      },
+      "note": "接手的 agent 直接回答；triage 不再参与这一轮"
+    }
+  ]
+}

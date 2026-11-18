@@ -1,0 +1,85 @@
+{
+  "kind": "seq",
+  "title": "manager：只问一个专员，自己回答",
+  "alt": "用户只面对 manager；物流专员查完订单交回摘要，manager 直接回答并追问损坏情况",
+  "lanes": [
+    {
+      "id": "user",
+      "label": "用户"
+    },
+    {
+      "id": "mgr",
+      "label": "manager",
+      "role": "process"
+    },
+    {
+      "id": "log",
+      "label": "物流专员"
+    },
+    {
+      "id": "tool",
+      "label": "工具",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "stage",
+      "label": "当前发言者",
+      "value": "用户"
+    }
+  ],
+  "steps": [
+    {
+      "from": "user",
+      "to": "mgr",
+      "text": "A1536 压坏了",
+      "tone": "hot",
+      "note": "用户只把问题交给 manager",
+      "set": {
+        "stage": "manager"
+      }
+    },
+    {
+      "from": "mgr",
+      "to": "log",
+      "text": "查 A1536 物流",
+      "note": "manager 只问一个最相关的专员",
+      "set": {
+        "stage": "物流专员"
+      }
+    },
+    {
+      "from": "log",
+      "to": "tool",
+      "text": "get_order(A1536)",
+      "note": "物流专员在自己的上下文里查订单"
+    },
+    {
+      "from": "tool",
+      "to": "log",
+      "text": "迅达，已签收，破损",
+      "tone": "ok",
+      "note": "工具结果只回到物流专员，用户看不到"
+    },
+    {
+      "from": "log",
+      "to": "mgr",
+      "text": "迅达；破损属实",
+      "note": "物流专员交回摘要，控制权仍在 manager",
+      "set": {
+        "stage": "manager"
+      }
+    },
+    {
+      "from": "mgr",
+      "to": "user",
+      "text": "迅达；箱内商品损坏吗？",
+      "tone": "ok",
+      "note": "manager 直接回答并追问，没有转给退款专员",
+      "set": {
+        "stage": "用户"
+      }
+    }
+  ]
+}

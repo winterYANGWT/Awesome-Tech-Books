@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "模型也写进路由表：简单用 flash，复杂用 pro",
+  "alt": "分类器把简单类别给 flash、复杂类别给 pro；闸门失败再升级到 pro 重跑一次",
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "clf", "label": "分类器", "at": [0, 0]},
+    {"id": "simple", "label": "简单路由", "sub": "deepseek-flash", "at": [1, 0]},
+    {"id": "complex", "label": "复杂路由", "sub": "deepseek-v4-pro", "at": [1, 1]},
+    {"id": "gate", "label": "闸门", "at": [2, 0]},
+    {"id": "reply", "label": "回复", "at": [3, 0]},
+    {"id": "up", "label": "升级重跑", "sub": "deepseek-v4-pro", "at": [2, 2]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "clf", "to": "simple", "label": "简单类别"},
+    {"id": "e2", "from": "clf", "to": "complex", "label": "复杂类别"},
+    {"id": "e3", "from": "simple", "to": "gate", "label": "草稿"},
+    {"id": "e4", "from": "complex", "to": "gate", "label": "草稿"},
+    {"id": "e5", "from": "gate", "to": "reply", "label": "过"},
+    {"id": "e6", "from": "gate", "to": "up", "label": "失败/格式错", "dashed": true}
+  ],
+  "static": true,
+  "steps": [
+    {"hi": ["clf", "simple", "complex"], "note": "分类后按路由表选模型，模型名不写死在函数里"},
+    {"hi": ["gate", "up"], "tone": {"up": "wait"}, "note": "小模型返回空、格式错或闸门连续失败时，升级到强模型重跑一次"}
+  ]
+}

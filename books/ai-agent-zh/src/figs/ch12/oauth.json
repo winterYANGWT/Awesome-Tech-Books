@@ -1,0 +1,105 @@
+{
+ "kind": "seq",
+ "title": "OAuth 2.1：从 401 到带 Bearer 的请求",
+ "alt": "读 PRM 和 AS metadata，用 PKCE + resource 换 token，再带 Bearer",
+ "lanes": [
+  {
+   "id": "browser",
+   "label": "浏览器"
+  },
+  {
+   "id": "client",
+   "label": "client"
+  },
+  {
+   "id": "server",
+   "label": "MCP server"
+  },
+  {
+   "id": "as",
+   "label": "授权服务器"
+  }
+ ],
+ "state": [
+  {
+   "id": "status",
+   "label": "token 状态",
+   "value": "无 token"
+  },
+  {
+   "id": "iss",
+   "label": "iss 校验",
+   "value": "—"
+  }
+ ],
+ "steps": [
+  {
+   "from": "client",
+   "to": "server",
+   "text": "MCP 请求（无 token）",
+   "set": {
+    "status": "无 token"
+   },
+   "note": "client 先不带 token 请求 MCP server"
+  },
+  {
+   "from": "server",
+   "to": "client",
+   "text": "401 + WWW-Authenticate",
+   "tone": "wait",
+   "set": {
+    "status": "401"
+   },
+   "note": "响应头给出 resource_metadata（PRM URL）和最小 scope"
+  },
+  {
+   "from": "client",
+   "to": "server",
+   "text": "GET PRM",
+   "note": "PRM 返回 authorization_servers 和 scopes_supported"
+  },
+  {
+   "from": "client",
+   "to": "as",
+   "text": "GET AS metadata",
+   "note": "响应给出 issuer、授权和 token 端点、S256 支持；client 记下 issuer"
+  },
+  {
+   "from": "client",
+   "to": "browser",
+   "text": "授权 URL + PKCE",
+   "note": "授权 URL 带 PKCE 和 resource；code_verifier 留在 client"
+  },
+  {
+   "from": "browser",
+   "to": "as",
+   "text": "用户同意",
+   "note": "用户在 AS 登录，并同意 client 请求的 scope"
+  },
+  {
+   "from": "as",
+   "to": "client",
+   "text": "code + iss",
+   "set": {
+    "iss": "已校验"
+   },
+   "note": "浏览器带回 code 和 iss；client 先校验 iss 和 state"
+  },
+  {
+   "from": "client",
+   "to": "as",
+   "text": "换 token",
+   "note": "用 code_verifier 换 token；token 的 aud 必须是这个 endpoint"
+  },
+  {
+   "from": "client",
+   "to": "server",
+   "text": "Bearer token",
+   "tone": "ok",
+   "set": {
+    "status": "有 token"
+   },
+   "note": "此后每个 HTTP 请求都带 Authorization: Bearer"
+  }
+ ]
+}

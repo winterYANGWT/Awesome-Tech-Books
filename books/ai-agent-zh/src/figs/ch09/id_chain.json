@@ -1,0 +1,105 @@
+{
+  "kind": "seq",
+  "title": "order_id 从查订单传到下一步",
+  "alt": "可读的 A1659 一次退款成功；UUID 组要抄 36 个字符，多一次核对",
+  "lanes": [
+    {
+      "id": "model",
+      "label": "模型"
+    },
+    {
+      "id": "tool",
+      "label": "工具"
+    }
+  ],
+  "state": [
+    {
+      "id": "oid",
+      "label": "order_id",
+      "value": "—"
+    },
+    {
+      "id": "step",
+      "label": "下一步",
+      "value": "查订单"
+    }
+  ],
+  "steps": [
+    {
+      "from": "model",
+      "to": "tool",
+      "text": "get_order(A1659)",
+      "note": "顾客报的订单号是 A1659，模型先用它查订单"
+    },
+    {
+      "from": "tool",
+      "to": "model",
+      "text": "order_id=A1659",
+      "tone": "ok",
+      "set": {
+        "oid": "A1659"
+      },
+      "note": "可读 ID 组：结果里还是 A1659，模型能直接核对"
+    },
+    {
+      "from": "model",
+      "to": "tool",
+      "text": "issue_refund(A1659, 82)",
+      "set": {
+        "step": "退款"
+      },
+      "note": "模型把同一个 A1659 传给退款工具，金额 82 元"
+    },
+    {
+      "from": "tool",
+      "to": "model",
+      "text": "已退款 82 元",
+      "tone": "ok",
+      "set": {
+        "step": "完成"
+      },
+      "note": "ID 对得上，一次办完"
+    },
+    {
+      "from": "model",
+      "to": "tool",
+      "text": "get_order(A1659)",
+      "dashed": true,
+      "set": {
+        "step": "查订单"
+      },
+      "note": "UUID 组：同样先用 A1659 查订单"
+    },
+    {
+      "from": "tool",
+      "to": "model",
+      "text": "order_id=d5292e…",
+      "tone": "wait",
+      "dashed": true,
+      "set": {
+        "oid": "d5292e…"
+      },
+      "note": "结果里只有 36 个字符的 UUID"
+    },
+    {
+      "from": "model",
+      "to": "tool",
+      "text": "issue_refund(d5292e…)",
+      "dashed": true,
+      "set": {
+        "step": "退款"
+      },
+      "note": "模型要完整抄下 UUID 才能调下一步，金额还是 82 元"
+    },
+    {
+      "from": "tool",
+      "to": "model",
+      "text": "已退款 82 元",
+      "tone": "ok",
+      "set": {
+        "step": "完成"
+      },
+      "note": "这次也办成了，但每一步多一次抄写和核对"
+    }
+  ]
+}

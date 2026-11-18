@@ -1,0 +1,98 @@
+{
+  "kind": "flow",
+  "title": "注入从三个方向汇进同一条消息列表",
+  "alt": "用户输入、工具结果、文档和 Skill 最后都变成同一条列表里的文本，模型分不出数据和指令",
+  "grid": [
+    5,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "user",
+      "label": "用户输入",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "tool",
+      "label": "工具结果",
+      "sub": "评论原文",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "doc",
+      "label": "文档/Skill",
+      "sub": "MCP 描述",
+      "at": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "ctx",
+      "label": "消息列表",
+      "sub": "role 只是标签",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "model",
+      "label": "模型",
+      "at": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "refund",
+      "label": "issue_refund",
+      "sub": "钱动了",
+      "at": [
+        4,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_user",
+      "from": "user",
+      "to": "ctx"
+    },
+    {
+      "id": "e_tool",
+      "from": "tool",
+      "to": "ctx"
+    },
+    {
+      "id": "e_doc",
+      "from": "doc",
+      "to": "ctx"
+    },
+    {
+      "id": "e_ctx",
+      "from": "ctx",
+      "to": "model",
+      "label": "一条流"
+    },
+    {
+      "id": "e_refund",
+      "from": "model",
+      "to": "refund",
+      "label": "调用工具"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "note": "三个入口不分高低：只要进了消息列表，模型看到的都是同一种 token"
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+{
+ "kind": "flow",
+ "title": "路由：分类器只分五条路，各自有提示和工具",
+ "alt": "工单进分类器后分到物流、退款、地址、政策或其他加越界；分类错会把整条链带错",
+ "grid": [
+  3,
+  5
+ ],
+ "nodes": [
+  {
+   "id": "in",
+   "label": "工单",
+   "at": [
+    0,
+    2
+   ]
+  },
+  {
+   "id": "clf",
+   "label": "分类器",
+   "sub": "submit_route",
+   "at": [
+    1,
+    2
+   ]
+  },
+  {
+   "id": "ship",
+   "label": "物流",
+   "sub": "get_order",
+   "at": [
+    2,
+    0
+   ]
+  },
+  {
+   "id": "refund",
+   "label": "退款",
+   "sub": "取事实 → 草稿 → 闸门",
+   "at": [
+    2,
+    1
+   ]
+  },
+  {
+   "id": "addr",
+   "label": "改地址",
+   "sub": "update_address",
+   "at": [
+    2,
+    2
+   ]
+  },
+  {
+   "id": "policy",
+   "label": "政策",
+   "sub": "search_policies",
+   "at": [
+    2,
+    3
+   ]
+  },
+  {
+   "id": "other",
+   "label": "其他 + 越界",
+   "sub": "兜底话术",
+   "at": [
+    2,
+    4
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "id": "e0",
+   "from": "in",
+   "to": "clf",
+   "label": "原话"
+  },
+  {
+   "id": "e1",
+   "from": "clf",
+   "to": "ship"
+  },
+  {
+   "id": "e2",
+   "from": "clf",
+   "to": "refund"
+  },
+  {
+   "id": "e3",
+   "from": "clf",
+   "to": "addr"
+  },
+  {
+   "id": "e4",
+   "from": "clf",
+   "to": "policy"
+  },
+  {
+   "id": "e5",
+   "from": "clf",
+   "to": "other"
+  },
+  {
+   "id": "wrong",
+   "from": "refund",
+   "to": "clf",
+   "label": "分错 → 整条链错",
+   "dashed": true,
+   "hidden": true
+  }
+ ],
+ "steps": [
+  {
+   "token": [
+    {
+     "edge": "e0",
+     "label": "T24"
+    }
+   ],
+   "hi": [
+    "clf"
+   ],
+   "note": "分类器只看工单原话，不取订单"
+  },
+  {
+   "token": [
+    {
+     "edge": "e1",
+     "label": "物流"
+    }
+   ],
+   "hi": [
+    "ship"
+   ],
+   "note": "问“到哪了”走物流，只给 get_order"
+  },
+  {
+   "token": [
+    {
+     "edge": "e2",
+     "label": "退款"
+    }
+   ],
+   "hi": [
+    "refund"
+   ],
+   "note": "退款路由跑完整的取事实、草稿、闸门链"
+  },
+  {
+   "token": [
+    {
+     "edge": "e3",
+     "label": "改地址"
+    },
+    {
+     "edge": "e4",
+     "label": "T24"
+    }
+   ],
+   "hi": [
+    "addr",
+    "policy"
+   ],
+   "note": "改地址和政策各自有专用提示与工具子集"
+  },
+  {
+   "token": [
+    {
+     "edge": "e5",
+     "label": "兜底"
+    },
+    {
+     "edge": "wrong",
+     "label": "分错"
+    }
+   ],
+   "show": [
+    "wrong"
+   ],
+   "tone": {
+    "clf": "bad"
+   },
+   "hi": [
+    "other"
+   ],
+   "note": "其他和越界不进退款链；分类错时整条链跟着错，红色回流表示代价"
+  }
+ ],
+ "speed": 1700
+}

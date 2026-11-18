@@ -1,0 +1,20 @@
+{
+  "kind": "seq",
+  "title": "一次 Streamable HTTP 工具调用",
+  "alt": "client POST 一个带三个路由头的请求，server 执行 ping 并在同一响应里返回结果",
+  "lanes": [
+    {"id": "c", "label": "client", "role": "process"},
+    {"id": "s", "label": "server", "role": "device"}
+  ],
+  "steps": [
+    {"from": "c", "to": "s", "text": "POST tools/call", "tone": "hot",
+     "note": "请求头带 MCP-Protocol-Version、Mcp-Method、Mcp-Name"},
+    {"at": "s", "text": "执行 ping", "note": "server 按 Mcp-Name 找到 ping，校验参数后执行"},
+    {"from": "s", "to": "c", "text": "JSON-RPC 结果", "tone": "ok",
+     "note": "结果在这条请求的响应里返回，可以是 JSON，也可以是 SSE 流"},
+    {"at": "c", "text": "读 content", "note": "content 是内容块列表，structuredContent 可选"},
+    {"at": "c", "text": "拼成文本", "note": "host 只把 text 块转成模型能读的文字"},
+    {"span": ["c", "s"], "text": "响应结束", "tone": "muted",
+     "note": "这条响应结束；下次调用重新 POST"}
+  ]
+}

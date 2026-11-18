@@ -1,0 +1,91 @@
+{
+  "kind": "seq",
+  "title": "两个 thread 共用一份顾客档案",
+  "alt": "thread 1 写入 Store，thread 2 是新 thread，仍从同一 namespace 读出抬头",
+  "lanes": [
+    {
+      "id": "t1",
+      "label": "thread 1"
+    },
+    {
+      "id": "graph",
+      "label": "图"
+    },
+    {
+      "id": "store",
+      "label": "Store",
+      "role": "memory"
+    },
+    {
+      "id": "t2",
+      "label": "thread 2"
+    }
+  ],
+  "state": [
+    {
+      "id": "profile",
+      "label": "发票抬头",
+      "value": "—"
+    },
+    {
+      "id": "thread",
+      "label": "当前 thread",
+      "value": "1"
+    }
+  ],
+  "steps": [
+    {
+      "from": "t1",
+      "to": "graph",
+      "text": "以后抬头写天津远山",
+      "set": {
+        "thread": "1"
+      },
+      "note": "thread 1 说了一条明确的长期信息"
+    },
+    {
+      "at": "graph",
+      "text": "save_profile 抽取",
+      "tone": "hot",
+      "note": "先用 function_calling 抽成 Profile，再合并旧值"
+    },
+    {
+      "from": "graph",
+      "to": "store",
+      "text": "put (C082,profile)",
+      "set": {
+        "profile": "天津远山"
+      },
+      "note": "稳定 key invoice；value 带 updated 和 source_thread"
+    },
+    {
+      "from": "t2",
+      "to": "graph",
+      "text": "我的发票抬头？",
+      "set": {
+        "thread": "2"
+      },
+      "note": "thread 2 是全新 thread，图里没有 thread 1 的消息"
+    },
+    {
+      "from": "graph",
+      "to": "store",
+      "text": "get 完整 ns",
+      "dashed": true,
+      "note": "按顾客号读 (C082, profile)，不做前缀搜索"
+    },
+    {
+      "from": "store",
+      "to": "graph",
+      "text": "天津远山",
+      "note": "档案放进系统提示，不把全部历史塞进去"
+    },
+    {
+      "from": "graph",
+      "to": "t2",
+      "text": "抬头是天津远山",
+      "tone": "ok",
+      "note": "新 thread 也能答出来：记忆在 thread 之外"
+    }
+  ]
+}

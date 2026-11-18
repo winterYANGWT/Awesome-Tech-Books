@@ -1,0 +1,113 @@
+{
+  "kind": "flow",
+  "title": "同一个循环：harness.run 和图",
+  "alt": "上面在调用方的 messages 上循环，下面把模型和工具拆成节点，用条件边决定回不回到 assistant",
+  "grid": [
+    3,
+    2
+  ],
+  "bands": [
+    {
+      "label": "harness.run",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "24.4 的图",
+      "rows": [
+        1,
+        1
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "h",
+      "label": "harness.run",
+      "sub": "for 循环",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "m",
+      "label": "messages",
+      "sub": "调用方传入",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "a",
+      "label": "assistant",
+      "sub": "调模型\n读写 State",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "t",
+      "label": "tools",
+      "sub": "执行工具\n追加结果",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "e",
+      "label": "END",
+      "sub": "回答",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "hm",
+      "from": "h",
+      "to": "m",
+      "label": "读写"
+    },
+    {
+      "id": "mh",
+      "from": "m",
+      "to": "h",
+      "label": "下一轮"
+    },
+    {
+      "id": "at",
+      "from": "a",
+      "to": "t",
+      "label": "tool_calls"
+    },
+    {
+      "id": "ta",
+      "from": "t",
+      "to": "a",
+      "label": "结果"
+    },
+    {
+      "id": "ae",
+      "from": "a",
+      "to": "e",
+      "label": "无 tool_calls"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "note": "两种写法都调模型、执行工具、放回结果；图把这几步拆成节点，下一轮由条件边决定"
+    }
+  ]
+}

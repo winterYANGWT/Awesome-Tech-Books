@@ -1,0 +1,132 @@
+{
+ "kind": "flow",
+ "title": "书店 server 的分层：数据、原语、传输",
+ "alt": "shop.Store 供工具读数据、供资源读政策；三组函数注册进 MCPServer，再选择 stdio 或 HTTP",
+ "grid": [
+  4,
+  3
+ ],
+ "nodes": [
+  {
+   "id": "store",
+   "label": "shop.Store",
+   "sub": "订单 / 顾客 / 政策",
+   "at": [
+    0,
+    1
+   ],
+   "shape": "store"
+  },
+  {
+   "id": "tools",
+   "label": "9 个 tool",
+   "sub": "support_tools",
+   "at": [
+    1,
+    0
+   ]
+  },
+  {
+   "id": "resources",
+   "label": "1 个资源模板",
+   "sub": "读 5 份政策",
+   "at": [
+    1,
+    1
+   ]
+  },
+  {
+   "id": "prompts",
+   "label": "2 个 prompt",
+   "sub": "只用参数",
+   "at": [
+    1,
+    2
+   ]
+  },
+  {
+   "id": "server",
+   "label": "MCPServer",
+   "sub": "annotations 是提示",
+   "at": [
+    2,
+    1
+   ]
+  },
+  {
+   "id": "stdio",
+   "label": "stdio",
+   "at": [
+    3,
+    0
+   ]
+  },
+  {
+   "id": "http",
+   "label": "Streamable\nHTTP",
+   "at": [
+    3,
+    2
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "id": "e1",
+   "from": "store",
+   "to": "tools",
+   "label": "包一层"
+  },
+  {
+   "id": "e2",
+   "from": "store",
+   "to": "resources",
+   "label": "同一份"
+  },
+  {
+   "id": "e3",
+   "from": "tools",
+   "to": "server",
+   "fromSide": "right",
+   "toSide": "top",
+   "route": "hv"
+  },
+  {
+   "id": "e4",
+   "from": "resources",
+   "to": "server",
+   "fromSide": "right",
+   "toSide": "left",
+   "route": "straight"
+  },
+  {
+   "id": "e5",
+   "from": "prompts",
+   "to": "server",
+   "fromSide": "right",
+   "toSide": "bottom",
+   "route": "hv"
+  },
+  {
+   "id": "e6",
+   "from": "server",
+   "to": "stdio",
+   "label": "子进程"
+  },
+  {
+   "id": "e7",
+   "from": "server",
+   "to": "http",
+   "label": "HTTP"
+  }
+ ],
+ "steps": [
+  {
+   "hi": [
+    "server"
+   ],
+   "note": "annotations 只是提示，真正的权限要在 host 和业务代码里查"
+  }
+ ],
+ "static": true
+}

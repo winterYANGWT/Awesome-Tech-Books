@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "校验失败后回填，模型改走主管",
+  "alt": "680 元超过 Pydantic 上限，错误回填后模型改调主管工具",
+  "lanes": [
+    {"id": "c", "label": "客户端"},
+    {"id": "m", "label": "模型", "role": "device"},
+    {"id": "v", "label": "校验器", "role": "process"},
+    {"id": "s", "label": "书店数据", "role": "memory"}
+  ],
+  "state": [
+    {"id": "amount", "label": "退款金额", "value": "—"},
+    {"id": "result", "label": "结果", "value": "—"}
+  ],
+  "steps": [
+    {"from": "c", "to": "m", "text": "T13：全额退款", "note": "工单说装订脱落，订单实付 680 元"},
+    {"from": "m", "to": "c", "text": "submit_refund(680)", "tone": "hot", "set": {"amount": "680"}, "note": "模型按实付金额提交退款决定"},
+    {"from": "c", "to": "v", "text": "RefundDecision", "note": "Pydantic 检查类型、订单号格式和金额范围"},
+    {"from": "v", "to": "c", "text": "amount > 500", "tone": "bad", "note": "le=500 拒绝，错误里带字段路径 amount"},
+    {"from": "c", "to": "m", "text": "回填错误 + 允许的动作", "note": "告诉模型：超过 500 元要主管批准，改调主管工具"},
+    {"from": "m", "to": "c", "text": "escalate_to_supervisor", "tone": "hot", "note": "模型不再改金额，改用另一个工具"},
+    {"from": "c", "to": "s", "text": "记录 actions", "tone": "ok", "set": {"result": "转主管"}, "note": "业务层记录转主管；没有调用退款，钱没动"}
+  ]
+}

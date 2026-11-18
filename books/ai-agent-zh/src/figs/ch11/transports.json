@@ -1,0 +1,121 @@
+{
+ "kind": "flow",
+ "title": "两种传输：本地子进程和远程 endpoint",
+ "alt": "host 里一个 client 管子进程，一个连 /mcp，server 侧是同一份代码",
+ "grid": [
+  4,
+  3
+ ],
+ "nodes": [
+  {
+   "id": "host",
+   "label": "host 进程",
+   "sub": "agent 加工具",
+   "at": [
+    0,
+    1
+   ]
+  },
+  {
+   "id": "ca",
+   "label": "stdio client",
+   "at": [
+    1,
+    0
+   ],
+   "shape": "round"
+  },
+  {
+   "id": "cb",
+   "label": "HTTP client",
+   "at": [
+    1,
+    2
+   ],
+   "shape": "round"
+  },
+  {
+   "id": "sa",
+   "label": "server 子进程",
+   "sub": "python server.py",
+   "at": [
+    2,
+    0
+   ],
+   "shape": "round"
+  },
+  {
+   "id": "sb",
+   "label": "HTTP endpoint",
+   "sub": "只绑 127.0.0.1",
+   "at": [
+    2,
+    2
+   ],
+   "shape": "round"
+  },
+  {
+   "id": "mcp",
+   "label": "同一个\nMCPServer",
+   "sub": "同一套 handler",
+   "at": [
+    3,
+    1
+   ]
+  },
+  {
+   "id": "note",
+   "label": "stdout 只写协议\n日志走 stderr",
+   "at": [
+    2,
+    1
+   ],
+   "shape": "note"
+  }
+ ],
+ "edges": [
+  {
+   "id": "e1",
+   "from": "host",
+   "to": "ca",
+   "label": "启动"
+  },
+  {
+   "id": "e2",
+   "from": "host",
+   "to": "cb",
+   "label": "连 URL"
+  },
+  {
+   "id": "e3",
+   "from": "ca",
+   "to": "sa",
+   "label": "一行一条"
+  },
+  {
+   "id": "e4",
+   "from": "cb",
+   "to": "sb",
+   "label": "POST"
+  },
+  {
+   "id": "e5",
+   "from": "sa",
+   "to": "mcp"
+  },
+  {
+   "id": "e6",
+   "from": "sb",
+   "to": "mcp"
+  }
+ ],
+ "steps": [
+  {
+   "hi": [
+    "mcp"
+   ],
+   "note": "两种传输只换消息怎么走，工具、资源和提示的代码不变"
+  }
+ ],
+ "static": true
+}

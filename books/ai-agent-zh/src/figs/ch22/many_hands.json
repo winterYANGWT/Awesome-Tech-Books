@@ -1,0 +1,111 @@
+{
+  "kind": "flow",
+  "title": "两个大脑，四只手，按需连接",
+  "alt": "brain A 和 brain B 各自在需要时才连到 sandbox、工具、浏览器和仓库",
+  "static": true,
+  "grid": [
+    3,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "a",
+      "label": "brain A",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "round",
+      "sub": "session A"
+    },
+    {
+      "id": "a1",
+      "label": "sandbox",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round",
+      "sub": "跑代码"
+    },
+    {
+      "id": "a2",
+      "label": "工具",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "box",
+      "sub": "MCP"
+    },
+    {
+      "id": "b",
+      "label": "brain B",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "round",
+      "sub": "session B"
+    },
+    {
+      "id": "b1",
+      "label": "浏览器",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round",
+      "sub": "页面"
+    },
+    {
+      "id": "b2",
+      "label": "仓库",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "box",
+      "sub": "git"
+    }
+  ],
+  "edges": [
+    {
+      "id": "a1e",
+      "from": "a",
+      "to": "a1",
+      "label": "按需",
+      "dashed": true
+    },
+    {
+      "id": "a2e",
+      "from": "a",
+      "to": "a2",
+      "label": "按需",
+      "dashed": true
+    },
+    {
+      "id": "b1e",
+      "from": "b",
+      "to": "b1",
+      "label": "按需",
+      "dashed": true
+    },
+    {
+      "id": "b2e",
+      "from": "b",
+      "to": "b2",
+      "label": "按需",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "note": "每个 hand 是一个 execute 工具；不需要时不必 provision。",
+      "hi": [
+        "a1e",
+        "b2e"
+      ]
+    }
+  ]
+}

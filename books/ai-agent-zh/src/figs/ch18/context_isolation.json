@@ -1,0 +1,86 @@
+{
+ "kind": "grid",
+ "title": "子 agent 各在自己的窗口里查，主 agent 只拿摘要",
+ "alt": "三个子 agent 各用了几千 token 探索，主 agent 合成时只读三份摘要，约 1.6k token",
+ "rows": [
+  {
+   "label": "SQL 子 agent"
+  },
+  {
+   "label": "评论子 agent"
+  },
+  {
+   "label": "政策子 agent"
+  },
+  {
+   "label": "主 agent"
+  }
+ ],
+ "cols": 27,
+ "legend": [
+  {
+   "key": "sql",
+   "label": "SQL 线"
+  },
+  {
+   "key": "rev",
+   "label": "评论线"
+  },
+  {
+   "key": "pol",
+   "label": "政策线"
+  },
+  {
+   "key": "main",
+   "label": "主 agent 合成"
+  }
+ ],
+ "steps": [
+  {
+   "paint": [
+    {
+     "r": 0,
+     "c": "0-12",
+     "key": "sql"
+    }
+   ],
+   "note": "SQL 子 agent 在自己的窗口里写查询、读结果：2654 token（每格约 200）"
+  },
+  {
+   "paint": [
+    {
+     "r": 1,
+     "c": "0-15",
+     "key": "rev"
+    }
+   ],
+   "note": "评论子 agent 读 3 本书的评论：3243 token"
+  },
+  {
+   "paint": [
+    {
+     "r": 2,
+     "c": "0-23",
+     "key": "pol"
+    }
+   ],
+   "note": "政策子 agent 读两份政策文档：4782 token"
+  },
+  {
+   "paint": [
+    {
+     "r": 3,
+     "c": "0-7",
+     "key": "main"
+    }
+   ],
+   "mark": [
+    {
+     "r": 3,
+     "c": "0-7"
+    }
+   ],
+   "note": "主 agent 只读三份摘要来合成：1625 token；子 agent 的中间结果留在各自窗口里"
+  }
+ ]
+}

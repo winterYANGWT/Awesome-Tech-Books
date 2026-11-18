@@ -1,0 +1,37 @@
+{
+  "kind": "flow",
+  "title": "编排者-工作者：先拆题，再并行，最后汇总",
+  "alt": "编排者只提交计划，三个工作者并行查订单、政策、评论，汇总者按引用写回复",
+  "grid": [5, 3],
+  "nodes": [
+    {"id": "ticket", "label": "工单 T06", "at": [0, 1]},
+    {"id": "orch", "label": "编排者", "sub": "只出计划", "at": [1, 1]},
+    {"id": "order", "label": "订单事实", "sub": "T1", "at": [3, 0], "hidden": true},
+    {"id": "policy", "label": "政策条款", "sub": "T2", "at": [3, 1], "hidden": true},
+    {"id": "review", "label": "评论摘要", "sub": "T3", "at": [3, 2], "hidden": true},
+    {"id": "synth", "label": "汇总者", "sub": "写回复", "at": [4, 1], "hidden": true}
+  ],
+  "edges": [
+    {"id": "e_ticket", "from": "ticket", "to": "orch", "label": "工单"},
+    {"id": "e_order", "from": "orch", "to": "order", "label": "T1", "hidden": true},
+    {"id": "e_policy", "from": "orch", "to": "policy", "label": "T2", "hidden": true},
+    {"id": "e_review", "from": "orch", "to": "review", "label": "T3", "hidden": true},
+    {"id": "e_s1", "from": "order", "to": "synth", "hidden": true},
+    {"id": "e_s2", "from": "policy", "to": "synth", "hidden": true},
+    {"id": "e_s3", "from": "review", "to": "synth", "hidden": true}
+  ],
+  "steps": [
+    {"token": [{"edge": "e_ticket", "label": "T06"}], "hi": ["orch"],
+     "set": {"orch": "计划：T1/T2/T3"}, "note": "编排者只提交计划：订单、政策、评论三个任务"},
+    {"show": ["order", "policy", "review", "e_order", "e_policy", "e_review"],
+     "token": [{"edge": "e_order", "label": "T1"}, {"edge": "e_policy", "label": "T2"},
+               {"edge": "e_review", "label": "T3"}],
+     "hi": ["order", "policy", "review"], "note": "三个工作者同时开工，各自拿到 goal、inputs 和只读查询结果"},
+    {"show": ["synth", "e_s1", "e_s2", "e_s3"],
+     "token": [{"edge": "e_s1", "label": "结果"}, {"edge": "e_s2", "label": "结果"},
+               {"edge": "e_s3", "label": "结果"}],
+     "hi": ["synth"], "note": "三份结构化结果汇到汇总者，不传完整对话"},
+    {"hi": ["synth"], "set": {"synth": "回复 + 引用"}, "tone": {"synth": "ok"},
+     "note": "按 order_id、policy_section、review_id 回查引用后写回复"}
+  ]
+}

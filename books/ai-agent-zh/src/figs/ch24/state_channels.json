@@ -1,0 +1,144 @@
+{
+  "kind": "grid",
+  "title": "四个节点依次写四个 state 键",
+  "alt": "ticket 先有值，查订单写 order，查政策写 policy，起草最后写 reply",
+  "rows": [
+    {
+      "label": "读工单"
+    },
+    {
+      "label": "查订单"
+    },
+    {
+      "label": "查政策"
+    },
+    {
+      "label": "起草"
+    },
+    {
+      "label": "最终 state"
+    }
+  ],
+  "cols": 4,
+  "colLabels": [
+    "工单",
+    "订单",
+    "政策",
+    "回复"
+  ],
+  "legend": [
+    {
+      "key": "ticket",
+      "label": "ticket 工单"
+    },
+    {
+      "key": "order",
+      "label": "order 订单"
+    },
+    {
+      "key": "policy",
+      "label": "policy 政策"
+    },
+    {
+      "key": "reply",
+      "label": "reply 回复"
+    }
+  ],
+  "steps": [
+    {
+      "paint": [
+        {
+          "r": 0,
+          "c": 0,
+          "key": "ticket"
+        }
+      ],
+      "mark": [
+        {
+          "r": 0,
+          "c": 0
+        }
+      ],
+      "note": "读工单把首尾空白去掉，写回 ticket；另外三个键还没有"
+    },
+    {
+      "paint": [
+        {
+          "r": 1,
+          "c": 1,
+          "key": "order"
+        }
+      ],
+      "mark": [
+        {
+          "r": 1,
+          "c": 1
+        }
+      ],
+      "note": "查订单读 ticket、写 order，ticket 保持原值"
+    },
+    {
+      "paint": [
+        {
+          "r": 2,
+          "c": 2,
+          "key": "policy"
+        }
+      ],
+      "mark": [
+        {
+          "r": 2,
+          "c": 2
+        }
+      ],
+      "note": "查政策只写 policy，前面的键不动"
+    },
+    {
+      "paint": [
+        {
+          "r": 3,
+          "c": 3,
+          "key": "reply"
+        }
+      ],
+      "mark": [
+        {
+          "r": 3,
+          "c": 3
+        }
+      ],
+      "note": "起草读 order 和 policy，最后写 reply"
+    },
+    {
+      "paint": [
+        {
+          "r": 4,
+          "c": 0,
+          "key": "ticket"
+        },
+        {
+          "r": 4,
+          "c": 1,
+          "key": "order"
+        },
+        {
+          "r": 4,
+          "c": 2,
+          "key": "policy"
+        },
+        {
+          "r": 4,
+          "c": 3,
+          "key": "reply"
+        }
+      ],
+      "mark": [
+        {
+          "r": 4,
+          "c": "*"
+        }
+      ],
+      "note": "最后一行是完整 state：四个键都有值；每个节点只写自己那一列"
+    }
+  ]
+}

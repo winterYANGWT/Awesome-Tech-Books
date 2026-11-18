@@ -1,0 +1,158 @@
+{
+  "kind": "flow",
+  "title": "结构化输出三条路：两种 output_type 和终止工具",
+  "alt": "Chat 模式 400，Responses 模式通过；终止工具返回 final_output",
+  "grid": [
+    3,
+    3
+  ],
+  "static": true,
+  "nodes": [
+    {
+      "id": "otype",
+      "label": "output_type",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "Pydantic 模型"
+    },
+    {
+      "id": "chat",
+      "label": "response_format",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "Chat Completions"
+    },
+    {
+      "id": "err",
+      "label": "400 拒绝",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "json_schema 不可用"
+    },
+    {
+      "id": "resp",
+      "label": "text.format",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "Responses"
+    },
+    {
+      "id": "ok",
+      "label": "分类结果",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "Pydantic 实例"
+    },
+    {
+      "id": "tool",
+      "label": "终止工具",
+      "at": [
+        0,
+        2
+      ],
+      "sub": "submit_category"
+    },
+    {
+      "id": "args",
+      "label": "tool args",
+      "at": [
+        1,
+        2
+      ],
+      "sub": "category + reason"
+    },
+    {
+      "id": "final",
+      "label": "final_output",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "工具返回值"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "otype",
+      "to": "chat",
+      "label": "发送"
+    },
+    {
+      "id": "e2",
+      "from": "chat",
+      "to": "err",
+      "label": "400"
+    },
+    {
+      "id": "e3",
+      "from": "otype",
+      "to": "resp",
+      "label": "发送"
+    },
+    {
+      "id": "e4",
+      "from": "resp",
+      "to": "ok",
+      "label": "解析"
+    },
+    {
+      "id": "e5",
+      "from": "tool",
+      "to": "args",
+      "label": "模型调用"
+    },
+    {
+      "id": "e6",
+      "from": "args",
+      "to": "final",
+      "label": "停止循环"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "e1",
+        "e2",
+        "err"
+      ],
+      "tone": {
+        "err": "bad"
+      },
+      "note": "Chat 模式下 output_type 发 json_schema，被 400 拒绝"
+    },
+    {
+      "hi": [
+        "e3",
+        "e4",
+        "ok"
+      ],
+      "tone": {
+        "ok": "ok"
+      },
+      "note": "Responses 把 schema 放进 text.format，请求通过"
+    },
+    {
+      "hi": [
+        "e5",
+        "e6",
+        "final"
+      ],
+      "tone": {
+        "tool": "ok",
+        "final": "ok"
+      },
+      "note": "终止工具走普通 tools 参数，工具返回值直接成为 final_output"
+    }
+  ]
+}

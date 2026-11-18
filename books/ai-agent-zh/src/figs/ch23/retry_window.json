@@ -1,0 +1,28 @@
+{
+  "kind": "seq",
+  "title": "退款响应丢了，重试撞上幂等键",
+  "alt": "退款已经执行但响应超时；同一个 key 重试时命中旧结果，不再退一次",
+  "lanes": [
+    {"id": "llm", "label": "模型", "role": "device"},
+    {"id": "h", "label": "harness", "role": "process"},
+    {"id": "svc", "label": "退款服务"},
+    {"id": "idem", "label": "幂等表", "role": "memory"}
+  ],
+  "state": [
+    {"id": "refunds", "label": "实际退款次数", "value": "0"},
+    {"id": "key", "label": "idempotency_key", "value": "—"}
+  ],
+  "steps": [
+    {"from": "llm", "to": "h", "text": "issue_refund(A1656, 50)", "note": "模型要求退 50 元，tool_call_id 已知"},
+    {"at": "h", "text": "算 key = session:call_01", "set": {"key": "s-01:call_01"}, "note": "key 由会话和 tool_call_id 拼成，重试时不变"},
+    {"from": "h", "to": "svc", "text": "退款请求（带 key）", "note": "服务先拿 key 查幂等表"},
+    {"from": "svc", "to": "idem", "text": "查 key", "note": "第一次请求，表里没有这条记录"},
+    {"from": "idem", "to": "svc", "text": "无记录", "tone": "muted", "note": "没有记录才真的执行"},
+    {"at": "svc", "text": "退款 50 元", "tone": "hot", "set": {"refunds": "1"}, "note": "钱已经退了，订单变成部分退款"},
+    {"from": "svc", "to": "h", "text": "响应在回程丢失", "tone": "bad", "dashed": true, "note": "harness 只看到超时，不知道钱退了没有"},
+    {"from": "h", "to": "svc", "text": "重试，同一个 key", "dashed": true, "note": "只重试超时；key 原样带回"},
+    {"from": "svc", "to": "idem", "text": "再查 key", "note": "第二次请求先查表"},
+    {"from": "idem", "to": "svc", "text": "上次的结果", "tone": "ok", "note": "表里有记录，直接返回上次的结果"},
+    {"from": "svc", "to": "h", "text": "refunded_total=50", "tone": "ok", "set": {"refunds": "1"}, "note": "重试没有第二次退款，实际退款次数还是 1"}
+  ]
+}

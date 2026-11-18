@@ -1,0 +1,29 @@
+{
+  "kind": "seq",
+  "title": "一次客服会话的 span 时间线",
+  "alt": "模型调用、工具调用和最终回答各记一条 span，父 span 串起同一轮",
+  "lanes": [
+    {"id": "user", "label": "顾客"},
+    {"id": "h", "label": "harness", "role": "process"},
+    {"id": "llm", "label": "模型", "role": "device"},
+    {"id": "tool", "label": "工具", "role": "memory"}
+  ],
+  "state": [
+    {"id": "spans", "label": "已写 span", "value": "0"},
+    {"id": "turn", "label": "轮次", "value": "—"}
+  ],
+  "steps": [
+    {"from": "user", "to": "h", "text": "缺页，订单 A1659", "note": "收到工单，开一个 trace_id"},
+    {"from": "h", "to": "llm", "text": "提示 + 9 个工具", "set": {"turn": "1"}, "note": "第 1 次调用模型，开始计模型 span"},
+    {"from": "llm", "to": "h", "text": "要 get_order + 查政策", "tone": "hot", "set": {"spans": "1"}, "note": "模型一次要了两个工具，span 记下 finish_reason 和调用数"},
+    {"from": "h", "to": "tool", "text": "依次执行两个工具", "note": "父 span 是同一条模型 span"},
+    {"from": "tool", "to": "h", "text": "422 B / 917 B", "set": {"spans": "3"}, "note": "两个工具各一条 span，只记字节数和 hash"},
+    {"from": "h", "to": "llm", "text": "对话（5 条）", "set": {"turn": "2"}, "note": "第 2 次调用带上工具结果"},
+    {"from": "llm", "to": "h", "text": "要 issue_refund(82)", "tone": "hot", "set": {"spans": "4"}, "note": "模型 span 再来一条"},
+    {"from": "h", "to": "tool", "text": "issue_refund(A1659)", "tone": "wait", "note": "有副作用的工具，真正的退款"},
+    {"from": "tool", "to": "h", "text": "已退 82 元", "set": {"spans": "5"}, "note": "结果放回对话，工具 span 记下错误和耗时"},
+    {"from": "h", "to": "llm", "text": "对话（7 条）", "set": {"turn": "3"}, "note": "第 3 次调用"},
+    {"from": "llm", "to": "h", "text": "最终回答", "set": {"spans": "6"}, "note": "没有工具调用，循环结束"},
+    {"at": "h", "text": "写 answer span", "tone": "ok", "set": {"spans": "7"}, "note": "回答单独一条 span：长度、hash、stop 原因"}
+  ]
+}

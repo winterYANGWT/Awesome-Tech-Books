@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "回归门：smoke 先跑，full 再比基线",
+  "alt": "5 条 smoke 通过后跑 30 条 full，和基线比；有弄坏就阻止合并",
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "smoke", "label": "smoke", "sub": "5 条，1 分钟", "at": [0, 0]},
+    {"id": "full", "label": "full", "sub": "30 条，CI 里跑", "at": [1, 0]},
+    {"id": "diff", "label": "对比基线", "sub": "修好 / 弄坏", "at": [2, 0]},
+    {"id": "merge", "label": "合并", "sub": "没有弄坏", "at": [3, 0]},
+    {"id": "block", "label": "阻止", "sub": "有弄坏", "at": [3, 1]}
+  ],
+  "edges": [
+    {"id": "e_smoke", "from": "smoke", "to": "full", "label": "通过"},
+    {"id": "e_full", "from": "full", "to": "diff", "label": "结果"},
+    {"id": "e_ok", "from": "diff", "to": "merge", "label": "无回归"},
+    {"id": "e_bad", "from": "diff", "to": "block", "label": "有弄坏"}
+  ],
+  "static": true,
+  "steps": [
+    {"note": "smoke 挡住明显坏掉的版本；full 和基线比，出现弄坏就阻止合并"}
+  ]
+}

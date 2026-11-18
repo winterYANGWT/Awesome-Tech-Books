@@ -1,0 +1,31 @@
+{
+  "kind": "seq",
+  "title": "两个分支在同一个超步写 log",
+  "alt": "A 和 B 各写一次，reducer 把两次写入合成两项；没有 reducer 时这里报错",
+  "lanes": [
+    {"id": "a", "label": "分支 A"},
+    {"id": "b", "label": "分支 B"},
+    {"id": "s", "label": "状态", "role": "memory"}
+  ],
+  "state": [
+    {"id": "log", "label": "log", "value": "0"}
+  ],
+  "steps": [
+    {"span": ["a", "b"], "text": "同一个超步", "set": {"log": "0"},
+     "note": "两条边都从 START 出发，A、B 在同一个超步里各写一次"},
+    {"at": "a", "text": "写 log += 退货期限",
+     "note": "A 查“退货期限”一节，写回一条"},
+    {"at": "b", "text": "写 log += 质量问题",
+     "note": "B 查“质量问题”一节；A、B 谁先跑完不保证"},
+    {"from": "a", "to": "s", "text": "['退货期限']", "set": {"log": "A"},
+     "note": "这里的箭头只表示先后讲解，两次写入其实同时发生"},
+    {"from": "b", "to": "s", "text": "['质量问题']", "set": {"log": "A + B"},
+     "note": "两次写入都到了，reducer 负责把它们合起来"},
+    {"at": "s", "text": "reducer 合并", "tone": "hot", "set": {"log": "2 项"},
+     "note": "operator.add 把两个列表接成一个，不覆盖"},
+    {"at": "s", "text": "log 两项", "tone": "ok", "set": {"log": "2 项"},
+     "note": "最终 state 里 log 是两项；输出前要排序，不能依赖顺序"},
+    {"at": "s", "text": "没有 reducer：报错", "tone": "bad",
+     "note": "同一个键在一个超步写两次，会抛 InvalidUpdateError"}
+  ]
+}

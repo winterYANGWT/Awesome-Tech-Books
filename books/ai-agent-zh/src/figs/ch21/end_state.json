@@ -1,0 +1,32 @@
+{
+  "kind": "seq",
+  "title": "终态检查：先看 actions，再看回答",
+  "alt": "退款工具把订单号和金额写进 actions，检查器对比 expect，金额差一分也判失败",
+  "lanes": [
+    {"id": "ticket", "label": "工单"},
+    {"id": "agent", "label": "agent", "role": "process"},
+    {"id": "tool", "label": "工具", "role": "memory"},
+    {"id": "acts", "label": "actions 表", "role": "memory"},
+    {"id": "check", "label": "检查器"}
+  ],
+  "state": [
+    {"id": "seq", "label": "动作序号", "value": "0"},
+    {"id": "verdict", "label": "检查结果", "value": "—"}
+  ],
+  "steps": [
+    {"from": "ticket", "to": "agent", "text": "T09 退一本",
+     "note": "工单进来：期望退 A1660 50 元，不是整单 56 元"},
+    {"from": "agent", "to": "tool", "text": "`issue_refund(50.0)`", "tone": "hot",
+     "note": "模型按书款调用退款工具，金额精确到分"},
+    {"from": "tool", "to": "acts", "text": "写 refund", "set": {"seq": "1"},
+     "note": "工具把订单号、50 元、原因写进 actions 表"},
+    {"from": "tool", "to": "agent", "text": "已退款",
+     "note": "工具结果放回对话，模型接着写回答"},
+    {"from": "check", "to": "acts", "text": "读 actions", "dashed": true,
+     "note": "检查器先读 actions，不看回答写得多客气"},
+    {"at": "check", "text": "对比 expect",
+     "note": "动作类型、订单号、金额逐项对比：50.0 对上 50.0"},
+    {"at": "check", "text": "PASS 50.00", "tone": "ok", "set": {"verdict": "PASS"},
+     "note": "四项都对上才通过；退 56.0 会判金额错"}
+  ]
+}

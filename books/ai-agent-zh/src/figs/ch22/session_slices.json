@@ -1,0 +1,66 @@
+{
+  "kind": "grid",
+  "title": "同一个 session 的三种取法",
+  "alt": "全量 40 个事件约 9,800 token；退款前 3 个约 600；最近 6 个约 1,200，日志一条不删",
+  "static": true,
+  "rows": [
+    {
+      "label": "全量 40 个"
+    },
+    {
+      "label": "退款前 3 个"
+    },
+    {
+      "label": "最近 6 个"
+    }
+  ],
+  "cols": 20,
+  "colLabels": "index",
+  "legend": [
+    {
+      "key": "full",
+      "label": "全量"
+    },
+    {
+      "key": "before",
+      "label": "退款前 3 个"
+    },
+    {
+      "key": "recent",
+      "label": "最近 6 个"
+    }
+  ],
+  "brackets": [
+    {
+      "c": "0-19",
+      "label": "事件 1–40，每格 2 个"
+    },
+    {
+      "c": "14-16",
+      "label": "退款 seq32",
+      "below": true
+    }
+  ],
+  "steps": [
+    {
+      "paint": [
+        {
+          "r": 0,
+          "c": "0-19",
+          "key": "full"
+        },
+        {
+          "r": 1,
+          "c": "14-15",
+          "key": "before"
+        },
+        {
+          "r": 2,
+          "c": "17-19",
+          "key": "recent"
+        }
+      ],
+      "note": "三个切片都从同一条日志里取；取多少由 harness 按 token 预算决定"
+    }
+  ]
+}

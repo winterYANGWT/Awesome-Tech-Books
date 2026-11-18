@@ -1,0 +1,119 @@
+{
+  "kind": "flow",
+  "title": "host 创建 client，每个连一个 server",
+  "alt": "host 在左边，创建三个 client；每个 client 连一个 server，server 都提供三种原语",
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "host",
+      "label": "书店客服 host",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "权限 / 同意 / 上下文"
+    },
+    {
+      "id": "c1",
+      "label": "client 1",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "c2",
+      "label": "client 2",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "c3",
+      "label": "client 3",
+      "at": [
+        1,
+        2
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "s1",
+      "label": "书店 server",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "tools / resources\n/ prompts"
+    },
+    {
+      "id": "s2",
+      "label": "CRM server",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "tools / resources\n/ prompts"
+    },
+    {
+      "id": "s3",
+      "label": "物流 server",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "tools / resources\n/ prompts"
+    }
+  ],
+  "edges": [
+    {
+      "id": "h1",
+      "from": "host",
+      "to": "c1",
+      "label": "创建"
+    },
+    {
+      "id": "h2",
+      "from": "host",
+      "to": "c2"
+    },
+    {
+      "id": "h3",
+      "from": "host",
+      "to": "c3"
+    },
+    {
+      "id": "e1",
+      "from": "c1",
+      "to": "s1",
+      "label": "1:1"
+    },
+    {
+      "id": "e2",
+      "from": "c2",
+      "to": "s2",
+      "label": "1:1"
+    },
+    {
+      "id": "e3",
+      "from": "c3",
+      "to": "s3",
+      "label": "1:1"
+    }
+  ],
+  "steps": [
+    {
+      "note": "host 创建 3 个 client；1:1 表示每个 client 只连一个 server",
+      "tone": {
+        "host": "hot"
+      }
+    }
+  ],
+  "static": true
+}

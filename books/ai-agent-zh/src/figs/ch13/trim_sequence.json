@@ -1,0 +1,66 @@
+{
+ "kind": "seq",
+ "title": "裁剪发生在每次调用模型之前",
+ "alt": "系统提示保留、最近 4 条保留、旧工具结果换 stub、成对删除后才发给模型",
+ "lanes": [
+  {
+   "id": "msgs",
+   "label": "消息列表",
+   "role": "memory"
+  },
+  {
+   "id": "h",
+   "label": "harness",
+   "role": "process"
+  },
+  {
+   "id": "llm",
+   "label": "模型",
+   "role": "device"
+  }
+ ],
+ "steps": [
+  {
+   "at": "h",
+   "text": "12 条消息",
+   "note": "调用模型前，harness 拿到整段消息"
+  },
+  {
+   "from": "h",
+   "to": "msgs",
+   "text": "保护 system",
+   "note": "第 1 条系统提示不参与裁剪"
+  },
+  {
+   "from": "msgs",
+   "to": "h",
+   "text": "最近 4 条",
+   "note": "最近的对话留在原位"
+  },
+  {
+   "at": "h",
+   "text": "旧结果换 stub",
+   "tone": "wait",
+   "note": "旧工具结果只留订单号、金额、状态"
+  },
+  {
+   "at": "h",
+   "text": "成对删除",
+   "tone": "hot",
+   "note": "tool_calls 和 tool 回复要一起删"
+  },
+  {
+   "from": "h",
+   "to": "llm",
+   "text": "裁剪后的列表",
+   "note": "模型只看到裁剪后的版本"
+  },
+  {
+   "from": "llm",
+   "to": "h",
+   "text": "回答或要工具",
+   "tone": "ok",
+   "note": "下一轮调用前再裁一次"
+  }
+ ]
+}

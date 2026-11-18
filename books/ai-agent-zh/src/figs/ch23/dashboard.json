@@ -1,0 +1,28 @@
+{
+  "kind": "flow",
+  "title": "从 trace 到告警和复盘",
+  "alt": "trace 聚合成指标，和阈值比较后发告警，再留事件记录并链接改动版本",
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "trace", "label": "trace.jsonl", "at": [0, 0], "shape": "store", "sub": "一行一个 span"},
+    {"id": "agg", "label": "指标聚合", "at": [1, 0], "sub": "按轮/工具/会话"},
+    {"id": "thresh", "label": "阈值比较", "at": [2, 0], "sub": "和基线比"},
+    {"id": "alert", "label": "告警", "at": [3, 0], "sub": "带上 trace_id"},
+    {"id": "event", "label": "事件记录", "at": [3, 1], "sub": "链接 trace"},
+    {"id": "review", "label": "复盘", "at": [2, 1], "sub": "改动版本"}
+  ],
+  "edges": [
+    {"id": "read", "from": "trace", "to": "agg", "label": "读"},
+    {"id": "metric", "from": "agg", "to": "thresh", "label": "p50/p95"},
+    {"id": "over", "from": "thresh", "to": "alert", "label": "超基线"},
+    {"id": "keep", "from": "alert", "to": "event", "label": "留档"},
+    {"id": "post", "from": "event", "to": "review", "label": "回看"}
+  ],
+  "static": true,
+  "steps": [
+    {
+      "hi": ["alert"],
+      "note": "告警只给指针：trace_id、span_id、哪条阈值；复盘时再按 trace 回查那一步"
+    }
+  ]
+}

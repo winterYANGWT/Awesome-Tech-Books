@@ -1,0 +1,28 @@
+{
+  "kind": "seq",
+  "title": "680 元退款：中断、等人、恢复执行",
+  "alt": "approve 节点把 680 元写进中断 payload 后暂停，审批人批准才恢复并退款",
+  "lanes": [
+    {"id": "graph", "label": "图"},
+    {"id": "model", "label": "模型"},
+    {"id": "human", "label": "审批人"},
+    {"id": "shop", "label": "商店", "role": "memory"}
+  ],
+  "steps": [
+    {"at": "graph", "text": "读 A1680：应退 680", "note": "propose 节点从订单数据算出 680，不让模型猜金额"},
+    {"from": "graph", "to": "human", "text": "interrupt(payload)", "tone": "wait",
+     "note": "approve 节点暂停，payload 里有订单、金额和原因"},
+    {"at": "graph", "text": "检查点写入 next=approve", "tone": "hot",
+     "note": "25.2 用 InMemorySaver，检查点只在内存；跨进程见 25.5"},
+    {"from": "human", "to": "graph", "text": "Command(resume=批准)", "tone": "ok",
+     "note": "主管批准后恢复，恢复值成为 interrupt() 的返回值"},
+    {"from": "graph", "to": "shop", "text": "refund(A1680, 680)",
+     "note": "execute 节点在 interrupt 之后才调用退款，恢复时不会重复退"},
+    {"from": "shop", "to": "graph", "text": "已退款 680", "tone": "ok",
+     "note": "actions 表里记下金额和 approved_by=主管"},
+    {"from": "graph", "to": "model", "text": "执行结果",
+     "note": "report 节点把已发生的事实交给模型写回复"},
+    {"from": "model", "to": "graph", "text": "给顾客的回复", "tone": "ok",
+     "note": "模型只负责措辞，不能再改金额或再退一次"}
+  ]
+}

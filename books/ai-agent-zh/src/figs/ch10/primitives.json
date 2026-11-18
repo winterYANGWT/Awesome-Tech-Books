@@ -1,0 +1,29 @@
+{
+  "kind": "flow",
+  "title": "三种原语：谁决定，内容给谁",
+  "alt": "模型选 tools，应用读 resources，用户选 prompts；三路都进 server，内容回到 host",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "model", "label": "模型", "at": [0, 0], "shape": "round"},
+    {"id": "app", "label": "应用", "at": [1, 0], "shape": "round"},
+    {"id": "user", "label": "用户", "at": [2, 0], "shape": "round"},
+    {"id": "tools", "label": "tools", "at": [0, 1], "sub": "动作"},
+    {"id": "resources", "label": "resources", "at": [1, 1], "sub": "数据"},
+    {"id": "prompts", "label": "prompts", "at": [2, 1], "sub": "模板"},
+    {"id": "server", "label": "书店 server", "at": [1, 2], "sub": "三种原语"},
+    {"id": "host", "label": "host", "at": [2, 2], "sub": "聚合成上下文"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "model", "to": "tools", "label": "模型决定调用"},
+    {"id": "e2", "from": "app", "to": "resources", "label": "应用决定加载"},
+    {"id": "e3", "from": "user", "to": "prompts", "label": "用户决定选择"},
+    {"id": "e4", "from": "tools", "to": "server"},
+    {"id": "e5", "from": "resources", "to": "server"},
+    {"id": "e6", "from": "prompts", "to": "server"},
+    {"id": "e7", "from": "server", "to": "host", "label": "返回内容"}
+  ],
+  "steps": [
+    {"note": "三条路都进 server；host 决定把哪些内容放进上下文", "tone": {"server": "hot"}}
+  ],
+  "static": true
+}

@@ -1,0 +1,72 @@
+{
+  "kind": "seq",
+  "title": "资源和提示：应用控制与用户控制",
+  "alt": "应用先列模板再读政策；用户先选话术再取消息；两条线都经过同一个 server",
+  "lanes": [
+    {
+      "id": "c",
+      "label": "client",
+      "role": "process"
+    },
+    {
+      "id": "s",
+      "label": "server",
+      "role": "device"
+    }
+  ],
+  "steps": [
+    {
+      "from": "c",
+      "to": "s",
+      "text": "templates/list",
+      "label": "应用控制",
+      "tone": "hot",
+      "note": "应用决定加载哪些政策，先问 server 有哪些模板"
+    },
+    {
+      "from": "s",
+      "to": "c",
+      "text": "uriTemplate",
+      "label": "应用控制",
+      "note": "resources/templates/list 返回 shop://policies/{name}"
+    },
+    {
+      "from": "c",
+      "to": "s",
+      "text": "resources/read",
+      "label": "应用控制",
+      "note": "应用把 name 填成 returns，发出具体 URI"
+    },
+    {
+      "from": "s",
+      "to": "c",
+      "text": "contents",
+      "label": "应用控制",
+      "tone": "ok",
+      "note": "contents 里是 Markdown 正文，mimeType 一致"
+    },
+    {
+      "from": "c",
+      "to": "s",
+      "text": "prompts/list",
+      "label": "用户控制",
+      "note": "用户从列表里选话术；参数只有名字和 required"
+    },
+    {
+      "from": "c",
+      "to": "s",
+      "text": "prompts/get",
+      "label": "用户控制",
+      "tone": "hot",
+      "note": "参数值在线上都是字符串，server 按函数签名转换"
+    },
+    {
+      "from": "s",
+      "to": "c",
+      "text": "messages",
+      "label": "用户控制",
+      "tone": "ok",
+      "note": "prompts/get 返回 role + content，host 再决定怎么放进对话"
+    }
+  ]
+}

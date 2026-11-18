@@ -1,0 +1,17 @@
+{
+  "kind": "seq",
+  "title": "四种 JSON-RPC 消息",
+  "alt": "请求和结果共用一个 id，错误也带同一个 id，通知没有 id",
+  "lanes": [
+    {"id": "client", "label": "client"},
+    {"id": "server", "label": "server"}
+  ],
+  "steps": [
+    {"at": "client", "text": "版本 + 能力\n放进 _meta", "note": "请求前：2026-07-28 没有握手，每条请求自带 _meta"},
+    {"from": "client", "to": "server", "text": "tools/list，id=1", "note": "请求：jsonrpc、id、method、params"},
+    {"from": "server", "to": "client", "text": "result + resultType", "tone": "ok", "note": "结果：同一个 id，result 里必须有 resultType"},
+    {"from": "client", "to": "server", "text": "tools/call，id=2", "note": "请求：params 有 name、_meta；arguments 可选"},
+    {"from": "server", "to": "client", "text": "error.code=-32602", "tone": "bad", "note": "错误：同一个 id，error 里是 code 和 message"},
+    {"from": "server", "to": "client", "text": "notifications/progress", "dashed": true, "note": "通知：没有 id，不要求响应"}
+  ]
+}

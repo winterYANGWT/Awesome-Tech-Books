@@ -1,0 +1,41 @@
+{
+  "kind": "grid",
+  "title": "30 张工单里，大多数不需要循环",
+  "alt": "12 张单次调用，11 张固定流程，6 张进 agent，1 张转主管",
+  "static": true,
+  "rows": [
+    {"label": "单次调用"},
+    {"label": "固定流程"},
+    {"label": "agent"},
+    {"label": "agent 或人工"}
+  ],
+  "cols": 30,
+  "colLabels": ["T01", "T02", "T03", "T04", "T05", "T06", "T07", "T08", "T09", "T10",
+                "T11", "T12", "T13", "T14", "T15", "T16", "T17", "T18", "T19", "T20",
+                "T21", "T22", "T23", "T24", "T25", "T26", "T27", "T28", "T29", "T30"],
+  "legend": [
+    {"key": "single", "label": "单次调用"},
+    {"key": "fixed", "label": "固定流程"},
+    {"key": "agent", "label": "agent"},
+    {"key": "human", "label": "agent 或人工"}
+  ],
+  "steps": [
+    {
+      "paint": [
+        {"r": 0, "c": "18-29", "key": "single"},
+        {"r": 1, "c": "0-4", "key": "fixed"},
+        {"r": 1, "c": 11, "key": "fixed"},
+        {"r": 1, "c": "13-17", "key": "fixed"},
+        {"r": 2, "c": "5-10", "key": "agent"},
+        {"r": 3, "c": 12, "key": "human"}
+      ],
+      "mark": [
+        {"r": 2, "c": 5, "tone": "hot"},
+        {"r": 3, "c": 12, "tone": "bad"},
+        {"r": 1, "c": 13, "tone": "wait"},
+        {"r": 0, "c": 26, "tone": "hot"}
+      ],
+      "note": "T06 进 agent；T12/T14 走固定规则，T13 转主管；T27 直接拒绝"
+    }
+  ]
+}

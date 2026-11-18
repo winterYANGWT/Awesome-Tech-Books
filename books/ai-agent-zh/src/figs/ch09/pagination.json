@@ -1,0 +1,25 @@
+{
+  "kind": "flow",
+  "title": "分页：一页一页拿到全部结果",
+  "alt": "每次只返回 3 条并给出 next_cursor，翻完三页才把 7 本书看全",
+  "grid": [3, 2],
+  "nodes": [
+    {"id": "query", "label": "查询", "sub": "历史类 60 元以下", "at": [0, 0]},
+    {"id": "page1", "label": "第 1 页", "sub": "3 条 / 上限 3", "at": [1, 0]},
+    {"id": "cursor", "label": "next_cursor", "sub": "还有 4 条", "at": [2, 0]},
+    {"id": "page2", "label": "第 2 页", "sub": "3 条 + 新游标", "at": [2, 1]},
+    {"id": "merge", "label": "合并各页", "sub": "含第 3 页", "at": [1, 1]},
+    {"id": "answer", "label": "回答", "sub": "3 本，完整", "at": [0, 1]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "query", "to": "page1", "label": "每页 3 条"},
+    {"id": "e2", "from": "page1", "to": "cursor", "label": "还有更多"},
+    {"id": "e3", "from": "cursor", "to": "page2", "label": "带游标再查", "fromSide": "bottom", "toSide": "top"},
+    {"id": "e4", "from": "page2", "to": "merge", "label": "继续"},
+    {"id": "e5", "from": "merge", "to": "answer", "label": "按价格筛"}
+  ],
+  "steps": [
+    {"hi": ["cursor"], "note": "结果里带 next_cursor；没有它，模型不知道还有没有下一页"}
+  ],
+  "static": true
+}

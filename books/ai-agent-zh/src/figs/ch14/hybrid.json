@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "混合：固定上下文直接用，长尾和数据走工具",
+  "alt": "固定摘要直接回答；政策查目录和读取，数据走 SQL，三条路都汇到回答",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "fixed", "label": "固定上下文", "sub": "退货期限摘要", "at": [0, 0]},
+    {"id": "catalog", "label": "目录", "at": [0, 1]},
+    {"id": "read", "label": "读取一节", "at": [1, 1]},
+    {"id": "sql", "label": "SQL 查询", "at": [0, 2]},
+    {"id": "answer", "label": "回答", "shape": "round", "at": [2, 1]}
+  ],
+  "edges": [
+    {"id": "e_fixed", "from": "fixed", "to": "answer", "label": "直接用"},
+    {"id": "e_cat", "from": "catalog", "to": "read", "label": "选一节"},
+    {"id": "e_read", "from": "read", "to": "answer", "label": "正文"},
+    {"id": "e_sql", "from": "sql", "to": "answer", "label": "聚合结果"}
+  ],
+  "static": true,
+  "steps": [
+    {"note": "每次都相关又稳定的内容放固定上下文；其余按需查"}
+  ]
+}

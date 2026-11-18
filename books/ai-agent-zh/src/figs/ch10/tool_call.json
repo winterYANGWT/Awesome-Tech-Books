@@ -1,0 +1,75 @@
+{
+ "kind": "seq",
+ "title": "一次工具调用的消息往来（2026-07-28）",
+ "alt": "没有 initialize 握手；每条请求的 _meta 都带版本和能力，server 逐条回结果",
+ "lanes": [
+  {
+   "id": "client",
+   "label": "client"
+  },
+  {
+   "id": "server",
+   "label": "server"
+  }
+ ],
+ "state": [
+  {
+   "id": "ver",
+   "label": "协议版本",
+   "value": "—"
+  },
+  {
+   "id": "caps",
+   "label": "clientCapabilities",
+   "value": "—"
+  }
+ ],
+ "steps": [
+  {
+   "at": "client",
+   "text": "组装 _meta",
+   "set": {
+    "ver": "2026-07-28",
+    "caps": "{}"
+   },
+   "note": "没有 initialize：版本和能力放进每个请求"
+  },
+  {
+   "from": "client",
+   "to": "server",
+   "text": "server/discover（可选）",
+   "note": "请求：可选，先问 server 支持什么"
+  },
+  {
+   "from": "server",
+   "to": "client",
+   "text": "版本和能力",
+   "note": "结果：server 的 supportedVersions 和 capabilities"
+  },
+  {
+   "from": "client",
+   "to": "server",
+   "text": "tools/list",
+   "note": "请求：也可以跳过 discover 直接发"
+  },
+  {
+   "from": "server",
+   "to": "client",
+   "text": "tools + ttlMs",
+   "note": "结果：工具列表和缓存提示"
+  },
+  {
+   "from": "client",
+   "to": "server",
+   "text": "tools/call add(2,3)",
+   "note": "请求：每条都重新带上 _meta"
+  },
+  {
+   "from": "server",
+   "to": "client",
+   "text": "resultType: complete",
+   "tone": "ok",
+   "note": "结果：content 里是 5；全程没有握手"
+  }
+ ]
+}

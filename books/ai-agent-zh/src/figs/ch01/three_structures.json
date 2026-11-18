@@ -1,0 +1,279 @@
+{
+ "kind": "flow",
+ "title": "三种结构：单次调用、固定流程、agent",
+ "alt": "单次调用只问一次模型；固定流程把判断写进代码；agent 由 harness 反复调模型、替它执行工具",
+ "speed": 1800,
+ "grid": [
+  5,
+  4
+ ],
+ "bands": [
+  {
+   "label": "单次调用",
+   "rows": [
+    0,
+    0
+   ]
+  },
+  {
+   "label": "固定流程",
+   "rows": [
+    1,
+    1
+   ]
+  },
+  {
+   "label": "agent 循环",
+   "rows": [
+    2,
+    3
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "id": "s_in",
+   "label": "工单",
+   "at": [
+    0,
+    0
+   ]
+  },
+  {
+   "id": "s_llm",
+   "label": "模型",
+   "at": [
+    2,
+    0
+   ],
+   "sub": "1 次请求"
+  },
+  {
+   "id": "s_out",
+   "label": "回复",
+   "at": [
+    4,
+    0
+   ]
+  },
+  {
+   "id": "f_in",
+   "label": "工单",
+   "at": [
+    0,
+    1
+   ],
+   "hidden": true
+  },
+  {
+   "id": "f_code",
+   "label": "代码",
+   "at": [
+    1,
+    1
+   ],
+   "sub": "查单、退款",
+   "hidden": true
+  },
+  {
+   "id": "f_llm",
+   "label": "模型",
+   "at": [
+    2,
+    1
+   ],
+   "sub": "只写回复",
+   "hidden": true
+  },
+  {
+   "id": "f_out",
+   "label": "回复",
+   "at": [
+    4,
+    1
+   ],
+   "hidden": true
+  },
+  {
+   "id": "a_in",
+   "label": "工单",
+   "at": [
+    0,
+    2
+   ],
+   "hidden": true
+  },
+  {
+   "id": "a_h",
+   "label": "harness",
+   "at": [
+    1,
+    2
+   ],
+   "shape": "round",
+   "sub": "循环",
+   "hidden": true
+  },
+  {
+   "id": "a_llm",
+   "label": "模型",
+   "at": [
+    1,
+    3
+   ],
+   "sub": "决定下一步",
+   "hidden": true
+  },
+  {
+   "id": "a_tool",
+   "label": "工具",
+   "at": [
+    2,
+    3
+   ],
+   "shape": "store",
+   "hidden": true
+  },
+  {
+   "id": "a_out",
+   "label": "回复",
+   "at": [
+    4,
+    2
+   ],
+   "hidden": true
+  }
+ ],
+ "edges": [
+  {
+   "id": "s1",
+   "from": "s_in",
+   "to": "s_llm"
+  },
+  {
+   "id": "s2",
+   "from": "s_llm",
+   "to": "s_out"
+  },
+  {
+   "id": "f1",
+   "from": "f_in",
+   "to": "f_code",
+   "hidden": true
+  },
+  {
+   "id": "f2",
+   "from": "f_code",
+   "to": "f_llm",
+   "hidden": true
+  },
+  {
+   "id": "f3",
+   "from": "f_llm",
+   "to": "f_out",
+   "hidden": true
+  },
+  {
+   "id": "a1",
+   "from": "a_in",
+   "to": "a_h",
+   "hidden": true
+  },
+  {
+   "id": "a2",
+   "from": "a_h",
+   "to": "a_llm",
+   "arrow": "both",
+   "label": "对话",
+   "hidden": true
+  },
+  {
+   "id": "a3",
+   "from": "a_h",
+   "to": "a_tool",
+   "arrow": "both",
+   "label": "执行",
+   "hidden": true
+  },
+  {
+   "id": "a4",
+   "from": "a_h",
+   "to": "a_out",
+   "hidden": true
+  }
+ ],
+ "steps": [
+  {
+   "hi": [
+    "s_llm"
+   ],
+   "token": [
+    {
+     "edge": "s1",
+     "label": "原文"
+    }
+   ],
+   "note": "单次调用：工单原文进模型，模型直接回话，看不到订单和政策"
+  },
+  {
+   "show": [
+    "f_in",
+    "f_code",
+    "f_llm",
+    "f_out",
+    "f1",
+    "f2",
+    "f3"
+   ],
+   "hi": [
+    "f_code"
+   ],
+   "token": [
+    {
+     "edge": "f2",
+     "label": "82 元"
+    }
+   ],
+   "note": "固定流程：分支写在代码里，查单和退款由代码完成，模型只把结果写成回复"
+  },
+  {
+   "show": [
+    "a_in",
+    "a_h",
+    "a_llm",
+    "a_tool",
+    "a_out",
+    "a1",
+    "a2",
+    "a3",
+    "a4"
+   ],
+   "hi": [
+    "a_h",
+    "a_llm",
+    "a2",
+    "a3"
+   ],
+   "token": [
+    {
+     "edge": "a2",
+     "label": "要工具"
+    }
+   ],
+   "note": "agent：harness 反复调模型，模型说要哪个工具，harness 去执行并把结果放回对话"
+  },
+  {
+   "hi": [
+    "s_llm",
+    "f_code",
+    "a_h"
+   ],
+   "set": {
+    "s_llm": "1 次请求",
+    "f_code": "分支要人写全",
+    "a_h": "这次 4 次"
+   },
+   "note": "三种做法的代价不同：单次最省但会编，固定流程最稳但分支要写全，agent 灵活但请求多"
+  }
+ ]
+}

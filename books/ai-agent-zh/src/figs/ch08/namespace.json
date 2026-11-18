@@ -1,0 +1,132 @@
+{
+  "kind": "flow",
+  "title": "两个 server 都叫 search，host 加载时消歧",
+  "alt": "书店和 CRM 各暴露一个 search，聚合时冲突，host 加服务前缀后区分开",
+  "grid": [
+    5,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "host",
+      "label": "host",
+      "sub": "加载工具",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "c1",
+      "label": "client",
+      "sub": "书店",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "c2",
+      "label": "client",
+      "sub": "CRM",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "s1",
+      "label": "server",
+      "sub": "search 查书",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "s2",
+      "label": "server",
+      "sub": "search 查顾客",
+      "at": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "bare",
+      "label": "两个 search",
+      "sub": "同名冲突",
+      "at": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "fixed",
+      "label": "加服务前缀",
+      "sub": "shop__ / crm__",
+      "at": [
+        4,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "host",
+      "to": "c1"
+    },
+    {
+      "id": "e2",
+      "from": "host",
+      "to": "c2"
+    },
+    {
+      "id": "e3",
+      "from": "c1",
+      "to": "s1"
+    },
+    {
+      "id": "e4",
+      "from": "c2",
+      "to": "s2"
+    },
+    {
+      "id": "e5",
+      "from": "s1",
+      "to": "bare"
+    },
+    {
+      "id": "e6",
+      "from": "s2",
+      "to": "bare"
+    },
+    {
+      "id": "e7",
+      "from": "bare",
+      "to": "fixed"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "bare"
+      ],
+      "tone": {
+        "bare": "bad"
+      },
+      "note": "两个 server 各有一个 search；直接按名字合并，后加载的会覆盖前一个"
+    },
+    {
+      "hi": [
+        "fixed"
+      ],
+      "tone": {
+        "fixed": "ok"
+      },
+      "note": "host 加载时加 server 前缀，两个 search 变成不同的名字"
+    }
+  ],
+  "static": true
+}

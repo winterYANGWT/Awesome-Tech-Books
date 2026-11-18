@@ -1,0 +1,24 @@
+{
+  "kind": "flow",
+  "title": "预先检索一次取完，即时检索边找边读",
+  "alt": "上边一次取 top-3 块再回答；下边先给目录，按需读一节再回答",
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "q", "label": "顾客问题", "at": [0, 0]},
+    {"id": "topk", "label": "top-3 块", "at": [1, 0]},
+    {"id": "answer", "label": "回答", "shape": "round", "at": [3, 0]},
+    {"id": "catalog", "label": "目录", "sub": "5 份文档 15 节", "at": [0, 1]},
+    {"id": "read", "label": "按需读一节", "at": [2, 1]}
+  ],
+  "edges": [
+    {"id": "e_topk", "from": "q", "to": "topk"},
+    {"id": "e_once", "from": "topk", "to": "answer", "label": "一次取完"},
+    {"id": "e_cat", "from": "q", "to": "catalog", "label": "先给目录"},
+    {"id": "e_read", "from": "catalog", "to": "read", "label": "读这一节"},
+    {"id": "e_answer", "from": "read", "to": "answer", "label": "不够再读"}
+  ],
+  "static": true,
+  "steps": [
+    {"note": "上面只有一次检索机会；下面可以按目录读一节，不够再读"}
+  ]
+}

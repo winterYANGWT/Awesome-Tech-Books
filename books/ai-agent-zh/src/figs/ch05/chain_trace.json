@@ -1,0 +1,28 @@
+{
+  "kind": "seq",
+  "title": "同一条链的时间线：两次模型调用、一个闸门",
+  "alt": "客户端先取订单和政策，再调模型摘要，调模型写草稿，最后过闸门发出",
+  "lanes": [
+    {"id": "c", "label": "客户端"},
+    {"id": "m", "label": "模型", "role": "device"},
+    {"id": "g", "label": "闸门"},
+    {"id": "d", "label": "书店数据", "role": "memory"}
+  ],
+  "state": [
+    {"id": "step", "label": "步骤", "value": "取事实"},
+    {"id": "tok", "label": "累计 token", "value": "0"},
+    {"id": "amount", "label": "应退金额", "value": "—"},
+    {"id": "gate", "label": "闸门", "value": "—"}
+  ],
+  "steps": [
+    {"from": "c", "to": "d", "text": "get_order(A1659)", "set": {"step": "取事实"}, "note": "取事实是两次本地查询，不调模型"},
+    {"from": "d", "to": "c", "text": "82 元 + 3 条政策", "set": {"amount": "82"}, "note": "订单实付和政策条款落进变量"},
+    {"from": "c", "to": "m", "text": "摘要：订单 + 政策", "set": {"tok": "619"}, "note": "第 1 次模型调用，只做摘要"},
+    {"from": "m", "to": "c", "text": "JSON amount=82", "tone": "hot", "set": {"tok": "656"}, "note": "摘要输出固定字段的 JSON"},
+    {"from": "c", "to": "m", "text": "草稿：只带摘要", "set": {"tok": "829"}, "note": "第 2 次模型调用，只写回复，不带整段历史"},
+    {"from": "m", "to": "c", "text": "回复含 82 元", "tone": "hot", "set": {"tok": "873"}, "note": "金额来自摘要，不是模型自己编的"},
+    {"from": "c", "to": "g", "text": "闸门：字段/金额/政策/措辞", "set": {"step": "闸门"}, "note": "闸门是代码，一次查订单号、金额、500 元上限和越权承诺"},
+    {"from": "g", "to": "c", "text": "pass → 发出", "tone": "ok", "set": {"gate": "过"}, "note": "过了闸门才交给顾客；不过就带着问题回草稿"}
+  ],
+  "speed": 1600
+}

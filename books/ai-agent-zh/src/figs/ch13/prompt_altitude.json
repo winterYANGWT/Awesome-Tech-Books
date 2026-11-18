@@ -1,0 +1,23 @@
+{
+ "kind": "flow",
+ "title": "系统提示的高度决定每轮固定前缀",
+ "alt": "太低把政策写死，太高不知道查什么；中间的可执行规则配工具 Schema 每轮重发",
+ "grid": [3, 2],
+ "static": true,
+ "nodes": [
+  {"id": "low", "label": "if-else", "sub": "40 条，政策写死", "at": [0, 0], "shape": "round"},
+  {"id": "mid", "label": "4 条规则", "sub": "判断留给工具", "at": [1, 0], "shape": "round"},
+  {"id": "high", "label": "泛泛版", "sub": "不知道查什么", "at": [2, 0], "shape": "round"},
+  {"id": "prefix", "label": "每轮固定前缀", "sub": "系统提示 + 工具", "at": [1, 1]},
+  {"id": "tools", "label": "9 / 27 个工具", "sub": "Schema 每轮重发", "at": [2, 1]}
+ ],
+ "edges": [
+  {"id": "e1", "from": "low", "to": "prefix", "label": "太长"},
+  {"id": "e2", "from": "mid", "to": "prefix", "label": "合适"},
+  {"id": "e3", "from": "high", "to": "prefix", "label": "太短"},
+  {"id": "e4", "from": "prefix", "to": "tools", "label": "加工具"}
+ ],
+ "steps": [
+  {"hi": ["mid", "prefix"], "note": "中间高度把判断留给工具；系统提示和工具 Schema 一起构成每轮重发的固定前缀"}
+ ]
+}

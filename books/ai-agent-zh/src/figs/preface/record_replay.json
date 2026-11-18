@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "示例的录制和回放",
+  "alt": "录制时代理把请求转给模型并存下来；回放时同样的请求直接拿到存下的回答，不联网",
+  "lanes": [
+    {"id": "ex", "label": "示例程序"},
+    {"id": "proxy", "label": "本地代理", "role": "process"},
+    {"id": "file", "label": "录制文件", "role": "memory"},
+    {"id": "llm", "label": "模型服务", "role": "device"}
+  ],
+  "steps": [
+    {"span": ["ex", "llm"], "text": "录制（作者跑一次）", "note": "作者第一次运行示例时用录制模式"},
+    {"from": "ex", "to": "proxy", "text": "请求 1", "note": "示例照常调用 API，只是地址指向本地代理"},
+    {"from": "proxy", "to": "llm", "text": "转发", "note": "代理带上作者的 key，转给真实的模型"},
+    {"from": "llm", "to": "proxy", "text": "回答 1", "tone": "hot", "note": "模型给出这一次的回答，每次都可能不同"},
+    {"ops": [{"from": "proxy", "to": "file", "text": "存下请求和回答"}, {"from": "proxy", "to": "ex", "text": "回答 1", "dashed": true}], "note": "代理把这一对存进录制文件，再交给示例"},
+    {"span": ["ex", "llm"], "text": "回放（构建这本书时）", "note": "之后每次构建这本书都用回放模式"},
+    {"from": "ex", "to": "proxy", "text": "请求 1", "note": "同一个示例发出同样的请求"},
+    {"from": "file", "to": "proxy", "text": "按请求找到回答 1", "tone": "ok", "note": "代理在录制文件里找到内容完全相同的请求"},
+    {"from": "proxy", "to": "ex", "text": "回答 1", "tone": "ok", "note": "示例拿到同一个回答，输出和书里一字不差，不联网也不花钱"}
+  ]
+}

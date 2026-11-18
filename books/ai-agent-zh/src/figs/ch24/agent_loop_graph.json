@@ -1,0 +1,80 @@
+{
+  "kind": "flow",
+  "title": "agent 循环：assistant 和 tools",
+  "alt": "有 tool_calls 去 tools，执行完回 assistant；没有就去 END",
+  "grid": [
+    3,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "start",
+      "label": "START",
+      "sub": "用户消息",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "a",
+      "label": "assistant",
+      "sub": "调模型 + 系统提示",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "end",
+      "label": "END",
+      "sub": "回答给用户",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "t",
+      "label": "tools",
+      "sub": "执行 tool_calls",
+      "at": [
+        1,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "sa",
+      "from": "start",
+      "to": "a"
+    },
+    {
+      "id": "ae",
+      "from": "a",
+      "to": "end",
+      "label": "无 tool_calls"
+    },
+    {
+      "id": "at",
+      "from": "a",
+      "to": "t",
+      "label": "有 tool_calls"
+    },
+    {
+      "id": "ta",
+      "from": "t",
+      "to": "a",
+      "label": "结果"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "note": "条件边看最后一条 AIMessage：有 tool_calls 去 tools，没有就去 END"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "kind": "seq",
+  "title": "handoff：分诊把对话交给退款",
+  "alt": "分诊调用 transfer_to_refund 后退出，退款 agent 查订单、退款并直接回答用户",
+  "lanes": [
+    {
+      "id": "user",
+      "label": "用户"
+    },
+    {
+      "id": "triage",
+      "label": "分诊"
+    },
+    {
+      "id": "refund",
+      "label": "退款 agent"
+    },
+    {
+      "id": "tool",
+      "label": "工具",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "owner",
+      "label": "对话控制权",
+      "value": "分诊"
+    },
+    {
+      "id": "handoffs",
+      "label": "转接次数",
+      "value": "0"
+    }
+  ],
+  "steps": [
+    {
+      "from": "user",
+      "to": "triage",
+      "text": "A1659 缺页，怎么退",
+      "tone": "hot",
+      "note": "用户先把问题交给分诊"
+    },
+    {
+      "from": "triage",
+      "to": "refund",
+      "text": "transfer_to_refund",
+      "dashed": true,
+      "set": {
+        "owner": "退款",
+        "handoffs": "1"
+      },
+      "note": "分诊先对用户说“我帮您转接”，再调用交接工具"
+    },
+    {
+      "at": "triage",
+      "text": "补 role: tool",
+      "tone": "wait",
+      "note": "循环先补一条“已转接”的工具结果，否则下一轮消息不合法"
+    },
+    {
+      "from": "refund",
+      "to": "tool",
+      "text": "get_order(A1659)",
+      "note": "退款 agent 带着完整对话接手，自己查订单"
+    },
+    {
+      "from": "tool",
+      "to": "refund",
+      "text": "实付 82 元",
+      "tone": "ok",
+      "note": "工具结果回到退款 agent，不再经过分诊"
+    },
+    {
+      "from": "refund",
+      "to": "tool",
+      "text": "issue_refund(82)",
+      "note": "退款 agent 按政策判断是质量问题，退全款"
+    },
+    {
+      "ops": [
+        {
+          "from": "tool",
+          "to": "refund",
+          "text": "已退 82"
+        },
+        {
+          "from": "refund",
+          "to": "user",
+          "text": "已退 82 元",
+          "tone": "ok"
+        }
+      ],
+      "note": "退款 agent 直接回答用户；分诊已经退出，不会再被调用"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+ "kind": "seq",
+ "title": "一轮返回两个调用，回填两条 tool 消息",
+ "alt": "模型一轮要订单和政策，客户端依次执行两个查询，再把两条结果一起送回模型",
+ "lanes": [
+  {
+   "id": "user",
+   "label": "顾客"
+  },
+  {
+   "id": "h",
+   "label": "客户端",
+   "role": "process"
+  },
+  {
+   "id": "llm",
+   "label": "模型",
+   "role": "device"
+  },
+  {
+   "id": "order",
+   "label": "订单工具",
+   "role": "memory"
+  },
+  {
+   "id": "policy",
+   "label": "政策工具",
+   "role": "memory"
+  }
+ ],
+ "steps": [
+  {
+   "from": "user",
+   "to": "h",
+   "text": "A1659 能退吗",
+   "note": "顾客同时问订单和退货政策"
+  },
+  {
+   "from": "h",
+   "to": "llm",
+   "text": "对话 + 两个工具",
+   "note": "两个工具的定义都在请求里"
+  },
+  {
+   "from": "llm",
+   "to": "h",
+   "text": "一次返回两个调用",
+   "tone": "hot",
+   "note": "一条 assistant 消息带两个 tool_calls"
+  },
+  {
+   "from": "h",
+   "to": "order",
+   "text": "get_order(A1659)",
+   "note": "同一轮的第 1 个调用：查订单；示例依次执行"
+  },
+  {
+   "from": "order",
+   "to": "h",
+   "text": "实付 82 元",
+   "note": "订单结果回来"
+  },
+  {
+   "from": "h",
+   "to": "policy",
+   "text": "search_policies",
+   "note": "第 2 个调用和第 1 个互不依赖；也可以换成并发"
+  },
+  {
+   "from": "policy",
+   "to": "h",
+   "text": "15 天 / 60 天",
+   "note": "政策结果回来；两个查询互不影响"
+  },
+  {
+   "from": "h",
+   "to": "llm",
+   "text": "两条 role:tool",
+   "tone": "hot",
+   "note": "按原顺序回填两条 tool 消息，按 id 配对"
+  },
+  {
+   "from": "llm",
+   "to": "h",
+   "text": "答复：能退",
+   "tone": "ok",
+   "note": "模型汇总订单和政策写答案"
+  },
+  {
+   "from": "h",
+   "to": "user",
+   "text": "转达给顾客",
+   "tone": "ok",
+   "note": "客户端把答案交给顾客"
+  }
+ ]
+}

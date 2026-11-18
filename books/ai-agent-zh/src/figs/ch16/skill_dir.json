@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "一个 Skill 目录里，哪些文件什么时候读",
+  "alt": "agent 激活时读 SKILL.md；脚本、政策原文和回复模板由正文指向，按需读取",
+  "grid": [3, 3],
+  "nodes": [
+    {"id": "agent", "label": "agent", "shape": "round", "at": [1, 0]},
+    {"id": "skill", "label": "SKILL.md", "sub": "frontmatter + 正文", "at": [1, 1]},
+    {"id": "scripts", "label": "scripts", "sub": "refund.py", "at": [0, 2]},
+    {"id": "references", "label": "references", "sub": "returns.md", "at": [1, 2]},
+    {"id": "assets", "label": "assets", "sub": "refund_reply.md", "at": [2, 2]}
+  ],
+  "edges": [
+    {"id": "activate", "from": "agent", "to": "skill", "label": "激活"},
+    {"id": "run", "from": "skill", "to": "scripts", "label": "运行", "dashed": true},
+    {"id": "read", "from": "skill", "to": "references", "label": "读", "dashed": true},
+    {"id": "use", "from": "skill", "to": "assets", "label": "套用", "dashed": true}
+  ],
+  "static": true,
+  "steps": [
+    {"note": "实线：激活时读整份 SKILL.md；虚线：正文说清楚什么时候读哪个文件，用到才读"}
+  ]
+}

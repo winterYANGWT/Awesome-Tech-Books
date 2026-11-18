@@ -1,0 +1,283 @@
+{
+ "kind": "flow",
+ "title": "一个入口，几条路线，一层硬规则",
+ "alt": "分诊把简单工单送进快速通道、要判断的送进 agent；两条路都经过工具层，超限和失败转人工",
+ "speed": 2000,
+ "grid": [
+  3,
+  4
+ ],
+ "nodes": [
+  {
+   "id": "msg",
+   "label": "顾客消息",
+   "at": [
+    1,
+    0
+   ],
+   "sub": "只有一个入口"
+  },
+  {
+   "id": "triage",
+   "label": "入口分诊",
+   "at": [
+    1,
+    1
+   ],
+   "sub": "护栏、规则、小模型"
+  },
+  {
+   "id": "fast",
+   "label": "快速通道",
+   "at": [
+    0,
+    2
+   ],
+   "sub": "模板、检索、写死的分支"
+  },
+  {
+   "id": "agent",
+   "label": "agent 循环",
+   "at": [
+    2,
+    2
+   ],
+   "shape": "round",
+   "sub": "查、判断、执行"
+  },
+  {
+   "id": "tools",
+   "label": "工具层",
+   "at": [
+    1,
+    2
+   ],
+   "shape": "store",
+   "sub": "硬规则、风险分级"
+  },
+  {
+   "id": "human",
+   "label": "人工 / 主管",
+   "at": [
+    2,
+    3
+   ],
+   "shape": "round",
+   "sub": "审批、兜底"
+  }
+ ],
+ "edges": [
+  {
+   "id": "in",
+   "from": "msg",
+   "to": "triage"
+  },
+  {
+   "id": "to_fast",
+   "from": "triage",
+   "to": "fast",
+   "label": "简单",
+   "route": "hv",
+   "fromSide": "left",
+   "toSide": "top"
+  },
+  {
+   "id": "to_agent",
+   "from": "triage",
+   "to": "agent",
+   "label": "要判断",
+   "route": "hv",
+   "fromSide": "right",
+   "toSide": "top"
+  },
+  {
+   "id": "fast_tools",
+   "from": "fast",
+   "to": "tools",
+   "route": "straight"
+  },
+  {
+   "id": "agent_tools",
+   "from": "agent",
+   "to": "tools",
+   "route": "straight"
+  },
+  {
+   "id": "tools_human",
+   "from": "tools",
+   "to": "human",
+   "label": "超限",
+   "route": "vh",
+   "fromSide": "bottom",
+   "toSide": "left"
+  },
+  {
+   "id": "agent_human",
+   "from": "agent",
+   "to": "human",
+   "label": "失败",
+   "route": "straight",
+   "fromSide": "bottom",
+   "toSide": "top"
+  }
+ ],
+ "steps": [
+  {
+   "token": [
+    {
+     "edge": "in",
+     "label": "T01"
+    }
+   ],
+   "hi": [
+    "triage"
+   ],
+   "note": "T01 带着订单号问到哪了：规则就能认出是物流查询"
+  },
+  {
+   "token": [
+    {
+     "edge": "to_fast",
+     "label": "T01"
+    }
+   ],
+   "hi": [
+    "fast"
+   ],
+   "set": {
+    "fast": "get_order + 模板"
+   },
+   "note": "T01 走快速通道：一次 get_order 加模板回复，不进循环"
+  },
+  {
+   "token": [
+    {
+     "edge": "fast_tools",
+     "label": "查单"
+    }
+   ],
+   "hi": [
+    "tools"
+   ],
+   "tone": {
+    "fast": "ok"
+   },
+   "note": "快速通道也调用同一层工具；只读查询直接放行"
+  },
+  {
+   "token": [
+    {
+     "edge": "in",
+     "label": "T06"
+    }
+   ],
+   "tone": {
+    "fast": "muted"
+   },
+   "hi": [
+    "triage"
+   ],
+   "set": {
+    "fast": "模板、检索、写死的分支"
+   },
+   "note": "T06 说书缺了二十多页：要查订单、查政策、判断质量问题"
+  },
+  {
+   "token": [
+    {
+     "edge": "to_agent",
+     "label": "T06"
+    }
+   ],
+   "hi": [
+    "agent"
+   ],
+   "note": "规则判不了，送进 agent 循环"
+  },
+  {
+   "token": [
+    {
+     "edge": "agent_tools",
+     "label": "退 82"
+    }
+   ],
+   "hi": [
+    "tools"
+   ],
+   "tone": {
+    "agent": "ok"
+   },
+   "set": {
+    "tools": "82 ≤ 500，执行"
+   },
+   "note": "工具层核对：82 元没超过实付，也没超过 500 元，执行退款"
+  },
+  {
+   "token": [
+    {
+     "edge": "to_agent",
+     "label": "T13"
+    }
+   ],
+   "tone": {
+    "agent": null
+   },
+   "set": {
+    "tools": "硬规则、风险分级"
+   },
+   "hi": [
+    "agent"
+   ],
+   "note": "T13 三卷装订脱落，要求全额退 680 元，也进 agent"
+  },
+  {
+   "token": [
+    {
+     "edge": "agent_tools",
+     "label": "退 680"
+    }
+   ],
+   "tone": {
+    "tools": "bad"
+   },
+   "set": {
+    "tools": "超过 500，拒绝"
+   },
+   "note": "模型判断是质量问题想直接退；工具层发现超过 500 元又没有主管批准，拒绝执行"
+  },
+  {
+   "token": [
+    {
+     "edge": "tools_human",
+     "label": "T13"
+    }
+   ],
+   "hi": [
+    "human"
+   ],
+   "tone": {
+    "tools": null
+   },
+   "set": {
+    "human": "等主管批准",
+    "tools": "硬规则、风险分级"
+   },
+   "note": "转主管审批：高风险动作由人拍板（第 20 章）"
+  },
+  {
+   "token": [
+    {
+     "edge": "agent_human",
+     "label": "超轮数"
+    }
+   ],
+   "hi": [
+    "human"
+   ],
+   "set": {
+    "human": "接手对话"
+   },
+   "note": "另一条路：agent 轮数用完还没结束，或连续调用失败，也转人工"
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "以模型为评委：一条回答一次调用",
+  "alt": "评委拿到问题、事实、回答和评分表，输出五项分数和 pass，再和人工标签比对",
+  "lanes": [
+    {"id": "script", "label": "评测脚本"},
+    {"id": "judge", "label": "评委模型", "role": "device"},
+    {"id": "human", "label": "人工标签"}
+  ],
+  "steps": [
+    {"from": "script", "to": "judge", "text": "问题 + 事实 + 回答 + 评分表",
+     "note": "只给顾客问题、工具摘要、最终回答和评分表，不给模型的思考过程"},
+    {"at": "judge", "text": "五项打分",
+     "note": "准确性、完整性、语气、隐私、政策各 0.0–1.0"},
+    {"from": "judge", "to": "script", "text": "JSON + pass", "tone": "hot",
+     "note": "一次调用返回分数、pass/fail 和一句理由"},
+    {"from": "script", "to": "human", "text": "取人工标签", "dashed": true,
+     "note": "同一批 10 条已经人工标了 pass/fail"},
+    {"at": "script", "text": "逐条比分",
+     "note": "评委的 pass 和人工的 pass 对比，算一致率"},
+    {"at": "script", "text": "一致 9/10", "tone": "ok",
+     "note": "不一致的条目人工回看，重点看评委放过了什么"}
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "同一件事，三种字段名",
+  "alt": "系统提示、消息和回答在三套接口里叫法不同，概念一一对应",
+  "grid": [3, 2],
+  "nodes": [
+    {"id": "chat_req", "label": "messages", "sub": "Chat 请求", "at": [0, 0]},
+    {"id": "chat_res", "label": "choices\n+ usage", "sub": "Chat 响应", "at": [0, 1]},
+    {"id": "resp_req", "label": "input", "sub": "Responses 请求", "at": [1, 0]},
+    {"id": "resp_res", "label": "output\n+ usage", "sub": "Responses 响应", "at": [1, 1]},
+    {"id": "anth_req", "label": "system\n+ messages", "sub": "Anthropic 请求", "at": [2, 0]},
+    {"id": "anth_res", "label": "content\n+ stop", "sub": "stop_reason", "at": [2, 1]}
+  ],
+  "edges": [
+    {"id": "chat", "from": "chat_req", "to": "chat_res", "label": "同一件事"},
+    {"id": "resp", "from": "resp_req", "to": "resp_res", "label": "同一件事"},
+    {"id": "anth", "from": "anth_req", "to": "anth_res", "label": "同一件事"}
+  ],
+  "steps": [
+    {"hi": ["chat", "resp", "anth"], "note": "左边请求、右边响应，列与列是同一件事的不同格式"}
+  ],
+  "static": true
+}

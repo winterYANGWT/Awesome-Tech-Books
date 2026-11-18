@@ -1,0 +1,161 @@
+{
+ "kind": "seq",
+ "title": "agent 循环：T06 缺页退款的三轮",
+ "alt": "模型前两轮要工具，harness 三次调用模型才拿到答案；轮数用完则从另一个出口停下",
+ "lanes": [
+  {
+   "id": "user",
+   "label": "顾客"
+  },
+  {
+   "id": "h",
+   "label": "harness",
+   "role": "process"
+  },
+  {
+   "id": "llm",
+   "label": "模型",
+   "role": "device"
+  },
+  {
+   "id": "tool",
+   "label": "工具",
+   "role": "memory"
+  }
+ ],
+ "state": [
+  {
+   "id": "last",
+   "label": "新增消息",
+   "value": "—"
+  },
+  {
+   "id": "msgs",
+   "label": "消息数",
+   "value": "1"
+  },
+  {
+   "id": "turn",
+   "label": "轮次",
+   "value": "—"
+  },
+  {
+   "id": "stop",
+   "label": "停止原因",
+   "value": "—"
+  }
+ ],
+ "steps": [
+  {
+   "from": "user",
+   "to": "h",
+   "text": "T06 缺页，A1659",
+   "set": {
+    "msgs": "2",
+    "last": "+用户"
+   },
+   "note": "系统提示加顾客这一句"
+  },
+  {
+   "from": "h",
+   "to": "llm",
+   "text": "对话 + 工具定义",
+   "set": {
+    "turn": "1"
+   },
+   "note": "第 1 次调用模型"
+  },
+  {
+   "from": "llm",
+   "to": "h",
+   "text": "要 get_order 和政策",
+   "tone": "hot",
+   "set": {
+    "msgs": "3",
+    "last": "+assistant(tool_calls)"
+   },
+   "note": "模型一次返回两个调用，不写答案"
+  },
+  {
+   "from": "h",
+   "to": "tool",
+   "text": "执行两个查询",
+   "note": "先 get_order，再 search_policies"
+  },
+  {
+   "from": "tool",
+   "to": "h",
+   "text": "82 元 / 60 天内可退",
+   "set": {
+    "msgs": "5",
+    "last": "+2 条 tool 结果"
+   },
+   "note": "两个结果按原顺序回填"
+  },
+  {
+   "from": "h",
+   "to": "llm",
+   "text": "对话 5 条",
+   "set": {
+    "turn": "2"
+   },
+   "note": "第 2 次调用模型，历史整段再发"
+  },
+  {
+   "from": "llm",
+   "to": "h",
+   "text": "要 issue_refund",
+   "tone": "hot",
+   "set": {
+    "msgs": "6",
+    "last": "+assistant(tool_calls)"
+   },
+   "note": "模型按结果和政策决定退款"
+  },
+  {
+   "from": "h",
+   "to": "tool",
+   "text": "执行 issue_refund",
+   "tone": "wait",
+   "note": "有副作用的工具，真正改了订单"
+  },
+  {
+   "from": "tool",
+   "to": "h",
+   "text": "已退款 82 元",
+   "set": {
+    "msgs": "7",
+    "last": "+tool 结果"
+   },
+   "note": "退款成功的结果再回填"
+  },
+  {
+   "from": "h",
+   "to": "llm",
+   "text": "对话 7 条",
+   "set": {
+    "turn": "3"
+   },
+   "note": "第 3 次调用模型"
+  },
+  {
+   "from": "llm",
+   "to": "h",
+   "text": "最终回答",
+   "tone": "ok",
+   "set": {
+    "msgs": "8",
+    "last": "+assistant 答案",
+    "stop": "answer"
+   },
+   "note": "这次没有工具调用，循环结束"
+  },
+  {
+   "from": "h",
+   "to": "user",
+   "text": "已退款 82 元",
+   "tone": "ok",
+   "note": "harness 把答案交给顾客；如果轮数先用完，这里拿到的 answer 是 None"
+  }
+ ]
+}

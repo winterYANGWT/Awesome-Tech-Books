@@ -1,0 +1,86 @@
+{
+  "kind": "grid",
+  "title": "一次请求的 token 花在哪",
+  "alt": "系统提示、工具、历史和当前问题每次重发，输出另算",
+  "rows": [
+    {
+      "label": "一次请求"
+    }
+  ],
+  "cols": 32,
+  "legend": [
+    {
+      "key": "sys",
+      "label": "系统提示"
+    },
+    {
+      "key": "tools",
+      "label": "工具定义"
+    },
+    {
+      "key": "hist",
+      "label": "历史"
+    },
+    {
+      "key": "user",
+      "label": "当前问题"
+    },
+    {
+      "key": "out",
+      "label": "输出预留"
+    },
+    {
+      "key": "free",
+      "label": "未用"
+    }
+  ],
+  "brackets": [
+    {
+      "c": "0-22",
+      "label": "prompt_tokens"
+    },
+    {
+      "c": "23-27",
+      "label": "max_tokens",
+      "below": true
+    }
+  ],
+  "steps": [
+    {
+      "paint": [
+        {
+          "r": 0,
+          "c": "0-4",
+          "key": "sys"
+        },
+        {
+          "r": 0,
+          "c": "5-10",
+          "key": "tools"
+        },
+        {
+          "r": 0,
+          "c": "11-21",
+          "key": "hist"
+        },
+        {
+          "r": 0,
+          "c": 22,
+          "key": "user"
+        },
+        {
+          "r": 0,
+          "c": "23-27",
+          "key": "out"
+        },
+        {
+          "r": 0,
+          "c": "28-31",
+          "key": "free"
+        }
+      ],
+      "note": "示意：系统提示和工具每轮重发；输出上限默认 8K 或 64K"
+    }
+  ],
+  "static": true
+}

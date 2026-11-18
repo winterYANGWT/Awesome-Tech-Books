@@ -1,0 +1,33 @@
+{
+  "kind": "seq",
+  "title": "一次退款：目录一直在，正文才进来",
+  "alt": "模型先在目录里看到退款 Skill，调用 activate_skill 读回正文和资源列表，再运行脚本并回答",
+  "lanes": [
+    {"id": "user", "label": "用户"},
+    {"id": "model", "label": "模型", "role": "device"},
+    {"id": "skill", "label": "Skill 文件", "role": "memory"}
+  ],
+  "state": [
+    {"id": "catalog", "label": "目录里的 Skill", "value": "2 个"},
+    {"id": "body", "label": "退款正文", "value": "未加载"},
+    {"id": "calls", "label": "激活次数", "value": "0"}
+  ],
+  "steps": [
+    {"from": "user", "to": "model", "text": "订单 A1659 缺页",
+     "note": "顾客只说了订单号和问题；系统提示里只有两个 Skill 的目录"},
+    {"at": "model", "text": "目录里有退款 Skill",
+     "note": "description 提到了缺页，模型判断这个 Skill 可能相关"},
+    {"from": "model", "to": "skill", "text": "`activate_skill`", "tone": "hot",
+     "set": {"calls": "1"}, "note": "模型调用激活工具，name 限定在目录里的两个名字"},
+    {"from": "skill", "to": "model", "text": "正文 + 3 个资源",
+     "set": {"body": "已加载"}, "note": "返回 SKILL.md 正文和捆绑文件列表，但不预读这些文件"},
+    {"at": "model", "text": "按步骤先查订单",
+     "note": "正文进来了：先核对订单状态，再判断是不是质量问题"},
+    {"from": "model", "to": "skill", "text": "`refund.py`", "dashed": true,
+     "note": "需要算金额时才运行脚本；脚本源码没有进上下文"},
+    {"from": "skill", "to": "model", "text": "应退 82.00",
+     "note": "脚本 stdout 只回一行 JSON：金额、依据、是否要主管批准"},
+    {"from": "model", "to": "user", "text": "退 82 元", "tone": "ok",
+     "note": "模型按正文的输出格式回答；目录和正文都还在上下文里"}
+  ]
+}

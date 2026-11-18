@@ -1,0 +1,147 @@
+{
+  "kind": "flow",
+  "title": "提示链：草稿过了闸门才发出",
+  "alt": "工单先取事实、再摘要、写草稿；闸门查字段、金额、政策和措辞，不过就回到草稿重写",
+  "grid": [
+    5,
+    2
+  ],
+  "bands": [
+    {
+      "label": "取事实与生成",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "检查与发出",
+      "rows": [
+        1,
+        1
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "ticket",
+      "label": "T06 工单",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "facts",
+      "label": "取事实",
+      "sub": "订单 + 政策",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "summary",
+      "label": "摘要 JSON",
+      "sub": "order_id / amount",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "draft",
+      "label": "草稿",
+      "sub": "纯文本",
+      "at": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "gate",
+      "label": "闸门",
+      "sub": "字段/金额/政策/措辞",
+      "at": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "send",
+      "label": "发出",
+      "at": [
+        4,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "ticket",
+      "to": "facts",
+      "label": "订单号"
+    },
+    {
+      "id": "e2",
+      "from": "facts",
+      "to": "summary",
+      "label": "事实"
+    },
+    {
+      "id": "e3",
+      "from": "summary",
+      "to": "draft",
+      "label": "JSON"
+    },
+    {
+      "id": "e4",
+      "from": "draft",
+      "to": "gate",
+      "label": "回复"
+    },
+    {
+      "id": "e5",
+      "from": "gate",
+      "to": "send",
+      "label": "全过"
+    },
+    {
+      "id": "back",
+      "from": "gate",
+      "to": "draft",
+      "label": "不过",
+      "dashed": true
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "hi": [
+        "facts",
+        "summary"
+      ],
+      "note": "取事实不调模型；摘要按 JSON 契约调一次模型"
+    },
+    {
+      "hi": [
+        "draft",
+        "gate"
+      ],
+      "tone": {
+        "gate": "hot"
+      },
+      "note": "草稿只拿摘要；闸门查字段、金额、政策和措辞"
+    },
+    {
+      "hi": [
+        "send"
+      ],
+      "tone": {
+        "send": "ok"
+      },
+      "note": "草稿过了闸门才发出；不过就带着问题重写"
+    }
+  ]
+}

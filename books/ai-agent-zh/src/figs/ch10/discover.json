@@ -1,0 +1,109 @@
+{
+ "kind": "flow",
+ "title": "没有握手时怎么发现和选版本",
+ "alt": "client 先问 server/discover，选一个版本发请求；不支持就按 supported 重试",
+ "grid": [
+  3,
+  3
+ ],
+ "nodes": [
+  {
+   "id": "client",
+   "label": "client",
+   "at": [
+    0,
+    0
+   ],
+   "shape": "round"
+  },
+  {
+   "id": "discover",
+   "label": "server/\ndiscover",
+   "at": [
+    1,
+    0
+   ],
+   "sub": "client 可选"
+  },
+  {
+   "id": "resp",
+   "label": "supported\nVersions",
+   "at": [
+    2,
+    0
+   ],
+   "sub": "capabilities"
+  },
+  {
+   "id": "pick",
+   "label": "选一个版本",
+   "at": [
+    2,
+    1
+   ]
+  },
+  {
+   "id": "call",
+   "label": "tools/list\ntools/call",
+   "at": [
+    1,
+    1
+   ]
+  },
+  {
+   "id": "err",
+   "label": "-32022\nsupported 列表",
+   "at": [
+    1,
+    2
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "id": "e1",
+   "from": "client",
+   "to": "discover",
+   "label": "请求"
+  },
+  {
+   "id": "e2",
+   "from": "discover",
+   "to": "resp",
+   "label": "结果"
+  },
+  {
+   "id": "e3",
+   "from": "resp",
+   "to": "pick"
+  },
+  {
+   "id": "e4",
+   "from": "pick",
+   "to": "call",
+   "label": "发请求"
+  },
+  {
+   "id": "e5",
+   "from": "call",
+   "to": "err",
+   "label": "版本不支持"
+  },
+  {
+   "id": "e6",
+   "from": "err",
+   "to": "pick",
+   "label": "按 supported 重试"
+  }
+ ],
+ "steps": [
+  {
+   "note": "版本不在 supported 列表里就回 -32022，client 换一个版本重试",
+   "tone": {
+    "err": "bad",
+    "e5": "bad"
+   }
+  }
+ ],
+ "static": true
+}

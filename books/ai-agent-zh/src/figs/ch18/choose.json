@@ -1,0 +1,25 @@
+{
+ "kind": "flow",
+ "title": "先问能不能拆成独立数据源，再定子 agent 数量",
+ "alt": "拆不开就不要用多 agent；简单事实用一个，多条独立线用三个，更复杂且能切才用五个",
+ "static": true,
+ "grid": [3, 4],
+ "nodes": [
+  {"id": "q", "label": "开放问题", "at": [0, 1], "sub": "先看数据源"},
+  {"id": "split", "label": "能拆成独立线？", "at": [1, 1], "sub": "互不重叠"},
+  {"id": "one", "label": "1 个", "at": [2, 0], "sub": "简单事实"},
+  {"id": "three", "label": "3 个", "at": [2, 1], "sub": "多条数据源"},
+  {"id": "five", "label": "5 个", "at": [2, 2], "sub": "可切得更细"},
+  {"id": "none", "label": "不要拆", "at": [2, 3], "sub": "拆了只会重复"}
+ ],
+ "edges": [
+  {"id": "e1", "from": "q", "to": "split", "label": "先问"},
+  {"id": "e2", "from": "split", "to": "one", "label": "一条"},
+  {"id": "e3", "from": "split", "to": "three", "label": "三条"},
+  {"id": "e4", "from": "split", "to": "five", "label": "更细"},
+  {"id": "e5", "from": "split", "to": "none", "label": "拆不开"}
+ ],
+ "steps": [
+  {"hi": ["split"], "note": "判据是数据源是否独立，不是问题听起来大不大"}
+ ]
+}

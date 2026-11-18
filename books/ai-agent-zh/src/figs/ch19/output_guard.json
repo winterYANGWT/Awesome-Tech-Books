@@ -1,0 +1,83 @@
+{
+  "kind": "seq",
+  "title": "输出护栏：地址、链接、承诺、提示词",
+  "alt": "模型回答先过地址表和特征串，命中就改写并留档，正常回答才放行",
+  "lanes": [
+    {
+      "id": "llm",
+      "label": "模型",
+      "role": "device"
+    },
+    {
+      "id": "guard",
+      "label": "护栏"
+    },
+    {
+      "id": "log",
+      "label": "记录",
+      "role": "memory"
+    },
+    {
+      "id": "user",
+      "label": "顾客"
+    }
+  ],
+  "state": [
+    {
+      "id": "leak",
+      "label": "泄漏",
+      "value": "1"
+    },
+    {
+      "id": "msgs",
+      "label": "消息",
+      "value": "4"
+    }
+  ],
+  "steps": [
+    {
+      "from": "llm",
+      "to": "guard",
+      "text": "回答含地址",
+      "tone": "bad",
+      "note": "模型复述了 get_order 返回的他人地址"
+    },
+    {
+      "at": "guard",
+      "text": "匹配地址表",
+      "tone": "hot",
+      "set": {
+        "leak": "1"
+      },
+      "note": "已知地址和当前 customer_id 一起比对"
+    },
+    {
+      "from": "guard",
+      "to": "log",
+      "text": "原文 + 原因",
+      "note": "被拦的回答要留原文和原因，供人工回看"
+    },
+    {
+      "from": "guard",
+      "to": "user",
+      "text": "改写：本人查询",
+      "tone": "ok",
+      "set": {
+        "leak": "0"
+      },
+      "note": "只允许本人的地址，改成让本人来查"
+    },
+    {
+      "at": "guard",
+      "text": "再查链接/承诺",
+      "note": "同一出口还查外部链接、越权承诺、系统提示和工具列表"
+    },
+    {
+      "from": "guard",
+      "to": "user",
+      "text": "放行",
+      "tone": "ok",
+      "note": "正常回答原样返回"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "seq",
+  "title": "run_python 只是一次工具调用",
+  "alt": "模型要算 76+6，harness 把代码交给沙箱子进程，拿回字符串 82 再放进对话",
+  "speed": 1400,
+  "lanes": [
+    {"id": "h", "label": "harness", "role": "process"},
+    {"id": "m", "label": "模型", "role": "device"},
+    {"id": "s", "label": "sandbox", "role": "process"}
+  ],
+  "state": [
+    {"id": "result", "label": "工具结果", "value": "—"},
+    {"id": "turn", "label": "轮次", "value": "1"}
+  ],
+  "steps": [
+    {"from": "h", "to": "m", "text": "工具定义", "note": "get_order 和 run_python 都只是 schema"},
+    {"from": "m", "to": "h", "text": "run_python(76+6)", "tone": "hot", "note": "模型选择代码执行，参数是一段字符串"},
+    {"from": "h", "to": "s", "text": "execute(name, input)", "note": "harness 不知道后面是容器、子进程还是手机"},
+    {"at": "s", "text": "subprocess.run\n-I, timeout=5", "note": "cwd 是临时目录，env 是空的"},
+    {"from": "s", "to": "h", "text": "82", "set": {"result": "82"}, "tone": "ok", "note": "沙箱只回字符串，不回环境变量和文件表"},
+    {"from": "h", "to": "m", "text": "tool 结果 82", "set": {"turn": "2"}, "note": "结果作为 role: tool 放回消息"},
+    {"from": "m", "to": "h", "text": "回答引用 82", "tone": "ok", "note": "模型拿这个字符串写最终回答"}
+  ]
+}

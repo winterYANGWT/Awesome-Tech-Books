@@ -1,0 +1,111 @@
+{
+  "kind": "flow",
+  "title": "退款金额：模型心算 vs 工具按政策算",
+  "alt": "订单字段和政策分成两条路，心算容易漏运费，工具按 kind 把书款和运费一起算",
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "fields",
+      "label": "订单字段",
+      "sub": "实付 / 运费 / 明细",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "policy",
+      "label": "退货政策",
+      "sub": "质量 / 非质量",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "model",
+      "label": "模型心算",
+      "sub": "容易只退书款",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "tool",
+      "label": "工具函数",
+      "sub": "按 kind 算金额",
+      "at": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "refund",
+      "label": "issue_refund",
+      "sub": "只收 kind",
+      "at": [
+        3,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "fields",
+      "to": "model"
+    },
+    {
+      "id": "e2",
+      "from": "policy",
+      "to": "model"
+    },
+    {
+      "id": "e3",
+      "from": "fields",
+      "to": "tool"
+    },
+    {
+      "id": "e4",
+      "from": "policy",
+      "to": "tool"
+    },
+    {
+      "id": "e5",
+      "from": "model",
+      "to": "refund",
+      "label": "传 amount"
+    },
+    {
+      "id": "e6",
+      "from": "tool",
+      "to": "refund",
+      "label": "自动算"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "model"
+      ],
+      "tone": {
+        "model": "bad"
+      },
+      "note": "上路把 total_paid、shipping_fee 交给模型，心算时容易漏掉运费"
+    },
+    {
+      "hi": [
+        "tool"
+      ],
+      "tone": {
+        "tool": "ok"
+      },
+      "note": "下路只让模型判断质量/非质量，金额在函数里按政策算"
+    }
+  ],
+  "static": true
+}

@@ -1,0 +1,108 @@
+{
+  "kind": "flow",
+  "title": "改约时间：自由文本 vs 枚举日期",
+  "alt": "自由文本让模型猜格式，工具报错后重试；ISO 日期和枚举让一次调用成功",
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "ticket",
+      "label": "顾客",
+      "sub": "改到下周",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "free",
+      "label": "when 字符串",
+      "sub": "“下周三”",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "literal",
+      "label": "日期枚举",
+      "sub": "ISO 格式",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "err",
+      "label": "工具报错",
+      "sub": "格式不对",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "ok",
+      "label": "预约成功",
+      "sub": "一次调用",
+      "at": [
+        3,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "ticket",
+      "to": "free"
+    },
+    {
+      "id": "e2",
+      "from": "ticket",
+      "to": "literal"
+    },
+    {
+      "id": "e3",
+      "from": "free",
+      "to": "err",
+      "label": "猜格式"
+    },
+    {
+      "id": "e4",
+      "from": "err",
+      "to": "ok",
+      "label": "重试"
+    },
+    {
+      "id": "e5",
+      "from": "literal",
+      "to": "ok",
+      "label": "直接过"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "err"
+      ],
+      "tone": {
+        "err": "bad"
+      },
+      "note": "上排把 when 留成自由文本，模型只能猜“下周三”怎么写；格式不对就报错重来"
+    },
+    {
+      "hi": [
+        "literal",
+        "ok"
+      ],
+      "tone": {
+        "ok": "ok"
+      },
+      "note": "下排把可选日期写进 schema，模型从枚举里挑，参数一次就能过"
+    }
+  ],
+  "static": true
+}

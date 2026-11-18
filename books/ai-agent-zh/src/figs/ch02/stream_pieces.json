@@ -1,0 +1,25 @@
+{
+  "kind": "seq",
+  "title": "流式回答是一片片到的",
+  "alt": "delta.content 可能是 None 或空串，按顺序拼接后才是完整回答",
+  "lanes": [
+    {"id": "client", "label": "客户端", "role": "process"},
+    {"id": "model", "label": "模型", "role": "device"},
+    {"id": "buf", "label": "拼接缓冲", "role": "memory"}
+  ],
+  "state": [
+    {"id": "buffer", "label": "已拼接", "value": "—"},
+    {"id": "finish", "label": "finish_reason", "value": "—"},
+    {"id": "usage", "label": "usage", "value": "—"}
+  ],
+  "steps": [
+    {"from": "client", "to": "model", "text": "stream=True", "note": "请求加上 stream=True，让模型边生成边发"},
+    {"from": "model", "to": "client", "text": "chunk：delta 为空", "note": "第一个 chunk 只有 role，content 是空串"},
+    {"from": "model", "to": "client", "text": "chunk：'很'", "set": {"buffer": "很"}, "note": "非空片段追加进缓冲"},
+    {"from": "model", "to": "client", "text": "chunk：'抱歉'", "set": {"buffer": "很抱歉"}, "note": "片段可能只有一个字"},
+    {"from": "model", "to": "client", "text": "chunk：'您收到'", "set": {"buffer": "很抱歉您收到"}, "note": "片段长短不固定，不能按字数判断结束"},
+    {"from": "model", "to": "client", "text": "chunk：'的《'", "set": {"buffer": "很抱歉您收到的《"}, "note": "继续追加；空片段直接跳过"},
+    {"from": "model", "to": "client", "text": "finish_reason + usage", "set": {"finish": "stop"}, "note": "最后一个内容 chunk 带 finish_reason 和 usage"},
+    {"at": "client", "text": "拼接完成，交给页面", "tone": "ok", "set": {"buffer": "完整回答", "usage": "73+49=122"}, "note": "碎片的顺序就是最终文本的顺序"}
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "kind": "flow",
+  "title": "分层防御：每层守一段路",
+  "alt": "输入规则、模型、输出护栏、工具风险门各守一段；授权和凭据在模型外",
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "input",
+      "label": "用户输入",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "screen",
+      "label": "输入规则",
+      "sub": "正则 + 长度",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "model",
+      "label": "模型",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "output",
+      "label": "输出护栏",
+      "sub": "放行或改写",
+      "at": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "review",
+      "label": "评论/文档",
+      "sub": "第三方内容",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "gate",
+      "label": "工具风险门",
+      "sub": "低/中/高",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "exec",
+      "label": "执行工具",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "auth",
+      "label": "授权/凭据",
+      "sub": "在模型外",
+      "at": [
+        1,
+        2
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_in",
+      "from": "input",
+      "to": "screen",
+      "label": "先过"
+    },
+    {
+      "id": "e_screen",
+      "from": "screen",
+      "to": "model",
+      "label": "放行"
+    },
+    {
+      "id": "e_review",
+      "from": "review",
+      "to": "model",
+      "label": "也能进来",
+      "dashed": true
+    },
+    {
+      "id": "e_answer",
+      "from": "model",
+      "to": "output",
+      "label": "回答"
+    },
+    {
+      "id": "e_tool",
+      "from": "model",
+      "to": "gate",
+      "label": "要工具"
+    },
+    {
+      "id": "e_exec",
+      "from": "gate",
+      "to": "exec",
+      "label": "执行"
+    },
+    {
+      "id": "e_auth",
+      "from": "auth",
+      "to": "gate",
+      "label": "在外",
+      "dashed": true
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "note": "单层都能被绕过；授权和凭据不在模型这一层，注入拿不到别的用户的数据"
+    }
+  ]
+}

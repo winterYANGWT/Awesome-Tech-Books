@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "按类别看通过率：修改地址最低",
+  "alt": "修改地址终态 1.0、整体 0.5；退货退款 0.89 和 0.78，其余类别都是 1.0",
+  "type": "bar",
+  "data": "code/ch21/21_3_summary.out",
+  "x": {"label": "工单类别"},
+  "y": {"label": "通过率", "min": 0},
+  "note": "数据来自 21_3_summary.out；终态只查 actions，整体再加上关键词"
+}

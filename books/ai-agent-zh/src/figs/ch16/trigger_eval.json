@@ -1,0 +1,10 @@
+{
+  "kind": "chart",
+  "title": "两版 description：该触发和误触发",
+  "alt": "两版都触发了 10 条该触发的查询；具体描述把误触发从 3 条降到 0 条",
+  "type": "bar",
+  "data": "code/ch16/16_6_trigger_eval.out",
+  "x": {"label": "description"},
+  "y": {"label": "10 条查询里触发几条", "min": 0},
+  "note": "deepseek-flash，20 条查询 × 3 轮；每根柱是该类 10 条查询里被判为触发的条数"
+}

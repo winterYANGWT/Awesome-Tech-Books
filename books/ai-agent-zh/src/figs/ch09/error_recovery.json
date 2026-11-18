@@ -1,0 +1,99 @@
+{
+  "kind": "seq",
+  "title": "错误文本决定模型下一步怎么走",
+  "alt": "可执行的错误让模型给出转寄或拒收；只有 invalid 时模型多半回一句改不了",
+  "lanes": [
+    {
+      "id": "model",
+      "label": "模型"
+    },
+    {
+      "id": "tool",
+      "label": "update_address"
+    },
+    {
+      "id": "user",
+      "label": "顾客"
+    }
+  ],
+  "state": [
+    {
+      "id": "status",
+      "label": "订单状态",
+      "value": "—"
+    },
+    {
+      "id": "next",
+      "label": "模型的下一步",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "from": "model",
+      "to": "tool",
+      "text": "改地址(A1673)",
+      "note": "顾客要改到公司地址，模型带着新地址调用工具"
+    },
+    {
+      "from": "tool",
+      "to": "model",
+      "text": "错误：已发货",
+      "tone": "wait",
+      "set": {
+        "status": "已发货"
+      },
+      "note": "工具说清错在哪：已发货，只有待发货能改"
+    },
+    {
+      "at": "model",
+      "text": "读错误",
+      "tone": "hot",
+      "note": "模型读到“已发货”和“只有待发货能改”"
+    },
+    {
+      "from": "model",
+      "to": "user",
+      "text": "可以联系快递转寄",
+      "tone": "ok",
+      "set": {
+        "next": "转寄/拒收"
+      },
+      "note": "模型给出第一条替代方案"
+    },
+    {
+      "from": "model",
+      "to": "user",
+      "text": "或拒收后重新下单",
+      "tone": "ok",
+      "note": "第二条替代方案来自错误文本，不用模型猜"
+    },
+    {
+      "from": "model",
+      "to": "tool",
+      "text": "改地址(A1673)",
+      "tone": "bad",
+      "dashed": true,
+      "note": "另一条运行换成只有 invalid 的错误文本"
+    },
+    {
+      "from": "tool",
+      "to": "model",
+      "text": "错误：invalid",
+      "tone": "bad",
+      "dashed": true,
+      "note": "工具没说错在哪，模型拿不到下一步"
+    },
+    {
+      "from": "model",
+      "to": "user",
+      "text": "改不了",
+      "tone": "bad",
+      "dashed": true,
+      "set": {
+        "next": "放弃"
+      },
+      "note": "模型只回一句改不了；这次录到的是放弃"
+    }
+  ]
+}

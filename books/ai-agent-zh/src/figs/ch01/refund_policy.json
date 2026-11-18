@@ -1,0 +1,119 @@
+{
+ "kind": "flow",
+ "title": "质量退款的分支（非质量问题另算）",
+ "alt": "质量退款有四道判断；非质量问题另走 15 天和教辅拆封，图里没有画这条路径",
+ "static": true,
+ "grid": [
+  3,
+  5
+ ],
+ "nodes": [
+  {
+   "id": "signed",
+   "label": "已签收?",
+   "at": [
+    0,
+    0
+   ]
+  },
+  {
+   "id": "quality",
+   "label": "质量问题?",
+   "at": [
+    0,
+    1
+   ],
+   "sub": "否：另走 15 天/教辅"
+  },
+  {
+   "id": "days",
+   "label": "60 天内?",
+   "at": [
+    0,
+    2
+   ]
+  },
+  {
+   "id": "amount",
+   "label": "金额 > 500?",
+   "at": [
+    0,
+    3
+   ]
+  },
+  {
+   "id": "refund",
+   "label": "退款",
+   "at": [
+    0,
+    4
+   ],
+   "shape": "round"
+  },
+  {
+   "id": "reject",
+   "label": "拒绝",
+   "at": [
+    2,
+    1
+   ]
+  },
+  {
+   "id": "supervisor",
+   "label": "提交主管",
+   "at": [
+    2,
+    3
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "signed",
+   "to": "quality",
+   "label": "是",
+   "id": "e1"
+  },
+  {
+   "from": "signed",
+   "to": "reject",
+   "label": "否",
+   "id": "e2"
+  },
+  {
+   "from": "quality",
+   "to": "days",
+   "label": "是",
+   "id": "e3"
+  },
+  {
+   "from": "days",
+   "to": "amount",
+   "label": "是",
+   "id": "e5"
+  },
+  {
+   "from": "days",
+   "to": "reject",
+   "label": "否",
+   "id": "e6"
+  },
+  {
+   "from": "amount",
+   "to": "refund",
+   "label": "否",
+   "id": "e7"
+  },
+  {
+   "from": "amount",
+   "to": "supervisor",
+   "label": "是",
+   "id": "e8"
+  }
+ ],
+ "steps": [
+  {
+   "note": "只画质量分支；非质量问题另看 15 天和教辅拆封"
+  }
+ ]
+}

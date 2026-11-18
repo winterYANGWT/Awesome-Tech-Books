@@ -1,0 +1,127 @@
+{
+  "kind": "flow",
+  "title": "子图的输入输出合同：父图只看结论",
+  "alt": "父图把订单和政策名交给子图，子图内部读原文、做判断，只把结论交回父图",
+  "grid": [
+    5,
+    2
+  ],
+  "static": true,
+  "nodes": [
+    {
+      "id": "start",
+      "label": "START",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "load",
+      "label": "load",
+      "sub": "读 T06 订单",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "policy",
+      "label": "policy_check",
+      "sub": "子图作为节点",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "draft",
+      "label": "draft",
+      "sub": "用结论写回复",
+      "at": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "end",
+      "label": "END",
+      "at": [
+        4,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "search",
+      "label": "search",
+      "sub": "读政策原文",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "judge",
+      "label": "judge",
+      "sub": "按订单判断",
+      "at": [
+        2,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_start",
+      "from": "start",
+      "to": "load"
+    },
+    {
+      "id": "e_load",
+      "from": "load",
+      "to": "policy"
+    },
+    {
+      "id": "e_draft",
+      "from": "policy",
+      "to": "draft"
+    },
+    {
+      "id": "e_end",
+      "from": "draft",
+      "to": "end"
+    },
+    {
+      "id": "e_in",
+      "from": "policy",
+      "to": "search",
+      "label": "输入",
+      "dashed": true
+    },
+    {
+      "id": "e_step",
+      "from": "search",
+      "to": "judge"
+    },
+    {
+      "id": "e_out",
+      "from": "judge",
+      "to": "policy",
+      "label": "输出",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "policy",
+        "search",
+        "judge"
+      ],
+      "note": "子图内部写 policy_text；output_schema 只交回 verdict/reason"
+    }
+  ]
+}

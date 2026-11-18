@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "彩虹部署下的两个 run 和一个单写者",
+  "alt": "旧版本和新版本同时接流量，两个 run 都排进同一个 session 单写者再追加事件",
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "user", "label": "顾客", "at": [0, 0], "sub": "两条消息"},
+    {"id": "v1", "label": "旧版本 v1", "at": [1, 0], "sub": "run 1 继续"},
+    {"id": "v2", "label": "新版本 v2", "at": [1, 1], "sub": "新会话"},
+    {"id": "writer", "label": "session 单写者", "at": [2, 0], "sub": "按到达顺序"},
+    {"id": "log", "label": "事件日志", "at": [3, 0], "shape": "store", "sub": "JSONL"}
+  ],
+  "edges": [
+    {"id": "old", "from": "user", "to": "v1", "label": "90%"},
+    {"id": "new", "from": "user", "to": "v2", "label": "10%"},
+    {"id": "run1", "from": "v1", "to": "writer", "label": "run 1"},
+    {"id": "run2", "from": "v2", "to": "writer", "label": "run 2"},
+    {"id": "append", "from": "writer", "to": "log", "label": "追加"}
+  ],
+  "static": true,
+  "steps": [
+    {
+      "hi": ["writer"],
+      "note": "旧会话留在 v1、新会话进 v2；两个 run 都不能直接写日志，要排进同一个单写者"
+    }
+  ]
+}

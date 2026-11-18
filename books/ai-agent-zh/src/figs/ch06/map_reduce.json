@@ -1,0 +1,105 @@
+{
+  "kind": "flow",
+  "title": "map-reduce：10 条评论每条一片再汇总",
+  "alt": "B07 最近 10 条评论各跑一次 map，10 份结构化结果按 id 排序后交给 reduce",
+  "grid": [
+    4,
+    1
+  ],
+  "nodes": [
+    {
+      "id": "input",
+      "label": "B07 评论\n最近 10 条",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "split",
+      "label": "每条一片\n共 10 片",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "maps",
+      "label": "10 个 map\n并行",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "reduce",
+      "label": "reduce\n计数/排序/引用",
+      "at": [
+        3,
+        0
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "slice",
+      "from": "input",
+      "to": "split"
+    },
+    {
+      "id": "to_maps",
+      "from": "split",
+      "to": "maps"
+    },
+    {
+      "id": "to_reduce",
+      "from": "maps",
+      "to": "reduce"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "input"
+      ],
+      "note": "B07 共 11 条评论，示例取最近 10 条"
+    },
+    {
+      "hi": [
+        "split"
+      ],
+      "token": [
+        {
+          "edge": "slice",
+          "label": "10 条"
+        }
+      ],
+      "note": "每条评论一片，共 10 片"
+    },
+    {
+      "hi": [
+        "maps"
+      ],
+      "token": [
+        {
+          "edge": "to_maps",
+          "label": "10 片"
+        }
+      ],
+      "note": "10 个 map 同时跑，各读一条评论"
+    },
+    {
+      "hi": [
+        "reduce"
+      ],
+      "token": [
+        {
+          "edge": "to_reduce",
+          "label": "结构化"
+        }
+      ],
+      "note": "按 review_id 排序后交给 reduce 计数"
+    }
+  ]
+}

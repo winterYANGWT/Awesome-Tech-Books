@@ -1,0 +1,33 @@
+{
+  "kind": "flow",
+  "title": "工具设计是一个循环，不是一次写完",
+  "alt": "原型、工单集、读记录、改工具、再跑，同一组工单反复验证",
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "proto", "label": "原型工具", "sub": "先能跑", "at": [0, 0]},
+    {"id": "tickets", "label": "真实工单集", "sub": "固定一组", "at": [1, 0]},
+    {"id": "read", "label": "读记录", "sub": "调用与错误", "at": [2, 0]},
+    {"id": "change", "label": "改工具", "sub": "名字/描述/参数", "at": [2, 1]},
+    {"id": "rerun", "label": "再跑", "sub": "同一组工单", "at": [1, 1]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "proto", "to": "tickets"},
+    {"id": "e2", "from": "tickets", "to": "read"},
+    {"id": "e3", "from": "read", "to": "change"},
+    {"id": "e4", "from": "change", "to": "rerun"},
+    {"id": "e5", "from": "rerun", "to": "tickets"}
+  ],
+  "steps": [
+    {"token": [{"edge": "e1", "label": "首版"}], "hi": ["tickets"],
+     "note": "先用真实工单跑一遍首版工具，不凭直觉改"},
+    {"token": [{"edge": "e2", "label": "N 次运行"}], "hi": ["read"],
+     "note": "读 transcript：首轮选错、参数错、重复调用、结果没用上"},
+    {"token": [{"edge": "e3", "label": "失败点"}], "hi": ["change"],
+     "note": "按失败点改名字、描述、参数或合并方式"},
+    {"token": [{"edge": "e4", "label": "改完"}], "hi": ["rerun"],
+     "note": "同一组工单再跑，比较改前改后的计数"},
+    {"token": [{"edge": "e5", "label": "下一轮"}], "hi": ["tickets"],
+     "note": "一轮不够；循环直到指标稳定，再用 held-out 工单验证"}
+  ],
+  "speed": 1500
+}

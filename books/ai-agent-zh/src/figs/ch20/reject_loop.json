@@ -1,0 +1,23 @@
+{
+  "kind": "seq",
+  "title": "拒绝之后：理由回到模型，方案改掉",
+  "alt": "模型先要求退款，审批门用政策拒绝并给出下一步，模型改成先确认质量问题",
+  "lanes": [
+    {"id": "m", "label": "模型", "role": "device"},
+    {"id": "g", "label": "审批门", "role": "process"},
+    {"id": "u", "label": "顾客", "role": "thread"}
+  ],
+  "state": [
+    {"id": "money", "label": "退款条数", "value": "0"},
+    {"id": "plan", "label": "方案", "value": "直接退"}
+  ],
+  "steps": [
+    {"from": "m", "to": "g", "text": "issue_refund(64)", "tone": "hot", "note": "提示要求直接退款，模型照做"},
+    {"at": "g", "text": "查政策：教辅拆封不退", "tone": "bad", "note": "除非有质量问题；这次没有证据"},
+    {"from": "g", "to": "m", "text": "拒绝 + 可执行理由", "tone": "bad", "set": {"plan": "先确认"}, "note": "理由要具体：先确认缺页、错装或装订"},
+    {"at": "m", "text": "改方案", "note": "不再重试同一个调用，改成向顾客解释并追问"},
+    {"from": "m", "to": "u", "text": "解释拆封政策", "tone": "ok", "note": "把政策转成顾客能懂的话"},
+    {"from": "u", "to": "m", "text": "没有缺页", "tone": "ok", "note": "没有质量问题，维持不退；actions 里没有退款"}
+  ],
+  "speed": 1400
+}

@@ -1,0 +1,87 @@
+{
+  "kind": "seq",
+  "title": "NOTES.md 跨过一次上下文重置",
+  "alt": "模型把进展写进笔记，上下文重置后读回笔记，仍然答出 680 元和主管审批",
+  "lanes": [
+    {
+      "id": "model",
+      "label": "模型",
+      "role": "process"
+    },
+    {
+      "id": "notes",
+      "label": "NOTES.md",
+      "role": "memory"
+    },
+    {
+      "id": "ctx",
+      "label": "上下文",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "notes_n",
+      "label": "笔记",
+      "value": "0 节"
+    },
+    {
+      "id": "msgs",
+      "label": "消息",
+      "value": "38 条"
+    }
+  ],
+  "steps": [
+    {
+      "from": "ctx",
+      "to": "model",
+      "text": "T13：A1680 680 元",
+      "note": "顾客要求全额退款，金额 680 元"
+    },
+    {
+      "from": "model",
+      "to": "notes",
+      "text": "write_notes",
+      "set": {
+        "notes_n": "5 节"
+      },
+      "note": "第 2 轮：目标、金额、待办写进五节"
+    },
+    {
+      "at": "notes",
+      "text": "临时文件 → os.replace",
+      "tone": "ok",
+      "note": "先写临时文件再替换，避免半截笔记"
+    },
+    {
+      "at": "ctx",
+      "text": "重置",
+      "tone": "wait",
+      "set": {
+        "msgs": "4 条"
+      },
+      "note": "第 9 轮：只留系统提示、笔记和最近 2 条"
+    },
+    {
+      "from": "notes",
+      "to": "model",
+      "text": "read_notes",
+      "note": "重置后先读笔记，不重问订单号"
+    },
+    {
+      "from": "model",
+      "to": "ctx",
+      "text": "笔记 + 最近 2 条",
+      "set": {
+        "msgs": "4 条"
+      },
+      "note": "把笔记放回新上下文，再回答当前问题"
+    },
+    {
+      "at": "model",
+      "text": "答：680 元，已提交主管",
+      "tone": "ok",
+      "note": "金额和审批状态都来自笔记"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "思考随响应返回，带 tools 时要放回",
+  "alt": "模型返回 reasoning_content，客户端把它和回答一起放回 messages",
+  "lanes": [
+    {"id": "user", "label": "顾客"},
+    {"id": "client", "label": "客户端", "role": "process"},
+    {"id": "model", "label": "模型", "role": "device"}
+  ],
+  "state": [
+    {"id": "reasoning", "label": "响应里的思考", "value": "—"},
+    {"id": "history", "label": "下一轮 messages", "value": "2 条"}
+  ],
+  "steps": [
+    {"from": "user", "to": "client", "text": "缺页，A1659", "note": "顾客只发来问题和订单号"},
+    {"from": "client", "to": "model", "text": "system + 问题", "note": "请求里没有订单数据，只有两段文字"},
+    {"at": "model", "text": "写 reasoning_content", "tone": "hot", "set": {"reasoning": "有"}, "note": "思考内容随响应返回，计入 completion_tokens"},
+    {"from": "model", "to": "client", "text": "回答 + 思考", "note": "响应里同时有 reasoning_content 和 content"},
+    {"at": "client", "text": "回答 + 思考放回", "set": {"history": "3 条（回答+思考）"}, "note": "assistant 消息里同时有 content 和 reasoning_content"},
+    {"from": "client", "to": "model", "text": "下一轮：带思考", "note": "带 tools 的请求不放回思考，可能返回 400"}
+  ]
+}

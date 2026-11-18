@@ -1,0 +1,103 @@
+{
+  "kind": "seq",
+  "title": "每个超步写一个检查点，thread 指向最新",
+  "alt": "A 的每个超步写一个检查点，thread 指向最新；新 thread B 没有检查点，从空状态开始",
+  "lanes": [
+    {
+      "id": "graph",
+      "label": "图"
+    },
+    {
+      "id": "cp",
+      "label": "检查点",
+      "role": "memory"
+    },
+    {
+      "id": "thread",
+      "label": "thread",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "n",
+      "label": "检查点",
+      "value": "0"
+    },
+    {
+      "id": "a",
+      "label": "A 的最新",
+      "value": "—"
+    },
+    {
+      "id": "b",
+      "label": "B 的最新",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "at": "graph",
+      "text": "invoke 第 1 句",
+      "set": {
+        "n": "0",
+        "a": "—",
+        "b": "—"
+      },
+      "note": "为看清流程只画三个超步；示例里 A 有 8 个检查点"
+    },
+    {
+      "from": "graph",
+      "to": "cp",
+      "text": "超步 1 快照",
+      "set": {
+        "n": "1",
+        "a": "1"
+      },
+      "note": "模型要 get_order，工具执行完，这个超步结束"
+    },
+    {
+      "from": "cp",
+      "to": "thread",
+      "text": "A → 最新",
+      "note": "thread_id 是索引，A 指向刚写下的检查点"
+    },
+    {
+      "from": "graph",
+      "to": "cp",
+      "text": "超步 2 快照",
+      "set": {
+        "n": "2",
+        "a": "2"
+      },
+      "note": "再调一次模型写出回答，又写一个检查点"
+    },
+    {
+      "at": "graph",
+      "text": "第 2 句：那能退多少",
+      "set": {
+        "n": "2",
+        "a": "2"
+      },
+      "note": "同一个 thread 再 invoke，新消息走 add_messages 追加"
+    },
+    {
+      "from": "graph",
+      "to": "cp",
+      "text": "超步 3 快照",
+      "set": {
+        "n": "3",
+        "a": "3"
+      },
+      "note": "A 看得到上一句的订单号，直接算出 82 元"
+    },
+    {
+      "at": "thread",
+      "text": "新 thread B：空状态",
+      "set": {
+        "b": "空"
+      },
+      "note": "B 没有检查点，图只知道“那能退多少”，只能反问订单号"
+    }
+  ]
+}

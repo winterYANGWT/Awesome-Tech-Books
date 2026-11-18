@@ -1,0 +1,143 @@
+{
+  "kind": "flow",
+  "title": "从同一个检查点重放，或改 500 后分叉",
+  "alt": "重放让 draft 和 finish 再跑一次；分叉从同一处改成 500，得到另一条终态",
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "start",
+      "label": "起点",
+      "sub": "空检查点",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "calc",
+      "label": "calc",
+      "sub": "680",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "draft",
+      "label": "draft",
+      "sub": "拟退款",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "finish",
+      "label": "finish",
+      "sub": "680 已执行",
+      "at": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "replay",
+      "label": "重放",
+      "sub": "680 已执行",
+      "at": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "fork",
+      "label": "update_state",
+      "sub": "改成 500",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "done500",
+      "label": "finish",
+      "sub": "500 已执行",
+      "at": [
+        2,
+        2
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "start",
+      "to": "calc",
+      "label": "输入"
+    },
+    {
+      "id": "e2",
+      "from": "calc",
+      "to": "draft",
+      "label": "680"
+    },
+    {
+      "id": "e3",
+      "from": "draft",
+      "to": "finish",
+      "label": "执行"
+    },
+    {
+      "id": "e4",
+      "from": "draft",
+      "to": "replay",
+      "label": "重放",
+      "dashed": true
+    },
+    {
+      "id": "e5",
+      "from": "draft",
+      "to": "fork",
+      "label": "改 500",
+      "dashed": true
+    },
+    {
+      "id": "e6",
+      "from": "fork",
+      "to": "done500",
+      "label": "执行"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "draft"
+      ],
+      "note": "只画关键四个检查点；入口那个没画"
+    },
+    {
+      "hi": [
+        "replay"
+      ],
+      "note": "invoke(None) 重放：draft 和 finish 再执行一次"
+    },
+    {
+      "hi": [
+        "fork",
+        "done500"
+      ],
+      "note": "从同一检查点 update_state 成 500，再 invoke 得到另一条分支"
+    },
+    {
+      "hi": [
+        "finish",
+        "done500"
+      ],
+      "note": "680 和 500 两条终态都留在历史里，互不覆盖"
+    }
+  ],
+  "static": true
+}

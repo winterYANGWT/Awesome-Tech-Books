@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "模型只看见 schema，看不见函数体",
+  "alt": "Python 函数被转成 JSON Schema 放进请求，模型据此决定调哪个工具",
+  "static": true,
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "fn", "label": "Python 函数", "at": [0, 0], "sub": "函数体"},
+    {"id": "schema", "label": "Tool.schema()", "at": [1, 0], "sub": "描述 / 参数 / 必填"},
+    {"id": "req", "label": "请求里的 tools", "at": [2, 0], "sub": "application/json"},
+    {"id": "model", "label": "模型选工具", "at": [3, 0], "shape": "round"},
+    {"id": "calls", "label": "tool_calls", "at": [3, 1], "sub": "id / name / arguments"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "fn", "to": "schema"},
+    {"id": "e2", "from": "schema", "to": "req"},
+    {"id": "e3", "from": "req", "to": "model"},
+    {"id": "e4", "from": "model", "to": "calls"}
+  ],
+  "steps": [
+    {"note": "函数体不进入请求；模型只按描述、参数和必填项选工具", "hi": ["schema", "req", "calls"]}
+  ]
+}

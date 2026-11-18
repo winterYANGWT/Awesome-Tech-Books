@@ -1,0 +1,151 @@
+{
+  "kind": "flow",
+  "title": "强制工具：把结果装进参数",
+  "alt": "模型只能调用 submit_ticket，参数字符串再解析、校验",
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "p",
+      "label": "提示 + schema",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "m",
+      "label": "模型",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "tc",
+      "label": "`tool_calls`\n`submit_ticket`",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "j",
+      "label": "`json.loads`",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "obj",
+      "label": "校验后的对象",
+      "at": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "fail",
+      "label": "没调用 → 重试/降级",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "note"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "p",
+      "to": "m",
+      "label": "请求"
+    },
+    {
+      "id": "e2",
+      "from": "m",
+      "to": "tc",
+      "label": "返回"
+    },
+    {
+      "id": "e3",
+      "from": "tc",
+      "to": "j",
+      "label": "取字段",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "e4",
+      "from": "j",
+      "to": "obj",
+      "label": "校验",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "e5",
+      "from": "m",
+      "to": "fail",
+      "label": "空",
+      "dashed": true,
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "e1",
+          "label": "T06"
+        }
+      ],
+      "hi": [
+        "m"
+      ],
+      "note": "提示给出类别枚举，tool_choice 指定 submit_ticket"
+    },
+    {
+      "token": [
+        {
+          "edge": "e2",
+          "label": "arguments"
+        }
+      ],
+      "hi": [
+        "tc"
+      ],
+      "note": "响应里没有自由文本，结果在 arguments 的 JSON 字符串里"
+    },
+    {
+      "token": [
+        {
+          "edge": "e3",
+          "label": "json.loads"
+        }
+      ],
+      "hi": [
+        "j"
+      ],
+      "note": "schema 提示模型按字段、类型和枚举生成，客户端仍要解析校验"
+    },
+    {
+      "token": [
+        {
+          "edge": "e4",
+          "label": "通过"
+        }
+      ],
+      "hi": [
+        "obj"
+      ],
+      "note": "解析后再查必填字段；模型没调用时走虚线分支"
+    }
+  ],
+  "static": true
+}

@@ -1,0 +1,29 @@
+{
+  "kind": "seq",
+  "title": "进程退出后，SqliteSaver 让图接着跑",
+  "alt": "进程 1 把等待批准的检查点写进 state.db 后退出，进程 2 打开同一个文件恢复",
+  "lanes": [
+    {"id": "p1", "label": "进程 1", "role": "process"},
+    {"id": "db", "label": "数据库", "role": "memory"},
+    {"id": "p2", "label": "进程 2", "role": "process"}
+  ],
+  "state": [
+    {"id": "ck", "label": "检查点", "value": "0"},
+    {"id": "next", "label": "下一步", "value": "—"}
+  ],
+  "steps": [
+    {"at": "p1", "text": "跑到 approve 中断", "set": {"ck": "1", "next": "approve"},
+     "note": "InMemorySaver 只能把检查点留在进程 1 的内存里"},
+    {"from": "p1", "to": "db", "text": "写 state.db", "tone": "ok",
+     "note": "SqliteSaver 把 state 和等待中的任务写进文件"},
+    {"at": "p1", "text": "进程退出", "tone": "bad", "lane": {"p1": "done"},
+     "note": "内存里的对象都没了，文件还在"},
+    {"at": "p2", "text": "新进程打开 state.db", "lane": {"p2": "new"},
+     "note": "同一个 thread_id，换一个进程重新编译图"},
+    {"from": "db", "to": "p2", "text": "读到 next=approve",
+     "note": "get_state 返回等待中的快照，amount 仍是 680"},
+    {"from": "p2", "to": "db", "text": "resume，approved=True", "tone": "ok",
+     "set": {"ck": "2", "next": "—"}, "lane": {"p2": "done"},
+     "note": "Command(resume=...) 执行退款并写下完成检查点"}
+  ]
+}

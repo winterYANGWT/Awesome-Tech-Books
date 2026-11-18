@@ -1,0 +1,127 @@
+{
+  "kind": "flow",
+  "title": "中断期间改金额：600 执行，680 留在历史",
+  "alt": "update_state 在 interrupt 后追加一个 600 的检查点，原提案 680 仍可审计",
+  "grid": [
+    4,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "propose",
+      "label": "propose",
+      "sub": "算出 680",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "interrupt",
+      "label": "interrupt",
+      "sub": "等主管",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "update",
+      "label": "update_state",
+      "sub": "人改成 600",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "refund",
+      "label": "refund",
+      "sub": "执行 600",
+      "at": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "old",
+      "label": "原检查点",
+      "sub": "680",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "audit",
+      "label": "审计",
+      "sub": "两条都在",
+      "at": [
+        1,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "propose",
+      "to": "interrupt",
+      "label": "680"
+    },
+    {
+      "id": "e2",
+      "from": "interrupt",
+      "to": "update",
+      "label": "600"
+    },
+    {
+      "id": "e3",
+      "from": "update",
+      "to": "refund",
+      "label": "resume"
+    },
+    {
+      "id": "e4",
+      "from": "propose",
+      "to": "old",
+      "label": "保留",
+      "dashed": true
+    },
+    {
+      "id": "e5",
+      "from": "old",
+      "to": "audit",
+      "label": "可查"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "propose",
+        "interrupt"
+      ],
+      "note": "propose 写 680，approve 中断并保存检查点"
+    },
+    {
+      "hi": [
+        "update"
+      ],
+      "note": "人用 update_state(as_node=propose) 追加 600 的检查点"
+    },
+    {
+      "hi": [
+        "refund"
+      ],
+      "note": "恢复后 execute 看到 600，退款也只退 600"
+    },
+    {
+      "hi": [
+        "old",
+        "audit"
+      ],
+      "note": "原来的 680 检查点没被覆盖，审计时两条都能看到"
+    }
+  ],
+  "static": true
+}

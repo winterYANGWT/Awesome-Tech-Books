@@ -1,0 +1,149 @@
+{
+ "kind": "flow",
+ "title": "分段与投票：一个看不同侧面，一个问同一问题",
+ "alt": "上半部分把草稿分给三项检查再汇总，下半部分让 5 位评审独立投票再计票",
+ "static": true,
+ "grid": [
+  3,
+  5
+ ],
+ "bands": [
+  {
+   "label": "分段：三个侧面",
+   "rows": [
+    0,
+    3
+   ]
+  },
+  {
+   "label": "投票：同一问题",
+   "rows": [
+    4,
+    4
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "id": "input",
+   "label": "T06 草稿\nT14 问题",
+   "at": [
+    0,
+    2
+   ],
+   "shape": "store",
+   "span": [
+    1,
+    2
+   ]
+  },
+  {
+   "id": "policy",
+   "label": "政策检查",
+   "at": [
+    1,
+    1
+   ]
+  },
+  {
+   "id": "tone",
+   "label": "语气检查",
+   "at": [
+    1,
+    2
+   ]
+  },
+  {
+   "id": "privacy",
+   "label": "隐私检查",
+   "at": [
+    1,
+    3
+   ]
+  },
+  {
+   "id": "summary",
+   "label": "汇总（代码）",
+   "at": [
+    2,
+    2
+   ],
+   "span": [
+    1,
+    2
+   ]
+  },
+  {
+   "id": "panel",
+   "label": "评审组",
+   "sub": "5 个并行调用",
+   "at": [
+    1,
+    4
+   ]
+  },
+  {
+   "id": "tally",
+   "label": "计票（Counter）",
+   "at": [
+    2,
+    4
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "id": "to_policy",
+   "from": "input",
+   "to": "policy"
+  },
+  {
+   "id": "to_tone",
+   "from": "input",
+   "to": "tone"
+  },
+  {
+   "id": "to_privacy",
+   "from": "input",
+   "to": "privacy"
+  },
+  {
+   "id": "policy_sum",
+   "from": "policy",
+   "to": "summary"
+  },
+  {
+   "id": "tone_sum",
+   "from": "tone",
+   "to": "summary"
+  },
+  {
+   "id": "privacy_sum",
+   "from": "privacy",
+   "to": "summary"
+  },
+  {
+   "id": "to_panel",
+   "from": "input",
+   "to": "panel"
+  },
+  {
+   "id": "panel_tally",
+   "from": "panel",
+   "to": "tally"
+  }
+ ],
+ "steps": [
+  {
+   "hi": [
+    "policy",
+    "tone",
+    "privacy",
+    "summary",
+    "panel",
+    "tally"
+   ],
+   "note": "上半部分三项检查各看一面；下半部分五位评审各投一票"
+  }
+ ]
+}

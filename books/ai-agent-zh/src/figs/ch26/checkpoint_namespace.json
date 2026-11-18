@@ -1,0 +1,92 @@
+{
+  "kind": "seq",
+  "title": "子图的检查点分两层命名空间",
+  "alt": "父图超步写空 namespace 的检查点，子图在自己的节点名前缀下写检查点，恢复时各读各的",
+  "lanes": [
+    {
+      "id": "parent",
+      "label": "父图"
+    },
+    {
+      "id": "sub",
+      "label": "子图"
+    },
+    {
+      "id": "ck",
+      "label": "检查点",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "pns",
+      "label": "父图 ns",
+      "value": "''"
+    },
+    {
+      "id": "sns",
+      "label": "子图 ns",
+      "value": "—"
+    },
+    {
+      "id": "n",
+      "label": "namespace 数",
+      "value": "1"
+    }
+  ],
+  "steps": [
+    {
+      "at": "parent",
+      "text": "超步 0：调度 policy_check",
+      "set": {
+        "pns": "''"
+      },
+      "note": "父图先落一个空 namespace 的检查点"
+    },
+    {
+      "from": "parent",
+      "to": "sub",
+      "text": "order + policy_name",
+      "note": "子图作为节点拿到父图同名 channel 的值"
+    },
+    {
+      "at": "sub",
+      "text": "lookup 写 policy_text",
+      "tone": "hot",
+      "note": "子图内部键先写进自己的 state"
+    },
+    {
+      "from": "sub",
+      "to": "ck",
+      "text": "policy_check:…",
+      "set": {
+        "sns": "policy_check:…",
+        "n": "2"
+      },
+      "note": "子图检查点的 checkpoint_ns 以节点名开头"
+    },
+    {
+      "at": "parent",
+      "text": "收到 verdict",
+      "set": {
+        "pns": "''"
+      },
+      "note": "父图只看到输出 schema 的结论，检查点仍在空 namespace"
+    },
+    {
+      "from": "parent",
+      "to": "sub",
+      "text": "privacy_check 复用",
+      "note": "同一个子图实例换一个父节点名，namespace 前缀也跟着换"
+    },
+    {
+      "at": "ck",
+      "text": "两层都在 list()",
+      "tone": "ok",
+      "set": {
+        "n": "2"
+      },
+      "note": "父图 history 只列空 namespace；要看两层用 checkpointer.list"
+    }
+  ]
+}

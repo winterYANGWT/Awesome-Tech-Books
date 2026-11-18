@@ -1,0 +1,26 @@
+{
+  "kind": "flow",
+  "title": "计划校验：通过、重规划一次、兜底",
+  "alt": "计划先过数量、角色、输入、依赖校验；失败重规划一次，仍失败走固定三任务",
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "ticket", "label": "工单", "at": [0, 1]},
+    {"id": "plan", "label": "计划", "sub": "submit_plan", "at": [1, 1]},
+    {"id": "check", "label": "校验", "sub": "数量/角色/输入/依赖", "at": [2, 1]},
+    {"id": "run", "label": "执行", "sub": "派给工作者", "at": [3, 0]},
+    {"id": "replan", "label": "重规划", "sub": "只 1 次", "at": [3, 1]},
+    {"id": "fallback", "label": "固定 3 任务", "sub": "订单/政策/评论", "at": [3, 2]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "ticket", "to": "plan"},
+    {"id": "e2", "from": "plan", "to": "check"},
+    {"id": "e3", "from": "check", "to": "run", "label": "通过"},
+    {"id": "e4", "from": "check", "to": "replan", "label": "失败"},
+    {"id": "e5", "from": "replan", "to": "check", "label": "再交一次", "dashed": true},
+    {"id": "e6", "from": "replan", "to": "fallback", "label": "仍失败"}
+  ],
+  "steps": [
+    {"hi": ["check"], "note": "通过则执行；失败退回重规划 1 次；仍失败走固定 3 任务"}
+  ],
+  "static": true
+}

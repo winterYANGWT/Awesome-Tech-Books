@@ -1,0 +1,27 @@
+{
+  "kind": "seq",
+  "title": "输入护栏和模型同轮启动，输出护栏在 final 之后",
+  "alt": "本地输入护栏先命中就抛 tripwire；模型已开始的输出作废；正常回答再交给输出护栏",
+  "lanes": [
+    {"id": "user", "label": "用户"},
+    {"id": "in", "label": "输入护栏"},
+    {"id": "llm", "label": "模型", "role": "device"},
+    {"id": "out", "label": "输出护栏"}
+  ],
+  "steps": [
+    {"from": "user", "to": "in", "text": "T28 注入文本", "tone": "hot",
+     "note": "用户消息先到输入护栏；同一个 run 里模型调用也会启动"},
+    {"from": "user", "to": "llm", "text": "模型同时启动", "dashed": true,
+     "note": "默认 run_in_parallel=True；本地护栏通常先返回，模型请求可能还没发出"},
+    {"at": "in", "text": "命中：忽略指令", "tone": "bad",
+     "note": "本地正则命中“忽略……指令”，不需要再调模型判断"},
+    {"span": ["in", "llm"], "text": "tripwire：停止并丢弃", "tone": "bad",
+     "note": "输入护栏抛异常；模型已经开始生成时，已产生的输出作废"},
+    {"from": "user", "to": "llm", "text": "T06 正常工单",
+     "note": "换一个正常工单：这一次输入护栏放行"},
+    {"from": "llm", "to": "out", "text": "final_output",
+     "note": "输出护栏在最终回答之后运行，看的是要交给用户的文本"},
+    {"from": "out", "to": "user", "text": "检查通过", "tone": "ok",
+     "note": "没有别人的地址就放行；命中则抛 OutputGuardrailTripwireTriggered"}
+  ]
+}

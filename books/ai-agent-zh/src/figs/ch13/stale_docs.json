@@ -1,0 +1,26 @@
+{
+ "kind": "flow",
+ "title": "旧资料和现行条款争同一个问题",
+ "alt": "上面一行只有现行条款 15 天；下面一行是旧版 7 天和旧工单，最后都指向同一个问题",
+ "grid": [3, 2],
+ "static": true,
+ "nodes": [
+  {"id": "a", "label": "条件 A", "sub": "只给现行条款", "at": [0, 0], "shape": "round"},
+  {"id": "cur", "label": "现行条款", "sub": "15 天", "at": [1, 0]},
+  {"id": "q", "label": "同一个问题", "sub": "签收后多少天", "at": [2, 0], "shape": "round"},
+  {"id": "b", "label": "条件 B", "sub": "现行 + 旧资料", "at": [0, 1], "shape": "round"},
+  {"id": "oldp", "label": "旧版政策", "sub": "7 天", "at": [1, 1]},
+  {"id": "oldt", "label": "旧工单", "sub": "按 7 天拒绝", "at": [2, 1]}
+ ],
+ "edges": [
+  {"id": "ea", "from": "a", "to": "cur"},
+  {"id": "eq1", "from": "cur", "to": "q", "label": "15 天"},
+  {"id": "eb", "from": "b", "to": "oldp"},
+  {"id": "eo", "from": "oldp", "to": "oldt", "label": "存档"},
+  {"id": "eq2", "from": "oldt", "to": "q", "label": "7 天", "dashed": true}
+ ],
+ "steps": [
+  {"hi": ["q"], "tone": {"oldp": "bad", "oldt": "bad"},
+   "note": "条件 B 里旧资料没删，和现行条款一起争同一个问题的注意力"}
+ ]
+}

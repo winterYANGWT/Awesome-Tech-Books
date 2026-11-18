@@ -1,0 +1,100 @@
+{
+  "kind": "flow",
+  "title": "T06 的图：四个处理节点和一份状态",
+  "alt": "START 进读工单，依次查订单、查政策、起草，最后 END；每个节点下面标出读写的键",
+  "grid": [
+    4,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "start",
+      "label": "START",
+      "sub": "ticket 进来",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "t",
+      "label": "读工单",
+      "sub": "读/写 ticket",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "o",
+      "label": "查订单",
+      "sub": "读 ticket\n写 order",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "p",
+      "label": "查政策",
+      "sub": "写 policy",
+      "at": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "r",
+      "label": "起草",
+      "sub": "读 order/policy\n写 reply",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "end",
+      "label": "END",
+      "sub": "返回 reply",
+      "at": [
+        3,
+        1
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "st",
+      "from": "start",
+      "to": "t"
+    },
+    {
+      "id": "to",
+      "from": "t",
+      "to": "o"
+    },
+    {
+      "id": "op",
+      "from": "o",
+      "to": "p"
+    },
+    {
+      "id": "pr",
+      "from": "p",
+      "to": "r"
+    },
+    {
+      "id": "re",
+      "from": "r",
+      "to": "end"
+    }
+  ],
+  "static": true,
+  "steps": [
+    {
+      "note": "节点只写要更新的键；边决定下一步是谁，最后到 END"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "kind": "seq",
+  "title": "同步 harness 怎么等异步 Client",
+  "alt": "harness 在工作线程里同步等 future，事件循环在另一线程跑 Client，结果才能回到 harness",
+  "lanes": [
+    {
+      "id": "model",
+      "label": "模型",
+      "role": "device"
+    },
+    {
+      "id": "h",
+      "label": "harness 线程",
+      "role": "process"
+    },
+    {
+      "id": "loop",
+      "label": "事件循环",
+      "role": "process"
+    },
+    {
+      "id": "srv",
+      "label": "MCP server",
+      "role": "memory"
+    }
+  ],
+  "steps": [
+    {
+      "from": "model",
+      "to": "h",
+      "text": "tool_calls",
+      "note": "模型返回要调用的工具和参数"
+    },
+    {
+      "at": "h",
+      "text": "执行 Tool.fn",
+      "note": "同步函数；这里不能 await，也不能在本线程跑事件循环"
+    },
+    {
+      "from": "h",
+      "to": "loop",
+      "text": "交给循环",
+      "note": "run_coroutine_threadsafe 把协程排进另一个线程的循环"
+    },
+    {
+      "from": "loop",
+      "to": "srv",
+      "text": "call_tool",
+      "note": "async with Client 的连接就活在这个循环里"
+    },
+    {
+      "from": "srv",
+      "to": "loop",
+      "text": "CallToolResult",
+      "note": "内容块、structuredContent、is_error"
+    },
+    {
+      "from": "loop",
+      "to": "h",
+      "text": "future.result()",
+      "note": "harness 线程阻塞等结果；循环线程仍在服务"
+    },
+    {
+      "from": "h",
+      "to": "model",
+      "text": "role: tool",
+      "note": "把转成文本的结果放回对话"
+    },
+    {
+      "at": "h",
+      "text": "下一轮",
+      "tone": "ok",
+      "note": "关闭时先停 harness，再退出 Client，最后停循环线程"
+    }
+  ]
+}

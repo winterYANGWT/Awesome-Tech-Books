@@ -1,0 +1,30 @@
+{
+  "kind": "seq",
+  "title": "先看目录，再读一节：两次工具调用",
+  "alt": "模型先 list_docs 拿到 15 节目录，再 read_section 读退货期限，最后答 15 天",
+  "lanes": [
+    {"id": "user", "label": "用户"},
+    {"id": "model", "label": "模型", "role": "device"},
+    {"id": "tool", "label": "工具", "role": "memory"}
+  ],
+  "state": [
+    {"id": "calls", "label": "工具调用", "value": "0"},
+    {"id": "loaded", "label": "加载的正文", "value": "—"}
+  ],
+  "steps": [
+    {"from": "user", "to": "model", "text": "签收后多久能退？",
+     "note": "政策问题进到对话里，模型手里只有目录工具和读取工具"},
+    {"from": "model", "to": "tool", "text": "`list_docs()`", "set": {"calls": "1"},
+     "note": "第 1 次工具调用：先要一张地图"},
+    {"from": "tool", "to": "model", "text": "5 份文档 15 节",
+     "note": "目录只有标题和字数，没有正文"},
+    {"at": "model", "text": "选 returns / 退货期限",
+     "note": "按标题定位到第 6 节，不读其余 14 节"},
+    {"from": "model", "to": "tool", "text": "`read_section`", "set": {"calls": "2", "loaded": "1 节"},
+     "note": "第 2 次工具调用：只读这一节"},
+    {"from": "tool", "to": "model", "text": "95 字：15 天",
+     "note": "一节正文约 95 字，比整份政策 1275 字便宜"},
+    {"from": "model", "to": "user", "text": "15 天内可退", "tone": "ok",
+     "note": "两次工具调用后回答，依据的小节可以回查"}
+  ]
+}

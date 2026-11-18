@@ -1,0 +1,22 @@
+{
+ "kind": "seq",
+ "title": "三条调研线并行，主 agent 只收摘要",
+ "alt": "主 agent 同时发出 SQL、评论、政策三个任务，三条线各自查工具，最后只把摘要交回",
+ "lanes": [
+  {"id": "main", "label": "主 agent"},
+  {"id": "sql", "label": "SQL 子 agent"},
+  {"id": "reviews", "label": "评论 子 agent"},
+  {"id": "policy", "label": "政策 子 agent"}
+ ],
+ "steps": [
+  {"at": "main", "text": "拆成 3 个任务", "note": "主 agent 先写清每条线的目标、输出、工具和边界"},
+  {"span": ["main", "sql", "reviews", "policy"], "text": "同时发出 3 个任务", "tone": "hot", "note": "三个子 agent 同时开始，各自有干净的上下文"},
+  {"at": "sql", "text": "写 4 条 SQL", "note": "SQL 线先聚合再下钻：季度、原因、出版社、快递"},
+  {"at": "reviews", "text": "读 3 本书的评论", "note": "评论线读 B07、B12、B19，记录条数和原话"},
+  {"at": "policy", "text": "读 2 份政策", "note": "政策线读 returns.md 和 shipping.md 的条款与日期"},
+  {"from": "sql", "to": "main", "text": "18.3% / 20 笔", "lane": {"sql": "done"}, "note": "SQL 线只交回 4 条 finding，不交原始 208 行"},
+  {"from": "reviews", "to": "main", "text": "B12 只有 2 条", "lane": {"reviews": "done"}, "note": "评论线交回原话，并明确写出样本缺口"},
+  {"from": "policy", "to": "main", "text": "7→15 天", "lane": {"policy": "done"}, "note": "政策线交回文档名、小节和生效日期"},
+  {"at": "main", "text": "对齐三条线写报告", "tone": "ok", "lane": {"main": "done"}, "note": "主 agent 拿到三份摘要，逐条核对数字和来源"}
+ ]
+}

@@ -1,0 +1,29 @@
+{
+  "kind": "flow",
+  "title": "工具错误都变成可读的文字",
+  "alt": "未知工具、坏 JSON、缺参、业务规则和内部异常都回填成错误文字，模型据此改路",
+  "static": true,
+  "grid": [3, 5],
+  "nodes": [
+    {"id": "unknown", "label": "未知工具名", "at": [0, 0]},
+    {"id": "badjson", "label": "参数不是 JSON", "at": [0, 1]},
+    {"id": "badargs", "label": "缺必填/多传", "at": [0, 2]},
+    {"id": "business", "label": "业务规则错误", "at": [0, 3]},
+    {"id": "internal", "label": "工具内部异常", "at": [0, 4]},
+    {"id": "text", "label": "错误文字", "at": [1, 2], "span": [1, 2], "sub": "说清错在哪、下一步怎么改"},
+    {"id": "model", "label": "模型下一轮", "at": [2, 2], "shape": "round"},
+    {"id": "human", "label": "转人工", "at": [2, 4], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "unknown", "to": "text"},
+    {"id": "e2", "from": "badjson", "to": "text"},
+    {"id": "e3", "from": "badargs", "to": "text"},
+    {"id": "e4", "from": "business", "to": "text"},
+    {"id": "e5", "from": "internal", "to": "text"},
+    {"id": "e6", "from": "text", "to": "model", "label": "回填 role:tool"},
+    {"id": "e7", "from": "model", "to": "human", "label": "同一错误两次"}
+  ],
+  "steps": [
+    {"note": "错误是循环的输入，不是程序的崩溃；连续两次同一错误才停", "hi": ["text", "model", "human"]}
+  ]
+}

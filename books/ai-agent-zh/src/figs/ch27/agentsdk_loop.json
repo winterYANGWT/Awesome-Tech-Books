@@ -1,0 +1,109 @@
+{
+  "kind": "seq",
+  "title": "Agents SDK 的一次 run：工具调用",
+  "alt": "Runner 调模型，模型要 get_order，Runner 执行工具后把结果放回对话，再调一次模型得到最终回答",
+  "lanes": [
+    {
+      "id": "user",
+      "label": "用户"
+    },
+    {
+      "id": "runner",
+      "label": "Runner",
+      "role": "process"
+    },
+    {
+      "id": "llm",
+      "label": "模型",
+      "role": "device"
+    },
+    {
+      "id": "tool",
+      "label": "工具",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "turn",
+      "label": "模型调用",
+      "value": "—"
+    },
+    {
+      "id": "msgs",
+      "label": "对话里的消息",
+      "value": "1"
+    }
+  ],
+  "steps": [
+    {
+      "from": "user",
+      "to": "runner",
+      "text": "T01 到哪了",
+      "set": {
+        "msgs": "2"
+      },
+      "note": "Runner 把用户输入和 agent 的 instructions 组成对话"
+    },
+    {
+      "from": "runner",
+      "to": "llm",
+      "text": "对话 + get_order",
+      "set": {
+        "turn": "1"
+      },
+      "note": "第 1 次调用模型，工具定义随请求一起发出"
+    },
+    {
+      "from": "llm",
+      "to": "runner",
+      "text": "要 get_order",
+      "tone": "hot",
+      "set": {
+        "msgs": "3"
+      },
+      "note": "模型不直接回答，而是要求调用 get_order(A1670)"
+    },
+    {
+      "from": "runner",
+      "to": "tool",
+      "text": "`get_order(A1670)`",
+      "note": "Runner 解析参数、执行工具，模型自己不碰本地数据"
+    },
+    {
+      "from": "tool",
+      "to": "runner",
+      "text": "迅达快递，运输中",
+      "set": {
+        "msgs": "4"
+      },
+      "note": "工具结果作为一条 tool 消息放回对话"
+    },
+    {
+      "from": "runner",
+      "to": "llm",
+      "text": "对话（4 条）",
+      "set": {
+        "turn": "2"
+      },
+      "note": "第 2 次调用模型，它现在看得到物流结果"
+    },
+    {
+      "from": "llm",
+      "to": "runner",
+      "text": "最终回答",
+      "tone": "ok",
+      "set": {
+        "msgs": "5"
+      },
+      "note": "这次没有工具调用，循环结束，final_output 是这段文字"
+    },
+    {
+      "from": "runner",
+      "to": "user",
+      "text": "已发出，运输中",
+      "tone": "ok",
+      "note": "Runner 把 final_output 交给调用方；last_agent 仍是 bookshop"
+    }
+  ]
+}

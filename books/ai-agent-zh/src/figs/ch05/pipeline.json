@@ -1,0 +1,36 @@
+{
+  "kind": "flow",
+  "title": "流水线：路由层、链层、闸门层各管一段",
+  "alt": "工单先路由，超限工单直接转人工；其余取事实、摘要、草稿、过闸门，最后回复",
+  "grid": [3, 3],
+  "bands": [
+    {"label": "路由层", "rows": [0, 0]},
+    {"label": "链层", "rows": [1, 1]},
+    {"label": "闸门层", "rows": [2, 2]}
+  ],
+  "nodes": [
+    {"id": "ticket", "label": "工单", "at": [0, 0]},
+    {"id": "route", "label": "路由", "sub": "类别/提示/模型", "at": [1, 0]},
+    {"id": "facts", "label": "取事实", "sub": "订单 + 政策", "at": [2, 0]},
+    {"id": "draft", "label": "草稿", "at": [1, 1]},
+    {"id": "summary", "label": "摘要 JSON", "at": [2, 1]},
+    {"id": "human", "label": "人工", "sub": "T13 超限", "at": [0, 2]},
+    {"id": "gate", "label": "闸门", "sub": "字段/金额/政策/措辞", "at": [1, 2]},
+    {"id": "reply", "label": "回复", "at": [2, 2]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "ticket", "to": "route", "label": "原话"},
+    {"id": "e2", "from": "route", "to": "facts", "label": "选提示"},
+    {"id": "e3", "from": "facts", "to": "summary", "label": "事实"},
+    {"id": "e4", "from": "summary", "to": "draft", "label": "摘要"},
+    {"id": "e5", "from": "draft", "to": "gate", "label": "提交"},
+    {"id": "e6", "from": "gate", "to": "reply", "label": "过"},
+    {"id": "e7", "from": "gate", "to": "human", "label": "不过", "dashed": true},
+    {"id": "e8", "from": "route", "to": "human", "label": "超 500 直接转", "dashed": true}
+  ],
+  "static": true,
+  "steps": [
+    {"hi": ["route", "facts", "summary", "draft"], "note": "路由先定提示和模型；链在路由内部跑，不把所有类别塞进一个大提示"},
+    {"hi": ["gate", "reply", "human"], "tone": {"human": "bad"}, "note": "闸门不过转人工；T13 在生成前就按金额分流，不进入退款草稿"}
+  ]
+}

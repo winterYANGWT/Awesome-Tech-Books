@@ -1,0 +1,30 @@
+{
+  "kind": "flow",
+  "title": "审计查两张表：批准单和实际动作",
+  "alt": "批准单记审批人，actions.detail.approval_id 对应 request_id",
+  "grid": [4, 2],
+  "bands": [
+    {"label": "执行", "rows": [0, 0]},
+    {"label": "审计", "rows": [1, 1]}
+  ],
+  "nodes": [
+    {"id": "req", "label": "退款请求", "at": [0, 0]},
+    {"id": "appr", "label": "批准单", "sub": "approvals", "at": [1, 0], "shape": "store"},
+    {"id": "exec", "label": "执行退款", "sub": "issue_refund_approved", "at": [2, 0]},
+    {"id": "actions", "label": "actions", "sub": "detail.approval_id", "at": [3, 0], "shape": "store"},
+    {"id": "approvals", "label": "approvals", "sub": "decision / 审批人", "at": [2, 1], "shape": "store"},
+    {"id": "audit", "label": "审计查询", "sub": "重复 / 超时 / 越级", "at": [3, 1], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "req", "to": "appr", "label": "申请"},
+    {"id": "e2", "from": "appr", "to": "exec", "label": "放行"},
+    {"id": "e3", "from": "exec", "to": "actions", "label": "写"},
+    {"id": "e4", "from": "exec", "to": "approvals", "label": "写", "route": "vh"},
+    {"id": "e5", "from": "actions", "to": "audit", "label": "读", "route": "vh"},
+    {"id": "e6", "from": "approvals", "to": "audit", "label": "读"}
+  ],
+  "steps": [
+    {"hi": ["audit"], "note": "审计按 actions.detail.approval_id 对 request_id"}
+  ],
+  "static": true
+}

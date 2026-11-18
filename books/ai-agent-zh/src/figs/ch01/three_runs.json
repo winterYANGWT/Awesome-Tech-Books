@@ -1,0 +1,41 @@
+{
+  "kind": "seq",
+  "title": "同一张 T06 的三次运行",
+  "alt": "单次调用说已退款但没做；固定流程和 agent 都真的退了 82 元",
+  "speed": 1500,
+  "lanes": [
+    {"id": "user", "label": "用户"},
+    {"id": "prog", "label": "程序", "role": "process"},
+    {"id": "model", "label": "模型", "role": "device"},
+    {"id": "tool", "label": "工具", "role": "memory"}
+  ],
+  "state": [
+    {"id": "actions", "label": "actions", "value": "0"}
+  ],
+  "steps": [
+    {"from": "user", "to": "prog", "text": "T06 原文", "label": "单次", "set": {"actions": "0"},
+     "note": "单次调用：把工单原文交给模型，不传工具"},
+    {"from": "model", "to": "user", "text": "已退款 68 元", "tone": "bad", "label": "单次",
+     "note": "模型说已退 68 元；订单实际是 82 元，actions 仍为 0"},
+    {"from": "user", "to": "prog", "text": "T06 原文", "label": "固定", "set": {"actions": "0"},
+     "note": "固定流程：新的一份内存数据，actions 从 0 开始"},
+    {"from": "prog", "to": "model", "text": "查单退款，写回复", "label": "固定",
+     "note": "关键词命中，代码已经查单并退款"},
+    {"from": "model", "to": "user", "text": "回复：退 82 元", "tone": "ok", "label": "固定",
+     "set": {"actions": "1"}, "note": "模型只写回复；actions 里有 1 条 refund"},
+    {"from": "user", "to": "prog", "text": "T06 原文", "label": "agent", "set": {"actions": "0"},
+     "note": "agent：把 3 个工具交给模型"},
+    {"from": "prog", "to": "model", "text": "对话 + 工具", "label": "agent",
+     "note": "第 1 轮：模型看到工单和工具清单"},
+    {"from": "model", "to": "tool", "text": "查订单 / 政策", "tone": "hot", "label": "agent",
+     "note": "模型先查订单，再查政策（这里并成一行）"},
+    {"from": "tool", "to": "model", "text": "82 元 + 退款条款", "label": "agent",
+     "note": "两次工具结果都放回对话，模型才看到 82 元和条款"},
+    {"from": "model", "to": "tool", "text": "issue_refund(82)", "tone": "hot", "label": "agent",
+     "note": "模型按订单和政策决定退款金额"},
+    {"from": "tool", "to": "model", "text": "已退款", "tone": "ok", "label": "agent",
+     "set": {"actions": "1"}, "note": "退款结果放回对话；actions 变成 1"},
+    {"from": "model", "to": "user", "text": "回复：退 82 元", "tone": "ok", "label": "agent",
+     "note": "不再要工具，循环结束"}
+  ]
+}
