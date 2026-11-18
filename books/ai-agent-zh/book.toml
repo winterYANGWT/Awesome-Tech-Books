@@ -1,0 +1,18 @@
+[book]
+title = "AI Agent 工程：从一次模型调用到多 agent 系统"
+description = "先直接调模型 API 手写 agent 循环，再讲工具设计、MCP、上下文工程、多 agent、护栏与评估、harness 与生产，最后用 LangGraph 和 OpenAI Agents SDK 对照。每个示例都真实运行过，书里展示的是那一次运行的录制。"
+authors = ["winterYANGWT"]
+language = "zh-CN"
+src = "src"
+
+[output.html]
+additional-css = ["theme/fig.css"]
+additional-js = ["theme/fig.js"]
+no-section-label = true
+
+[output.html.search]
+use-boolean-and = true
+
+[preprocessor.figs]
+command = "python3 theme/fig_preprocess.py"
+before = ["links"]
