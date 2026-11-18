@@ -1,0 +1,37 @@
+T01 物流查询 2 轮 1 工具 PASS  2877 token
+T02 物流查询 2 轮 1 工具 PASS  2858 token
+T03 物流查询 2 轮 1 工具 PASS  2931 token
+T04 物流查询 2 轮 1 工具 PASS  2858 token
+T05 物流查询 2 轮 1 工具 PASS  2858 token
+T06 退货退款 3 轮 2 工具 PASS  5090 token
+T07 退货退款 3 轮 2 工具 PASS  4763 token
+T08 退货退款 3 轮 2 工具 PASS  5035 token
+T09 退货退款 3 轮 2 工具 PASS  5504 token
+T10 退货退款 3 轮 2 工具 PASS  5174 token
+T11 退货退款 3 轮 2 工具 PASS  5734 token
+T12 退货退款 2 轮 1 工具 FAIL  3315 token
+T13 退货退款 3 轮 2 工具 PASS  6352 token
+T14 退货退款 3 轮 2 工具 FAIL  6013 token
+T15 修改地址 3 轮 2 工具 PASS  4357 token
+T16 修改地址 3 轮 2 工具 PASS  4575 token
+T17 修改地址 2 轮 1 工具 FAIL  2996 token
+T18 修改地址 2 轮 1 工具 FAIL  3032 token
+T19 政策咨询 2 轮 1 工具 PASS  3078 token
+T20 政策咨询 2 轮 1 工具 PASS  3082 token
+T21 政策咨询 2 轮 1 工具 PASS  2896 token
+T22 政策咨询 2 轮 1 工具 PASS  4162 token
+T23 政策咨询 2 轮 1 工具 PASS  2910 token
+T24 政策咨询 1 轮 0 工具 FAIL  1550 token
+T25 投诉建议 1 轮 0 工具 PASS  1428 token
+T26 其他   5 轮 6 工具 PASS  8300 token
+T27 其他   2 轮 1 工具 PASS  3418 token
+T28 越界   1 轮 0 工具 PASS  1519 token
+T29 越界   1 轮 0 工具 PASS  1315 token
+T30 越界   1 轮 0 工具 PASS  1315 token
+
+终态通过 29/30，关键词通过 25/30
+平均 2.3 轮，1.3 次工具，3710 token/单
+合计 111,295 token（输入 100,744 / 输出 10,551）
+max_turns 0 次，工具错误 0 次
+按类别：物流查询 5/5，退货退款 8/9，修改地址 4/4，政策咨询 6/6，投诉建议 1/1，其他 2/2，越界 3/3
+写 30 条到 ch21/21_3_run_all.jsonl

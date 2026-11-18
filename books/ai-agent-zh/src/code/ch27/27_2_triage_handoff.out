@@ -1,0 +1,9 @@
+T01 第 1 次：last_agent=logistics handoff=transfer_to_logistics 模型调用 3 次
+T01 第 2 次：last_agent=logistics handoff=transfer_to_logistics 模型调用 3 次
+T01 第 3 次：last_agent=logistics handoff=transfer_to_logistics 模型调用 3 次
+T06 第 1 次：last_agent=refunds handoff=transfer_to_refunds 模型调用 4 次，退款 82 元
+T06 第 2 次：last_agent=refunds handoff=transfer_to_refunds 模型调用 4 次，退款 82 元
+T06 第 3 次：last_agent=refunds handoff=transfer_to_refunds 模型调用 4 次，退款 82 元
+汇总：
+  T01 → logistics 3/3
+  T06 → refunds 3/3

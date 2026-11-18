@@ -1,0 +1,9 @@
+调用                                    级别    决定   原因
+issue_refund(A1680)                    high   human  金额 680 元超过 500
+issue_refund(A1340)                    high   human  退款原因不具体，需人工核实
+get_order(A1001)                       low    auto   只读，不改数据
+update_address(A1679)                  medium check  待发货；先校验新地址格式和长度
+delete_order(A1680)                    —      deny   未知工具，不在允许列表
+
+approve(issue_refund, 680) → 需要主管批准：金额 680 元超过 500
+actions： []

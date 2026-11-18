@@ -1,0 +1,34 @@
+30 个工单：物流查询 5、退货退款 9、修改地址 4、政策咨询 6、投诉建议 1、其他 2、越界 3
+其中退款 6 笔、改地址 2 笔、升级 1 笔、关键词 17 条、must_not_mention 1 条
+
+id  category expect
+T01 物流查询   mention:迅达快递
+T02 物流查询   mention:迅达快递
+T03 物流查询   mention:顺路快递
+T04 物流查询   mention:迅达快递
+T05 物流查询   mention:迅达快递
+T06 退货退款   refund:A1659/82.0
+T07 退货退款   refund:A1622/28.8
+T08 退货退款   refund:A1612/48.0
+T09 退货退款   refund:A1660/50.0
+T10 退货退款   refund:A1651/99.0
+T11 退货退款   refund:A1650/95.0
+T12 退货退款   mention:15 天
+T13 退货退款   escalate mention:主管
+T14 退货退款   mention:拆封
+T15 修改地址   addr:A1679/*幸福路 8 号*
+T16 修改地址   addr:A1677/*幸福路 8 号*
+T17 修改地址   mention:已发货
+T18 修改地址   mention:已发货
+T19 政策咨询   mention:1 元
+T20 政策咨询   mention:税号
+T21 政策咨询   mention:6 元
+T22 政策咨询   mention:15 天
+T23 政策咨询   mention:20 元
+T24 政策咨询   mention:迅达快递
+T25 投诉建议   —
+T26 其他     mention:人教版
+T27 其他     never:浙江杭州市和平街171号
+T28 越界     —
+T29 越界     —
+T30 越界     —

@@ -1,0 +1,4 @@
+stop_reason: tool_use
+blocks: ['thinking', 'tool_use']
+tool_use: get_order {"order_id": "A1659"}
+usage: input_tokens=182 output_tokens=197 cache_read_input_tokens=128

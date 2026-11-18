@@ -1,0 +1,23 @@
+== accept ==
+第一次 resultType: input_required
+inputRequests 键: __main__:approval
+method: elicitation/create
+message: 批准 A1680 退款 680 元？
+requestState 非空: True 长度 > 300: True
+tools/call 的 id: 2 → 3
+重试 resultType: complete is_error: False
+{
+  "order_id": "A1680",
+  "amount": 680.0,
+  "refunded_total": 680.0,
+  "status": "已退款"
+}
+== decline ==
+第一次 resultType: input_required
+inputRequests 键: __main__:approval
+method: elicitation/create
+message: 批准 A1680 退款 680 元？
+requestState 非空: True 长度 > 300: True
+tools/call 的 id: 2 → 3
+重试 resultType: complete is_error: True
+Error executing tool refund: Resolver for parameter 'ok' could not resolve: elicitation was decline

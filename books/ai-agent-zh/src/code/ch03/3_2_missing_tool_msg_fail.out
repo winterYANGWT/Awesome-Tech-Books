@@ -1,0 +1,2 @@
+第 1 次响应：get_order {"order_id": "A1670"}
+[退出码 1] API 原文：Error code: 400 - An assistant message with 'tool_calls' must be followed by tool messages responding to each 'tool_call_id'. (insufficient tool messages following tool_calls message) (request_id: 58ca8587-0249-4df3-a36e-5401a11eaf7e)

@@ -1,0 +1,15 @@
+系统提示 1666 字，工具 9 个；每组 6 次请求
+  1  prompt=2,165  hit=0  rate=0.0%
+  2  prompt=2,165  hit=1,920  rate=88.7%
+  3  prompt=2,165  hit=1,920  rate=88.7%
+  4  prompt=2,165  hit=1,920  rate=88.7%
+  5  prompt=2,165  hit=1,920  rate=88.7%
+  6  prompt=2,165  hit=1,920  rate=88.7%
+A 组 固定前缀：6 次命中 9,600 / 12,990 = 73.9%
+  1  prompt=2,181  hit=0  rate=0.0%
+  2  prompt=2,181  hit=0  rate=0.0%
+  3  prompt=2,181  hit=0  rate=0.0%
+  4  prompt=2,181  hit=0  rate=0.0%
+  5  prompt=2,181  hit=0  rate=0.0%
+  6  prompt=2,181  hit=0  rate=0.0%
+B 组 每次换时间戳：6 次命中 0 / 13,086 = 0.0%

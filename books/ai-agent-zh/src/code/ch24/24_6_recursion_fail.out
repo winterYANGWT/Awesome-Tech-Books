@@ -1,0 +1,2 @@
+tick 每次都回到 tick，没有停止条件：
+[退出码 1] GraphRecursionError: Recursion limit of 5 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.

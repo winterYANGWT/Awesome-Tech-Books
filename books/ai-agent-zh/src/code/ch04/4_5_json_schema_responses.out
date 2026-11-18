@@ -1,0 +1,2 @@
+Responses 接口：text.format=json_schema
+解析出的对象：{"category": "退货退款", "order_id": "A1659"}

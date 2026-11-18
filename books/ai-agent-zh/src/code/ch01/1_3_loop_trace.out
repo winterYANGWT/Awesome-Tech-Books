@@ -1,0 +1,9 @@
+录制文件：ch01/1_1_agent_loop.cassette.jsonl，共 4 次请求
+第 1 次请求：messages 2 条（起始）
+  新增：system、user
+第 2 次请求：messages 4 条（比上次多 2 条）
+  新增：assistant（带 tool_calls）、tool
+第 3 次请求：messages 6 条（比上次多 2 条）
+  新增：assistant（带 tool_calls）、tool
+第 4 次请求：messages 8 条（比上次多 2 条）
+  新增：assistant（带 tool_calls）、tool

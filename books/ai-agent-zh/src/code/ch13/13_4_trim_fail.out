@@ -1,0 +1,2 @@
+原始 12 条，保留最近 6 条：['tool', 'assistant', 'user', 'assistant', 'tool', 'assistant']
+[退出码 1] lib.budget.ToolPairError: tool 消息的 tool_call_id=call_a1659 前面没有对应的 tool_calls

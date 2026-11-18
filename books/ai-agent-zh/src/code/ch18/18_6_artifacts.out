@@ -1,0 +1,16 @@
+写出 findings/sql.json  status=ok  findings=6
+写出 findings/policy.json  status=ok  findings=3
+写出 findings/reviews.json  status=failed  gaps=1
+
+主 agent 读 3 个文件：ok 2（policy, sql），failed 1（reviews）
+
+报告（只用读得到的文件）：
+- Q3 退货率 18.3%（38/208），Q4 8.2%（8/98）[数据：returns / orders，按 orders.created 分季度]
+- 青川出版社的 B07、B12、B19 贡献 20 笔缺页/装订 [returns JOIN books，publisher='青川出版社']
+- 退货期限 2026-07-01 起 7→15 天；2026-08-01 起两广海南改迅达 [政策：returns.md / 退货期限、修订记录；shipping.md / 快递公司]
+- 评论线失败，B07、B19、B12 的评论都缺；B07/B12/B19 的逐书批次拆分也还缺 [数据：returns / books]
+gap：评论线失败：评论服务 20 秒没有返回；B07、B19、B12 的评论都缺，B12 的样本缺口也要在恢复后补
+gap：Q4 只到 2026-11-16，12 月的数据还没有
+gap：查询 3 没有按单本书拆分，B07/B12/B19 各自的缺页/装订笔数还缺
+
+文件都在 findings/ 下；失败的那份也有 status 和 gaps，主 agent 不需要重跑

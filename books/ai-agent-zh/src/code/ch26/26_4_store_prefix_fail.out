@@ -1,0 +1,2 @@
+search(('profile',)) 返回的顾客: C082, C083
+[退出码 1] AssertionError: 只应看到 C082，实际看到了 C082, C083

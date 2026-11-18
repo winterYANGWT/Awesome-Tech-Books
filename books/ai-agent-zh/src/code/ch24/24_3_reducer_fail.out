@@ -1,0 +1,2 @@
+两个分支都写 log，但 State 里的 log 没有 reducer：
+[退出码 1] InvalidUpdateError: At key 'log': Can receive only one value per step. Use an Annotated key to handle multiple values.

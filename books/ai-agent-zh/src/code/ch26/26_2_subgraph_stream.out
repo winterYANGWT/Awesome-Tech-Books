@@ -1,0 +1,23 @@
+subgraphs=True（每项是 (namespace, chunk)）
+  policy_check lookup
+  policy_check check
+  (父图)         policy_check
+  privacy_check lookup
+  privacy_check check
+  (父图)         privacy_check
+subgraphs=False（只剩父图节点）
+  (父图)         policy_check
+  (父图)         privacy_check
+检查点（同一 thread 的两层 namespace）
+  (父图)         step=-1
+  (父图)         step=0
+  (父图)         step=1
+  (父图)         step=2
+  policy_check step=-1
+  policy_check step=0
+  policy_check step=1
+  policy_check step=2
+  privacy_check step=-1
+  privacy_check step=0
+  privacy_check step=1
+  privacy_check step=2

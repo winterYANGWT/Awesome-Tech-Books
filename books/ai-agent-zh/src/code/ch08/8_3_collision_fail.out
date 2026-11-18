@@ -1,0 +1,3 @@
+放进 2 个工具，工具箱里有 1 个：['search']
+前一个还在吗：False
+[退出码 1] AssertionError: 同名工具 search 被覆盖：期望 2 个，实际 1 个

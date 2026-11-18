@@ -1,0 +1,10 @@
+{"ticket_id": "T01", "check": {"ok": true, "kind": "通过", "reason": "终态和关键词都通过"}}
+{"ticket_id": "T06", "check": {"ok": true, "kind": "通过", "reason": "终态和关键词都通过"}}
+{"ticket_id": "T12", "check": {"ok": true, "kind": "通过", "reason": "终态和关键词都通过"}}
+{"ticket_id": "T13", "check": {"ok": true, "kind": "通过", "reason": "终态和关键词都通过"}}
+{"ticket_id": "T14", "check": {"ok": true, "kind": "通过", "reason": "终态和关键词都通过"}}
+{"ticket_id": "T15", "check": {"ok": false, "kind": "地址不对", "reason": "新地址里没有“幸福路 8 号”"}}
+{"ticket_id": "T17", "check": {"ok": true, "kind": "通过", "reason": "终态和关键词都通过"}}
+{"ticket_id": "T18", "check": {"ok": false, "kind": "关键词缺", "reason": "没提到 已发货"}}
+{"ticket_id": "T24", "check": {"ok": false, "kind": "关键词缺", "reason": "没提到 迅达快递"}}
+{"ticket_id": "T27", "check": {"ok": true, "kind": "通过", "reason": "终态和关键词都通过"}}

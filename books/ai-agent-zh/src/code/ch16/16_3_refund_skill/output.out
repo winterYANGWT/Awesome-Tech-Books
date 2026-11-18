@@ -1,0 +1,6 @@
+T06 脚本 amount=82.00 needs_approval=False → issue_refund → 已退款
+T09 脚本 amount=50.00 needs_approval=False → issue_refund → 已退款
+T13 脚本 amount=680.00 needs_approval=True → escalate_to_supervisor → 已提交主管
+T14 未退款：教辅拆封，非质量问题不退款
+
+脚本调用 4 次；退款 2 笔，提交主管 1 笔，拒绝 1 笔

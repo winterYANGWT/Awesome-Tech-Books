@@ -1,0 +1,10 @@
+span=model turn=1 ms=1477 tokens=1241+87 cache_hit=1024 finish=tool_calls tools=get_order,search_policies
+span=tool  turn=1 get_order ms=0 bytes=422
+span=tool  turn=1 search_policies ms=0 bytes=917
+span=model turn=2 ms=1640 tokens=1772+202 cache_hit=1280 finish=tool_calls tools=issue_refund
+span=tool  turn=2 issue_refund ms=0 bytes=84
+span=model turn=3 ms=1780 tokens=2021+119 cache_hit=1792 finish=stop tools=-
+span=answer turn=3 chars=179 stop=answer
+合计 7 条 span：model 3 / tool 3 / answer 1
+total_ms=4897 prompt=5034 completion=408 cache_hit=4096
+trace: ch23/trace.jsonl  stop=answer

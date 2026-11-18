@@ -1,0 +1,5 @@
+第 1 轮 → get_order(order_id="A1659")  ← {"order_id": "A1659", "customer_id": "C…
+第 2 轮 → run_python(code="print(76 + 6)")  ← 82
+
+最终回答：应退金额：82 元
+计算式：76（书价）+ 6（运费）= 82 元

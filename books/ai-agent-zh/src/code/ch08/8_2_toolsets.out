@@ -1,0 +1,15 @@
+T01 坏 | 首轮 list_order_items×4 | 轮数 7.2 | 输入 78024 | 完成 2/4
+T01 好 | 首轮 get_order×4 | 轮数 3.2 | 输入 5017 | 完成 4/4
+T06 坏 | 首轮 list_order_items×2, get_order_item×2 | 轮数 8.0 | 输入 60574 | 完成 4/4
+T06 好 | 首轮 get_order×4 | 轮数 3.0 | 输入 4998 | 完成 4/4
+T09 坏 | 首轮 list_order_items×4 | 轮数 8.0 | 输入 65406 | 完成 0/4
+T09 好 | 首轮 get_order×4 | 轮数 4.8 | 输入 11447 | 完成 4/4
+T15 坏 | 首轮 list_all_orders×4 | 轮数 5.0 | 输入 27526 | 完成 4/4
+T15 好 | 首轮 get_order×4 | 轮数 3.8 | 输入 5723 | 完成 3/4
+T22 坏 | 首轮 list_policies×4 | 轮数 3.0 | 输入 5117 | 完成 4/4
+T22 好 | 首轮 search_policies×4 | 轮数 2.0 | 输入 2815 | 完成 4/4
+T27 坏 | 首轮 list_all_orders×1, list_orders_by_date×1, （没调工具）×1, list_policies×1 | 轮数 2.8 | 输入 6881 | 完成 4/4
+T27 好 | 首轮 search_policies×4 | 轮数 2.0 | 输入 2981 | 完成 4/4
+
+坏工具集：24 次运行，完成 18，首轮最常调 list_order_items 10、list_all_orders 5、list_policies 5；平均 5.7 轮、40588 输入 token
+好工具集：24 次运行，完成 23，首轮最常调 get_order 16、search_policies 8；平均 3.1 轮、5497 输入 token

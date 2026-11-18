@@ -1,0 +1,9 @@
+无幂等键：重试就是再退一次
+  第 1 次 issue_refund(A1656, 50.00) → refunded_total=50.0
+  第 2 次 issue_refund(A1656, 50.00) → refunded_total=100.0
+无幂等键：两次调用，A1656 累计退款 100.00 元
+有幂等键：s-ch23-01:call_refund_01
+  第 1 次：退款网关超时（响应没有回来）
+  第 2 次 → 命中幂等记录，refunded_total=50.0
+有幂等键：两次调用，A1656 累计退款 50.00 元
+actions 里的 refund 记录 1 条

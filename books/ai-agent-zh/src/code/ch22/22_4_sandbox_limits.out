@@ -1,0 +1,7 @@
+1 正常：ok：exit=0 stdout=82
+2 死循环：timeout：超过 0.5s，子进程已杀掉
+3 读 ../secret：denied：代码里出现 ..，可能是想读工作目录以外的文件
+4 输出 10KB：truncated：200/10000 字符
+工作目录里的文件：[]
+去掉 .. 检查后：GITHUB_TOKEN=tok_demo
+secret.txt 在 cwd 外：True

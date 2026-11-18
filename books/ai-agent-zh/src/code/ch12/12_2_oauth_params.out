@@ -1,0 +1,54 @@
+[1] 未带 token 的请求，server 回 401
+WWW-Authenticate: Bearer resource_metadata="https://books.example/.well-known/oauth-protected-resource/mcp", scope="orders:read refund:write"
+[2] Protected Resource Metadata（RFC 9728）
+{
+ "resource": "https://books.example/mcp",
+ "authorization_servers": [
+  "https://auth.example"
+ ],
+ "scopes_supported": [
+  "orders:read",
+  "refund:write"
+ ]
+}
+[3] Authorization Server Metadata（RFC 8414）
+{
+ "issuer": "https://auth.example",
+ "authorization_endpoint": "https://auth.example/authorize",
+ "token_endpoint": "https://auth.example/token",
+ "code_challenge_methods_supported": [
+  "S256"
+ ],
+ "client_id_metadata_document_supported": true,
+ "authorization_response_iss_parameter_supported": true
+}
+[4] 选择 client_id：有预注册先用，否则 CIMD，最后 DCR
+client_id: https://client.example/oauth/client.json
+[5] 授权 URL: https://auth.example/authorize
+    response_type = code
+    client_id = https://client.example/oauth/client.json
+    redirect_uri = http://127.0.0.1:8765/callback
+    scope = orders:read refund:write
+    state = st-7f3a9c
+    code_challenge = E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+    code_challenge_method = S256
+    resource = https://books.example/mcp
+[6] 回调（RFC 9207）: code=ac-4f2c8e&iss=https%3A%2F%2Fauth.example&state=st-7f3a9c
+[7] 校验回调
+  iss       OK
+  state     OK
+[8] token 请求: {
+ "grant_type": "authorization_code",
+ "code": "ac-4f2c8e",
+ "redirect_uri": "http://127.0.0.1:8765/callback",
+ "client_id": "https://client.example/oauth/client.json",
+ "code_verifier": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+ "resource": "https://books.example/mcp"
+}
+[9] token 响应: aud = https://books.example/mcp
+[10] 校验 token
+  PKCE      OK
+  resource  OK
+  aud       OK
+  scope     OK
+全部通过: True

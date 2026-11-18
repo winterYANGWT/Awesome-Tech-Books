@@ -1,0 +1,4 @@
+扫描 2 个目录
+提示： YAML 有未加引号的冒号（mapping values are not allowed here），已按字符串回退
+提示： 跳过 missing-description：description 缺失
+可用 Skill：1 个（colon-skill）

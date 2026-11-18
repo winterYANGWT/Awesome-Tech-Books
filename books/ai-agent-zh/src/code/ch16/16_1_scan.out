@@ -1,0 +1,24 @@
+Skill 目录（2 个）
+- monthly-report: 生成月度运营报告，统计订单数、实付总额、退货率、退货原因和快递破损；用户提到月报、运营、退货率、月度总结、订单数、上个月卖了多少时使用；用户问“这个月卖了多少”时也使用。
+  91 token
+- refund-handling: 处理订单退款、计算退货金额、判断是否需要主管批准；用户提到退款、退货、退钱、缺页、破损、金额、500 元、拆封或部分退货时使用；用户说“退一下”“能退吗”时也使用。
+  86 token
+目录合计 177 token
+
+monthly-report  正文 734 token，参考文件 3 个
+  SKILL.md（激活时读，44 行）
+  assets/report_template.md（按需）
+  references/metrics.md（按需）
+  scripts/report.py（按需）
+
+refund-handling  正文 898 token，参考文件 3 个
+  SKILL.md（激活时读，50 行）
+  assets/refund_reply.md（按需）
+  references/returns.md（按需）
+  scripts/refund.py（按需）
+
+目录（catalog）里只有 name 和 description：
+<available_skills>
+- monthly-report: 生成月度运营报告，统计订单数、实付总额、退货率、退货原因和快递破损；用户提到月报、运营、退货率、月度总结、订单数、上个月卖了多少时使用；用户问“这个月卖了多少”时也使用。
+- refund-handling: 处理订单退款、计算退货金额、判断是否需要主管批准；用户提到退款、退货、退钱、缺页、破损、金额、500 元、拆封或部分退货时使用；用户说“退一下”“能退吗”时也使用。
+</available_skills>

@@ -1,0 +1,4 @@
+进程 1：中断 {'order_id': 'A1680', 'amount': 680.0, 'reason': '三卷装订脱落'}，next=('approve',)，然后退出
+进程 2：读到 next=('approve',)，amount=680.0
+进程 2：approved=True，{'order_id': 'A1680', 'amount': 680.0, 'refunded_total': 680.0, 'status': '已退款'}
+state.db 在两次进程之间保留：True

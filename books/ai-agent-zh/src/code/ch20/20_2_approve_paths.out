@@ -1,0 +1,17 @@
+
+R-1001 A1680 680.00 状态=approved
+  approve → True
+  工具 → {"order_id": "A1680", "amount": 680.0, "refunded_total": 680.0, "status": "已退款", "approval_id": "R-1001", "approved_by": "主管"}
+
+R-1002 A1649 64.00 状态=rejected
+  approve → '批准单 R-1002 状态是 rejected：教辅拆封后不退，除非有质量问题；先确认是否缺页或装订脱落'
+  未执行 → 错误：这个操作没有被批准（批准单 R-1002 状态是 rejected：教辅拆封后不退，除非有质量问题；先确认是否缺页或装订脱落）
+
+R-1003 A1661 297.00 状态=expired
+  approve → '批准单 R-1003 状态是 expired：审批超时，已过 expires_at'
+  未执行 → 错误：这个操作没有被批准（批准单 R-1003 状态是 expired：审批超时，已过 expires_at）
+
+绕过 gate 直接调用 R-1002 → 错误：批准单 R-1002 的状态是 rejected，不能执行（教辅拆封后不退，除非有质量问题；先确认是否缺页或装订脱落）
+
+actions：1 条
+  refund A1680 680.00 approval_id=R-1001 approved_by=主管

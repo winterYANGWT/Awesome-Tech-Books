@@ -1,0 +1,7 @@
+三个检查（并行发出，按输入顺序打印）
+政策  ok  通过=True  issues=无
+语气  error  失败：语气检查器崩溃：评分表 vocab.json 读不出来
+隐私  ok  通过=True  issues=无
+汇总：失败（1 项未完成：语气）→ 需人工/重试一次
+已保留：政策、隐私 的结论；没有丢掉另外两项
+token：prompt 727 + completion 82 = 809；用时 1.1 秒

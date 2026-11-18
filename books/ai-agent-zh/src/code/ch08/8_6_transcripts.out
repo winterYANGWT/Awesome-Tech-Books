@@ -1,0 +1,10 @@
+
+坏工具集：24 次运行，136 次模型调用
+  工具调用：list_all_orders 37、list_policies 23、get_policy 23、list_orders_by_date 21、list_shipments 20、list_order_items 16
+  “错误：” 2 条；T06 2
+  输入 token（每次调用累计）：第 1 轮 1537，第 2 轮 2704，第 3 轮 4323，第 4 轮 7792
+
+好工具集：24 次运行，75 次模型调用
+  工具调用：search_policies 31、get_order 17、issue_refund 8、update_address 4、get_customer_context 3
+  “错误：” 0 条
+  输入 token（每次调用累计）：第 1 轮 1235，第 2 轮 1632，第 3 轮 2000，第 4 轮 2562

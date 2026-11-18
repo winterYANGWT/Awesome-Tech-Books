@@ -1,0 +1,50 @@
+--- get_order ---
+{
+  "type": "function",
+  "function": {
+    "name": "get_order",
+    "description": "查一张订单：书目、实付金额、已退金额、状态、收货地址和物流（快递公司、签收日期、是否破损）。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "订单号，例如 A1234"
+        }
+      },
+      "required": [
+        "order_id"
+      ]
+    }
+  }
+}
+--- issue_refund ---
+{
+  "type": "function",
+  "function": {
+    "name": "issue_refund",
+    "description": "给订单退款，钱原路退回。单笔超过 500 元不能直接退，要用 escalate_to_supervisor。\n退之前先用 get_order 核对状态和金额，并按退货政策计算应退金额。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "订单号"
+        },
+        "amount": {
+          "type": "number",
+          "description": "退款金额（元），不能超过订单剩余可退金额"
+        },
+        "reason": {
+          "type": "string",
+          "description": "退款原因，例如“缺页”“不想要了”"
+        }
+      },
+      "required": [
+        "order_id",
+        "amount",
+        "reason"
+      ]
+    }
+  }
+}

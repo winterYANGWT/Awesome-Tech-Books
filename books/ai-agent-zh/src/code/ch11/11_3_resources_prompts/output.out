@@ -1,0 +1,9 @@
+resources/list: 0
+templates: 1
+  uriTemplate: shop://policies/{name} mimeType: text/markdown
+read: shop://policies/returns text/markdown
+ttlMs: 0 cacheScope: private
+text: # 退货和退款 | > 2026-07-01 起施行。此前的版本见文末“修订记录”。
+prompt: refund_guidance [('order_id', True), ('amount', True)]
+prompt: shipping_reply [('order_id', True), ('courier', True)]
+messages: [('user', '订单 A1659 应退 82.00 元。先读 shop://policies/returns，确认签收日期和商品状态，再告诉顾客退款金额和下一步。')]

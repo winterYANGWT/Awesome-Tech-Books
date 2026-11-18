@@ -1,0 +1,9 @@
+endpoint: /mcp
+tools: ping, get_order
+result: pong: x
+headers:
+  tools/list: MCP-Protocol-Version=2026-07-28 Mcp-Method=tools/list Mcp-Name=-
+  Accept: application/json, text/event-stream
+  tools/call: MCP-Protocol-Version=2026-07-28 Mcp-Method=tools/call Mcp-Name=ping
+  Accept: application/json, text/event-stream
+server stopped

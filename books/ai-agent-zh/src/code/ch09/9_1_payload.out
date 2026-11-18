@@ -1,0 +1,7 @@
+[原始] 顶层字段 12，商品 1 条，物流事件 2 条  字符 449  约 150 token
+{"id": "A1670", "customer_id": "C067", "created": "2026-11-13", "discount": 1.0, "shipping_fee": 6.0, "total": 85.0, "address": "广东深圳市建设路214号", "courier": "迅达快递", "status": "已发货", "refunded": 0.0, "order_items": [{"order_id": "A1670", "book_id": "B08", "qty": 1, "price": 79.0}], "shipment": {"order_id": "A1670", "courier": "迅达快递", "shipped": "2026-11-14", "delivered": null, "damaged": 0, "events": "[\"2026-11-14 迅达快递已揽收\", \"2026-11-15 运输中\"]"}}
+[get_order] 顶层字段 10  字符 369  约 125 token
+{"order_id": "A1670", "customer_id": "C067", "created": "2026-11-13", "status": "已发货", "items": [{"title": "图解计算机网络", "category": "科技", "qty": 1, "paid": 79.0}], "shipping_fee": 6.0, "total_paid": 85.0, "refunded": 0.0, "address": "广东深圳市建设路214号", "shipment": {"courier": "迅达快递", "shipped": "2026-11-14", "delivered": null, "damaged": false, "latest": "2026-11-15 运输中"}}
+[简洁] 顶层字段 6  字符 162  约 61 token
+{"order_id": "A1670", "status": "已发货", "courier": "迅达快递", "delivered": "未签收", "latest": "2026-11-15 运输中", "items": [{"title": "图解计算机网络", "qty": 1, "paid": 79.0}]}
+说明：同一张订单，原始行带 address、内部列和 2 条事件；简洁版只留最新一条物流。

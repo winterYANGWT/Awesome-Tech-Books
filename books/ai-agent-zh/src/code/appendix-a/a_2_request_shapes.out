@@ -1,0 +1,52 @@
+同一个任务：查订单 A1659；三条请求都带 get_order，工具结果都一样。
+
+OpenAI Chat Completions  POST /chat/completions
+{
+  "model": "deepseek-flash",
+  "messages": [
+    {"role": "system", "content": "你是书店客服，先查订单。"},
+    {"role": "user", "content": "查订单 A1659"},
+    {"role": "assistant", "content": null, "tool_calls": [{"id": "call_1", "type": "function", "function": {"name": "get_order", "arguments": "{\"order_id\": \"A1659\"}"}}]},
+    {"role": "tool", "tool_call_id": "call_1", "content": "{\"id\": \"A1659\", \"status\": \"已签收\"}"}
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {"name": "get_order", "description": "查订单", "parameters": {"type": "object", "properties": {"order_id": {"type": "string"}}, "required": ["order_id"]}}
+    }
+  ]
+}
+
+OpenAI Responses  POST /responses
+{
+  "model": "deepseek-flash",
+  "max_output_tokens": 512,
+  "instructions": "你是书店客服，先查订单。",
+  "input": [
+    {"type": "message", "role": "user", "content": "查订单 A1659"},
+    {"type": "function_call", "call_id": "call_1", "name": "get_order", "arguments": "{\"order_id\": \"A1659\"}"},
+    {"type": "function_call_output", "call_id": "call_1", "output": "{\"id\": \"A1659\", \"status\": \"已签收\"}"}
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "name": "get_order",
+      "description": "查订单",
+      "parameters": {"type": "object", "properties": {"order_id": {"type": "string"}}, "required": ["order_id"]},
+      "strict": true
+    }
+  ]
+}
+
+Anthropic Messages  POST /v1/messages
+{
+  "model": "deepseek-flash",
+  "max_tokens": 512,
+  "system": "你是书店客服，先查订单。",
+  "messages": [
+    {"role": "user", "content": "查订单 A1659"},
+    {"role": "assistant", "content": [{"type": "tool_use", "id": "toolu_1", "name": "get_order", "input": {"order_id": "A1659"}}]},
+    {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_1", "content": "{\"id\": \"A1659\", \"status\": \"已签收\"}"}]}
+  ],
+  "tools": [{"name": "get_order", "description": "查订单", "input_schema": {"type": "object", "properties": {"order_id": {"type": "string"}}, "required": ["order_id"]}}]
+}

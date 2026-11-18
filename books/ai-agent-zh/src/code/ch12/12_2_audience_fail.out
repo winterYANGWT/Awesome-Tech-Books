@@ -1,0 +1,4 @@
+收到 token: {'aud': 'https://other.example/mcp', 'exp': 2000, 'scope': 'orders:read'}
+audience 不匹配：token.aud=https://other.example/mcp，本 server=https://books.example/mcp
+401 Unauthorized
+[退出码 1] audience 不匹配，401

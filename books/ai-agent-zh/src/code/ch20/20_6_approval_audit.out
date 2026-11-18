@@ -1,0 +1,9 @@
+重复=0（3 笔退款，3 个 approval_id）
+超时=1（R-3003）
+越级=1（R-3002）
+
+审计表：
+request_id  order  amount  approver  decision  executed_at          问题
+R-3001      A1661   297.00 主管       approved 2026-11-17T09:00:00+08:00 正常
+R-3002      A1680   680.00 客服       approved 2026-11-17T09:00:00+08:00 越级批准
+R-3003      A1649    64.00 主管       expired  2026-11-17T14:00:00+08:00 超时执行

@@ -1,0 +1,3 @@
+第 1 次 invoke：__interrupt__ = {'order_id': 'A1680', 'amount': 680.0}
+第 2 次 invoke：__interrupt__ = {'order_id': 'A1680', 'amount': 680.0}
+[退出码 1] 第 3 次 invoke Command：Cannot use Command(resume=...) without checkpointer

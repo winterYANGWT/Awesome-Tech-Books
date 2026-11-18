@@ -1,0 +1,10 @@
+protocol_version: 2026-07-28
+server_info: {"name": "shop", "version": "0.1"}
+server_capabilities: {"prompts": {"listChanged": true}, "resources": {"listChanged": true, "subscribe": true}, "tools": {"listChanged": true}}
+tools: 9 templates: 1 prompts: 2
+host config:
+  command: $PYTHON
+  args: ['$CODE/ch11/11_2_shop_server/server.py']
+  env: {'PYTHONPATH': '$CODE'}
+  cwd: $CODE
+  has_secret: False

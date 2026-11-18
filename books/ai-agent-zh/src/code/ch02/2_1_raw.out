@@ -1,0 +1,8 @@
+请求顶层键：max_tokens, messages, model, temperature
+消息 2 条：
+  role=system content=34 字
+  role=user content=58 字
+响应 choices[0] 键：finish_reason, index, logprobs, message
+响应 message 键：content, reasoning_content, role
+响应 usage 键：completion_tokens, completion_tokens_details, prompt_cache_hit_tokens, prompt_cache_miss_tokens, prompt_tokens, prompt_tokens_details, total_tokens
+有没有 tools 字段：没有

@@ -1,0 +1,322 @@
+[
+ {
+  "id": "B01",
+  "title": "雾港往事",
+  "author": "林知秋",
+  "publisher": "星河文艺出版社",
+  "category": "小说",
+  "price": 49.0
+ },
+ {
+  "id": "B02",
+  "title": "长夜将尽",
+  "author": "周未",
+  "publisher": "星河文艺出版社",
+  "category": "小说",
+  "price": 56.0
+ },
+ {
+  "id": "B03",
+  "title": "火车上的猫",
+  "author": "顾安",
+  "publisher": "星河文艺出版社",
+  "category": "童书",
+  "price": 32.0
+ },
+ {
+  "id": "B04",
+  "title": "给孩子的天文课",
+  "author": "宋星河",
+  "publisher": "东篱科技出版社",
+  "category": "童书",
+  "price": 45.0
+ },
+ {
+  "id": "B05",
+  "title": "一碗面的历史",
+  "author": "许慢",
+  "publisher": "北岭出版社",
+  "category": "生活",
+  "price": 39.0
+ },
+ {
+  "id": "B06",
+  "title": "城市漫步指南",
+  "author": "白露",
+  "publisher": "北岭出版社",
+  "category": "生活",
+  "price": 42.0
+ },
+ {
+  "id": "B07",
+  "title": "Python 数据处理实战",
+  "author": "陈澄",
+  "publisher": "青川出版社",
+  "category": "科技",
+  "price": 89.0
+ },
+ {
+  "id": "B08",
+  "title": "图解计算机网络",
+  "author": "韩拓",
+  "publisher": "东篱科技出版社",
+  "category": "科技",
+  "price": 79.0
+ },
+ {
+  "id": "B09",
+  "title": "从零开始学统计",
+  "author": "马立",
+  "publisher": "东篱科技出版社",
+  "category": "科技",
+  "price": 68.0
+ },
+ {
+  "id": "B10",
+  "title": "机器学习的数学",
+  "author": "何深",
+  "publisher": "东篱科技出版社",
+  "category": "科技",
+  "price": 99.0
+ },
+ {
+  "id": "B11",
+  "title": "宋朝的日常",
+  "author": "欧阳谷",
+  "publisher": "北岭出版社",
+  "category": "历史",
+  "price": 58.0
+ },
+ {
+  "id": "B12",
+  "title": "大运河两千年",
+  "author": "沈舟",
+  "publisher": "青川出版社",
+  "category": "历史",
+  "price": 76.0
+ },
+ {
+  "id": "B13",
+  "title": "丝路上的商人",
+  "author": "卢远",
+  "publisher": "北岭出版社",
+  "category": "历史",
+  "price": 64.0
+ },
+ {
+  "id": "B14",
+  "title": "初中数学必刷题（人教版）",
+  "author": "编写组",
+  "publisher": "南湖教育出版社",
+  "category": "教辅",
+  "price": 36.0
+ },
+ {
+  "id": "B15",
+  "title": "初中数学必刷题（北师大版）",
+  "author": "编写组",
+  "publisher": "南湖教育出版社",
+  "category": "教辅",
+  "price": 36.0
+ },
+ {
+  "id": "B16",
+  "title": "高中物理精讲（新教材）",
+  "author": "编写组",
+  "publisher": "南湖教育出版社",
+  "category": "教辅",
+  "price": 48.0
+ },
+ {
+  "id": "B17",
+  "title": "高中物理精讲（旧教材）",
+  "author": "编写组",
+  "publisher": "南湖教育出版社",
+  "category": "教辅",
+  "price": 45.0
+ },
+ {
+  "id": "B18",
+  "title": "小学语文阅读训练",
+  "author": "编写组",
+  "publisher": "南湖教育出版社",
+  "category": "教辅",
+  "price": 29.0
+ },
+ {
+  "id": "B19",
+  "title": "山中岁月",
+  "author": "林知秋",
+  "publisher": "青川出版社",
+  "category": "小说",
+  "price": 52.0
+ },
+ {
+  "id": "B20",
+  "title": "海边的邮局",
+  "author": "周未",
+  "publisher": "星河文艺出版社",
+  "category": "小说",
+  "price": 46.0
+ },
+ {
+  "id": "B21",
+  "title": "一个人的厨房",
+  "author": "许慢",
+  "publisher": "北岭出版社",
+  "category": "生活",
+  "price": 38.0
+ },
+ {
+  "id": "B22",
+  "title": "家庭收纳术",
+  "author": "白露",
+  "publisher": "北岭出版社",
+  "category": "生活",
+  "price": 35.0
+ },
+ {
+  "id": "B23",
+  "title": "Rust 程序设计入门",
+  "author": "陈澄",
+  "publisher": "东篱科技出版社",
+  "category": "科技",
+  "price": 95.0
+ },
+ {
+  "id": "B24",
+  "title": "数据库系统原理",
+  "author": "韩拓",
+  "publisher": "东篱科技出版社",
+  "category": "科技",
+  "price": 88.0
+ },
+ {
+  "id": "B25",
+  "title": "明清海上贸易",
+  "author": "沈舟",
+  "publisher": "青川出版社",
+  "category": "历史",
+  "price": 72.0
+ },
+ {
+  "id": "B26",
+  "title": "唐诗里的长安",
+  "author": "欧阳谷",
+  "publisher": "北岭出版社",
+  "category": "历史",
+  "price": 55.0
+ },
+ {
+  "id": "B27",
+  "title": "小熊去旅行",
+  "author": "顾安",
+  "publisher": "星河文艺出版社",
+  "category": "童书",
+  "price": 28.0
+ },
+ {
+  "id": "B28",
+  "title": "恐龙百科",
+  "author": "宋星河",
+  "publisher": "东篱科技出版社",
+  "category": "童书",
+  "price": 66.0
+ },
+ {
+  "id": "B29",
+  "title": "夏天的风",
+  "author": "林知秋",
+  "publisher": "星河文艺出版社",
+  "category": "小说",
+  "price": 44.0
+ },
+ {
+  "id": "B30",
+  "title": "北方的河",
+  "author": "周未",
+  "publisher": "星河文艺出版社",
+  "category": "小说",
+  "price": 50.0
+ },
+ {
+  "id": "B31",
+  "title": "咖啡的故事",
+  "author": "许慢",
+  "publisher": "北岭出版社",
+  "category": "生活",
+  "price": 48.0
+ },
+ {
+  "id": "B32",
+  "title": "给新手的摄影课",
+  "author": "白露",
+  "publisher": "东篱科技出版社",
+  "category": "生活",
+  "price": 69.0
+ },
+ {
+  "id": "B33",
+  "title": "算法图鉴",
+  "author": "何深",
+  "publisher": "东篱科技出版社",
+  "category": "科技",
+  "price": 85.0
+ },
+ {
+  "id": "B34",
+  "title": "Linux 命令行手册",
+  "author": "韩拓",
+  "publisher": "东篱科技出版社",
+  "category": "科技",
+  "price": 59.0
+ },
+ {
+  "id": "B35",
+  "title": "古代的天文学家",
+  "author": "宋星河",
+  "publisher": "青川出版社",
+  "category": "历史",
+  "price": 62.0
+ },
+ {
+  "id": "B36",
+  "title": "中国茶简史",
+  "author": "卢远",
+  "publisher": "北岭出版社",
+  "category": "历史",
+  "price": 57.0
+ },
+ {
+  "id": "B37",
+  "title": "英语单词速记（中考）",
+  "author": "编写组",
+  "publisher": "南湖教育出版社",
+  "category": "教辅",
+  "price": 32.0
+ },
+ {
+  "id": "B38",
+  "title": "英语单词速记（高考）",
+  "author": "编写组",
+  "publisher": "南湖教育出版社",
+  "category": "教辅",
+  "price": 39.0
+ },
+ {
+  "id": "B39",
+  "title": "精装典藏版：世界文学名著十二卷",
+  "author": "多人",
+  "publisher": "星河文艺出版社",
+  "category": "小说",
+  "price": 680.0
+ },
+ {
+  "id": "B40",
+  "title": "城市地图册（2026）",
+  "author": "编写组",
+  "publisher": "北岭出版社",
+  "category": "生活",
+  "price": 120.0
+ }
+]

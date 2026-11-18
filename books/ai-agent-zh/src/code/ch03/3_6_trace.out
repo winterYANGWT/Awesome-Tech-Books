@@ -1,0 +1,15 @@
+请求 1（2 条）：system → user
+  响应 id=call_00_SKThbRiWKfu5K9YwasLf8606  name=get_order
+  响应 id=call_01_AnRuMxA1nRkH4lIONLoP4216  name=search_policies
+请求 2（5 条）：system → user → assistant → tool → tool
+  assistant 带回 reasoning_content：有（38 字）
+  tool_call_id=call_00_SKThbRiWKfu5K9YwasLf8606  和上一条 assistant 的 id 相等：True
+  tool_call_id=call_01_AnRuMxA1nRkH4lIONLoP4216  和上一条 assistant 的 id 相等：True
+  响应 id=call_00_h9SX0wxvHHtZq7u6bc0L1214  name=issue_refund
+请求 3（7 条）：system → user → assistant → tool → tool → assistant → tool
+  assistant 带回 reasoning_content：有（38 字）
+  tool_call_id=call_00_SKThbRiWKfu5K9YwasLf8606  和上一条 assistant 的 id 相等：True
+  tool_call_id=call_01_AnRuMxA1nRkH4lIONLoP4216  和上一条 assistant 的 id 相等：True
+  assistant 带回 reasoning_content：有（205 字）
+  tool_call_id=call_00_h9SX0wxvHHtZq7u6bc0L1214  和上一条 assistant 的 id 相等：True
+每一对 tool_call_id 和 id 都相等

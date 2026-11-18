@@ -1,0 +1,6 @@
+sandbox env keys=[]
+token in sandbox=False
+direct service without token=401
+proxy status=200 body={"ok": true, "order_id": "A1659", "tool": "get_order", "total_paid": 82.0}
+父进程检查：token 没有出现在沙箱输出里=True
+vault 在沙箱外：token 长度 37（不打印内容）

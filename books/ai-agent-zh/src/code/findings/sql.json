@@ -1,0 +1,38 @@
+{
+ "status": "ok",
+ "gaps": [
+  "Q4 只到 2026-11-16，12 月的数据还没有"
+ ],
+ "findings": [
+  {
+   "claim": "2026-Q3 退货率 18.3%（38/208），Q4 回落到 8.2%（8/98）。",
+   "evidence": "Q1 5.6%（10/178）、Q2 5.4%（10/185）、Q3 18.3%（38/208）、Q4 8.2%（8/98），已排除取消订单。",
+   "source": "returns / orders，按 orders.created 分季度"
+  },
+  {
+   "claim": "Q3 缺页 15 笔、装订脱落 5 笔，合计 20 笔。",
+   "evidence": "Q3 的 returns.reason 计数：缺页 15、装订脱落 5、运输破损 9、买错版本 7。",
+   "source": "returns.reason"
+  },
+  {
+   "claim": "青川出版社 6 月那批 B07、B12、B19 贡献了这 20 笔缺页和装订脱落。",
+   "evidence": "Q3 这三本书的缺页+装订脱落 20 笔；青川出版社 Q3 退货共 22 笔。",
+   "source": "returns JOIN books，publisher='青川出版社'"
+  },
+  {
+   "claim": "迅达快递的破损率是 24.6%，顺路是 1.0%。",
+   "evidence": "迅达 16/65=24.6%，顺路 6/601=1.0%；运输破损退货 Q3 9 笔、Q4 8 笔。",
+   "source": "shipments.damaged JOIN orders.courier"
+  },
+  {
+   "claim": "7 月暑期促销带来 7 笔教辅买错版本。",
+   "evidence": "Q3 买错版本 7 笔，全部是教辅类；Q2 只有 2 笔买错了。",
+   "source": "returns.reason JOIN books.category"
+  },
+  {
+   "claim": "Q4 回落后仍有 8 笔运输破损，不能说快递问题已解决。",
+   "evidence": "Q4 运输破损 8 笔；Q4 退货率 8.2%（8/98），数据截止 2026-11-16。",
+   "source": "returns.reason / orders.created"
+  }
+ ]
+}

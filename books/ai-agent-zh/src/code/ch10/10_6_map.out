@@ -1,0 +1,45 @@
+工具（9 个，模型控制）
+  名字 / 参数 / annotations / 返回字段
+  find_customer(name?, phone_tail?)
+    readOnlyHint=True destructiveHint=False openWorldHint=False
+    返回 customer_id, name, city, level
+  get_customer_context(customer_id)
+    readOnlyHint=True destructiveHint=False openWorldHint=False
+    返回 customer_id, name, level, address, recent_orders
+  get_order(order_id)
+    readOnlyHint=True destructiveHint=False openWorldHint=False
+    返回 order_id, customer_id, created, status, items, shipping_fee, total_paid, refunded, address, shipment
+  search_books(query)
+    readOnlyHint=True destructiveHint=False openWorldHint=False
+    返回 book_id, title, author, category, price
+  search_policies(query)
+    readOnlyHint=True destructiveHint=False openWorldHint=False
+    返回 section, text
+  list_reviews(book_id)
+    readOnlyHint=True destructiveHint=False openWorldHint=False
+    返回 stars, text, date
+  issue_refund(order_id, amount, reason)
+    readOnlyHint=False destructiveHint=True openWorldHint=False
+    返回 order_id, amount, refunded_total, status
+  update_address(order_id, address)
+    readOnlyHint=False destructiveHint=True openWorldHint=False
+    返回 order_id, address
+  escalate_to_supervisor(order_id, note)
+    readOnlyHint=False destructiveHint=False openWorldHint=False
+    返回 ticket, status
+
+资源（应用控制）：一个模板，5 份文档
+  shop://policies/{name}  mimeType=text/markdown
+  shop://policies/invoice  (143 字符，约 116 token)
+  shop://policies/membership  (319 字符，约 180 token)
+  shop://policies/privacy  (137 字符，约 117 token)
+  shop://policies/returns  (544 字符，约 378 token)
+  shop://policies/shipping  (340 字符，约 245 token)
+
+提示（用户控制）：2 个，参数都是字符串
+  refund_guidance(order_id: str, amount: str)
+  shipping_reply(order_id: str, courier: str)
+
+9 个工具的 schema：3231 字符，粗估 1136 token（每轮都要发）
+5 份政策全文：1483 字符，粗估 1034 token（按需读一份）
+这份清单就是第 11 章 server 的输入：名字、参数、返回字段和 annotations 都写死。

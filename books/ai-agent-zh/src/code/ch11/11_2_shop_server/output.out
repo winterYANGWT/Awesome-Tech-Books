@@ -1,0 +1,13 @@
+tools: 9
+  find_customer: required=- annotations={"readOnlyHint": true, "openWorldHint": false}
+  get_customer_context: required=customer_id annotations={"readOnlyHint": true, "openWorldHint": false}
+  get_order: required=order_id annotations={"readOnlyHint": true, "openWorldHint": false}
+  search_books: required=query annotations={"readOnlyHint": true, "openWorldHint": false}
+  search_policies: required=query annotations={"readOnlyHint": true, "openWorldHint": false}
+  list_reviews: required=book_id annotations={"readOnlyHint": true, "openWorldHint": false}
+  issue_refund: required=order_id, amount, reason annotations={"destructiveHint": true, "openWorldHint": false}
+  update_address: required=order_id, address annotations={"destructiveHint": true, "openWorldHint": false}
+  escalate_to_supervisor: required=order_id, note annotations={"destructiveHint": false, "openWorldHint": false}
+get_order: A1670 迅达快递 已发货 is_error=False
+missing: is_error=True
+missing text: Error executing tool get_order: 订单 A9999 不存在，请核对订单号（形如 A1234）

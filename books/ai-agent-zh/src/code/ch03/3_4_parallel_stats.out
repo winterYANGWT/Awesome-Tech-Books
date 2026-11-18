@@ -1,0 +1,11 @@
+同时查：
+  第 1 次：第 1 轮 2 个调用（get_order、search_policies），共 2 轮
+  第 2 次：第 1 轮 2 个调用（get_order、search_policies），共 2 轮
+  第 3 次：第 1 轮 2 个调用（get_order、search_policies），共 2 轮
+一步一步查：
+  第 1 次：第 1 轮 1 个调用（get_order），共 3 轮
+  第 2 次：第 1 轮 2 个调用（get_order、search_policies），共 2 轮
+  第 3 次：第 1 轮 2 个调用（get_order、search_policies），共 2 轮
+统计（每组 3 次）：
+  同时查：第 1 轮并行 3/3 次，平均 2.0 个调用，共 6 轮
+  一步一步查：第 1 轮并行 2/3 次，平均 1.7 个调用，共 7 轮

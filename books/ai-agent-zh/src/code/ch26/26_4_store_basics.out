@@ -1,0 +1,8 @@
+get(('C082', 'profile'), 'invoice'):
+  ('C082', 'profile')/invoice = {"title": "天津远山文化"}
+search(('C082',)) → 两段都命中：
+  C082/memories    preference {"text": "喜欢历史类"}
+  C082/profile     invoice    {"title": "天津远山文化"}
+search(('C082', 'profile')) → 只命中完整 namespace：
+  C082/profile     invoice    {"title": "天津远山文化"}
+search(('C08',)) 0 条：C08 不等于 C082/C083 这一段

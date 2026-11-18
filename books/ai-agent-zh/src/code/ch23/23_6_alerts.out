@@ -1,0 +1,11 @@
+数据：内置样例，7 条 span
+p50=820ms  p95=24000ms（基线 5000ms，超过 2 倍告警）
+错误率 14.3%（1/7，阈值 5%）
+缓存命中率 21.9%（1,600/7,300，基线 70%，掉一半告警）
+每会话 token 7,690（tr-builtin-01，预算 8,000）
+ALERT p95：24000ms > 10000ms
+ALERT error_rate：14.3% > 5%
+ALERT cache_hit：21.9% < 35%
+OK tokens：7,690 <= 8,000
+按 trace_id 查：tr-builtin-01 → sp-06（issue_refund，error）
+最慢的一步：sp-05 deepseek-flash 24000ms

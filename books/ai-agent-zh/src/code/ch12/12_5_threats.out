@@ -1,0 +1,11 @@
+| 尝试 | 结果 | 理由 |
+|---|---|---|
+| ../../etc/passwd | 拒绝 | 包含 .. 路径段 |
+| /etc/passwd | 拒绝 | 绝对路径 |
+| B05\x00../../etc/passwd | 拒绝 | 含 NUL 字节 |
+| 未知工具 drop_all_orders | 拒绝 | 不在工具允许列表 |
+| 超大参数 70000 字节 | 拒绝 | 超过 64 KB 上限 |
+| Content-Type text/html | 拒绝 | 必须是 application/json |
+| aud 错误的 token | 拒绝 | aud 不是本 server |
+| 过期的 requestState | 拒绝 | 已过期 |
+共 8 项：拒绝 8 项，通过 0 项

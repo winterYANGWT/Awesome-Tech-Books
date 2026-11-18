@@ -1,0 +1,11 @@
+历史（新→旧）：
+  next=() step=3 amount=680.0 done='退款 680.0 已执行'
+  next=('finish',) step=2 amount=680.0 done='退款 680.0 待执行'
+  next=('draft',) step=1 amount=680.0 done=''
+  next=('calc',) step=0 amount=0.0 done=''
+  next=('__start__',) step=-1 amount=0.0 done=''
+选中 next=('draft',) amount=680.0
+重放：退款 680.0 已执行
+分叉成 500：退款 500.0 已执行
+两条分支的终态：['退款 500.0 已执行', '退款 680.0 已执行']
+节点执行次数：{'calc': 1, 'draft': 3, 'finish': 3}

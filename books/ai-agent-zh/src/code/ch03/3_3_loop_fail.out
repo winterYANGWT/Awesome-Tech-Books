@@ -1,0 +1,4 @@
+第 1 轮 → get_order({"order_id": "A1680"})  ← {"order_id": "A1680", "customer_id": "C043", "created": "202
+第 1 轮 → search_policies({"query": "图书破损 装订脱落 全额退款 退货政策"})  ← [{"section": "退货和退款 / 退款金额和权限", "text": "- 退款原路返回，1–3 个工作日到账
+stop=max_turns  answer=None  turns=1
+[退出码 1] 轮数用完，没有给顾客答案

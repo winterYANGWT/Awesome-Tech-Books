@@ -1,0 +1,5 @@
+agent 看到: {"env": {"PATH": "/usr/bin:/bin"}, "tool_result": {"tool": "refund", "result": {"order_id": "A1680", "status": "已退款"}}}
+代理看到: session = sess-7c1e  upstream = up-9a3f
+vault 看到: {"sess-7c1e": "up-9a3f"}
+代理调用结果: {"tool": "refund", "upstream": "已认证", "result": {"order_id": "A1680", "status": "已退款"}}
+检查: agent 栏没有 TOKEN，也没有上游 token

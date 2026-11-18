@@ -1,0 +1,7 @@
+原始中断 payload：680.0 元
+中断时的 state：amount=680.0 next=('approve',)
+人改后的 state：amount=600.0 next=('approve',)
+改的人和理由：主管，按主管意见改金额
+执行 600.0 元 → 部分退款
+actions：[('refund', 600.0)]
+历史里的 amount 序列（新→旧）：[600.0, 600.0, 600.0, 680.0, 0.0]

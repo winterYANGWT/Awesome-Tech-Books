@@ -1,0 +1,5 @@
+父图输出键: draft, issue, order, policy_name, policy_text, reason, verdict
+verdict: 符合
+reason: 质量问题退全款，应退 82.00 元（含运费）
+draft: T06 政策检查：符合。质量问题退全款，应退 82.00 元（含运费）
+policy_text: '' ← 子图里写过，父图仍是空串

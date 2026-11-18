@@ -1,0 +1,6 @@
+第 1 次：prompt_tokens=403 completion_tokens=19 total_tokens=422
+  prompt_cache_hit_tokens=0 prompt_cache_miss_tokens=403 prompt_tokens_details.cached_tokens=0
+  回答：签收后 15 天内可以申请退货（以物流记录的签收日期为准）。
+第 2 次：prompt_tokens=411 completion_tokens=27 total_tokens=438
+  prompt_cache_hit_tokens=256 prompt_cache_miss_tokens=155 prompt_tokens_details.cached_tokens=256
+  回答：质量问题退全款（书款加运费），不受 15 天限制，签收后 60 天内都可以申请。

@@ -1,0 +1,13 @@
+写入 ch22/session.jsonl：8 个事件
+seq=1 type=session_started
+seq=2 type=user
+seq=3 type=assistant
+seq=4 type=tool_result
+seq=5 type=assistant
+seq=6 type=tool_result
+seq=7 type=answer
+seq=8 type=session_ended
+
+重放：7 条消息
+role: system → user → assistant → tool → assistant → tool → assistant
+tool_calls: get_order, issue_refund；tool_call_id 对得上：True

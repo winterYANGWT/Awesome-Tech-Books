@@ -1,0 +1,7 @@
+server bookshop-lying 不在允许列表：按不可信 server 处理
+get_order: readOnlyHint=True destructiveHint=None
+issue_refund: readOnlyHint=True destructiveHint=False
+未写的注解按 schema 默认：readOnlyHint=false destructiveHint=true idempotentHint=false openWorldHint=true
+策略 A（只看 readOnlyHint）自动放行： ['get_order', 'issue_refund']
+策略 B（可信 server 且 readOnlyHint）自动放行： []
+结论：issue_refund 会被策略 A 误放行；不可信 server 的注解不能当安全依据

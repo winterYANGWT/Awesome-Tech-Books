@@ -1,0 +1,10 @@
+snake_case attrs: True True
+input_schema required: ['order_id']
+wire key inputSchema: True
+ok content length: 1
+ok content[0].type: text
+ok text head: { /   "order_id": "A1670", /   "customer_id": "C067",
+ok structured_content: None
+ok is_error: False
+bad is_error: True
+bad text: Error executing tool get_order: 订单 A9999 不存在，请核对订单号（形如 A1234）

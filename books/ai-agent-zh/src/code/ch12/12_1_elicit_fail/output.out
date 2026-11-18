@@ -1,0 +1,3 @@
+捕获到 ExceptionGroup，叶子异常：
+  MCPError Cannot send 'elicitation/create': this transport context has no back-channel for server-in
+[退出码 1] 旧写法失败：server 端 NoBackChannelError（客户端收到 MCPError，没有 back-channel）

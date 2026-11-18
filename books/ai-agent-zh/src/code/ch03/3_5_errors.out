@@ -1,0 +1,12 @@
+1. 未知工具：
+   错误：没有名为 refund_order 的工具。可用的工具：get_order, issue_refund, escalate_to_supervisor
+2. 参数不是合法 JSON：
+   错误：参数不是合法的 JSON（Expecting property name enclosed in double quotes）
+3. 缺少必填参数：
+   错误：参数不对（get_order() missing 1 required positional argument: 'order_id'）。参数格式：{"type": "object", "properties": {"order_id": {"type": "string", "description": "订单号，例如 A1234"}}, "required": ["order_id"]}
+4. 工具内部的业务规则：
+   错误：单笔退款超过 500 元需要主管批准，请改为提交主管审批，不要直接退款
+5. 工具内部的意外异常：
+   错误：工具执行失败（RuntimeError: 库存服务连接超时）
+类型不对不会触发参数错误，会直接进函数：
+   错误：订单 123 不存在，请核对订单号（形如 A1234）

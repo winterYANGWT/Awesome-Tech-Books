@@ -1,0 +1,7 @@
+protocol_version: 2026-07-28
+server_info: shop 0.1
+tools: ping, get_order
+get_order required: ['order_id']
+get_order properties: ['order_id']
+result: A1670 迅达快递 已发货
+is_error: False

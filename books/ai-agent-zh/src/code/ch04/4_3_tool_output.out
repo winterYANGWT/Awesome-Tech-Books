@@ -1,0 +1,11 @@
+T01  submit_ticket  物流查询   A1670  一致
+T06  submit_ticket  退货退款   A1659  一致
+T09  submit_ticket  退货退款   A1660  一致
+T12  submit_ticket  退货退款   A1508  一致
+T13  submit_ticket  退货退款   A1680  一致
+T14  submit_ticket  退货退款   A1649  一致
+T22  submit_ticket  政策咨询   —      一致
+T24  submit_ticket  物流查询   —      不一致
+T27  submit_ticket  越界     A1001  不一致
+T28  submit_ticket  越界     —      一致
+工具名=submit_ticket，arguments 可解析 10/10，category 在枚举 10/10，类别一致 8/10

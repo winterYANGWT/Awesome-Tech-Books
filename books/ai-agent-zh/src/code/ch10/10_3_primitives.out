@@ -1,0 +1,24 @@
+原语        谁控制  方法                                                      书店里的对象
+tools       模型    tools/list, tools/call                                    9 个客服工具
+resources   应用    resources/list, resources/templates/list, resources/read  5 份政策文档
+prompts     用户    prompts/list, prompts/get                                 2 个客服话术
+
+9 个工具（模型决定调用）：
+  find_customer, get_customer_context, get_order, search_books, search_policies, list_reviews, issue_refund, update_address, escalate_to_supervisor
+5 份政策（应用决定加载，一个 URI 模板）：
+  resources/templates/list → shop://policies/{name}
+  resources/read 返回 contents：uri + mimeType=text/markdown + text
+  shop://policies/invoice
+  shop://policies/membership
+  shop://policies/privacy
+  shop://policies/returns
+  shop://policies/shipping
+2 个 prompt（用户决定选择）：
+  refund_guidance  — 退款处理话术
+    order_id: str, required=True
+    amount: str, required=True
+  shipping_reply  — 物流回复模板
+    order_id: str, required=True
+    courier: str, required=True
+
+5 份政策不在上面 9 个工具里：它们是资源，不是动作。

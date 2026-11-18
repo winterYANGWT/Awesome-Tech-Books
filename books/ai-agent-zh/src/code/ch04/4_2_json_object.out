@@ -1,0 +1,12 @@
+模式=json_object
+T01  物流查询   A1670   stop
+T06  退货退款   A1659   stop
+T09  退货退款   A1660   stop
+T12  退货退款   A1508   stop
+T13  退货退款   A1680   stop
+T14  退货退款   A1649   stop
+T22  政策咨询   None    stop
+T24  物流查询   None    stop
+T27  越界     A1001   stop
+T28  越界     None    stop
+可解析 10/10，空内容 0，枚举外 0，缺字段 0，类别一致 8/10

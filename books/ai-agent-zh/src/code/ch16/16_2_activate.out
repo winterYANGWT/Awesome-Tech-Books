@@ -1,0 +1,8 @@
+Q1 退款 → activate_skill(refund-handling)  ← 898 token
+Q2 缺页 → activate_skill(refund-handling)  ← 898 token
+Q3 金额 → activate_skill(refund-handling)  ← 898 token
+Q4 月报 → activate_skill(monthly-report)  ← 734 token
+Q5 运费 → 未激活  ← 目录里没有匹配的 description
+Q6 推荐书 → 未激活  ← 目录里没有匹配的 description
+
+汇总：4/6 次激活；目录 177 token 一直在，正文累计按需加载 3428 token

@@ -1,0 +1,21 @@
+A 组（只记明确事实）
+  1: preference 为空
+  2: preference 为空
+  3: preference 为空
+  4: preference 为空
+  5: preference 为空
+  6: preference 为空
+  7: preference 为空
+  8: preference 为空
+A 组: 0/8 写入了未声明偏好
+B 组（尽量补全偏好）
+  1: 写了 preference
+  2: 写了 preference
+  3: 写了 preference
+  4: 写了 preference
+  5: 写了 preference
+  6: 写了 preference
+  7: 写了 preference
+  8: 写了 preference
+B 组: 8/8 写入了未声明偏好
+两组只改了系统提示，用户消息相同。

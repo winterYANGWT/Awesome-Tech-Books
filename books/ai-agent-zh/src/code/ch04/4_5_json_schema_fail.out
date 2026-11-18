@@ -1,0 +1,2 @@
+response_format=json_schema
+[退出码 1] RuntimeError: Error code: 400 - This response_format type is unavailable now

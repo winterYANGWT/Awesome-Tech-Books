@@ -1,0 +1,6 @@
+工单：T14 《小学语文阅读训练》拆开做了两页发现不是孩子要的，订单 A1649，退一下。
+命中关键词：退
+订单：A1649 已签收 实付 64.0
+退款结果：{"order_id": "A1649", "amount": 64.0, "refunded_total": 64.0, "status": "已退款"}
+actions：[{"kind": "refund", "order_id": "A1649", "detail": {"amount": 64.0, "reason": "退", "approved_by": null}}]
+[退出码 1] T14 不应退款：固定流程把“退”当成退款，漏掉了教辅拆封不退这个分支

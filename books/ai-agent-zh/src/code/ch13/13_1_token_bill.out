@@ -1,0 +1,5 @@
+第 1 轮 prompt=1216 completion=82 工具结果=0 缓存命中=1024
+第 2 轮 prompt=1845 completion=167 工具结果=3 缓存命中=1152
+第 3 轮 prompt=3031 completion=166 工具结果=7 缓存命中=1920
+第 4 轮 prompt=3931 completion=76 工具结果=10 缓存命中=3072
+第 5 轮 prompt=4884 completion=140 工具结果=13 缓存命中=3968

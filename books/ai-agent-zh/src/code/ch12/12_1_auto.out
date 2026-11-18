@@ -1,0 +1,29 @@
+input_required_max_rounds 默认: 10
+回调 message: 批准 A1680 退款 680 元？
+requested_schema: {
+ "properties": {
+  "approved": {
+   "description": "主管是否批准这笔退款",
+   "title": "Approved",
+   "type": "boolean"
+  },
+  "note": {
+   "default": "",
+   "description": "主管编号，例如 M01",
+   "title": "Note",
+   "type": "string"
+  }
+ },
+ "required": [
+  "approved"
+ ],
+ "type": "object"
+}
+requested_schema 的字段: ['approved', 'note']
+resultType: complete is_error: False
+{
+  "order_id": "A1680",
+  "amount": 680.0,
+  "refunded_total": 680.0,
+  "status": "已退款"
+}

@@ -1,0 +1,41 @@
+submit_plan 原始参数：
+{
+ "tasks": [
+  {
+   "id": "T1",
+   "role": "订单查询",
+   "goal": "查询订单 A1659 的订单事实，包含商品《大运河两千年》的购买信息、金额、物流与售后状态",
+   "inputs": {
+    "order_id": "A1659"
+   },
+   "output_schema": "order_facts"
+  },
+  {
+   "id": "T2",
+   "role": "政策查询",
+   "goal": "查询适用于缺页/印刷质量问题的退换货政策条款",
+   "inputs": {
+    "order_id": "A1659"
+   },
+   "output_schema": "policy_clauses"
+  },
+  {
+   "id": "T3",
+   "role": "回复草稿",
+   "goal": "基于订单事实与政策条款起草给客户的回复，说明缺页问题的处理方案",
+   "inputs": {
+    "order_id": "A1659",
+    "depends_on": [
+     "T1",
+     "T2"
+    ]
+   },
+   "output_schema": "reply_draft"
+  }
+ ]
+}
+Pydantic 校验通过：3 个任务
+  T1 订单查询 schema=order_facts inputs={"order_id": "A1659"} 依赖=无
+  T2 政策查询 schema=policy_clauses inputs={"order_id": "A1659"} 依赖=无
+  T3 回复草稿 schema=reply_draft inputs={"order_id": "A1659", "depends_on": ["T1", "T2"]} 依赖=T1,T2
+T3 依赖 T1/T2：是
