@@ -1,0 +1,808 @@
+/* 图系统的样式。颜色全部走 CSS 变量，mdBook 的主题类挂在 <html> 上：
+ *   html.light / html.rust               浅色
+ *   html.coal / html.navy / html.ayu     深色
+ */
+
+:root {
+    --ccfig-c1: #2a78d6;
+    --ccfig-c2: #eb6834;
+    --ccfig-c3: #1baf7a;
+    --ccfig-c4: #eda100;
+    --ccfig-c5: #e87ba4;
+    --ccfig-c6: #008300;
+    --ccfig-c7: #6250d6;
+    --ccfig-c8: #e34948;
+
+    --ccfig-ok: #0ca30c;
+    --ccfig-wait: #fab219;
+    --ccfig-bad: #d03b3b;
+
+    --ccfig-text: #0b0b0b;
+    --ccfig-muted: #52514e;
+    --ccfig-weak: #898781;
+    --ccfig-bg: #ffffff;
+    --ccfig-box: #f6f5f2;
+    --ccfig-row: #f1f0ec;
+    --ccfig-grid: #e1e0d9;
+    --ccfig-line: #52514e;
+    --ccfig-mono: var(--mono-font, "Source Code Pro", Consolas, monospace);
+}
+
+html.light,
+html.rust {
+    --ccfig-text: #0b0b0b;
+    --ccfig-muted: #52514e;
+    --ccfig-weak: #898781;
+    --ccfig-bg: #ffffff;
+    --ccfig-box: #f6f5f2;
+    --ccfig-row: #f1f0ec;
+    --ccfig-grid: #e1e0d9;
+    --ccfig-line: #52514e;
+}
+
+html.rust {
+    /* mdBook 的 rust 主题是米色背景，框和标签底色跟着页面走。 */
+    --ccfig-bg: hsl(60, 9%, 87%);
+    --ccfig-box: hsl(60, 9%, 83%);
+    --ccfig-row: hsl(60, 9%, 80%);
+}
+
+html.coal,
+html.navy,
+html.ayu {
+    --ccfig-c1: #3987e5;
+    --ccfig-c2: #d95926;
+    --ccfig-c3: #199e70;
+    --ccfig-c4: #c98500;
+    --ccfig-c5: #d55181;
+    --ccfig-c6: #008300;
+    --ccfig-c7: #9085e9;
+    --ccfig-c8: #e66767;
+
+    --ccfig-text: #f0efec;
+    --ccfig-muted: #c3c2b7;
+    --ccfig-weak: #898781;
+    --ccfig-bg: #1e1e1e;
+    --ccfig-box: #272726;
+    --ccfig-row: #242423;
+    --ccfig-grid: #2c2c2a;
+    --ccfig-line: #c3c2b7;
+}
+
+/* SVG 文字的默认颜色。fig.js 给不少 <text> 加了 ccfig-text 类，而这个类名
+ * 也是“文字版”折叠块用的，只设了 color、没设 fill，SVG 文字就落回默认的黑色，
+ * 深色主题下看不见。:where() 把优先级压到 (0,0,1)，各元素自己的 fill 规则照样生效。 */
+:where(.ccfig-stage) text {
+    fill: var(--ccfig-text);
+}
+
+/* ------------------------------------------------------------------ */
+/* 外壳、尺寸、控件                                                     */
+/* ------------------------------------------------------------------ */
+
+.ccfig {
+    margin: 1.2em 0 1.4em;
+    max-width: 100%;
+}
+
+.ccfig-stage {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ccfig-svg {
+    display: block;
+    margin: 0 auto;
+    width: var(--ccfig-w, 640px);
+    max-width: 100%;
+    min-width: var(--ccfig-min, 70%);
+    height: auto;
+    overflow: visible;
+    font-family: inherit;
+}
+
+.ccfig figcaption {
+    margin-top: 6px;
+    text-align: center;
+    color: var(--ccfig-muted);
+    font-size: 0.9em;
+    line-height: 1.45;
+}
+
+.ccfig-num {
+    color: var(--ccfig-text);
+    font-weight: 600;
+}
+
+.ccfig-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin: 6px 0 2px;
+    color: var(--ccfig-muted);
+    font-size: 0.85em;
+}
+
+.ccfig-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--ccfig-grid);
+    border-radius: 4px;
+    background: var(--ccfig-box);
+    color: var(--ccfig-text);
+    cursor: pointer;
+}
+
+.ccfig-btn:hover {
+    background: var(--ccfig-row);
+}
+
+.ccfig-btn:focus-visible {
+    outline: 2px solid var(--ccfig-c1);
+    outline-offset: 1px;
+}
+
+.ccfig-btn svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+}
+
+.ccfig-counter {
+    min-width: 4.2em;
+    margin-left: 4px;
+    font-variant-numeric: tabular-nums;
+}
+
+.ccfig-note {
+    min-height: 1.4em;
+    margin: 2px 0 4px;
+    text-align: center;
+    color: var(--ccfig-muted);
+    font-size: 0.88em;
+    line-height: 1.4;
+}
+
+.ccfig-chart-note {
+    margin-top: 4px;
+    text-align: center;
+    color: var(--ccfig-weak);
+    font-size: 0.8em;
+    line-height: 1.4;
+}
+
+.ccfig-text {
+    margin-top: 6px;
+    overflow-x: auto;
+    overflow-wrap: anywhere;
+    color: var(--ccfig-muted);
+    font-size: 0.88em;
+    line-height: 1.5;
+}
+
+.ccfig-text > summary {
+    cursor: pointer;
+    color: var(--ccfig-weak);
+}
+
+.ccfig-text ol {
+    margin: 4px 0 0 1.4em;
+    padding: 0;
+}
+
+.ccfig-text table {
+    margin: 4px 0 0;
+    border-collapse: collapse;
+    font-size: 0.95em;
+}
+
+.ccfig-text th,
+.ccfig-text td {
+    border: 1px solid var(--ccfig-grid);
+    padding: 2px 8px;
+    text-align: right;
+}
+
+.ccfig-text th:first-child,
+.ccfig-text td:first-child {
+    text-align: left;
+}
+
+.ccfig-code {
+    font-family: var(--ccfig-mono);
+    font-size: 0.92em;
+}
+
+/* ------------------------------------------------------------------ */
+/* 颜色类                                                              */
+/* ------------------------------------------------------------------ */
+
+.ccfig-c1 { --ccfig-c: var(--ccfig-c1); }
+.ccfig-c2 { --ccfig-c: var(--ccfig-c2); }
+.ccfig-c3 { --ccfig-c: var(--ccfig-c3); }
+.ccfig-c4 { --ccfig-c: var(--ccfig-c4); }
+.ccfig-c5 { --ccfig-c: var(--ccfig-c5); }
+.ccfig-c6 { --ccfig-c: var(--ccfig-c6); }
+.ccfig-c7 { --ccfig-c: var(--ccfig-c7); }
+.ccfig-c8 { --ccfig-c: var(--ccfig-c8); }
+
+.ccfig-swatch.ccfig-c1,
+.ccfig-filled.ccfig-c1,
+.ccfig-bar.ccfig-c1,
+.ccfig-point.ccfig-c1 { fill: var(--ccfig-c1); }
+.ccfig-swatch.ccfig-c2,
+.ccfig-filled.ccfig-c2,
+.ccfig-bar.ccfig-c2,
+.ccfig-point.ccfig-c2 { fill: var(--ccfig-c2); }
+.ccfig-swatch.ccfig-c3,
+.ccfig-filled.ccfig-c3,
+.ccfig-bar.ccfig-c3,
+.ccfig-point.ccfig-c3 { fill: var(--ccfig-c3); }
+.ccfig-swatch.ccfig-c4,
+.ccfig-filled.ccfig-c4,
+.ccfig-bar.ccfig-c4,
+.ccfig-point.ccfig-c4 { fill: var(--ccfig-c4); }
+.ccfig-swatch.ccfig-c5,
+.ccfig-filled.ccfig-c5,
+.ccfig-bar.ccfig-c5,
+.ccfig-point.ccfig-c5 { fill: var(--ccfig-c5); }
+.ccfig-swatch.ccfig-c6,
+.ccfig-filled.ccfig-c6,
+.ccfig-bar.ccfig-c6,
+.ccfig-point.ccfig-c6 { fill: var(--ccfig-c6); }
+.ccfig-swatch.ccfig-c7,
+.ccfig-filled.ccfig-c7,
+.ccfig-bar.ccfig-c7,
+.ccfig-point.ccfig-c7 { fill: var(--ccfig-c7); }
+.ccfig-swatch.ccfig-c8,
+.ccfig-filled.ccfig-c8,
+.ccfig-bar.ccfig-c8,
+.ccfig-point.ccfig-c8 { fill: var(--ccfig-c8); }
+
+.ccfig-line.ccfig-c1 { stroke: var(--ccfig-c1); }
+.ccfig-line.ccfig-c2 { stroke: var(--ccfig-c2); }
+.ccfig-line.ccfig-c3 { stroke: var(--ccfig-c3); }
+.ccfig-line.ccfig-c4 { stroke: var(--ccfig-c4); }
+.ccfig-line.ccfig-c5 { stroke: var(--ccfig-c5); }
+.ccfig-line.ccfig-c6 { stroke: var(--ccfig-c6); }
+.ccfig-line.ccfig-c7 { stroke: var(--ccfig-c7); }
+.ccfig-line.ccfig-c8 { stroke: var(--ccfig-c8); }
+
+.ccfig-end-label.ccfig-c1 { fill: var(--ccfig-c1); }
+.ccfig-end-label.ccfig-c2 { fill: var(--ccfig-c2); }
+.ccfig-end-label.ccfig-c3 { fill: var(--ccfig-c3); }
+.ccfig-end-label.ccfig-c4 { fill: var(--ccfig-c4); }
+.ccfig-end-label.ccfig-c5 { fill: var(--ccfig-c5); }
+.ccfig-end-label.ccfig-c6 { fill: var(--ccfig-c6); }
+.ccfig-end-label.ccfig-c7 { fill: var(--ccfig-c7); }
+.ccfig-end-label.ccfig-c8 { fill: var(--ccfig-c8); }
+
+.ccfig-tone-ok { --ccfig-tone-color: var(--ccfig-ok); }
+.ccfig-tone-wait { --ccfig-tone-color: var(--ccfig-wait); }
+.ccfig-tone-bad { --ccfig-tone-color: var(--ccfig-bad); }
+.ccfig-tone-hot { --ccfig-tone-color: var(--ccfig-c1); }
+.ccfig-tone-muted { --ccfig-tone-color: var(--ccfig-muted); }
+
+/* ------------------------------------------------------------------ */
+/* SVG 文字与通用线条                                                   */
+/* ------------------------------------------------------------------ */
+
+.ccfig-svg text {
+    font-family: inherit;
+}
+
+.ccfig-label {
+    fill: var(--ccfig-text);
+}
+
+.ccfig-on-color {
+    fill: #ffffff;
+}
+
+.ccfig-dark-text {
+    fill: #0b0b0b;
+}
+
+.ccfig-axis-label,
+.ccfig-tick-label {
+    fill: var(--ccfig-weak);
+}
+
+.ccfig-axis-title {
+    fill: var(--ccfig-muted);
+}
+
+.ccfig-axis,
+.ccfig-grid-line {
+    fill: none;
+}
+
+.ccfig-axis {
+    stroke: var(--ccfig-muted);
+    stroke-width: 1.2;
+}
+
+.ccfig-axis-tick {
+    stroke: var(--ccfig-muted);
+    stroke-width: 1;
+}
+
+.ccfig-grid-line {
+    stroke: var(--ccfig-grid);
+    stroke-width: 0.8;
+}
+
+/* ------------------------------------------------------------------ */
+/* seq                                                                 */
+/* ------------------------------------------------------------------ */
+
+.ccfig-lane-head {
+    fill: var(--ccfig-box);
+    stroke: var(--ccfig-grid);
+    stroke-width: 1;
+}
+
+.ccfig-role-memory { stroke: var(--ccfig-c3); }
+.ccfig-role-kernel { stroke: var(--ccfig-c7); }
+.ccfig-role-process { stroke: var(--ccfig-c2); }
+.ccfig-role-device { stroke: var(--ccfig-c5); }
+
+.ccfig-lane-title {
+    font-weight: 600;
+}
+
+.ccfig-step-label {
+    fill: var(--ccfig-muted);
+    font-weight: 600;
+}
+
+.ccfig-row-current {
+    fill: var(--ccfig-row);
+}
+
+.ccfig-lifeline {
+    fill: none;
+    stroke-width: 1.4;
+}
+
+.ccfig-life-running { stroke: var(--ccfig-line); }
+.ccfig-life-blocked {
+    stroke: var(--ccfig-wait);
+    stroke-dasharray: 6 4;
+}
+.ccfig-life-sleeping {
+    stroke: var(--ccfig-weak);
+    stroke-dasharray: 4 4;
+}
+
+.ccfig-op {
+    fill: var(--ccfig-box);
+    stroke: var(--ccfig-line);
+    stroke-width: 1.2;
+}
+
+.ccfig-op-text {
+    font-weight: 500;
+}
+
+.ccfig-span {
+    fill: var(--ccfig-box);
+    stroke: var(--ccfig-line);
+    stroke-width: 1.2;
+}
+
+.ccfig-span-text {
+    fill: var(--ccfig-text);
+    font-weight: 600;
+}
+
+.ccfig-arrow-line {
+    fill: none;
+    stroke: var(--ccfig-line);
+    stroke-width: 1.4;
+}
+
+.ccfig-arrowhead {
+    fill: var(--ccfig-line);
+}
+
+.ccfig-arrow-label-bg,
+.ccfig-edge-label-bg {
+    fill: var(--ccfig-bg);
+    stroke: none;
+}
+
+.ccfig-arrow-label,
+.ccfig-edge-label {
+    fill: var(--ccfig-muted);
+}
+
+.ccfig-tone-ok .ccfig-op,
+.ccfig-tone-ok .ccfig-span {
+    stroke: var(--ccfig-ok);
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-ok) 10%, var(--ccfig-box));
+}
+
+.ccfig-tone-wait .ccfig-op,
+.ccfig-tone-wait .ccfig-span {
+    stroke: var(--ccfig-wait);
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-wait) 16%, var(--ccfig-box));
+}
+
+.ccfig-tone-bad .ccfig-op,
+.ccfig-tone-bad .ccfig-span {
+    stroke: var(--ccfig-bad);
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-bad) 10%, var(--ccfig-box));
+}
+
+.ccfig-tone-hot .ccfig-op,
+.ccfig-tone-hot .ccfig-span {
+    stroke: var(--ccfig-c1);
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-c1) 10%, var(--ccfig-box));
+}
+
+.ccfig-tone-muted .ccfig-op,
+.ccfig-tone-muted .ccfig-span {
+    stroke: var(--ccfig-muted);
+    fill: var(--ccfig-row);
+}
+
+.ccfig-tone-ok .ccfig-arrow-line,
+.ccfig-tone-wait .ccfig-arrow-line,
+.ccfig-tone-bad .ccfig-arrow-line,
+.ccfig-tone-hot .ccfig-arrow-line,
+.ccfig-tone-muted .ccfig-arrow-line {
+    stroke: var(--ccfig-tone-color);
+}
+
+.ccfig-tone-ok .ccfig-arrowhead,
+.ccfig-tone-wait .ccfig-arrowhead,
+.ccfig-tone-bad .ccfig-arrowhead,
+.ccfig-tone-hot .ccfig-arrowhead,
+.ccfig-tone-muted .ccfig-arrowhead {
+    fill: var(--ccfig-tone-color);
+}
+
+.ccfig-dashed {
+    stroke-dasharray: 6 4;
+}
+
+.ccfig-state-cell {
+    fill: var(--ccfig-box);
+    stroke: var(--ccfig-grid);
+    stroke-width: 1;
+}
+
+.ccfig-state-text {
+    font-size: 0.92em;
+}
+
+.ccfig-flash .ccfig-state-cell {
+    animation: ccfig-flash 0.65s ease-out;
+}
+
+/* ------------------------------------------------------------------ */
+/* grid                                                                */
+/* ------------------------------------------------------------------ */
+
+.ccfig-cell {
+    fill: var(--ccfig-box);
+    stroke: var(--ccfig-grid);
+    stroke-width: 0.8;
+}
+
+.ccfig-cell-text {
+    font-weight: 600;
+}
+
+.ccfig-mark {
+    fill: none;
+    stroke: var(--ccfig-tone-color, var(--ccfig-hot));
+    stroke-width: 3;
+    filter: drop-shadow(0 0 3px var(--ccfig-tone-color, var(--ccfig-hot)));
+}
+
+.ccfig-mark.ccfig-tone-hot { stroke: var(--ccfig-c1); }
+.ccfig-mark.ccfig-tone-bad { stroke: var(--ccfig-bad); }
+.ccfig-mark.ccfig-tone-ok { stroke: var(--ccfig-ok); }
+.ccfig-mark.ccfig-tone-wait { stroke: var(--ccfig-wait); }
+.ccfig-mark.ccfig-tone-muted { stroke: var(--ccfig-muted); }
+
+.ccfig-bracket {
+    fill: none;
+    stroke: var(--ccfig-weak);
+    stroke-width: 1;
+}
+
+.ccfig-bracket-label {
+    fill: var(--ccfig-muted);
+}
+
+.ccfig-swatch {
+    stroke: none;
+}
+
+.ccfig-legend-label {
+    fill: var(--ccfig-muted);
+}
+
+/* ------------------------------------------------------------------ */
+/* flow                                                                */
+/* ------------------------------------------------------------------ */
+
+.ccfig-band-1 {
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-c1) 7%, transparent);
+}
+
+.ccfig-band-2 {
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-c3) 8%, transparent);
+}
+
+.ccfig-band-3 {
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-c4) 9%, transparent);
+}
+
+.ccfig-band-label {
+    fill: var(--ccfig-weak);
+    font-weight: 600;
+}
+
+.ccfig-node {
+    fill: var(--ccfig-box);
+    stroke: var(--ccfig-line);
+    stroke-width: 1.3;
+}
+
+.ccfig-tone-ok .ccfig-node {
+    stroke: var(--ccfig-ok);
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-ok) 9%, var(--ccfig-box));
+}
+
+.ccfig-tone-wait .ccfig-node {
+    stroke: var(--ccfig-wait);
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-wait) 14%, var(--ccfig-box));
+}
+
+.ccfig-tone-bad .ccfig-node {
+    stroke: var(--ccfig-bad);
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-bad) 9%, var(--ccfig-box));
+}
+
+.ccfig-tone-hot .ccfig-node {
+    stroke: var(--ccfig-c1);
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-c1) 9%, var(--ccfig-box));
+}
+
+.ccfig-tone-muted .ccfig-node {
+    stroke: var(--ccfig-muted);
+    fill: var(--ccfig-row);
+}
+
+.ccfig-shape-round {
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-c1) 5%, var(--ccfig-box));
+}
+
+.ccfig-shape-store {
+    fill: var(--ccfig-box);
+    fill: color-mix(in srgb, var(--ccfig-c3) 6%, var(--ccfig-box));
+}
+
+.ccfig-store-line {
+    stroke: var(--ccfig-line);
+    stroke-width: 1;
+    opacity: 0.7;
+}
+
+.ccfig-node-label {
+    font-weight: 600;
+}
+
+.ccfig-node-sub {
+    fill: var(--ccfig-muted);
+}
+
+.ccfig-slot {
+    fill: var(--ccfig-bg);
+    stroke: var(--ccfig-grid);
+    stroke-width: 0.8;
+}
+
+.ccfig-slot-text {
+    fill: var(--ccfig-text);
+}
+
+.ccfig-edge {
+    fill: none;
+    stroke: var(--ccfig-line);
+    stroke-width: 1.6;
+}
+
+.ccfig-edge-path {
+    fill: none;
+}
+
+.ccfig-tone-ok .ccfig-edge-path,
+.ccfig-tone-ok .ccfig-edge { stroke: var(--ccfig-ok); }
+.ccfig-tone-wait .ccfig-edge-path,
+.ccfig-tone-wait .ccfig-edge { stroke: var(--ccfig-wait); }
+.ccfig-tone-bad .ccfig-edge-path,
+.ccfig-tone-bad .ccfig-edge { stroke: var(--ccfig-bad); }
+.ccfig-tone-hot .ccfig-edge-path,
+.ccfig-tone-hot .ccfig-edge { stroke: var(--ccfig-c1); }
+.ccfig-tone-muted .ccfig-edge-path,
+.ccfig-tone-muted .ccfig-edge { stroke: var(--ccfig-muted); }
+
+.ccfig-hi .ccfig-node,
+.ccfig-hi .ccfig-edge-path {
+    stroke-width: 2.4;
+}
+
+.ccfig-token-bg {
+    fill: var(--ccfig-bg);
+    stroke: var(--ccfig-c1);
+    stroke-width: 1.2;
+}
+
+.ccfig-token-text {
+    fill: var(--ccfig-text);
+    font-weight: 600;
+}
+
+.ccfig-token-out {
+    animation: ccfig-token-out 300ms ease-out forwards;
+}
+
+@keyframes ccfig-token-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* ------------------------------------------------------------------ */
+/* chart                                                               */
+/* ------------------------------------------------------------------ */
+
+.ccfig-line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.ccfig-point {
+    stroke: var(--ccfig-bg);
+    stroke-width: 1;
+}
+
+.ccfig-bar {
+    stroke: none;
+}
+
+.ccfig-hit {
+    fill: transparent;
+    pointer-events: all;
+}
+
+.ccfig-guide {
+    pointer-events: none;
+    stroke: var(--ccfig-muted);
+    stroke-width: 1;
+    stroke-dasharray: 4 3;
+    opacity: 0;
+}
+
+.ccfig-guide.visible {
+    opacity: 1;
+}
+
+.ccfig-tooltip {
+    display: none;
+    pointer-events: none;
+}
+
+.ccfig-tooltip.visible {
+    display: block;
+}
+
+.ccfig-tooltip-bg {
+    fill: var(--ccfig-box);
+    stroke: var(--ccfig-weak);
+    stroke-width: 1;
+}
+
+.ccfig-tooltip-text {
+    fill: var(--ccfig-text);
+}
+
+.ccfig-end-label {
+    font-weight: 600;
+}
+
+.ccfig-value-label {
+    fill: var(--ccfig-text);
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ */
+/* 动画                                                                */
+/* ------------------------------------------------------------------ */
+
+.ccfig-fade {
+    animation: ccfig-fade 250ms ease-out both;
+}
+
+@keyframes ccfig-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes ccfig-flash {
+    0% { fill: var(--ccfig-wait); }
+    100% { fill: var(--ccfig-box); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ccfig-fade,
+    .ccfig-flash .ccfig-state-cell,
+    .ccfig-token-out {
+        animation: none !important;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* 打印：隐藏控件，展开文字版                                           */
+/* ------------------------------------------------------------------ */
+
+@media print {
+    .ccfig-controls,
+    .ccfig-note,
+    .ccfig-chart-note {
+        display: none !important;
+    }
+
+    .ccfig-stage {
+        overflow: visible !important;
+    }
+
+    .ccfig-svg {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .ccfig-text {
+        display: block !important;
+    }
+
+    .ccfig-text > summary {
+        display: none !important;
+    }
+
+    .ccfig-text:not([open]) > *:not(summary) {
+        display: block !important;
+    }
+
+    .ccfig {
+        break-inside: avoid;
+    }
+}
