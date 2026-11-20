@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "一个目标由什么组成",
+  "alt": "目标是类型、源文件、自己用的属性和 INTERFACE_* 的集合，构建时变成一个产物",
+  "static": true,
+  "grid": [4, 3],
+  "nodes": [
+    {"id": "type", "label": "类型", "sub": "STATIC、SHARED…", "at": [0, 0]},
+    {"id": "props", "label": "属性", "sub": "OUTPUT_NAME 等", "at": [0, 1]},
+    {"id": "sources", "label": "源文件", "sub": "main.cpp", "at": [0, 2]},
+    {"id": "target", "label": "目标 app", "sub": "EXECUTABLE", "at": [1, 1]},
+    {"id": "iface", "label": "INTERFACE_*", "sub": "传给链接它的目标", "at": [2, 0]},
+    {"id": "product", "label": "产物", "sub": "build/app", "at": [2, 2]},
+    {"id": "downstream", "label": "下游目标", "sub": "得到头文件、宏", "at": [3, 0]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "type", "to": "target", "label": "类型"},
+    {"id": "e2", "from": "props", "to": "target", "label": "读写"},
+    {"id": "e3", "from": "sources", "to": "target", "label": "编译"},
+    {"id": "e4", "from": "target", "to": "iface", "label": "带出去"},
+    {"id": "e5", "from": "target", "to": "product", "label": "生成"},
+    {"id": "e6", "from": "iface", "to": "downstream", "label": "传递"}
+  ],
+  "steps": [
+    {"note": "类型和源文件在 add_* 时给出；属性先取初值、之后能改；INTERFACE_* 只在被链接时用到"}
+  ]
+}

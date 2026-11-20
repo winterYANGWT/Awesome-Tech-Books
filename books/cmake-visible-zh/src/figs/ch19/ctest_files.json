@@ -1,0 +1,23 @@
+{
+  "kind": "flow",
+  "title": "测试清单怎么到 ctest 手里",
+  "alt": "add_test 写进子目录清单，ctest 从顶层按 subdirs() 读下来",
+  "static": true,
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "add", "label": "add_test", "sub": "子目录里登记", "at": [0, 1]},
+    {"id": "subfile", "label": "子目录\n测试清单", "sub": "CTestTestfile.cmake", "at": [1, 1], "shape": "store"},
+    {"id": "topfile", "label": "顶层\n测试清单", "sub": "CTestTestfile.cmake", "at": [1, 0], "shape": "store"},
+    {"id": "ctest", "label": "ctest", "sub": "从顶层读起", "at": [2, 0], "shape": "round"},
+    {"id": "prog", "label": "测试程序", "sub": "退出码 0 通过", "at": [3, 0], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "write", "from": "add", "to": "subfile", "label": "生成时写"},
+    {"id": "read", "from": "topfile", "to": "ctest", "label": "读取"},
+    {"id": "subdirs", "from": "topfile", "to": "subfile", "label": "subdirs()"},
+    {"id": "run", "from": "ctest", "to": "prog", "label": "执行"}
+  ],
+  "steps": [
+    {"note": "add_test 写进子目录的清单；ctest 先读顶层，再按 subdirs() 进入子目录。"}
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "kind": "flow",
+  "title": "源码内构建和源码外构建",
+  "alt": "源码内构建把 cmake 的产物混进 src/；源码外构建只写 build/，源码目录干净",
+  "static": true,
+  "grid": [
+    3,
+    2
+  ],
+  "bands": [
+    {
+      "label": "源码内构建",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "源码外构建",
+      "rows": [
+        1,
+        1
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "src1",
+      "label": "CMakeLists.txt\nmain.cpp",
+      "sub": "在 src/，你写的",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "cache1",
+      "label": "CMakeCache.txt\nbuild.ninja",
+      "sub": "src/：配置结束、生成阶段写",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "out1",
+      "label": "CMakeFiles/\nhello",
+      "sub": "在 src/，构建阶段写",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "src2",
+      "label": "CMakeLists.txt\nmain.cpp",
+      "sub": "在 src/，你写的",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "cache2",
+      "label": "CMakeCache.txt\nbuild.ninja",
+      "sub": "build/：配置结束、生成时写",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "out2",
+      "label": "CMakeFiles/\nhello",
+      "sub": "在 build/，构建阶段写",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "store"
+    }
+  ],
+  "edges": [],
+  "steps": [
+    {
+      "tone": {
+        "cache1": "bad",
+        "out1": "bad",
+        "cache2": "ok",
+        "out2": "ok"
+      },
+      "note": "左边 cmake 的产物也落在 src/；右边只写 build/，你的文件还在 src/"
+    }
+  ]
+}

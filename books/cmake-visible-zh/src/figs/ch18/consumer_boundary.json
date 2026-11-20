@@ -1,0 +1,32 @@
+{
+  "kind": "flow",
+  "title": "消费测试只给安装前缀",
+  "alt": "下游用 CMAKE_PREFIX_PATH 找到安装前缀，看不到 greet 的源码树和构建树",
+  "static": true,
+  "grid": [3, 2],
+  "bands": [
+    {"label": "提供方", "rows": [0, 0]},
+    {"label": "消费方", "rows": [1, 1]}
+  ],
+  "nodes": [
+    {"id": "src", "label": "greet 源码", "sub": "include/ + src/", "at": [0, 0]},
+    {"id": "build", "label": "greet 构建", "sub": "libgreet.a", "at": [1, 0]},
+    {"id": "prefix", "label": "prefix/", "sub": "库 + 头文件 + Config", "at": [2, 0], "shape": "store"},
+    {"id": "appsrc", "label": "app 源码", "at": [0, 1]},
+    {"id": "appbuild", "label": "app 构建", "at": [1, 1]},
+    {"id": "app", "label": "app", "at": [2, 1], "shape": "round"}
+  ],
+  "edges": [
+    {"id": "compile", "from": "src", "to": "build", "label": "编译"},
+    {"id": "install", "from": "build", "to": "prefix", "label": "安装"},
+    {"id": "find", "from": "prefix", "to": "appbuild", "label": "find_package"},
+    {"id": "appcompile", "from": "appsrc", "to": "appbuild", "label": "编译"},
+    {"id": "run", "from": "appbuild", "to": "app", "label": "运行"}
+  ],
+  "steps": [
+    {
+      "hi": ["prefix", "find"],
+      "note": "下游从给定前缀找到包；源码树和构建树都不在它的查找路径里"
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "kind": "flow",
+  "title": "改 table.csv 之后，构建图里哪条链重跑",
+  "alt": "csv 变了只重跑生成、table.cpp 编译和链接；main.cpp 的编译不在链上",
+  "grid": [
+    4,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "csv",
+      "label": "table.csv",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "cmd",
+      "label": "生成命令",
+      "sub": "OUTPUT table.cpp",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "cpp",
+      "label": "table.cpp",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "compile",
+      "label": "编译",
+      "sub": "只编 table.cpp",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "app",
+      "label": "app",
+      "at": [
+        3,
+        1
+      ],
+      "shape": "round"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "csv",
+      "to": "cmd",
+      "label": "DEPENDS"
+    },
+    {
+      "id": "e2",
+      "from": "cmd",
+      "to": "cpp",
+      "label": "写"
+    },
+    {
+      "id": "e3",
+      "from": "cpp",
+      "to": "compile",
+      "label": "编译"
+    },
+    {
+      "id": "e4",
+      "from": "compile",
+      "to": "app",
+      "label": "链接"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "csv"
+      ],
+      "note": "table.csv 的时间戳变了；DEPENDS 让 Ninja 看见它"
+    },
+    {
+      "token": [
+        {
+          "edge": "e1",
+          "label": "改了"
+        }
+      ],
+      "hi": [
+        "cmd"
+      ],
+      "note": "先跑生成：cmake -DINPUT=… -DOUTPUT=… -P gen_table.cmake"
+    },
+    {
+      "token": [
+        {
+          "edge": "e2",
+          "label": "写"
+        }
+      ],
+      "hi": [
+        "cpp"
+      ],
+      "note": "table.cpp 重新生成，内容跟着 csv 变"
+    },
+    {
+      "token": [
+        {
+          "edge": "e3",
+          "label": "编译"
+        }
+      ],
+      "hi": [
+        "compile"
+      ],
+      "note": "只重编 table.cpp；main.cpp 的编译不在链上"
+    },
+    {
+      "token": [
+        {
+          "edge": "e4",
+          "label": "链接"
+        }
+      ],
+      "hi": [
+        "app"
+      ],
+      "note": "重新链接 app；链外的目标不执行"
+    }
+  ],
+  "speed": 1500
+}

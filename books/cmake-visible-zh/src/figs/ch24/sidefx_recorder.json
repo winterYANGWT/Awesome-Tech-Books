@@ -1,0 +1,100 @@
+{
+  "kind": "seq",
+  "title": "录制器怎样让 cmake 一步步停下",
+  "alt": "录制器在每一行下断点，每次停下问栈、变量和文件，再单步到下一行",
+  "speed": 1600,
+  "lanes": [
+    {
+      "id": "rec",
+      "label": "录制器",
+      "role": "process"
+    },
+    {
+      "id": "cmake",
+      "label": "cmake 调试器"
+    },
+    {
+      "id": "disk",
+      "label": "构建目录",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "line",
+      "label": "停在",
+      "value": "—"
+    },
+    {
+      "id": "step",
+      "label": "已记录",
+      "value": "0 步"
+    }
+  ],
+  "steps": [
+    {
+      "from": "rec",
+      "to": "cmake",
+      "text": "带 --debugger 启动",
+      "note": "录制器启动 cmake，并连上 --debugger-pipe 指定的 socket"
+    },
+    {
+      "from": "rec",
+      "to": "cmake",
+      "text": "顶层每行下断点",
+      "note": "先给顶层 CMakeLists 的每一行设断点，再靠单步进入函数和 include 的文件"
+    },
+    {
+      "from": "cmake",
+      "to": "rec",
+      "text": "stopped 第 1 行",
+      "set": {
+        "line": "第 1 行"
+      },
+      "note": "cmake 在第一条命令前停下，报出文件和行号"
+    },
+    {
+      "from": "rec",
+      "to": "cmake",
+      "text": "问栈、变量、目标",
+      "note": "stackTrace、scopes、variables：调用栈、各层变量、缓存、目标"
+    },
+    {
+      "from": "rec",
+      "to": "disk",
+      "text": "列一遍文件",
+      "set": {
+        "step": "1 步"
+      },
+      "note": "列出工作目录里的文件，和上一步的差就是这一步的副作用"
+    },
+    {
+      "from": "rec",
+      "to": "cmake",
+      "text": "next / stepIn",
+      "note": "stepIn 进入函数，next 跨过一行；结束标记不停"
+    },
+    {
+      "from": "cmake",
+      "to": "rec",
+      "text": "stopped 第 2 行",
+      "set": {
+        "line": "第 2 行"
+      },
+      "note": "又停在下一行，重复上面的问答"
+    },
+    {
+      "from": "rec",
+      "to": "cmake",
+      "text": "disconnect",
+      "note": "配置走完，录制器断开，cmake 继续生成并写 file API 回复"
+    },
+    {
+      "from": "disk",
+      "to": "rec",
+      "text": "读 file API 回复",
+      "tone": "ok",
+      "note": "从 reply 里读 codemodel，拿每个目标的最终参数和出处"
+    }
+  ]
+}

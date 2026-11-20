@@ -1,0 +1,67 @@
+{
+  "kind": "seq",
+  "title": "configure_file 在配置时写，编译器在构建时读",
+  "alt": "配置阶段写 config.h；输入改了，下次构建先重新配置，再重编译",
+  "lanes": [
+    {"id": "cmake", "label": "CMake 配置", "role": "process"},
+    {"id": "dir", "label": "构建目录", "role": "memory"},
+    {"id": "build", "label": "Ninja / g++", "role": "process"}
+  ],
+  "state": [
+    {"id": "header", "label": "config.h", "value": "—"}
+  ],
+  "steps": [
+    {
+      "at": "cmake",
+      "text": "configure_file()",
+      "tone": "hot",
+      "note": "配置阶段读 config.h.in，替换 @VAR@ 和 ${VAR}"
+    },
+    {
+      "from": "cmake",
+      "to": "dir",
+      "text": "写 config.h",
+      "set": {"header": "v1"},
+      "note": "输出到构建目录，不碰源码目录"
+    },
+    {
+      "from": "dir",
+      "to": "build",
+      "text": "读 config.h",
+      "note": "构建时 g++ 通过 -I 找到它，把宏编进 app"
+    },
+    {
+      "at": "build",
+      "text": "app 构建完成",
+      "tone": "ok",
+      "note": "config.h 成了 app 的编译依赖，记在 .d 文件里"
+    },
+    {
+      "at": "cmake",
+      "text": "config.h.in 改了",
+      "tone": "wait",
+      "note": "下次 cmake --build 前，Ninja 发现输入比 build.ninja 新"
+    },
+    {
+      "from": "build",
+      "to": "cmake",
+      "text": "重新配置",
+      "dashed": true,
+      "note": "Ninja 先执行 cmake --regenerate-during-build"
+    },
+    {
+      "from": "cmake",
+      "to": "dir",
+      "text": "改写 config.h",
+      "set": {"header": "v2"},
+      "note": "内容变了才写；时间戳更新"
+    },
+    {
+      "from": "dir",
+      "to": "build",
+      "text": "重编译 app",
+      "tone": "ok",
+      "note": "头文件比 .o 新，g++ 重新编译并链接"
+    }
+  ]
+}

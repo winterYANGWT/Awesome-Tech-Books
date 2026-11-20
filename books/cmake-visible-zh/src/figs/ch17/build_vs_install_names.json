@@ -1,0 +1,54 @@
+{
+  "kind": "flow",
+  "title": "同一个名字，两种目标",
+  "alt": "构建树里 Greet::greet 是 ALIAS；安装后同名目标是 IMPORTED",
+  "grid": [3, 2],
+  "bands": [
+    {"label": "构建树里", "rows": [0, 0]},
+    {"label": "安装树里", "rows": [1, 1]}
+  ],
+  "nodes": [
+    {"id": "real", "label": "greet", "sub": "STATIC 目标", "at": [0, 0]},
+    {"id": "alias", "label": "Greet::greet", "sub": "ALIAS", "at": [1, 0]},
+    {"id": "app1", "label": "app", "sub": "同一构建树", "at": [2, 0]},
+    {"id": "file", "label": "GreetTargets", "sub": "安装出来的文件", "at": [0, 1], "shape": "store"},
+    {"id": "imported", "label": "Greet::greet", "sub": "IMPORTED", "at": [1, 1]},
+    {"id": "app2", "label": "app", "sub": "下游工程", "at": [2, 1]}
+  ],
+  "edges": [
+    {"id": "real_alias", "from": "real", "to": "alias", "label": "别名"},
+    {"id": "alias_app", "from": "alias", "to": "app1", "label": "链接"},
+    {"id": "file_import", "from": "file", "to": "imported", "label": "导入"},
+    {"id": "import_app", "from": "imported", "to": "app2", "label": "链接"}
+  ],
+  "steps": [
+    {
+      "hi": ["real"],
+      "note": "同一构建树里 add_library(greet) 定义真实目标"
+    },
+    {
+      "token": [{"edge": "real_alias", "label": "ALIAS"}],
+      "hi": ["real_alias", "alias"],
+      "note": "add_library(Greet::greet ALIAS greet) 给它另一个名字"
+    },
+    {
+      "token": [{"edge": "alias_app", "label": "链接"}],
+      "hi": ["alias_app", "app1"],
+      "note": "构建树里链 Greet::greet，实际链到 libgreet.a"
+    },
+    {
+      "hi": ["file"],
+      "note": "install(EXPORT) 生成时写进 build，安装时复制到 prefix"
+    },
+    {
+      "token": [{"edge": "file_import", "label": "导入"}],
+      "hi": ["file_import", "imported"],
+      "note": "下游 include 后，同名目标变成 IMPORTED"
+    },
+    {
+      "token": [{"edge": "import_app", "label": "链接"}],
+      "hi": ["import_app", "app2"],
+      "note": "下游链同一个名字，拿到 prefix 里的 .a 和 include"
+    }
+  ]
+}

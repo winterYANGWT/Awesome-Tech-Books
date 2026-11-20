@@ -1,0 +1,140 @@
+{
+  "kind": "flow",
+  "title": "三个文件名分别在什么时候用",
+  "alt": "链接时找 libx.so，运行时按 SONAME 找 libx.so.1，真正的内容在 libx.so.1.2.3",
+  "static": true,
+  "grid": [
+    4,
+    2
+  ],
+  "bands": [
+    {
+      "label": "链接时",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "运行时",
+      "rows": [
+        1,
+        1
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "link",
+      "label": "链接命令",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "-lx"
+    },
+    {
+      "id": "so",
+      "label": "libx.so",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "符号链接"
+    },
+    {
+      "id": "soname",
+      "label": "libx.so.1",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "SONAME"
+    },
+    {
+      "id": "real",
+      "label": "libx.so.1.2.3",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "真正的文件"
+    },
+    {
+      "id": "loader",
+      "label": "动态链接器",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "启动 app"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "link",
+      "to": "so",
+      "label": "找 -lx"
+    },
+    {
+      "id": "e2",
+      "from": "so",
+      "to": "soname",
+      "label": "指向"
+    },
+    {
+      "id": "e3",
+      "from": "soname",
+      "to": "real",
+      "label": "指向"
+    },
+    {
+      "id": "e4",
+      "from": "loader",
+      "to": "soname",
+      "label": "DT_NEEDED"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "e1",
+          "label": "-lx"
+        }
+      ],
+      "note": "安装后的下游用 -lx 时找 libx.so，开发包提供这个链接"
+    },
+    {
+      "hi": [
+        "so"
+      ],
+      "token": [
+        {
+          "edge": "e2",
+          "label": "符号链接"
+        }
+      ],
+      "note": "构建时 CMake 把 libx.so 做成指向 libx.so.1 的符号链接"
+    },
+    {
+      "token": [
+        {
+          "edge": "e4",
+          "label": "libx.so.1"
+        }
+      ],
+      "note": "运行时程序的 DT_NEEDED 记的是 SONAME libx.so.1"
+    },
+    {
+      "token": [
+        {
+          "edge": "e3",
+          "label": "打开"
+        }
+      ],
+      "note": "libx.so.1 再指向真正带版本号的 libx.so.1.2.3"
+    }
+  ]
+}

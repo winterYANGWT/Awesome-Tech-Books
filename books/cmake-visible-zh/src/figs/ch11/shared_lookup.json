@@ -1,0 +1,85 @@
+{
+  "kind": "seq",
+  "title": "动态链接器怎么找到 libx.so",
+  "alt": "先看 LD_LIBRARY_PATH，再看 app 的 RUNPATH；都没有才查系统目录",
+  "lanes": [
+    {
+      "id": "app",
+      "label": "app",
+      "role": "process"
+    },
+    {
+      "id": "ld",
+      "label": "动态链接器",
+      "role": "process"
+    },
+    {
+      "id": "fs",
+      "label": "文件系统",
+      "role": "memory"
+    },
+    {
+      "id": "sys",
+      "label": "系统目录",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "need",
+      "label": "要找的库",
+      "value": "libx.so"
+    },
+    {
+      "id": "where",
+      "label": "在哪找到",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "from": "app",
+      "to": "ld",
+      "text": "启动 app",
+      "note": "运行 app 时，内核先把控制权交给动态链接器"
+    },
+    {
+      "at": "ld",
+      "text": "读 DT_NEEDED",
+      "note": "app 的 ELF 里记着依赖 libx.so，这是库的 SONAME"
+    },
+    {
+      "at": "ld",
+      "text": "查 LD_LIBRARY_PATH",
+      "tone": "wait",
+      "note": "环境变量里列了目录就先查它；本例没有设置或没有命中"
+    },
+    {
+      "at": "ld",
+      "text": "读 app 的 RUNPATH",
+      "tone": "hot",
+      "note": "再读 app 的 DT_RUNPATH，里面是 /work/build"
+    },
+    {
+      "from": "ld",
+      "to": "fs",
+      "text": "打开 libx.so",
+      "set": {
+        "where": "/work/build"
+      },
+      "note": "在 /work/build 下找到 libx.so"
+    },
+    {
+      "at": "ld",
+      "text": "映射、解析符号",
+      "tone": "ok",
+      "note": "把库映射进进程，找到 x_value 的地址，程序开始运行"
+    },
+    {
+      "at": "sys",
+      "text": "都没命中时",
+      "tone": "muted",
+      "note": "才查 ld.so.cache 和 /lib、/usr/lib；本例在 RUNPATH 命中"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "kind": "flow",
+  "title": "编译和链接上挂什么",
+  "alt": "启动器和 co-compile 包在编译命令外，编译选项交给编译器，链接选项只在链接时加",
+  "static": true,
+  "grid": [
+    4,
+    2
+  ],
+  "bands": [
+    {
+      "label": "编译",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "链接",
+      "rows": [
+        1,
+        1
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "tidy",
+      "label": "co-compile",
+      "sub": "clang-tidy / cppcheck",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "launcher",
+      "label": "启动器",
+      "sub": "ccache / log-cc.sh",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "cc",
+      "label": "编译器",
+      "sub": "g++ + 编译选项",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "obj",
+      "label": ".o",
+      "at": [
+        3,
+        0
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "ldflags",
+      "label": "链接选项",
+      "sub": "-fsanitize\n--coverage",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "ld",
+      "label": "链接器",
+      "sub": "g++",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "app",
+      "label": "app",
+      "at": [
+        3,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "tidy_launcher",
+      "from": "tidy",
+      "to": "launcher",
+      "label": "包一层"
+    },
+    {
+      "id": "launcher_cc",
+      "from": "launcher",
+      "to": "cc",
+      "label": "调用"
+    },
+    {
+      "id": "cc_obj",
+      "from": "cc",
+      "to": "obj",
+      "label": "产出"
+    },
+    {
+      "id": "obj_ld",
+      "from": "obj",
+      "to": "ld",
+      "label": "链接"
+    },
+    {
+      "id": "ldflags_ld",
+      "from": "ldflags",
+      "to": "ld",
+      "label": "追加"
+    },
+    {
+      "id": "ld_app",
+      "from": "ld",
+      "to": "app",
+      "label": "产出"
+    }
+  ],
+  "steps": [
+    {
+      "note": "co-compile 包住启动器，启动器再调编译器；目标编译选项只进编译，目标链接选项只进链接"
+    }
+  ]
+}

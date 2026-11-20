@@ -1,0 +1,122 @@
+{
+  "kind": "seq",
+  "title": "两条命令，三个阶段",
+  "alt": "cmake 负责配置和生成，ninja 负责构建；build.ninja 过期时 ninja 会回头再调 cmake",
+  "lanes": [
+    {
+      "id": "you",
+      "label": "命令行",
+      "role": "process"
+    },
+    {
+      "id": "cmake",
+      "label": "cmake"
+    },
+    {
+      "id": "dir",
+      "label": "构建目录",
+      "role": "memory"
+    },
+    {
+      "id": "ninja",
+      "label": "ninja"
+    },
+    {
+      "id": "cc",
+      "label": "g++",
+      "role": "process"
+    }
+  ],
+  "state": [
+    {
+      "id": "phase",
+      "label": "阶段",
+      "value": "—"
+    },
+    {
+      "id": "files",
+      "label": "构建目录里",
+      "value": "空"
+    }
+  ],
+  "steps": [
+    {
+      "from": "you",
+      "to": "cmake",
+      "text": "cmake -S src -B build",
+      "set": {
+        "phase": "配置"
+      },
+      "note": "第一条命令：cmake 读 CMakeLists.txt，从第一行执行到最后一行"
+    },
+    {
+      "at": "cmake",
+      "text": "逐行执行 CMakeLists.txt",
+      "tone": "hot",
+      "set": {
+        "files": "CMakeFiles/"
+      },
+      "note": "配置阶段：变量、缓存、目标在内存；project() 在 CMakeFiles/ 写编译器检测结果"
+    },
+    {
+      "from": "cmake",
+      "to": "dir",
+      "text": "CMakeCache.txt",
+      "set": {
+        "files": "CMakeFiles/、缓存"
+      },
+      "note": "配置结束，缓存写进 CMakeCache.txt，下次配置从这里读回"
+    },
+    {
+      "from": "cmake",
+      "to": "dir",
+      "text": "build.ninja",
+      "set": {
+        "phase": "生成",
+        "files": "CMakeFiles/、缓存、构建规则"
+      },
+      "note": "生成阶段：求值 $<…>，把每个目标翻译成 Ninja 的构建规则"
+    },
+    {
+      "from": "you",
+      "to": "ninja",
+      "text": "cmake --build build",
+      "set": {
+        "phase": "构建"
+      },
+      "note": "第二条命令：cmake --build 只是替你调用 ninja"
+    },
+    {
+      "from": "dir",
+      "to": "ninja",
+      "text": "读 build.ninja",
+      "note": "ninja 不认识 CMakeLists.txt，只照 build.ninja 做事"
+    },
+    {
+      "from": "ninja",
+      "to": "cc",
+      "text": "编译、链接",
+      "tone": "ok",
+      "set": {
+        "files": "CMakeFiles/、缓存、规则、程序"
+      },
+      "note": "构建阶段：真正调用编译器，产出 .o 和可执行文件"
+    },
+    {
+      "at": "you",
+      "text": "改了 CMakeLists.txt",
+      "tone": "wait",
+      "note": "之后改了 CMakeLists.txt，再执行 cmake --build"
+    },
+    {
+      "from": "ninja",
+      "to": "cmake",
+      "text": "build.ninja 过期",
+      "dashed": true,
+      "set": {
+        "phase": "重新配置"
+      },
+      "note": "ninja 发现 build.ninja 过期，先回头调 cmake 重新配置和生成"
+    }
+  ]
+}

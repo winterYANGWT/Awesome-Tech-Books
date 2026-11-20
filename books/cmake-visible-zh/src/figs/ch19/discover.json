@@ -1,0 +1,97 @@
+{
+  "kind": "seq",
+  "title": "gtest_discover_tests 什么时候列出用例",
+  "alt": "配置时只登记 POST_BUILD 命令，构建链接后运行测试程序列出用例，再写进 CTest 清单",
+  "lanes": [
+    {
+      "id": "cmake",
+      "label": "CMake 配置"
+    },
+    {
+      "id": "build",
+      "label": "构建",
+      "role": "process"
+    },
+    {
+      "id": "gtest",
+      "label": "测试程序 t",
+      "role": "process"
+    },
+    {
+      "id": "ctest",
+      "label": "ctest",
+      "role": "process"
+    }
+  ],
+  "state": [
+    {
+      "id": "list",
+      "label": "用例清单",
+      "value": "无"
+    }
+  ],
+  "steps": [
+    {
+      "at": "cmake",
+      "text": "`gtest_discover_tests`",
+      "note": "配置时只登记构建后的命令，不运行测试程序"
+    },
+    {
+      "from": "cmake",
+      "to": "build",
+      "text": "POST_BUILD",
+      "note": "命令挂在 t 链接之后，用例清单此时还不存在",
+      "lane": {
+        "cmake": "done"
+      }
+    },
+    {
+      "at": "build",
+      "text": "编译并链接 t",
+      "note": "构建页第 2 条命令末尾接着执行发现脚本"
+    },
+    {
+      "from": "build",
+      "to": "gtest",
+      "text": "`--gtest_list_tests`",
+      "note": "发现脚本运行测试程序，只取用例名"
+    },
+    {
+      "at": "gtest",
+      "text": "列出 3 个用例",
+      "set": {
+        "list": "3 个"
+      },
+      "note": "不执行测试体；输出写成 JSON 交给脚本"
+    },
+    {
+      "from": "gtest",
+      "to": "build",
+      "text": "JSON 用例表",
+      "note": "脚本按用例名生成 add_test 命令"
+    },
+    {
+      "at": "build",
+      "text": "写 `t[1]_tests.cmake`",
+      "set": {
+        "list": "3 条 add_test"
+      },
+      "note": "生成的文件里每个用例一条 add_test"
+    },
+    {
+      "from": "build",
+      "to": "ctest",
+      "text": "用例清单",
+      "lane": {
+        "build": "done",
+        "ctest": "new"
+      },
+      "note": "CTestTestfile.cmake 经 t[1]_include 再 include 清单"
+    },
+    {
+      "at": "ctest",
+      "text": "逐个用例运行",
+      "note": "每个用例单独执行一次，不再重新发现"
+    }
+  ]
+}

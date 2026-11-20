@@ -1,0 +1,25 @@
+{
+  "kind": "flow",
+  "title": "一条命令怎样变成参数列表",
+  "alt": "空白先分段，变量展开后分号再拆开，引号里的空格始终是一段",
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "text", "label": "一行命令", "sub": "`show(${FLAGS} \"a b\")`", "at": [0, 0]},
+    {"id": "lex", "label": "按空白切", "sub": "—", "at": [1, 0]},
+    {"id": "exp", "label": "展开变量", "sub": "`${FLAGS}`", "at": [2, 0]},
+    {"id": "args", "label": "命令收到", "sub": "—", "at": [3, 0]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "text", "to": "lex", "label": "切分"},
+    {"id": "e2", "from": "lex", "to": "exp", "label": "展开"},
+    {"id": "e3", "from": "exp", "to": "args", "label": "分号拆开"}
+  ],
+  "steps": [
+    {"hi": ["text"], "note": "FLAGS 的值是 -Wall;-Wextra，命令里另有一个带空格的 a b"},
+    {"token": [{"edge": "e1", "label": "切分"}], "set": {"lex": "2 段"}, "note": "按空白切：${FLAGS} 是一段，引号里的空格不切"},
+    {"token": [{"edge": "e2", "label": "展开"}], "set": {"exp": "`-Wall;-Wextra`"}, "note": "${FLAGS} 在命令执行前展开成它的值"},
+    {"hi": ["exp"], "note": "此时分号还只是变量值的一部分，没有成为参数边界"},
+    {"token": [{"edge": "e3", "label": "按分号"}], "set": {"args": "3 个参数"}, "note": "未加引号的展开值按分号拆成两个参数"},
+    {"hi": ["args"], "tone": {"args": "ok"}, "note": "最终是 -Wall、-Wextra、a b 三个参数，ARGC=3"}
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "kind": "seq",
+  "title": "生成器表达式在生成阶段求值",
+  "alt": "配置时属性里只存 $<…>；生成时对每个目标和每种配置求值，结果写进 build.ninja",
+  "lanes": [
+    {
+      "id": "cmake",
+      "label": "cmake",
+      "role": "process"
+    },
+    {
+      "id": "props",
+      "label": "目标属性",
+      "role": "memory"
+    },
+    {
+      "id": "gen",
+      "label": "生成器",
+      "role": "process"
+    },
+    {
+      "id": "rules",
+      "label": "build.ninja",
+      "role": "memory"
+    },
+    {
+      "id": "cc",
+      "label": "ninja / g++",
+      "role": "process"
+    }
+  ],
+  "state": [
+    {
+      "id": "config",
+      "label": "配置",
+      "value": "Debug"
+    },
+    {
+      "id": "prop",
+      "label": "编译选项",
+      "value": "$<IF…>"
+    },
+    {
+      "id": "result",
+      "label": "求值结果",
+      "value": "—"
+    },
+    {
+      "id": "rule",
+      "label": "编译规则",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "from": "cmake",
+      "to": "props",
+      "text": "存 $<IF…>",
+      "set": {
+        "prop": "$<IF…>"
+      },
+      "note": "配置阶段执行 target_compile_options，表达式原样存进目标属性"
+    },
+    {
+      "at": "props",
+      "text": "只有字符串",
+      "tone": "hot",
+      "note": "属性里没有 -O0 或 -O2，只有一段待求值的字符串"
+    },
+    {
+      "from": "cmake",
+      "to": "gen",
+      "text": "进入生成",
+      "note": "配置结束；生成器开始处理所有目标，这时还没有构建"
+    },
+    {
+      "from": "props",
+      "to": "gen",
+      "text": "读出 $<…>",
+      "note": "生成器读出属性里的表达式，此时才知道配置名"
+    },
+    {
+      "at": "gen",
+      "text": "Debug → -O0",
+      "set": {
+        "result": "-O0",
+        "config": "Debug"
+      },
+      "note": "对 Debug 求值：条件为真，得到 -O0；Release 会得到 -O2"
+    },
+    {
+      "from": "gen",
+      "to": "rules",
+      "text": "写入 -O0",
+      "set": {
+        "rule": "含 -O0"
+      },
+      "note": "求值结果写进 build.ninja 的编译规则"
+    },
+    {
+      "at": "rules",
+      "text": "没有 $<…>",
+      "tone": "ok",
+      "note": "生成页里看到的是具体参数和它来自哪条命令"
+    },
+    {
+      "from": "rules",
+      "to": "cc",
+      "text": "cmake --build",
+      "note": "构建阶段照规则执行；生成器表达式已经不存在了"
+    }
+  ]
+}

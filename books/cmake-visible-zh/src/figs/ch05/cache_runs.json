@@ -1,0 +1,127 @@
+{
+  "kind": "seq",
+  "title": "三次配置之间，缓存里的 USE_FAST",
+  "alt": "默认值只在缓存里没有该项时生效；删掉构建目录后，新的默认值才写进去",
+  "lanes": [
+    {
+      "id": "cmd",
+      "label": "命令行",
+      "role": "process"
+    },
+    {
+      "id": "lists",
+      "label": "CMakeLists.txt",
+      "role": "memory"
+    },
+    {
+      "id": "cmake",
+      "label": "cmake"
+    },
+    {
+      "id": "cache",
+      "label": "CMakeCache.txt",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "default",
+      "label": "默认值",
+      "value": "ON"
+    },
+    {
+      "id": "use_fast",
+      "label": "USE_FAST",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "from": "cmd",
+      "to": "cmake",
+      "text": "cmake -S src -B build",
+      "label": "第一次",
+      "note": "第一次配置，构建目录里还没有缓存"
+    },
+    {
+      "from": "lists",
+      "to": "cmake",
+      "text": "option(… ON)",
+      "set": {
+        "default": "ON"
+      },
+      "note": "CMakeLists.txt 里的默认值是 ON"
+    },
+    {
+      "from": "cmake",
+      "to": "cache",
+      "text": "写入 ON",
+      "tone": "ok",
+      "set": {
+        "use_fast": "ON"
+      },
+      "note": "第一次配置把默认值写进缓存"
+    },
+    {
+      "at": "lists",
+      "text": "改成 OFF",
+      "tone": "wait",
+      "label": "第二次",
+      "set": {
+        "default": "OFF"
+      },
+      "note": "把 option() 的默认值改成 OFF，不删缓存再配置"
+    },
+    {
+      "from": "cache",
+      "to": "cmake",
+      "text": "先读回 ON",
+      "tone": "hot",
+      "note": "配置开始时 CMake 先把旧的缓存读回来"
+    },
+    {
+      "from": "lists",
+      "to": "cmake",
+      "text": "默认值 OFF",
+      "note": "CMakeLists.txt 这次说的是 OFF"
+    },
+    {
+      "at": "cmake",
+      "text": "option() 什么都不做",
+      "tone": "bad",
+      "note": "缓存里已有 USE_FAST，option() 保留旧值 ON"
+    },
+    {
+      "from": "cmd",
+      "to": "cmake",
+      "text": "删掉 build/ 再配置",
+      "label": "从头",
+      "note": "从头配置：先删掉 build/，再执行 CMakeLists.txt"
+    },
+    {
+      "at": "cache",
+      "text": "缓存删掉",
+      "tone": "wait",
+      "set": {
+        "use_fast": "—"
+      },
+      "note": "CMakeCache.txt 被删掉，旧的 ON 不在了"
+    },
+    {
+      "from": "lists",
+      "to": "cmake",
+      "text": "默认值 OFF",
+      "note": "这一次没有旧缓存项挡着"
+    },
+    {
+      "from": "cmake",
+      "to": "cache",
+      "text": "写入 OFF",
+      "tone": "ok",
+      "set": {
+        "use_fast": "OFF"
+      },
+      "note": "新的默认值第一次生效，缓存里变成 OFF"
+    }
+  ]
+}

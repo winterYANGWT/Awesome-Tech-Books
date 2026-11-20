@@ -1,0 +1,77 @@
+{
+  "kind": "flow",
+  "title": "继承时缓存变量一层层合并",
+  "alt": "base 的两项先到 debug 再到 asan，strict 补一项，asan 自己再加一项",
+  "grid": [3, 4],
+  "nodes": [
+    {
+      "id": "base",
+      "label": "base",
+      "sub": "CMAKE_BUILD_TYPE\nPROJ_WARNINGS",
+      "at": [0, 0]
+    },
+    {
+      "id": "debug",
+      "label": "debug",
+      "sub": "继承 base",
+      "at": [0, 1]
+    },
+    {
+      "id": "strict",
+      "label": "strict",
+      "sub": "WERROR=ON",
+      "at": [2, 1]
+    },
+    {
+      "id": "asan",
+      "label": "asan",
+      "sub": "继承 debug、strict",
+      "at": [1, 2]
+    },
+    {
+      "id": "store",
+      "label": "缓存变量",
+      "sub": "—",
+      "at": [1, 3],
+      "shape": "store",
+      "hidden": true
+    }
+  ],
+  "edges": [
+    {"id": "e_base", "from": "base", "to": "debug", "label": "复制"},
+    {"id": "e_debug", "from": "debug", "to": "asan", "label": "两项"},
+    {"id": "e_strict", "from": "strict", "to": "asan", "label": "WERROR"}
+  ],
+  "steps": [
+    {
+      "hi": ["base"],
+      "note": "base：CMAKE_BUILD_TYPE=Debug、PROJ_WARNINGS=TRUE"
+    },
+    {
+      "token": [{"edge": "e_base", "label": "两项"}],
+      "set": {"debug": "继承两项"},
+      "note": "debug 不写 cacheVariables，原样继承 base 的两项"
+    },
+    {
+      "token": [{"edge": "e_debug", "label": "两项"}],
+      "show": ["store"],
+      "set": {"store": "已继承 2 项"},
+      "note": "asan 先复制 debug 的两项，也就是 base 的那两项"
+    },
+    {
+      "hi": ["strict"],
+      "note": "strict 只有一项 PROJ_WERROR=ON，hidden 预设也能当父预设"
+    },
+    {
+      "token": [{"edge": "e_strict", "label": "WERROR"}],
+      "set": {"store": "已继承 3 项"},
+      "note": "多个父预设取并集，三项都进 asan 的缓存"
+    },
+    {
+      "hi": ["asan", "store"],
+      "tone": {"store": "ok"},
+      "set": {"store": "3 项 + SANITIZE"},
+      "note": "asan 自己的 PROJ_SANITIZE 最后加入，四项都在第一行之前写进缓存"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "kind": "seq",
+  "title": "同一个 ring，三种用法的选项和步骤",
+  "alt": "顶层构建打开测试、示例和警告；作为子目录时默认全关；安装后被消费只读 prefix",
+  "lanes": [
+    {
+      "id": "top",
+      "label": "顶层构建",
+      "role": "process"
+    },
+    {
+      "id": "sub",
+      "label": "作为子目录",
+      "role": "process"
+    },
+    {
+      "id": "use",
+      "label": "安装后消费",
+      "role": "process"
+    }
+  ],
+  "state": [
+    {
+      "id": "tests",
+      "label": "RING_BUILD_TESTS",
+      "value": "—"
+    },
+    {
+      "id": "examples",
+      "label": "RING_BUILD_EXAMPLES",
+      "value": "—"
+    },
+    {
+      "id": "warnings",
+      "label": "RING_WARNINGS",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "at": "top",
+      "text": "配置：顶层",
+      "set": {
+        "tests": "ON",
+        "examples": "ON",
+        "warnings": "ON"
+      },
+      "tone": "hot",
+      "note": "PROJECT_IS_TOP_LEVEL=ON，三个选项的默认值都是 ON"
+    },
+    {
+      "at": "top",
+      "text": "构建库、测试、示例",
+      "note": "顶层工程把 tests/ 和 examples/ 都加进构建"
+    },
+    {
+      "at": "top",
+      "text": "ctest",
+      "tone": "ok",
+      "note": "测试在构建目录里运行，两个用例都通过"
+    },
+    {
+      "at": "top",
+      "text": "安装：写 Targets",
+      "note": "安装规则只在顶层工程里登记，prefix 里出现 Config 和 Targets"
+    },
+    {
+      "at": "sub",
+      "text": "add_subdirectory(..)",
+      "lane": {
+        "top": "done",
+        "sub": "new"
+      },
+      "set": {
+        "tests": "OFF",
+        "examples": "OFF",
+        "warnings": "OFF"
+      },
+      "tone": "wait",
+      "note": "ring 不是顶层，PROJECT_IS_TOP_LEVEL=OFF，三个选项默认 OFF"
+    },
+    {
+      "at": "sub",
+      "text": "只编库和 app",
+      "tone": "ok",
+      "note": "同一份源码，测试和示例的目标根本没有创建"
+    },
+    {
+      "at": "use",
+      "text": "find_package(ring)",
+      "lane": {
+        "sub": "done",
+        "use": "new"
+      },
+      "set": {
+        "tests": "—",
+        "examples": "—",
+        "warnings": "—"
+      },
+      "tone": "hot",
+      "note": "只读 prefix 的 Config 和 Targets，不执行顶层 CMakeLists"
+    },
+    {
+      "at": "use",
+      "text": "编译并运行",
+      "tone": "ok",
+      "note": "ring::ring 带来头文件和库，消费工程不碰源码树"
+    }
+  ]
+}

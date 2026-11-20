@@ -1,0 +1,138 @@
+{
+  "kind": "flow",
+  "title": "目录级命令顺着目录树扩散",
+  "alt": "顶层目录的 include_directories 被子目录继承，连无关的 helper 也拿到 -I",
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "root",
+      "label": "顶层目录",
+      "sub": "属性：空",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "sub",
+      "label": "子目录",
+      "sub": "属性：空",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "app",
+      "label": "目标 app",
+      "sub": "还没创建",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "helper",
+      "label": "目标 helper",
+      "sub": "还没创建",
+      "at": [
+        2,
+        2
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "to_sub",
+      "from": "root",
+      "to": "sub",
+      "label": "进入"
+    },
+    {
+      "id": "to_app",
+      "from": "root",
+      "to": "app",
+      "label": "创建"
+    },
+    {
+      "id": "to_helper",
+      "from": "sub",
+      "to": "helper",
+      "label": "创建"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "root"
+      ],
+      "tone": {
+        "root": "hot"
+      },
+      "set": {
+        "root": "属性=include/common"
+      },
+      "note": "顶层执行 include_directories，写进目录属性"
+    },
+    {
+      "token": [
+        {
+          "edge": "to_sub",
+          "label": "继承"
+        }
+      ],
+      "set": {
+        "sub": "属性=include/common"
+      },
+      "note": "add_subdirectory 把目录属性复制给子目录",
+      "hi": [
+        "sub"
+      ]
+    },
+    {
+      "token": [
+        {
+          "edge": "to_helper",
+          "label": "-I"
+        }
+      ],
+      "set": {
+        "helper": "也获得 -I"
+      },
+      "tone": {
+        "helper": "bad"
+      },
+      "hi": [
+        "helper"
+      ],
+      "note": "子目录创建 helper，虽与这个头文件无关也拿到 -I"
+    },
+    {
+      "token": [
+        {
+          "edge": "to_app",
+          "label": "-I"
+        }
+      ],
+      "set": {
+        "app": "获得 -I"
+      },
+      "note": "顶层创建 app，目标从目录属性拿到 -I",
+      "hi": [
+        "app"
+      ]
+    },
+    {
+      "hi": [
+        "helper"
+      ],
+      "tone": {
+        "helper": "bad"
+      },
+      "note": "add_definitions() 同样；link_directories() 只对之后目标加 -L"
+    }
+  ]
+}

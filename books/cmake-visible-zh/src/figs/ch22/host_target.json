@@ -1,0 +1,44 @@
+{
+  "kind": "seq",
+  "title": "生成器程序按主机编译，产物再交给交叉编译器",
+  "alt": "生成器在主机上编译并运行，写出的源文件由交叉编译器编成目标库",
+  "lanes": [
+    {
+      "id": "host",
+      "label": "主机"
+    },
+    {
+      "id": "target",
+      "label": "目标"
+    }
+  ],
+  "steps": [
+    {
+      "at": "host",
+      "text": "编译 gen",
+      "note": "生成器程序用主机编译器编译"
+    },
+    {
+      "at": "host",
+      "text": "运行 gen",
+      "note": "gen 构建时运行，读表写出 .cpp"
+    },
+    {
+      "from": "host",
+      "to": "target",
+      "text": "生成的 .cpp",
+      "note": "生成的文件作为目标库的源文件"
+    },
+    {
+      "at": "target",
+      "text": "clang --target",
+      "note": "交叉编译器编出 AArch64 目标文件"
+    },
+    {
+      "at": "target",
+      "text": "libblob.a",
+      "tone": "ok",
+      "note": "目标产物在主机上不能运行"
+    }
+  ]
+}

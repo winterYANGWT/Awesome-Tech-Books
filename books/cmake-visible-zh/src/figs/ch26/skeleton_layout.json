@@ -1,0 +1,122 @@
+{
+  "kind": "flow",
+  "title": "ring 的目录：每个文件各管什么",
+  "alt": "顶层定目标和选项，include/src 是库，cmake 管安装，其余分层验证",
+  "grid": [
+    3,
+    3
+  ],
+  "bands": [
+    {
+      "label": "构建定义",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "库本身",
+      "rows": [
+        1,
+        1
+      ]
+    },
+    {
+      "label": "验证",
+      "rows": [
+        2,
+        2
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "cml",
+      "label": "CMakeLists.txt",
+      "at": [
+        0,
+        0
+      ],
+      "sub": "project / 选项 / 目标"
+    },
+    {
+      "id": "presets",
+      "label": "CMakePresets",
+      "at": [
+        1,
+        0
+      ],
+      "sub": "debug / release / asan"
+    },
+    {
+      "id": "cmake",
+      "label": "cmake/",
+      "at": [
+        2,
+        0
+      ],
+      "sub": "安装规则 + Config 模板"
+    },
+    {
+      "id": "include",
+      "label": "include/ring/",
+      "at": [
+        0,
+        1
+      ],
+      "sub": "ring.hpp"
+    },
+    {
+      "id": "blib",
+      "label": "generated/ring/",
+      "at": [
+        2,
+        1
+      ],
+      "sub": "ring_export.h（构建树）"
+    },
+    {
+      "id": "src",
+      "label": "src/",
+      "at": [
+        1,
+        1
+      ],
+      "sub": "ring.cpp 实现"
+    },
+    {
+      "id": "tests",
+      "label": "tests/",
+      "at": [
+        0,
+        2
+      ],
+      "sub": "GTest + ctest"
+    },
+    {
+      "id": "examples",
+      "label": "examples/",
+      "at": [
+        1,
+        2
+      ],
+      "sub": "ring_demo"
+    },
+    {
+      "id": "consumer",
+      "label": "consumer/",
+      "at": [
+        2,
+        2
+      ],
+      "sub": "只从 prefix 找包"
+    }
+  ],
+  "edges": [],
+  "static": true,
+  "steps": [
+    {
+      "note": "同一份源码：顶层构建、被 add_subdirectory、安装后 find_package 都能用"
+    }
+  ]
+}

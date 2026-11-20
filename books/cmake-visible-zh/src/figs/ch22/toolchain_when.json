@@ -1,0 +1,88 @@
+{
+  "kind": "seq",
+  "title": "工具链文件在什么时候被读",
+  "alt": "project() 里先读工具链文件换编译器，try_compile 子工程再读一次",
+  "lanes": [
+    {
+      "id": "cli",
+      "label": "命令行",
+      "role": "process"
+    },
+    {
+      "id": "cmake",
+      "label": "cmake"
+    },
+    {
+      "id": "tc",
+      "label": "工具链文件",
+      "role": "process"
+    },
+    {
+      "id": "try",
+      "label": "try_compile",
+      "role": "process"
+    }
+  ],
+  "state": [
+    {
+      "id": "cxx",
+      "label": "CMAKE_CXX_COMPILER",
+      "value": "（未设）"
+    }
+  ],
+  "steps": [
+    {
+      "from": "cli",
+      "to": "cmake",
+      "text": "--toolchain …",
+      "note": "命令行只告诉 cmake 文件在哪"
+    },
+    {
+      "at": "cmake",
+      "text": "写进缓存",
+      "note": "CMAKE_TOOLCHAIN_FILE 先记进缓存"
+    },
+    {
+      "from": "cmake",
+      "to": "tc",
+      "text": "第一次读",
+      "note": "project() 第一次读：此刻 CMAKE_CXX_COMPILER 还是空的"
+    },
+    {
+      "at": "tc",
+      "text": "set clang++",
+      "tone": "hot",
+      "set": {
+        "cxx": "clang++"
+      },
+      "note": "文件里把 CMAKE_CXX_COMPILER 设成 clang++"
+    },
+    {
+      "from": "cmake",
+      "to": "tc",
+      "text": "第二次读",
+      "note": "马上再读一遍：这次已经能看到 clang++"
+    },
+    {
+      "from": "tc",
+      "to": "cmake",
+      "text": "clang++",
+      "set": {
+        "cxx": "/usr/bin/clang++"
+      },
+      "note": "project() 之后编译器解析成 /usr/bin/clang++"
+    },
+    {
+      "from": "cmake",
+      "to": "try",
+      "text": "检测编译器",
+      "note": "project() 内部用 try_compile 编译检测程序"
+    },
+    {
+      "from": "try",
+      "to": "tc",
+      "text": "再读一次",
+      "note": "子工程用同一份工具链文件重新配置，输出默认不转发"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "kind": "flow",
+  "title": "同一份表达式，每种配置各求一次值",
+  "alt": "属性里只有一份 $<CONFIG>；生成时按三种配置各写一份 APP_CONFIG 编译定义",
+  "static": true,
+  "grid": [3, 3],
+  "nodes": [
+    {
+      "id": "expr",
+      "label": "$<CONFIG>",
+      "sub": "target_compile_\ndefinitions",
+      "at": [0, 1]
+    },
+    {"id": "appd", "label": "app / Debug", "at": [1, 0]},
+    {"id": "appr", "label": "app / Release", "at": [1, 1]},
+    {"id": "appw", "label": "app / RelWith\nDebInfo", "at": [1, 2]},
+    {"id": "rd", "label": "APP_CONFIG=\n\"Debug\"", "at": [2, 0], "shape": "store"},
+    {"id": "rr", "label": "APP_CONFIG=\n\"Release\"", "at": [2, 1], "shape": "store"},
+    {"id": "rw", "label": "APP_CONFIG=\n\"RelWithDebInfo\"", "at": [2, 2], "shape": "store"}
+  ],
+  "edges": [
+    {"id": "ed", "from": "expr", "to": "appd"},
+    {"id": "er", "from": "expr", "to": "appr"},
+    {"id": "ew", "from": "expr", "to": "appw"},
+    {"id": "dd", "from": "appd", "to": "rd"},
+    {"id": "dr", "from": "appr", "to": "rr"},
+    {"id": "dw", "from": "appw", "to": "rw"}
+  ],
+  "steps": [
+    {
+      "note": "属性里存一份 $<CONFIG>；生成时按三个配置各写一份编译定义"
+    }
+  ]
+}

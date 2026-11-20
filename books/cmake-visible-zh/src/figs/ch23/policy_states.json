@@ -1,0 +1,134 @@
+{
+  "kind": "seq",
+  "title": "option() 执行时先查策略表",
+  "alt": "新工程里 CMP0077 是 NEW，option() 不动；旧工程里它未设置，按 OLD 覆盖普通变量",
+  "speed": 1600,
+  "lanes": [
+    {
+      "id": "file",
+      "label": "CMakeLists.txt",
+      "role": "process"
+    },
+    {
+      "id": "policy",
+      "label": "策略表",
+      "role": "memory"
+    },
+    {
+      "id": "cache",
+      "label": "缓存",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "cmp",
+      "label": "CMP0077",
+      "value": "—"
+    },
+    {
+      "id": "var",
+      "label": "普通变量",
+      "value": "—"
+    },
+    {
+      "id": "cache",
+      "label": "缓存",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "label": "新工程",
+      "from": "file",
+      "to": "policy",
+      "text": "VERSION 3.25...4.2",
+      "set": {
+        "cmp": "NEW"
+      },
+      "tone": "ok",
+      "note": "策略版本 4.2：到 4.2 为止的策略都设成 NEW，3.13 加的 CMP0077 在内"
+    },
+    {
+      "at": "file",
+      "text": "set(WANT_FAST OFF)",
+      "set": {
+        "var": "WANT_FAST=OFF"
+      },
+      "note": "先建一个同名普通变量 OFF"
+    },
+    {
+      "from": "file",
+      "to": "policy",
+      "text": "option(WANT_FAST … ON)",
+      "note": "option() 先查 CMP0077"
+    },
+    {
+      "from": "policy",
+      "to": "file",
+      "text": "NEW：什么也不做",
+      "tone": "ok",
+      "set": {
+        "cache": "没有 WANT_FAST"
+      },
+      "note": "NEW：已有普通变量，option() 不建缓存，程序看到 OFF"
+    },
+    {
+      "span": [
+        "file",
+        "policy",
+        "cache"
+      ],
+      "text": "换成 VERSION 3.12 的旧工程",
+      "label": "旧工程",
+      "set": {
+        "cmp": "—",
+        "var": "—",
+        "cache": "—"
+      },
+      "note": "同样两行代码，放进一个最低版本写 3.12 的工程"
+    },
+    {
+      "from": "file",
+      "to": "policy",
+      "text": "VERSION 3.12",
+      "set": {
+        "cmp": "未设置"
+      },
+      "tone": "wait",
+      "note": "CMP0077 是 3.13 加的，比策略版本新：未设置"
+    },
+    {
+      "at": "file",
+      "text": "set(WANT_FAST OFF)",
+      "set": {
+        "var": "WANT_FAST=OFF"
+      },
+      "note": "同样先建普通变量 OFF"
+    },
+    {
+      "from": "file",
+      "to": "policy",
+      "text": "option(WANT_FAST … ON)",
+      "note": "同一行 option()，同样先查 CMP0077"
+    },
+    {
+      "from": "policy",
+      "to": "file",
+      "text": "未设置：警告，按 OLD",
+      "tone": "wait",
+      "note": "查到未设置：打一条策略警告，然后按 OLD 执行"
+    },
+    {
+      "from": "file",
+      "to": "cache",
+      "text": "建 WANT_FAST=ON",
+      "tone": "bad",
+      "set": {
+        "var": "被删掉",
+        "cache": "WANT_FAST=ON"
+      },
+      "note": "OLD：删掉普通变量，在缓存里建 ON；程序看到 ON"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "kind": "flow",
+  "title": "旧写法和新写法的对应",
+  "alt": "目录命令、全局 flags、变量和宏，各自换成只作用在目标上的写法",
+  "static": true,
+  "grid": [3, 4],
+  "nodes": [
+    {"id": "dir", "label": "目录命令", "sub": "`include_directories`", "at": [0, 0]},
+    {"id": "tdir", "label": "目标命令", "sub": "`target_*`", "at": [2, 0]},
+    {"id": "flags", "label": "全局 flags", "sub": "`CMAKE_CXX_FLAGS`", "at": [0, 1]},
+    {"id": "topt", "label": "目标选项", "sub": "`target_compile_options`", "at": [2, 1]},
+    {"id": "vars", "label": "变量", "sub": "`${X_LIBRARIES}`", "at": [0, 2]},
+    {"id": "target", "label": "导入目标", "sub": "`X::X`", "at": [2, 2]},
+    {"id": "macro", "label": "宏", "sub": "在调用者作用域展开", "at": [0, 3]},
+    {"id": "func", "label": "函数", "sub": "自己的变量作用域", "at": [2, 3]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "dir", "to": "tdir", "label": "逐个目标"},
+    {"id": "e2", "from": "flags", "to": "topt"},
+    {"id": "e3", "from": "vars", "to": "target"},
+    {"id": "e4", "from": "macro", "to": "func"}
+  ],
+  "steps": [
+    {"note": "左边四种旧写法都作用在目录或全局；右边四种只改一个目标，或只影响一次调用"}
+  ]
+}

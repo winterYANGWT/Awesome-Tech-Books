@@ -1,0 +1,18 @@
+{
+  "kind": "seq",
+  "title": "install() 的三个阶段",
+  "alt": "配置只登记规则，生成写脚本，安装才复制文件并改 RUNPATH",
+  "lanes": [
+    {"id": "cfg", "label": "配置阶段"},
+    {"id": "gen", "label": "生成阶段"},
+    {"id": "inst", "label": "安装阶段"},
+    {"id": "prefix", "label": "安装前缀", "role": "memory"}
+  ],
+  "steps": [
+    {"at": "cfg", "text": "登记安装规则", "note": "配置阶段只把目标、文件、目的地记在内存里"},
+    {"at": "gen", "text": "写 cmake_install.cmake", "note": "生成阶段把安装规则写成一个 CMake 脚本"},
+    {"at": "inst", "text": "执行安装脚本", "note": "cmake --install 从脚本第一条开始执行"},
+    {"from": "inst", "to": "prefix", "text": "复制文件", "note": "按 DESTINATION 建好 bin/、lib/、include/，再复制"},
+    {"from": "inst", "to": "prefix", "text": "改 RUNPATH", "note": "安装共享库的程序时，按 CMAKE_INSTALL_RPATH 改写 RUNPATH"}
+  ]
+}

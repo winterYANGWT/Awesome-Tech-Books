@@ -1,0 +1,94 @@
+{
+  "kind": "seq",
+  "title": "取依赖：先找包，找不到再解压",
+  "alt": "默认 OPT_IN 且带 FIND_PACKAGE_ARGS 时先找包；找到就用，找不到才解压到 _deps",
+  "lanes": [
+    {
+      "id": "app",
+      "label": "你的工程"
+    },
+    {
+      "id": "fc",
+      "label": "FetchContent"
+    },
+    {
+      "id": "pkg",
+      "label": "包/网络"
+    },
+    {
+      "id": "tree",
+      "label": "构建树",
+      "role": "memory"
+    }
+  ],
+  "state": [
+    {
+      "id": "deps",
+      "label": "build/_deps",
+      "value": "未创建"
+    }
+  ],
+  "steps": [
+    {
+      "at": "app",
+      "text": "Declare(tiny)",
+      "set": {
+        "deps": "未创建"
+      },
+      "note": "先登记 URL、哈希，有 FIND_PACKAGE_ARGS 也登记；这时不下载"
+    },
+    {
+      "at": "app",
+      "text": "MakeAvailable(tiny)",
+      "note": "到这一步才真正去满足这个依赖"
+    },
+    {
+      "from": "fc",
+      "to": "pkg",
+      "text": "find_package(tiny)",
+      "dashed": true,
+      "label": "有包时",
+      "note": "OPT_IN 且带 FIND_PACKAGE_ARGS 时先找；NEVER 跳过，ALWAYS 总找"
+    },
+    {
+      "at": "pkg",
+      "text": "找到：导入目标",
+      "tone": "ok",
+      "set": {
+        "deps": "仍然没有"
+      },
+      "note": "找到了就结束；不再解压，_deps 下不会多出东西"
+    },
+    {
+      "from": "fc",
+      "to": "tree",
+      "text": "解压到 tiny-src",
+      "tone": "hot",
+      "label": "没包时",
+      "set": {
+        "deps": "tiny-src"
+      },
+      "note": "没找到：按 URL 解压到 build/_deps/tiny-src"
+    },
+    {
+      "at": "tree",
+      "text": "tiny-build 目录",
+      "set": {
+        "deps": "src + build"
+      },
+      "note": "源码和构建目录分开；3.30 起 CMP0168 为 NEW 时没有 tiny-subbuild"
+    },
+    {
+      "at": "fc",
+      "text": "add_subdirectory",
+      "note": "把 tiny-src 当子目录处理，tiny 目标进入本工程"
+    },
+    {
+      "from": "fc",
+      "to": "app",
+      "text": "目标 tiny",
+      "tone": "ok",
+      "note": "系统包和源码都提供同名目标，链接代码不变"
+    }
+  ]
+}

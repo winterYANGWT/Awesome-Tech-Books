@@ -1,0 +1,89 @@
+{
+  "kind": "flow",
+  "title": "构建树到安装前缀",
+  "alt": "构建产物按 DESTINATION 分别进入前缀的 bin、lib、include",
+  "static": true,
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "build",
+      "label": "构建树",
+      "sub": "build/",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "prefix",
+      "label": "prefix/",
+      "sub": "cmake --install",
+      "at": [
+        1,
+        1
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "bin",
+      "label": "bin/",
+      "sub": "greet_app",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "lib",
+      "label": "lib/",
+      "sub": "libgreet.a",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "inc",
+      "label": "include/",
+      "sub": "greet/greet.h",
+      "at": [
+        2,
+        2
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "copy",
+      "from": "build",
+      "to": "prefix",
+      "label": "复制"
+    },
+    {
+      "id": "to_bin",
+      "from": "prefix",
+      "to": "bin"
+    },
+    {
+      "id": "to_lib",
+      "from": "prefix",
+      "to": "lib"
+    },
+    {
+      "id": "to_inc",
+      "from": "prefix",
+      "to": "inc"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "prefix"
+      ],
+      "note": "每条 DESTINATION 把一类产物放进前缀下的一个目录"
+    }
+  ]
+}

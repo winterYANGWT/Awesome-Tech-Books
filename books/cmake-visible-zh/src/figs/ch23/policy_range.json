@@ -1,0 +1,88 @@
+{
+  "kind": "flow",
+  "title": "min 管运行版本，max 管策略",
+  "alt": "运行中的 CMake 低于 min 会报错；策略到 max 为止全为 NEW，之后未设置、按 OLD",
+  "static": true,
+  "grid": [
+    2,
+    2
+  ],
+  "bands": [
+    {
+      "label": "版本范围",
+      "rows": [
+        0,
+        0
+      ]
+    },
+    {
+      "label": "策略表",
+      "rows": [
+        1,
+        1
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "low",
+      "label": "CMake < min",
+      "sub": "运行版本不够：报错",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ver",
+      "label": "`3.25...4.2`",
+      "sub": "min 管运行版本\nmax 管策略版本",
+      "at": [
+        1,
+        0
+      ],
+      "shape": "note"
+    },
+    {
+      "id": "mid",
+      "label": "策略 ≤ max",
+      "sub": "全部 NEW（含更早）",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "high",
+      "label": "策略 > max",
+      "sub": "未设置：按 OLD",
+      "at": [
+        1,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "cutmax",
+      "from": "mid",
+      "to": "high",
+      "label": "max",
+      "arrow": "none",
+      "route": "straight",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ],
+  "steps": [
+    {
+      "note": "CMake 低于 min 报错；到 max 的策略全为 NEW（含更早），之后未设置、按 OLD。",
+      "tone": {
+        "low": "bad",
+        "ver": "muted",
+        "mid": "ok",
+        "high": "wait"
+      }
+    }
+  ]
+}

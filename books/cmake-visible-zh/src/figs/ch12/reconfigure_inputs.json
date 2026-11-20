@@ -1,0 +1,113 @@
+{
+  "kind": "flow",
+  "title": "哪些输入会让 CMake 重新配置",
+  "alt": "CMakeLists.txt、configure_file 的输入和手动登记的文件会触发；file(READ) 读的不会",
+  "grid": [
+    3,
+    4
+  ],
+  "static": true,
+  "nodes": [
+    {
+      "id": "cmakelists",
+      "at": [
+        0,
+        0
+      ],
+      "label": "CMakeLists.txt",
+      "sub": "改了就重配"
+    },
+    {
+      "id": "cfgin",
+      "at": [
+        0,
+        1
+      ],
+      "label": "configure_file\n的输入",
+      "sub": "自动跟踪"
+    },
+    {
+      "id": "depend",
+      "at": [
+        0,
+        2
+      ],
+      "label": "手动登记",
+      "sub": "CMAKE_CONFIGURE_DEPENDS"
+    },
+    {
+      "id": "read",
+      "at": [
+        0,
+        3
+      ],
+      "label": "file(READ) 读的",
+      "sub": "没人跟踪"
+    },
+    {
+      "id": "collect",
+      "at": [
+        1,
+        1
+      ],
+      "label": "Ninja 检查",
+      "shape": "round",
+      "sub": "输入比它新时"
+    },
+    {
+      "id": "reconf",
+      "at": [
+        2,
+        1
+      ],
+      "label": "重新配置",
+      "sub": "值才会更新"
+    },
+    {
+      "id": "stale",
+      "at": [
+        1,
+        3
+      ],
+      "label": "照旧构建",
+      "sub": "值还是旧的"
+    }
+  ],
+  "edges": [
+    {
+      "id": "c1",
+      "from": "cmakelists",
+      "to": "collect"
+    },
+    {
+      "id": "c2",
+      "from": "cfgin",
+      "to": "collect"
+    },
+    {
+      "id": "c3",
+      "from": "depend",
+      "to": "collect"
+    },
+    {
+      "id": "c4",
+      "from": "collect",
+      "to": "reconf",
+      "label": "重新生成"
+    },
+    {
+      "id": "c5",
+      "from": "read",
+      "to": "stale",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "reconf"
+      ],
+      "note": "前三类输入比 build.ninja 新时会重新配置；file(READ) 读的文件不在其中"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "kind": "flow",
+  "title": "用法要求沿链接关系走",
+  "alt": "core 的 INTERFACE_* 经 net 到 app；PRIVATE 的宏在 core 边界停下",
+  "grid": [
+    3,
+    1
+  ],
+  "nodes": [
+    {
+      "id": "core",
+      "label": "core",
+      "sub": "PUBLIC 目录\nPRIVATE 宏",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "net",
+      "label": "net",
+      "sub": "PUBLIC 链接 core",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "app",
+      "label": "app",
+      "sub": "PRIVATE 链接 net",
+      "at": [
+        2,
+        0
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "core",
+      "to": "net",
+      "label": "PUBLIC"
+    },
+    {
+      "id": "e2",
+      "from": "net",
+      "to": "app",
+      "label": "链 net"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "core"
+      ],
+      "note": "core 的 include 进 INTERFACE_*，CORE_PRIVATE 只留在自己"
+    },
+    {
+      "token": [
+        {
+          "edge": "e1",
+          "label": "core 的 -I"
+        }
+      ],
+      "note": "net 用 PUBLIC 链接 core：用法要求进入 net 的编译和接口"
+    },
+    {
+      "token": [
+        {
+          "edge": "e2",
+          "label": "core 的 -I"
+        }
+      ],
+      "note": "app 链接 net：net 的接口把 core 的 -I 继续带到 app"
+    },
+    {
+      "set": {
+        "app": "有 core 的 -I\n没有 CORE_PRIVATE"
+      },
+      "hi": [
+        "app"
+      ],
+      "note": "CORE_PRIVATE 不在 INTERFACE_* 里：PRIVATE 的宏停在 core"
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "kind": "flow",
+  "title": "进入目录和函数，各复制一份变量",
+  "alt": "目录和函数各拿到一份变量副本；返回时副本销毁，只有 PARENT_SCOPE 的值写回上一层",
+  "grid": [
+    2,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "top",
+      "label": "顶层目录",
+      "sub": "LEVEL=top\nRESULT=unset",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "func",
+      "label": "函数 add_two",
+      "sub": "sum、tmp 只在函数里",
+      "at": [
+        1,
+        0
+      ],
+      "hidden": true
+    },
+    {
+      "id": "sub",
+      "label": "sub/ 目录",
+      "sub": "复制了 LEVEL=top",
+      "at": [
+        0,
+        1
+      ],
+      "hidden": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "copy1",
+      "from": "top",
+      "to": "sub",
+      "label": "复制",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "back1",
+      "from": "sub",
+      "to": "top",
+      "label": "写回",
+      "dashed": true,
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "copy2",
+      "from": "top",
+      "to": "func",
+      "label": "复制",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "back2",
+      "from": "func",
+      "to": "top",
+      "label": "写回",
+      "dashed": true,
+      "fromSide": "left",
+      "toSide": "right"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "top"
+      ],
+      "note": "顶层作用域里有 LEVEL=top 和 RESULT=unset；接下来的两次进入都从它复制"
+    },
+    {
+      "token": [
+        {
+          "edge": "copy1",
+          "label": "LEVEL=top"
+        }
+      ],
+      "show": [
+        "sub"
+      ],
+      "hi": [
+        "sub"
+      ],
+      "set": {
+        "sub": "复制了 LEVEL=top"
+      },
+      "note": "add_subdirectory()：新建子目录作用域，先把顶层变量复制一份"
+    },
+    {
+      "hi": [
+        "sub"
+      ],
+      "set": {
+        "sub": "LEVEL=sub，只改副本"
+      },
+      "tone": {
+        "sub": "hot"
+      },
+      "note": "子目录里 set(LEVEL sub)：改的是副本，顶层不受影响"
+    },
+    {
+      "token": [
+        {
+          "edge": "back1",
+          "label": "写回"
+        }
+      ],
+      "note": "子目录返回：PARENT_SCOPE 的 FROM_SUB 写回顶层，LEVEL=sub 留在副本里"
+    },
+    {
+      "hide": [
+        "sub",
+        "copy1",
+        "back1"
+      ],
+      "note": "子目录作用域销毁：LEVEL=sub 消失，顶层 LEVEL 仍是 top"
+    },
+    {
+      "token": [
+        {
+          "edge": "copy2",
+          "label": "参数"
+        }
+      ],
+      "show": [
+        "func"
+      ],
+      "hi": [
+        "func"
+      ],
+      "note": "调用函数：再复制当前作用域，把参数放进新作用域"
+    },
+    {
+      "set": {
+        "func": "sum=42；tmp 在函数里"
+      },
+      "hi": [
+        "func"
+      ],
+      "note": "函数里 math()、set()：变量只落在这层"
+    },
+    {
+      "token": [
+        {
+          "edge": "back2",
+          "label": "写回"
+        }
+      ],
+      "set": {
+        "top": "LEVEL=top\nRESULT=42"
+      },
+      "note": "函数返回：PARENT_SCOPE 的 RESULT 写回顶层，sum、tmp 随函数作用域销毁"
+    },
+    {
+      "hide": [
+        "func",
+        "copy2",
+        "back2"
+      ],
+      "set": {
+        "top": "LEVEL=top\nFROM_SUB=yes RESULT=42"
+      },
+      "hi": [
+        "top"
+      ],
+      "tone": {
+        "top": "ok"
+      },
+      "note": "两个新作用域都已销毁；顶层只多了 PARENT_SCOPE 带回的值"
+    }
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "kind": "flow",
+  "title": "写缓存：option() 和 set(CACHE) 看什么",
+  "alt": "option() 先看普通变量；两条命令有旧项时都不改值",
+  "grid": [
+    4,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "opt",
+      "label": "`option()`",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "normal",
+      "label": "有同名普通变量？",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "noop",
+      "label": "什么也不做",
+      "sub": "缓存不建不改",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "setc",
+      "label": "`set(CACHE)`",
+      "at": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "exist",
+      "label": "有缓存项？",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "keep",
+      "label": "值不变",
+      "sub": "无类型才补类型和说明",
+      "at": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "write",
+      "label": "写入",
+      "sub": "默认值 / 给定值",
+      "at": [
+        3,
+        2
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "opt",
+      "to": "normal"
+    },
+    {
+      "id": "e2",
+      "from": "normal",
+      "to": "noop",
+      "label": "有"
+    },
+    {
+      "id": "e3",
+      "from": "normal",
+      "to": "exist",
+      "label": "没有"
+    },
+    {
+      "id": "e4",
+      "from": "setc",
+      "to": "exist",
+      "label": "直接看"
+    },
+    {
+      "id": "e5",
+      "from": "exist",
+      "to": "keep",
+      "label": "有"
+    },
+    {
+      "id": "e6",
+      "from": "exist",
+      "to": "write",
+      "label": "没有"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "e1"
+        }
+      ],
+      "hi": [
+        "opt"
+      ],
+      "note": "`option()` 先看同名普通变量"
+    },
+    {
+      "token": [
+        {
+          "edge": "e2",
+          "label": "有"
+        }
+      ],
+      "hi": [
+        "noop"
+      ],
+      "tone": {
+        "noop": "wait"
+      },
+      "note": "有普通变量：`option()` 不建也不改缓存"
+    },
+    {
+      "token": [
+        {
+          "edge": "e3",
+          "label": "没有"
+        }
+      ],
+      "hi": [
+        "exist"
+      ],
+      "note": "没有普通变量，`option()` 才看缓存"
+    },
+    {
+      "hi": [
+        "setc"
+      ],
+      "note": "`set(CACHE)` 不看普通变量，直接看缓存"
+    },
+    {
+      "token": [
+        {
+          "edge": "e4",
+          "label": "直接看"
+        }
+      ],
+      "hi": [
+        "exist"
+      ],
+      "note": "`set(CACHE)` 也看缓存里有没有这一项"
+    },
+    {
+      "token": [
+        {
+          "edge": "e5",
+          "label": "有"
+        }
+      ],
+      "hi": [
+        "keep"
+      ],
+      "tone": {
+        "exist": "hot"
+      },
+      "note": "已有带类型项：值不变；说明只有 `option()` 可能更新"
+    },
+    {
+      "token": [
+        {
+          "edge": "e6",
+          "label": "没有"
+        }
+      ],
+      "hi": [
+        "write"
+      ],
+      "tone": {
+        "write": "ok"
+      },
+      "note": "没有旧项：`option()` 写默认值，`set(CACHE)` 写给定值"
+    }
+  ]
+}

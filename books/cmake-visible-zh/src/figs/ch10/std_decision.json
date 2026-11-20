@@ -1,0 +1,27 @@
+{
+  "kind": "flow",
+  "title": "GCC 15 上 cxx_std_17 加不加 -std",
+  "alt": "默认标准满足、扩展模式一致时通常不加；CXX_EXTENSIONS OFF 时才加 -std=c++17",
+  "grid": [4, 2],
+  "nodes": [
+    {"id": "need", "label": "目标要求", "sub": "cxx_std_17", "at": [0, 0]},
+    {"id": "def", "label": "GCC 15 默认", "sub": "gnu++17", "at": [1, 0]},
+    {"id": "ext", "label": "扩展模式", "sub": "默认 ON", "at": [2, 0]},
+    {"id": "none", "label": "不加 -std", "at": [3, 0]},
+    {"id": "add", "label": "加 -std=c++17", "at": [3, 1]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "need", "to": "def", "route": "straight", "fromSide": "right", "toSide": "left"},
+    {"id": "e2", "from": "def", "to": "ext", "label": "够", "route": "straight", "fromSide": "right", "toSide": "left"},
+    {"id": "e3", "from": "ext", "to": "none", "label": "一致", "route": "straight", "fromSide": "right", "toSide": "left"},
+    {"id": "e4", "from": "ext", "to": "add", "label": "不一致", "route": "vh", "fromSide": "bottom", "toSide": "left"}
+  ],
+  "steps": [
+    {"hi": ["need"], "note": "cxx_std_17 让目标至少需要 C++17"},
+    {"token": [{"edge": "e1", "label": "C++17"}], "hi": ["def"], "note": "GCC 15 默认标准是 gnu++17，17 不低于 17"},
+    {"token": [{"edge": "e2", "label": "够"}], "hi": ["ext"], "note": "默认扩展模式是 gnu，即 CXX_EXTENSIONS 为 ON"},
+    {"token": [{"edge": "e3", "label": "一致"}], "hi": ["none"], "note": "默认标准够、扩展一致，所以不加 -std"},
+    {"set": {"ext": "设为 OFF"}, "hi": ["ext"], "note": "换一种写法：CXX_EXTENSIONS 设为 OFF，要求关扩展"},
+    {"token": [{"edge": "e4", "label": "OFF"}], "hi": ["add"], "note": "扩展模式和默认不一致，加 -std=c++17"}
+  ]
+}

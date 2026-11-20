@@ -1,0 +1,79 @@
+{
+  "kind": "flow",
+  "title": "一个包目录里的三个文件",
+  "alt": "先读版本文件，通过后读 Config，Config 再 include Targets",
+  "static": true,
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "call",
+      "label": "find_package\n(Tiny 1.2)",
+      "sub": "配置阶段",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "ver",
+      "label": "TinyConfig\nVersion.cmake",
+      "sub": "只回答版本能不能用",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "cfg",
+      "label": "TinyConfig.cmake",
+      "sub": "设 Tiny_FOUND",
+      "at": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "targets",
+      "label": "TinyTargets",
+      "sub": "被 Config include",
+      "at": [
+        2,
+        2
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "readver",
+      "from": "call",
+      "to": "ver",
+      "label": "①先读"
+    },
+    {
+      "id": "readcfg",
+      "from": "call",
+      "to": "cfg",
+      "label": "②再读"
+    },
+    {
+      "id": "include",
+      "from": "cfg",
+      "to": "targets",
+      "label": "include"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "ver",
+        "cfg",
+        "include"
+      ],
+      "note": "版本文件先运行；通过后读 Config；Config 再 include Targets"
+    }
+  ]
+}

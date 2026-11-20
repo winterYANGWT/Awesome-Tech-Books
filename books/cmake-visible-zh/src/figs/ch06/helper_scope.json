@@ -1,0 +1,26 @@
+{
+  "kind": "seq",
+  "title": "辅助函数怎样把结果送回调用者",
+  "alt": "模板从函数定义所在的 cmake/ 取，两个路径用 PARENT_SCOPE、标识用 PROPAGATE 回到调用者",
+  "static": true,
+  "lanes": [
+    {"id": "caller", "label": "调用者", "role": "process"},
+    {"id": "fn", "label": "辅助函数"},
+    {"id": "module", "label": "cmake/ 目录", "role": "memory"}
+  ],
+  "state": [
+    {"id": "fn_dir", "label": "函数目录", "value": "—"},
+    {"id": "call_dir", "label": "调用目录", "value": "—"},
+    {"id": "header", "label": "BANNER_HEADER", "value": "—"},
+    {"id": "include", "label": "BANNER_INCLUDE_DIR", "value": "—"},
+    {"id": "id", "label": "BANNER_ID", "value": "—"}
+  ],
+  "steps": [
+    {"from": "caller", "to": "fn", "text": "传入变量名", "note": "调用者把 BANNER_HEADER、BANNER_INCLUDE_DIR 作为变量名传进去"},
+    {"at": "fn", "text": "两个目录", "set": {"fn_dir": "/work/src/cmake", "call_dir": "/work/src"}, "note": "函数定义目录是 cmake/，调用者目录是 /work/src"},
+    {"from": "fn", "to": "module", "text": "banner.h.in", "note": "模板从函数定义目录取，不是从调用者目录取"},
+    {"from": "module", "to": "fn", "text": "模板内容", "note": "configure_file 把模板写进构建目录"},
+    {"from": "fn", "to": "caller", "text": "PARENT_SCOPE", "tone": "ok", "set": {"header": "generated/banner.h", "include": "build/generated"}, "note": "两个路径变量都用 set(... PARENT_SCOPE) 送回调用者"},
+    {"from": "fn", "to": "caller", "text": "PROPAGATE", "tone": "ok", "set": {"id": "id_banner_0_9"}, "note": "BANNER_ID 用 return(PROPAGATE) 交给调用者"}
+  ]
+}

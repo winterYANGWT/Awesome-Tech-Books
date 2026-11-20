@@ -1,0 +1,36 @@
+{
+  "kind": "seq",
+  "title": "project() 内部做了哪些事",
+  "alt": "先设项目变量，再确定系统、检测编译器，分批写进缓存和构建目录",
+  "lanes": [
+    {"id": "p", "label": "project()"},
+    {"id": "v", "label": "CMake 变量", "role": "memory"},
+    {"id": "cc", "label": "g++", "role": "process"},
+    {"id": "dir", "label": "构建目录", "role": "memory"}
+  ],
+  "state": [
+    {"id": "phase", "label": "阶段", "value": "开始"},
+    {"id": "vars", "label": "项目变量", "value": "—"},
+    {"id": "files", "label": "检测结果", "value": "—"}
+  ],
+  "steps": [
+    {"at": "p", "text": "进入 project()", "tone": "hot", "set": {"phase": "进入"},
+     "note": "解析名字、版本、描述和 LANGUAGES 参数"},
+    {"from": "p", "to": "v", "text": "写 PROJECT_*", "set": {"vars": "PROJECT_*"},
+     "note": "先设置项目名、版本、源码/构建目录和是否顶层"},
+    {"at": "p", "text": "确定系统", "set": {"phase": "系统", "files": "CMakeSystem.cmake"},
+     "note": "第一次调用：有工具链文件时先读，设系统变量，写 CMakeSystem.cmake"},
+    {"from": "p", "to": "cc", "text": "找 CXX 编译器",
+     "note": "在 PATH 和缓存里找到 g++，确定编译器路径"},
+    {"at": "cc", "text": "编译 CompilerIdCXX", "tone": "hot", "set": {"files": "检测程序"},
+     "note": "编一个小程序问出厂商和版本，得到 GNU 15.2.0"},
+    {"at": "cc", "text": "编译 ABI 检测程序",
+     "note": "再编一个，得到指针大小、字节序和目标文件格式"},
+    {"from": "cc", "to": "dir", "text": "写检测结果", "set": {"files": "CXX 的 .cmake"},
+     "note": "CMakeCXXCompiler.cmake 写进 CMakeFiles/4.2.3/"},
+    {"from": "p", "to": "v", "text": "设语言变量", "set": {"phase": "变量"},
+     "note": "设置 CMAKE_CXX_COMPILER、CMAKE_AR 等变量和缓存项"},
+    {"at": "p", "text": "返回 CMakeLists", "tone": "ok", "set": {"phase": "完成"},
+     "note": "project() 结束，CMakeLists.txt 继续执行下一行"}
+  ]
+}

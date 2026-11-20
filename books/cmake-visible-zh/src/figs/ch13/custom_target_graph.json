@@ -1,0 +1,88 @@
+{
+  "kind": "flow",
+  "title": "custom target 的三个入口",
+  "alt": "默认构建跑 app 和 ALL 目标，app 拉上 stamp；format 只在 --target 时运行",
+  "static": true,
+  "grid": [
+    3,
+    3
+  ],
+  "nodes": [
+    {
+      "id": "build",
+      "label": "cmake --build",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "app",
+      "label": "app",
+      "sub": "默认目标",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "audit",
+      "label": "audit",
+      "sub": "ALL",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "format",
+      "label": "format",
+      "sub": "只在指定时",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "stamp",
+      "label": "stamp",
+      "sub": "add_dependencies",
+      "at": [
+        2,
+        0
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "build",
+      "to": "app",
+      "label": "默认"
+    },
+    {
+      "id": "e2",
+      "from": "build",
+      "to": "audit",
+      "label": "ALL"
+    },
+    {
+      "id": "e3",
+      "from": "build",
+      "to": "format",
+      "label": "指定"
+    },
+    {
+      "id": "e4",
+      "from": "app",
+      "to": "stamp",
+      "label": "依赖"
+    }
+  ],
+  "steps": [
+    {
+      "note": "默认构建 app 和 audit；stamp 由 app 拉进来，format 手动指定"
+    }
+  ]
+}

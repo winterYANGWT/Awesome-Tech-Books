@@ -1,0 +1,79 @@
+{
+  "kind": "seq",
+  "title": "provider 接住 find_package 请求",
+  "alt": "provider 在 project() 注册；find_package 先经过它，BYPASS_PROVIDER 除外",
+  "static": true,
+  "lanes": [
+    {
+      "id": "cmd",
+      "label": "命令行",
+      "role": "process"
+    },
+    {
+      "id": "cmake",
+      "label": "CMake"
+    },
+    {
+      "id": "prov",
+      "label": "provider"
+    },
+    {
+      "id": "proj",
+      "label": "你的工程"
+    }
+  ],
+  "steps": [
+    {
+      "from": "cmd",
+      "to": "cmake",
+      "text": "传 -D 参数",
+      "note": "CMAKE_PROJECT_TOP_LEVEL_INCLUDES 指向 provider 文件"
+    },
+    {
+      "at": "cmake",
+      "text": "第一次 project()",
+      "note": "project() 内部、工具链文件之后、启用语言之前，先 include 这个文件"
+    },
+    {
+      "from": "cmake",
+      "to": "prov",
+      "text": "include provider",
+      "note": "provider 在这个时刻注册，之后不能再改"
+    },
+    {
+      "at": "prov",
+      "text": "注册 provider",
+      "note": "登记一个处理 FIND_PACKAGE 请求的宏"
+    },
+    {
+      "from": "proj",
+      "to": "cmake",
+      "text": "find_package(Tiny)",
+      "note": "工程里第一次要求 Tiny"
+    },
+    {
+      "from": "cmake",
+      "to": "prov",
+      "text": "转给 provider",
+      "dashed": true,
+      "note": "不带 BYPASS_PROVIDER 的 find_package 都先问 provider"
+    },
+    {
+      "at": "prov",
+      "text": "设 Tiny_DIR",
+      "note": "provider 也可以调用带 BYPASS_PROVIDER 的 find_package"
+    },
+    {
+      "from": "prov",
+      "to": "cmake",
+      "text": "Tiny_FOUND",
+      "note": "provider 说已处理，内置查找不再进行"
+    },
+    {
+      "at": "proj",
+      "text": "Tiny::tiny 可用",
+      "tone": "ok",
+      "note": "工程照常链接同名目标，不知道包从哪来"
+    }
+  ]
+}

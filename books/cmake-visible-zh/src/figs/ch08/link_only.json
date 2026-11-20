@@ -1,0 +1,97 @@
+{
+  "kind": "flow",
+  "title": "静态库的 PRIVATE 依赖：编译和链接两条路",
+  "alt": "b 的头文件只给 a 编译用；b 的库文件仍出现在 app 的链接命令里",
+  "grid": [
+    3,
+    1
+  ],
+  "nodes": [
+    {
+      "id": "b",
+      "label": "b",
+      "sub": "include/ 与 libb.a",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "a",
+      "label": "a",
+      "sub": "a.cpp 用 b 的头",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "app",
+      "label": "app",
+      "sub": "main.cpp 只用 a",
+      "at": [
+        2,
+        0
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "b",
+      "to": "a",
+      "label": "PRIVATE"
+    },
+    {
+      "id": "e2",
+      "from": "a",
+      "to": "app",
+      "label": "链 a"
+    },
+    {
+      "id": "e3",
+      "from": "b",
+      "to": "app",
+      "label": "链接",
+      "dashed": true,
+      "route": "vh",
+      "fromSide": "bottom",
+      "toSide": "bottom"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "e1",
+          "label": "b 的 -I"
+        }
+      ],
+      "note": "a PRIVATE 链接 b：a 自己编译时拿到 b 的 -I"
+    },
+    {
+      "hi": [
+        "e3"
+      ],
+      "note": "b 以 $<LINK_ONLY:b> 进入 a 的 INTERFACE_LINK_LIBRARIES"
+    },
+    {
+      "token": [
+        {
+          "edge": "e3",
+          "label": "libb.a"
+        }
+      ],
+      "note": "app 链接时有 libb.a，编译参数里没有 b 的 -I"
+    },
+    {
+      "set": {
+        "app": "有 libb.a\n没有 b 的 -I"
+      },
+      "hi": [
+        "app"
+      ],
+      "note": "两条路分开：链接闭包继续走，用法要求不过 PRIVATE"
+    }
+  ]
+}

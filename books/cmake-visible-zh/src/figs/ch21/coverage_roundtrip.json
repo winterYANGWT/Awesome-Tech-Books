@@ -1,0 +1,77 @@
+{
+  "kind": "seq",
+  "title": "覆盖率数据从哪来",
+  "alt": "编译写 .gcno、运行写 .gcda，gcov 读两张表生成 .gcov",
+  "lanes": [
+    {
+      "id": "build",
+      "label": "构建",
+      "role": "process"
+    },
+    {
+      "id": "prog",
+      "label": "程序",
+      "role": "process"
+    },
+    {
+      "id": "dir",
+      "label": "构建目录",
+      "role": "memory"
+    },
+    {
+      "id": "gcov",
+      "label": "gcov",
+      "role": "process"
+    }
+  ],
+  "state": [
+    {
+      "id": "type",
+      "label": "构建类型",
+      "value": "Coverage"
+    },
+    {
+      "id": "files",
+      "label": "覆盖率数据",
+      "value": "无"
+    }
+  ],
+  "steps": [
+    {
+      "at": "build",
+      "text": "`--coverage` 编译",
+      "set": {
+        "files": ".gcno"
+      },
+      "note": "编译每个源文件，同时写出 .gcno：行号和分支的结构（计数在 .gcda）"
+    },
+    {
+      "at": "build",
+      "text": "`--coverage` 链接",
+      "note": "链接也带 --coverage，把 libgcov 接进程序；只加编译不行"
+    },
+    {
+      "from": "prog",
+      "to": "dir",
+      "text": "运行测试",
+      "set": {
+        "files": ".gcno、.gcda"
+      },
+      "note": "测试跑完，计数写进 .gcda；没跑到的分支是 0"
+    },
+    {
+      "from": "dir",
+      "to": "gcov",
+      "text": "读两张表",
+      "note": "gcov 用 .gcno 的结构和 .gcda 的计数算出每行执行次数"
+    },
+    {
+      "at": "gcov",
+      "text": "写 .gcov",
+      "set": {
+        "files": ".gcno、.gcda、.gcov"
+      },
+      "note": "生成 .gcov：源码旁标出每行执行次数，没执行的行用 #####"
+    }
+  ]
+}

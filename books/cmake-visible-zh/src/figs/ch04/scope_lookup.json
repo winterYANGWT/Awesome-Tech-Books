@@ -1,0 +1,90 @@
+{
+  "kind": "flow",
+  "title": "${X} 到哪里去找值",
+  "alt": "先沿函数调用栈（当前函数、调用者……）和 block 的绑定找，再找当前目录作用域，最后找缓存；都没有就是空字符串",
+  "static": true,
+  "grid": [
+    4,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "ref",
+      "label": "`${X}`",
+      "sub": "读一个变量",
+      "at": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "cur",
+      "label": "函数调用栈",
+      "sub": "当前函数、调用者…\nblock 的绑定",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "dir",
+      "label": "目录作用域",
+      "sub": "当前目录的绑定",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "cache",
+      "label": "缓存",
+      "sub": "CMakeCache.txt",
+      "at": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "空字符串",
+      "sub": "哪里都没有",
+      "at": [
+        3,
+        1
+      ],
+      "shape": "note"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "ref",
+      "to": "cur",
+      "label": "先找"
+    },
+    {
+      "id": "e2",
+      "from": "cur",
+      "to": "dir",
+      "label": "没有"
+    },
+    {
+      "id": "e3",
+      "from": "dir",
+      "to": "cache",
+      "label": "没有"
+    },
+    {
+      "id": "e4",
+      "from": "cache",
+      "to": "empty",
+      "label": "没有",
+      "dashed": true
+    }
+  ],
+  "steps": [
+    {
+      "note": "函数调用栈（当前函数、调用者……）和 block 的绑定最先找；再找目录作用域，缓存最后才查"
+    }
+  ]
+}

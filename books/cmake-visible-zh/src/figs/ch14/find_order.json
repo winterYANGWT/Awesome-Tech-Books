@@ -1,0 +1,176 @@
+{
+  "kind": "flow",
+  "title": "find_package(X) 走哪条路",
+  "alt": "先找 FindX.cmake；没有就按前缀顺序找 XConfig.cmake",
+  "grid": [
+    3,
+    2
+  ],
+  "nodes": [
+    {
+      "id": "call",
+      "label": "find_package(X)",
+      "sub": "要一个包",
+      "at": [
+        0,
+        0
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "has",
+      "label": "有 FindX.cmake？",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "module",
+      "label": "模块模式",
+      "sub": "执行 FindX.cmake",
+      "at": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "search",
+      "label": "找 XConfig.cmake",
+      "sub": "X_DIR",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "cfg",
+      "label": "配置模式",
+      "sub": "执行 Config.cmake",
+      "at": [
+        2,
+        1
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "look",
+      "from": "call",
+      "to": "has"
+    },
+    {
+      "id": "yes",
+      "from": "has",
+      "to": "module",
+      "label": "有"
+    },
+    {
+      "id": "no",
+      "from": "has",
+      "to": "search",
+      "label": "没有"
+    },
+    {
+      "id": "found",
+      "from": "search",
+      "to": "cfg",
+      "label": "找到"
+    }
+  ],
+  "steps": [
+    {
+      "token": [
+        {
+          "edge": "look"
+        }
+      ],
+      "hi": [
+        "has"
+      ],
+      "note": "先看有没有现成的 FindX.cmake 模块"
+    },
+    {
+      "token": [
+        {
+          "edge": "yes",
+          "label": "有"
+        }
+      ],
+      "hi": [
+        "module"
+      ],
+      "tone": {
+        "module": "ok"
+      },
+      "note": "有：模块模式，执行 FindX.cmake，由它去找库"
+    },
+    {
+      "token": [
+        {
+          "edge": "no",
+          "label": "没有"
+        }
+      ],
+      "hi": [
+        "search"
+      ],
+      "tone": {
+        "module": "muted",
+        "search": "wait"
+      },
+      "note": "没有：转入配置模式，找一个 XConfig.cmake"
+    },
+    {
+      "set": {
+        "search": "X_DIR"
+      },
+      "hi": [
+        "search"
+      ],
+      "note": "先看 X_DIR：上一次找到的目录，或用户用 -D 指定"
+    },
+    {
+      "set": {
+        "search": "CMAKE_PREFIX_PATH"
+      },
+      "hi": [
+        "search"
+      ],
+      "note": "再在每个 CMAKE_PREFIX_PATH 前缀下找 lib*/cmake/X 等目录"
+    },
+    {
+      "set": {
+        "search": "PATH 的前缀"
+      },
+      "hi": [
+        "search"
+      ],
+      "note": "然后由 PATH 里的目录向上取前缀，例如 /usr/bin 取 /usr"
+    },
+    {
+      "set": {
+        "search": "系统目录"
+      },
+      "hi": [
+        "search"
+      ],
+      "note": "最后是 /usr/local、/usr 这类系统前缀"
+    },
+    {
+      "token": [
+        {
+          "edge": "found",
+          "label": "找到"
+        }
+      ],
+      "hi": [
+        "cfg"
+      ],
+      "tone": {
+        "cfg": "ok"
+      },
+      "note": "找到 XConfig.cmake：读它，包里的目标就出现了"
+    }
+  ]
+}

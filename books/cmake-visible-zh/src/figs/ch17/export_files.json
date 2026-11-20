@@ -1,0 +1,125 @@
+{
+  "kind": "flow",
+  "title": "三个命令写的文件，下游按什么顺序读",
+  "alt": "install(EXPORT) 生成时写 Targets、安装时复制；Config 和版本文件配置时写，下游先读版本",
+  "static": true,
+  "grid": [
+    2,
+    4
+  ],
+  "nodes": [
+    {
+      "id": "find",
+      "label": "find_package",
+      "sub": "Greet 1.0",
+      "at": [
+        0,
+        0
+      ],
+      "span": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "version",
+      "label": "GreetConfig",
+      "sub": "Version.cmake",
+      "at": [
+        0,
+        1
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "config",
+      "label": "GreetConfig",
+      "sub": ".cmake",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "targets",
+      "label": "GreetTargets",
+      "sub": ".cmake + -noconfig",
+      "at": [
+        0,
+        3
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "pver",
+      "label": "write_basic_\npackage_version",
+      "sub": "写版本文件",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "pcfg",
+      "label": "configure_\npackage_config",
+      "sub": "写 Config",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "ptgt",
+      "label": "install(EXPORT)",
+      "sub": "NAMESPACE Greet::",
+      "at": [
+        1,
+        3
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "readver",
+      "from": "find",
+      "to": "version",
+      "label": "① 版本"
+    },
+    {
+      "id": "readcfg",
+      "from": "version",
+      "to": "config",
+      "label": "② 通过"
+    },
+    {
+      "id": "includetgt",
+      "from": "config",
+      "to": "targets",
+      "label": "③ include"
+    },
+    {
+      "id": "writever",
+      "from": "pver",
+      "to": "version",
+      "label": "写"
+    },
+    {
+      "id": "writecfg",
+      "from": "pcfg",
+      "to": "config",
+      "label": "写"
+    },
+    {
+      "id": "writetgt",
+      "from": "ptgt",
+      "to": "targets",
+      "label": "写"
+    }
+  ],
+  "steps": [
+    {
+      "note": "Targets 生成时写进 build，安装时复制；Config 和版本文件配置时写。"
+    }
+  ]
+}

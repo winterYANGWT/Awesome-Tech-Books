@@ -1,0 +1,25 @@
+{
+  "kind": "flow",
+  "title": "一条编译命令的参数从哪来",
+  "alt": "全局 flags 在最前，接着是语言标准、目录属性、目标属性和用法要求",
+  "static": true,
+  "grid": [5, 3],
+  "nodes": [
+    {"id": "global", "label": "全局 flags", "sub": "CMAKE_CXX_FLAGS\n+ _<CONFIG>", "at": [0, 0]},
+    {"id": "std", "label": "语言标准", "sub": "-std=…", "at": [1, 0]},
+    {"id": "dir", "label": "目录属性", "sub": "add_compile_\noptions", "at": [2, 0]},
+    {"id": "target", "label": "目标属性", "sub": "target_compile_\noptions", "at": [3, 1]},
+    {"id": "usage", "label": "用法要求", "sub": "依赖的\nINTERFACE_*", "at": [4, 1]},
+    {"id": "cmd", "label": "编译命令", "sub": "按这个顺序拼接", "at": [0, 2], "span": [5, 1]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "global", "to": "cmd", "route": "straight", "fromSide": "bottom", "toSide": "top"},
+    {"id": "e2", "from": "std", "to": "cmd", "route": "straight", "fromSide": "bottom", "toSide": "top"},
+    {"id": "e3", "from": "dir", "to": "cmd", "route": "straight", "fromSide": "bottom", "toSide": "top"},
+    {"id": "e4", "from": "target", "to": "cmd", "route": "straight", "fromSide": "bottom", "toSide": "top"},
+    {"id": "e5", "from": "usage", "to": "cmd", "route": "straight", "fromSide": "bottom", "toSide": "top"}
+  ],
+  "steps": [
+    {"hi": ["cmd"], "note": "按这个顺序拼接：全局、标准、目录、目标、用法要求"}
+  ]
+}

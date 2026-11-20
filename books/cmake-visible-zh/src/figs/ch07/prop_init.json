@@ -1,0 +1,95 @@
+{
+  "kind": "seq",
+  "title": "CMAKE_CXX_STANDARD 只在创建目标时复制",
+  "alt": "变量在创建目标时复制成属性；之后再改变量，已有目标不变，新目标才用新值",
+  "lanes": [
+    {
+      "id": "var",
+      "label": "变量"
+    },
+    {
+      "id": "before",
+      "label": "before"
+    },
+    {
+      "id": "after",
+      "label": "after"
+    }
+  ],
+  "state": [
+    {
+      "id": "std",
+      "label": "CMAKE_CXX_STANDARD",
+      "value": "—"
+    },
+    {
+      "id": "before_std",
+      "label": "before 的属性",
+      "value": "—"
+    },
+    {
+      "id": "after_std",
+      "label": "after 的属性",
+      "value": "—"
+    }
+  ],
+  "steps": [
+    {
+      "at": "before",
+      "text": "创建 before",
+      "lane": {
+        "before": "new"
+      },
+      "set": {
+        "before_std": "没有设置"
+      },
+      "note": "创建 before 时变量还没设，CXX_STANDARD 没有设置"
+    },
+    {
+      "at": "var",
+      "text": "set(... 20)",
+      "set": {
+        "std": "20"
+      },
+      "tone": "hot",
+      "note": "变量改成 20"
+    },
+    {
+      "from": "var",
+      "to": "after",
+      "text": "创建时复制",
+      "lane": {
+        "after": "new"
+      },
+      "set": {
+        "after_std": "20"
+      },
+      "note": "创建 after，CXX_STANDARD 复制为 20"
+    },
+    {
+      "at": "var",
+      "text": "假设 set(... 17)",
+      "set": {
+        "std": "17"
+      },
+      "note": "假设把变量再改成 17，看已有目标会不会变"
+    },
+    {
+      "span": [
+        "before",
+        "after"
+      ],
+      "text": "属性不变",
+      "tone": "wait",
+      "set": {
+        "before_std": "没有设置"
+      },
+      "note": "before 仍没有设置，after 仍是 20；已有目标不受影响"
+    },
+    {
+      "at": "var",
+      "text": "新建目标才用 17",
+      "note": "之后再创建的目标，才会把 17 复制成自己的属性"
+    }
+  ]
+}

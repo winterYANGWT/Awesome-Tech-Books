@@ -1,0 +1,241 @@
+{
+  "kind": "flow",
+  "title": "两次调用：参数怎样分到五类结果",
+  "alt": "正常调用把值分进选项、单值和多值；拼错时多出的词进 UNPARSED，缺值的关键字进 MISSING_VALUES",
+  "grid": [
+    3,
+    5
+  ],
+  "nodes": [
+    {
+      "id": "argv",
+      "label": "ARGV",
+      "sub": "运行 1：9 个参数",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "queue",
+      "slots": 4
+    },
+    {
+      "id": "parser",
+      "label": "解析",
+      "sub": "PARSE_ARGV 1",
+      "at": [
+        1,
+        2
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "opt",
+      "label": "INSTALL",
+      "sub": "选项：—",
+      "at": [
+        2,
+        0
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "one",
+      "label": "OUTPUT_NAME",
+      "sub": "单值：—",
+      "at": [
+        2,
+        1
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "multi",
+      "label": "SOURCES\nLIBS",
+      "sub": "多值：按关键字分段",
+      "at": [
+        2,
+        2
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "unparsed",
+      "label": "UNPARSED",
+      "sub": "没有对应关键字",
+      "at": [
+        2,
+        3
+      ],
+      "shape": "store"
+    },
+    {
+      "id": "missing",
+      "label": "MISSING_VALUES",
+      "sub": "关键字后面没有值",
+      "at": [
+        2,
+        4
+      ],
+      "shape": "store"
+    }
+  ],
+  "edges": [
+    {
+      "id": "start",
+      "from": "argv",
+      "to": "parser",
+      "label": "从 ARGV1 起"
+    },
+    {
+      "id": "e_opt",
+      "from": "parser",
+      "to": "opt"
+    },
+    {
+      "id": "e_one",
+      "from": "parser",
+      "to": "one"
+    },
+    {
+      "id": "e_multi",
+      "from": "parser",
+      "to": "multi"
+    },
+    {
+      "id": "e_unparsed",
+      "from": "parser",
+      "to": "unparsed"
+    },
+    {
+      "id": "e_missing",
+      "from": "parser",
+      "to": "missing"
+    }
+  ],
+  "steps": [
+    {
+      "note": "运行 1：从 ARGV1=SOURCES 开始，跳过 ARGV0=greet",
+      "hi": [
+        "argv"
+      ],
+      "token": [
+        {
+          "edge": "start",
+          "label": "SOURCES"
+        }
+      ]
+    },
+    {
+      "note": "SOURCES 是多值关键字，收到 main.cpp、greet.cpp 两个文件",
+      "token": [
+        {
+          "edge": "e_multi",
+          "label": "main.cpp …"
+        }
+      ],
+      "set": {
+        "multi": "SOURCES：两个文件"
+      }
+    },
+    {
+      "note": "LIBS 也是多值关键字，两个多值变量同时存在",
+      "token": [
+        {
+          "edge": "e_multi",
+          "label": "core"
+        }
+      ],
+      "set": {
+        "multi": "SOURCES：两个文件\nLIBS：core"
+      }
+    },
+    {
+      "note": "OUTPUT_NAME 是单值关键字，吃掉后面的 hello",
+      "token": [
+        {
+          "edge": "e_one",
+          "label": "hello"
+        }
+      ],
+      "set": {
+        "one": "单值：hello"
+      }
+    },
+    {
+      "note": "INSTALL 是选项，出现即 TRUE，不跟值",
+      "token": [
+        {
+          "edge": "e_opt",
+          "label": "INSTALL"
+        }
+      ],
+      "set": {
+        "opt": "选项：TRUE"
+      }
+    },
+    {
+      "note": "正常调用结束：两个检查变量都没有定义",
+      "hi": [
+        "unparsed",
+        "missing"
+      ],
+      "set": {
+        "unparsed": "未定义",
+        "missing": "未定义"
+      }
+    },
+    {
+      "note": "运行 2：调用写成 SOURCE，OUTPUT_NAME 后面没有值",
+      "hi": [
+        "argv"
+      ],
+      "set": {
+        "argv": "运行 2：4 个参数",
+        "opt": "选项：—",
+        "one": "单值：—",
+        "multi": "多值：—",
+        "unparsed": "没有对应关键字",
+        "missing": "关键字后面没有值"
+      }
+    },
+    {
+      "note": "SOURCE 不是 SOURCES，原样进 UNPARSED；main.cpp 也跟着进",
+      "token": [
+        {
+          "edge": "e_unparsed",
+          "label": "SOURCE"
+        }
+      ],
+      "tone": {
+        "unparsed": "bad"
+      },
+      "set": {
+        "unparsed": "SOURCE;main.cpp"
+      }
+    },
+    {
+      "note": "OUTPUT_NAME 后面没有值，关键字进 MISSING_VALUES",
+      "token": [
+        {
+          "edge": "e_missing",
+          "label": "OUTPUT_NAME"
+        }
+      ],
+      "tone": {
+        "missing": "bad"
+      },
+      "set": {
+        "missing": "缺值：OUTPUT_NAME"
+      }
+    },
+    {
+      "note": "运行 2 的 INSTALL 没出现，选项是 FALSE",
+      "hi": [
+        "opt"
+      ],
+      "set": {
+        "opt": "选项：FALSE"
+      }
+    }
+  ]
+}

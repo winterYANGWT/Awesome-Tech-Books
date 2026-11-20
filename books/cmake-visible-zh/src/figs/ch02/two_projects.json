@@ -1,0 +1,33 @@
+{
+  "kind": "flow",
+  "title": "两次 project() 和两个目录作用域",
+  "alt": "子目录的 PROJECT_* 换成 Sub，CMAKE_PROJECT_NAME 仍是 Demo；返回后恢复",
+  "static": true,
+  "grid": [3, 3],
+  "bands": [
+    {"label": "顶层目录", "rows": [0, 0]},
+    {"label": "子目录 sub", "rows": [1, 1]},
+    {"label": "回到顶层", "rows": [2, 2]}
+  ],
+  "nodes": [
+    {"id": "top", "label": "project(Demo)", "sub": "VERSION 1.4.2", "at": [0, 0]},
+    {"id": "topvars", "label": "PROJECT_*", "sub": "NAME=Demo\nVERSION=1.4.2", "at": [1, 0], "shape": "store"},
+    {"id": "name", "label": "CMAKE_\nPROJECT_NAME", "sub": "Demo", "at": [2, 0], "shape": "store"},
+    {"id": "sub", "label": "project(Sub)", "sub": "VERSION 0.3", "at": [0, 1]},
+    {"id": "subvars", "label": "PROJECT_*", "sub": "NAME=Sub\nVERSION=0.3", "at": [1, 1], "shape": "store"},
+    {"id": "back", "label": "回到顶层", "sub": "没有新的 project()", "at": [0, 2]},
+    {"id": "backvars", "label": "PROJECT_*", "sub": "NAME=Demo\nVERSION=1.4.2", "at": [1, 2], "shape": "store"}
+  ],
+  "edges": [
+    {"id": "set_top", "from": "top", "to": "topvars", "label": "设置"},
+    {"id": "set_name", "from": "topvars", "to": "name", "label": "同一次调用"},
+    {"id": "enter", "from": "top", "to": "sub", "label": "add_subdirectory"},
+    {"id": "set_sub", "from": "sub", "to": "subvars", "label": "重设"},
+    {"id": "name_stays", "from": "subvars", "to": "name", "label": "仍为 Demo", "route": "vh", "fromSide": "right", "toSide": "bottom", "dashed": true},
+    {"id": "return", "from": "sub", "to": "back", "label": "返回"},
+    {"id": "restore", "from": "back", "to": "backvars", "label": "作用域恢复"}
+  ],
+  "steps": [
+    {"note": "PROJECT_* 随目录作用域切换；CMAKE_PROJECT_NAME 始终指向顶层 Demo"}
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "kind": "flow",
+  "title": "五个工具各看到哪一层",
+  "alt": "五个工具分别看配置、查找、单步、生成和构建",
+  "static": true,
+  "grid": [
+    2,
+    5
+  ],
+  "nodes": [
+    {
+      "id": "run",
+      "label": "cmake 一次运行",
+      "sub": "配置 → 生成 → 构建",
+      "at": [
+        0,
+        2
+      ],
+      "shape": "round"
+    },
+    {
+      "id": "msg",
+      "label": "`message`\n`--trace`",
+      "sub": "配置过程：每行的参数",
+      "at": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "find",
+      "label": "`--debug-find`",
+      "sub": "查找：试过哪些目录",
+      "at": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "dbg",
+      "label": "`--debugger`",
+      "sub": "任意一步：变量、目标、栈",
+      "at": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "api",
+      "label": "file API\n`--graphviz`",
+      "sub": "生成：依赖图、参数和出处",
+      "at": [
+        1,
+        3
+      ]
+    },
+    {
+      "id": "verbose",
+      "label": "`--verbose`",
+      "sub": "构建：真实命令行",
+      "at": [
+        1,
+        4
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-msg",
+      "from": "run",
+      "to": "msg"
+    },
+    {
+      "id": "e-find",
+      "from": "run",
+      "to": "find"
+    },
+    {
+      "id": "e-dbg",
+      "from": "run",
+      "to": "dbg"
+    },
+    {
+      "id": "e-api",
+      "from": "run",
+      "to": "api"
+    },
+    {
+      "id": "e-verbose",
+      "from": "run",
+      "to": "verbose"
+    }
+  ],
+  "steps": [
+    {
+      "hi": [
+        "run"
+      ],
+      "note": "同一份 CMakeLists，换一个工具就看到不同的一层"
+    }
+  ]
+}

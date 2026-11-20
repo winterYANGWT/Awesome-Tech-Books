@@ -1,0 +1,22 @@
+{
+  "kind": "seq",
+  "title": "消费测试：装包、配置、构建、运行",
+  "alt": "ctest 先安装到临时前缀，再把前缀交给 CMAKE_PREFIX_PATH 配置、构建、运行下游",
+  "lanes": [
+    {"id": "ctest", "label": "ctest"},
+    {"id": "cmake", "label": "cmake"},
+    {"id": "prefix", "label": "prefix/", "role": "memory"},
+    {"id": "build", "label": "下游构建"}
+  ],
+  "steps": [
+    {"at": "ctest", "text": "测试 1：安装", "note": "第一个测试是 fixture setup，负责准备安装前缀"},
+    {"from": "ctest", "to": "cmake", "text": "cmake --install", "note": "测试命令执行安装，前缀放在构建目录里"},
+    {"from": "cmake", "to": "prefix", "text": "库 + 头文件 + Config", "note": "安装脚本把库、头文件和四份 cmake 文件写进前缀"},
+    {"at": "ctest", "text": "测试 2：配置", "note": "fixture 满足后，配置下游的测试才启动"},
+    {"from": "ctest", "to": "cmake", "text": "-S app -B consumer", "note": "只把临时前缀交给 CMAKE_PREFIX_PATH"},
+    {"from": "cmake", "to": "prefix", "text": "find_package", "note": "先在给定前缀里找 GreetConfig.cmake"},
+    {"at": "ctest", "text": "测试 3：构建并运行", "note": "fixture 链保证配置成功后才轮到构建"},
+    {"from": "ctest", "to": "build", "text": "cmake --build", "note": "第三个测试构建下游，再跑它的 run 目标"},
+    {"at": "build", "text": "打印 hello", "tone": "ok", "note": "输出匹配 PASS_REGULAR_EXPRESSION，三个测试都通过"}
+  ]
+}

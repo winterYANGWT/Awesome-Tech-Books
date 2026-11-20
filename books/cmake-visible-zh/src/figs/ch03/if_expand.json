@@ -1,0 +1,24 @@
+{
+  "kind": "flow",
+  "title": "if() 为什么多解引用一次",
+  "alt": "${name} 展开成 MODE，if() 又把 MODE 当成变量名读了一次",
+  "grid": [4, 1],
+  "nodes": [
+    {"id": "call", "label": "`if(...)`", "sub": "`${name} STREQUAL abc`", "at": [0, 0]},
+    {"id": "expand", "label": "先展开", "sub": "`${name}`", "at": [1, 0]},
+    {"id": "seen", "label": "if() 收到", "sub": "`MODE STREQUAL abc`", "at": [2, 0]},
+    {"id": "value", "label": "再解引用", "sub": "`MODE` = ?", "at": [3, 0]}
+  ],
+  "edges": [
+    {"id": "e1", "from": "call", "to": "expand", "label": "展开"},
+    {"id": "e2", "from": "expand", "to": "seen", "label": "当变量名"},
+    {"id": "e3", "from": "seen", "to": "value", "label": "查 MODE"}
+  ],
+  "steps": [
+    {"hi": ["call"], "note": "本意：把 ${name} 的值和 abc 比较"},
+    {"token": [{"edge": "e1", "label": "展开"}], "set": {"expand": "`MODE`"}, "note": "${name} 先展开成 MODE，if() 看到的是变量名"},
+    {"token": [{"edge": "e2", "label": "当变量名"}], "set": {"seen": "`MODE STREQUAL abc`"}, "note": "if() 对未加引号的 MODE 自动解引用"},
+    {"token": [{"edge": "e3", "label": "查 MODE"}], "set": {"value": "`abc` = `abc`"}, "hi": ["value"], "note": "MODE 的值是 abc，两个字符串相等"},
+    {"hi": ["value"], "tone": {"value": "bad"}, "note": "结果 true；本意却是拿 name 的值 MODE 去比"}
+  ]
+}
