@@ -1,0 +1,6 @@
+{
+  "title": "普通变量遮住同名的缓存项",
+  "runs": [{"label": "配置并运行", "after": [["./build/app"]]}],
+  "expect": ["BAR=normal cached=cached", "FEATURE=OFF cache_has_feature=\\[\\]", "unset 后 LEVEL=quiet", "^BAR=normal cached=cached feature=0 level=quiet$"],
+  "expect_not": ["CMake Error"]
+}

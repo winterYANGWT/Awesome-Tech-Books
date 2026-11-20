@@ -1,0 +1,7 @@
+#pragma once
+
+#define APP_NAME "@APP_NAME@"
+#define APP_VERSION "${PROJECT_VERSION}"
+
+#cmakedefine HAVE_OPENSSL
+#cmakedefine01 ENABLE_LOGGING

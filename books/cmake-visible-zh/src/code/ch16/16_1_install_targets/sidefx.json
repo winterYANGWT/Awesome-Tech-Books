@@ -1,0 +1,19 @@
+{
+  "title": "install(TARGETS)：登记、生成脚本、安装",
+  "runs": [
+    {
+      "label": "配置、构建、安装",
+      "after": [
+        ["cmake", "--install", "build", "--prefix", "prefix"],
+        ["./prefix/bin/greet_app"]
+      ]
+    }
+  ],
+  "expect": [
+    "Installing: .*/prefix/bin/greet_app",
+    "Installing: .*/prefix/lib/libgreet\\.a",
+    "Installing: .*/prefix/include/greet/greet\\.h",
+    "^hello from installed greet$"
+  ],
+  "contents": ["build/cmake_install.cmake"]
+}

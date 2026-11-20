@@ -1,0 +1,17 @@
+{
+  "title": "漏写 DEPENDS：改了不生成",
+  "runs": [
+    {"label": "第一次构建", "after": [["./build/app"]]},
+    {"label": "改了 csv", "configure": false,
+     "replace": {"table.csv": "v3/table.csv"}, "after": [["./build/app"]]},
+    {"label": "补上依赖", "configure": false,
+     "replace": {"CMakeLists.txt": "v2/CMakeLists.txt", "table.csv": "v3/table.csv"},
+     "after": [["./build/app"]]}
+  ],
+  "expect": [
+    "ninja: no work to do",
+    "table: 3 rows, sum 60",
+    "\\[1/4\\][^\\n]*gen_table\\.cmake[\\s\\S]*table: 3 rows, sum 15[\\s\\S]*ninja: no work to do[\\s\\S]*table: 3 rows, sum 15[\\s\\S]*\\[0/1\\][^\\n]*regenerate-during-build[\\s\\S]*\\[1/4\\][^\\n]*gen_table\\.cmake[\\s\\S]*table: 3 rows, sum 60"
+  ],
+  "expect_not": ["CMake Error"]
+}

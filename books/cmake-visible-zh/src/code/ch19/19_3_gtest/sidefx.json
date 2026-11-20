@@ -1,0 +1,18 @@
+{
+  "title": "gtest_discover_tests 列出用例",
+  "runs": [
+    {
+      "label": "构建并运行 ctest",
+      "after": [["ctest", "--test-dir", "build", "--output-on-failure"]]
+    }
+  ],
+  "expect": [
+    "Arithmetic\\.Adds",
+    "Arithmetic\\.Multiplies",
+    "Text\\.Joins",
+    "GoogleTestAddTests\\.cmake",
+    "100% tests passed, 0 tests failed out of 3"
+  ],
+  "expect_not": ["CMake Error", "CMake Warning"],
+  "contents": ["build/*_tests.cmake", "build/CTestTestfile.cmake"]
+}

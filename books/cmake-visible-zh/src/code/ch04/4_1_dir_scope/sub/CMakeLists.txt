@@ -1,0 +1,5 @@
+message(STATUS "子目录读到 LEVEL=${LEVEL}")
+set(LEVEL "sub")
+set(SUB_ONLY "只在子目录里")
+message(STATUS "子目录修改后 LEVEL=${LEVEL}")
+set(FROM_SUB "yes" PARENT_SCOPE)

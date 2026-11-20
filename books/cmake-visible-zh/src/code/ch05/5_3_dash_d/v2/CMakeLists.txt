@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.25...4.2)
+project(DashD LANGUAGES CXX)
+
+get_property(USE_FAST_TYPE CACHE USE_FAST PROPERTY TYPE)
+message(STATUS "配置前缓存 USE_FAST=[$CACHE{USE_FAST}] 类型=${USE_FAST_TYPE}")
+set(USE_FAST ON CACHE BOOL "Use the fast code path" FORCE)
+set(LOG_LEVEL "info" CACHE STRING "Log level: debug, info, warn")
+message(STATUS "USE_FAST=${USE_FAST} LOG_LEVEL=${LOG_LEVEL}")
+
+add_executable(app main.cpp)
+if(USE_FAST)
+  target_compile_definitions(app PRIVATE FAST_PATH=1)
+else()
+  target_compile_definitions(app PRIVATE FAST_PATH=0)
+endif()
+target_compile_definitions(app PRIVATE LOG_LEVEL="${LOG_LEVEL}")

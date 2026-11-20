@@ -1,0 +1,80 @@
+{
+  "title": "哪些输入会让 CMake 重新配置",
+  "runs": [
+    {
+      "label": "基线",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "只改 settings",
+      "configure": false,
+      "replace": {
+        "settings.txt": "v2/settings.txt"
+      },
+      "after": [
+        [
+          "cmake",
+          "-E",
+          "echo",
+          "RUN2"
+        ],
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "改模板",
+      "configure": false,
+      "replace": {
+        "template.h.in": "v2/template.h.in"
+      },
+      "after": [
+        [
+          "cmake",
+          "-E",
+          "echo",
+          "RUN3"
+        ],
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "打开跟踪",
+      "args": [
+        "-DTRACK_SETTINGS=ON"
+      ]
+    },
+    {
+      "label": "再改 settings",
+      "configure": false,
+      "replace": {
+        "settings.txt": "v3/settings.txt"
+      },
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "RUN2[\\s\\S]*settings: one",
+    "RUN3[\\s\\S]*settings: two",
+    "settings: three",
+    "template: revision-one",
+    "template: revision-two",
+    "regenerate-during-build",
+    "配置依赖：/work/src/settings.txt",
+    "ninja: no work to do"
+  ],
+  "contents": [
+    "build/build.ninja"
+  ]
+}

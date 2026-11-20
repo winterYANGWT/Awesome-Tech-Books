@@ -1,0 +1,21 @@
+{
+  "title": "从 version.txt 读版本和宏",
+  "runs": [
+    {
+      "label": "配置、构建、运行",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "版本 1\\.4\\.2，代号 AURORA，标识 build_1_4_2",
+    "-DBUILD_ID=",
+    "^1\\.4\\.2 AURORA build_1_4_2$"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

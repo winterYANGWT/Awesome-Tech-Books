@@ -1,0 +1,23 @@
+{
+  "title": "交叉模式下 try_run 和模拟器",
+  "runs": [
+    {
+      "label": "没有模拟器",
+      "args": ["--toolchain", "cmake/host-cross.cmake"],
+      "build_targets": false,
+      "expect": "configure-error"
+    },
+    {
+      "label": "加上模拟器",
+      "fresh": true,
+      "args": ["--toolchain", "cmake/host-cross.cmake", "-DUSE_EMULATOR=ON"]
+    }
+  ],
+  "expect": [
+    "try_run\\(\\) invoked in cross-compiling mode",
+    "compile=TRUE run=0 out=probe ran at configure time",
+    "probe ran at build time",
+    "run.sh /work/build/probe"
+  ],
+  "expect_not": ["CMake Warning"]
+}

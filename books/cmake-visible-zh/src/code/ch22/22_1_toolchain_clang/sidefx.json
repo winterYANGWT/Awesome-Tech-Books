@@ -1,0 +1,28 @@
+{
+  "title": "工具链文件在哪里把编译器换掉",
+  "runs": [
+    {
+      "label": "指定工具链",
+      "args": [
+        "--toolchain",
+        "cmake/clang.cmake"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "读 clang.cmake：此刻 CMAKE_CXX_COMPILER=''",
+    "读 clang.cmake：此刻 CMAKE_CXX_COMPILER='clang\\+\\+'",
+    "project\\(\\) 之后：/usr/bin/clang\\+\\+（Clang ",
+    "缓存里的工具链文件：/work/src/cmake/clang.cmake",
+    "project\\(\\) 准备执行：include\\(\"/work/src/cmake/clang.cmake\"\\)",
+    "^hello from clang$"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

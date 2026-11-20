@@ -1,0 +1,34 @@
+{
+  "title": "解析函数参数：五类结果",
+  "runs": [
+    {
+      "label": "正常调用",
+      "after": [
+        [
+          "./build/hello"
+        ]
+      ]
+    },
+    {
+      "label": "拼错关键字",
+      "args": [
+        "-DBAD_ARGS=ON"
+      ],
+      "fresh": true,
+      "build_targets": false,
+      "expect": "configure-error"
+    }
+  ],
+  "expect": [
+    "SOURCES=main\\.cpp;greet\\.cpp",
+    "LIBS=core  INSTALL=TRUE",
+    "OUTPUT_NAME=hello  UNPARSED=  MISSING=$",
+    "SOURCES=$",
+    "LIBS=  INSTALL=FALSE",
+    "OUTPUT_NAME=  UNPARSED=SOURCE;main\\.cpp",
+    "不认识的参数\\s+'SOURCE;main\\.cpp'"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

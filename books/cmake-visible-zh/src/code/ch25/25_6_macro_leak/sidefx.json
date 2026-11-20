@@ -1,0 +1,11 @@
+{
+  "title": "宏里的临时变量漏到调用者",
+  "runs": [
+    {"label": "宏", "after": [["./build/tool"], ["./build/app"]]},
+    {"label": "函数", "replace": {"CMakeLists.txt": "v2/CMakeLists.txt"},
+     "after": [["./build/tool"], ["./build/app"]]}
+  ],
+  "expect": ["after call tmp=tool_internal", "app: MODE=tool_internal",
+             "after call tmp=user-visible", "app: MODE=user-visible"],
+  "expect_not": ["CMake Warning"]
+}

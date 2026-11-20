@@ -1,0 +1,14 @@
+{
+  "title": "WRITE 每次改写，CONFIGURE 不写",
+  "runs": [
+    {
+      "label": "第一次",
+      "after": [["./build/write_app"], ["./build/conf_app"], ["./build/gen_app"]]
+    },
+    {
+      "label": "第二次",
+      "after": [["./build/write_app"], ["./build/conf_app"], ["./build/gen_app"], ["cmake", "-E", "cat", "build/configure.log"]]
+    }
+  ],
+  "expect": ["write: 1\\.2\\.3", "configure: 1\\.2\\.3 version: 1\\.2\\.3", "generate: Linux", "configured\nconfigured", "\\[1/2\\][^\\n]*written\\.cpp\\.o", "\\[2/2\\][^\\n]*-o write_app"]
+}

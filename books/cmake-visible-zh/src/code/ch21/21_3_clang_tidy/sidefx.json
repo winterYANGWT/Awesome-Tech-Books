@@ -1,0 +1,20 @@
+{
+  "title": "clang-tidy 接进编译命令",
+  "runs": [
+    {
+      "label": "导出并检查",
+      "after": [
+        ["./build/app"],
+        ["grep", "-n", "\"file\"", "build/compile_commands.json"]
+      ]
+    }
+  ],
+  "expect": [
+    "__run_co_compile",
+    "readability-braces-around-statements",
+    "^core=7$",
+    "\"file\": \"/work/src/core.cpp\"",
+    "\"file\": \"/work/src/main.cpp\""
+  ],
+  "expect_not": ["__run_co_compile.*main\\.cpp", "CMake Warning"]
+}

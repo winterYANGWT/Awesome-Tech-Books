@@ -1,0 +1,27 @@
+{
+  "title": "NONE 起步，再启用 CXX",
+  "runs": [
+    {
+      "label": "NONE 再开 CXX",
+      "after": [["./build/app"]]
+    },
+    {
+      "label": "默认语言",
+      "fresh": true,
+      "replace": {"CMakeLists.txt": "v2/CMakeLists.txt"},
+      "after": [["./build/app"]]
+    }
+  ],
+  "contents": [
+    "build/CMakeFiles/4.2.3/CMakeCXXCompiler.cmake",
+    "build/CMakeFiles/4.2.3/CMakeCCompiler.cmake"
+  ],
+  "expect": [
+    "before enable: CXX=\\[\\]",
+    "after enable: CXX=/usr/bin/g\\+\\+",
+    "The CXX compiler identification is GNU 15\\.2\\.0",
+    "The C compiler identification is GNU 15\\.2\\.0",
+    "defaults: C=/usr/bin/gcc; CXX=/usr/bin/g\\+\\+",
+    "^cxx enabled$"
+  ]
+}

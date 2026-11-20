@@ -1,0 +1,39 @@
+{
+  "title": "请求 2.0，版本文件拒绝",
+  "runs": [
+    {
+      "label": "安装 1.2.0",
+      "src": "greet",
+      "after": [
+        ["cmake", "--install", "build", "--prefix", "prefix"]
+      ]
+    },
+    {
+      "label": "请求 1.0 通过",
+      "src": "app",
+      "build": "build-app",
+      "args": ["-DCMAKE_PREFIX_PATH=../../prefix"],
+      "after": [
+        ["./build-app/app"]
+      ]
+    },
+    {
+      "label": "请求 2.0 被拒",
+      "src": "app",
+      "build": "build-app",
+      "fresh": true,
+      "replace": {
+        "app/CMakeLists.txt": "app/v2/CMakeLists.txt"
+      },
+      "args": ["-DCMAKE_PREFIX_PATH=../../prefix"],
+      "expect": "configure-error"
+    }
+  ],
+  "step_into": ["prefix/lib/cmake"],
+  "expect": [
+    "^hello, installed package!$",
+    "that is compatible",
+    "version: 1.2.0"
+  ],
+  "expect_not": ["CMake Warning"]
+}

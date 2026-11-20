@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.25...4.2)
+project(IfDeref LANGUAGES CXX)
+
+set(name "MODE")
+set(MODE "abc")
+
+if(${name} STREQUAL "abc")
+  set(verdict "wrong-match")
+else()
+  set(verdict "no-match")
+endif()
+if("${name}" STREQUAL "abc")
+  set(intended "match")
+else()
+  set(intended "no-match")
+endif()
+message(STATUS "if(\${name} STREQUAL \"abc\") -> ${verdict}")
+message(STATUS "if(\"\${name}\" STREQUAL \"abc\") -> ${intended}")
+
+add_executable(app main.cpp)
+target_compile_definitions(app PRIVATE "VERDICT=\"${verdict}\"")

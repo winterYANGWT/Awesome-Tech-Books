@@ -1,0 +1,14 @@
+{
+  "title": "导出目标带上了构建树路径",
+  "runs": [
+    {
+      "label": "配置失败",
+      "expect": "configure-error"
+    }
+  ],
+  "expect": [
+    "INTERFACE_INCLUDE_DIRECTORIES property contains path",
+    "which is prefixed in the build directory"
+  ],
+  "expect_not": ["CMake Warning"]
+}

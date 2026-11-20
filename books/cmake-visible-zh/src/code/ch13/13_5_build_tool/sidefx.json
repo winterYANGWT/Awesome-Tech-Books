@@ -1,0 +1,10 @@
+{
+  "title": "先构建生成器，再生成源码",
+  "runs": [
+    {"label": "配置并构建", "after": [["./build/app"]]}
+  ],
+  "expect": [
+    "table: 3 rows, sum 15",
+    "\\[1/6\\][^\\n]*gen\\.cpp\\.o[\\s\\S]*\\[2/6\\][^\\n]*-o gen[\\s\\S]*\\[3/6\\][^\\n]*/work/build/gen[^\\n]*table\\.csv[^\\n]*table\\.cpp[\\s\\S]*\\[6/6\\][^\\n]*-o app[\\s\\S]*table: 3 rows, sum 15"
+  ]
+}

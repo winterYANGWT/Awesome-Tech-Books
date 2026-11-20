@@ -1,0 +1,16 @@
+{
+  "title": "只有头文件的 INTERFACE 库",
+  "runs": [
+    {
+      "label": "配置并运行",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "^units=2 cplusplus=201703$"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "title": "启动器包住每条编译命令",
+  "runs": [
+    {
+      "label": "接上启动器",
+      "args": [
+        "-DCMAKE_CXX_COMPILER_LAUNCHER=sh;../src/tools/log-cc.sh"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ],
+        [
+          "cat",
+          "build/compile.log"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "sh \\.\\./src/tools/log-cc\\.sh /usr/bin/g\\+\\+.*-c /work/src/main\\.cpp",
+    "^/usr/bin/g\\+\\+ .*-c /work/src/greet\\.cpp",
+    "^/usr/bin/g\\+\\+ .*-c /work/src/main\\.cpp$",
+    "^hello from launcher$"
+  ],
+  "expect_not": [
+    "log-cc\\.sh.*-o app",
+    "CMake Warning"
+  ]
+}

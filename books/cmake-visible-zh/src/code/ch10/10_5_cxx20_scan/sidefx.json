@@ -1,0 +1,27 @@
+{
+  "title": "C++20 目标多出的扫描命令",
+  "runs": [
+    {
+      "label": "默认扫描",
+      "after": [["./build/app"], ["./build/plain"]]
+    },
+    {
+      "label": "关闭扫描",
+      "replace": {"CMakeLists.txt": "v2/CMakeLists.txt"},
+      "fresh": true,
+      "after": [
+        ["./build/app"],
+        ["./build/plain"],
+        ["sh", "-c", "ninja -C build -t commands | grep -q cmake_ninja_dyndep && echo STILL_SCAN || echo NO_SCAN"]
+      ]
+    }
+  ],
+  "expect": [
+    "fdeps-format=p1689r5",
+    "cmake_ninja_dyndep",
+    "app: C\\+\\+20",
+    "plain: __cplusplus=201703",
+    "NO_SCAN"
+  ],
+  "expect_not": ["CMake Error", "STILL_SCAN"]
+}

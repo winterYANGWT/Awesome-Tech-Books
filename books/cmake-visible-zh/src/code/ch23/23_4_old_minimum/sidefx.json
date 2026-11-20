@@ -1,0 +1,16 @@
+{
+  "title": "CMake 4.0 删掉的旧兼容",
+  "runs": [
+    {"label": "旧版本", "expect": "configure-error", "build_targets": false},
+    {"label": "加变量", "fresh": true, "args": ["-DCMAKE_POLICY_VERSION_MINIMUM=3.5"],
+     "after": [["./build/app"]]}
+  ],
+  "expect": ["Compatibility with CMake < 3.5 has been removed",
+             "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+             "Compatibility with CMake < 3.10 will be removed",
+             "Policy CMP0066 is not set",
+             "Policy CMP0156 is not set",
+             "Policy CMP0181 is not set",
+             "old minimum: built"],
+  "warnings": true
+}

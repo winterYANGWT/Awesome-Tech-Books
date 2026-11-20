@@ -1,0 +1,25 @@
+{
+  "title": "测试属性：失败也算通过",
+  "runs": [
+    {
+      "label": "运行全部测试",
+      "after": [
+        {"cmd": ["ctest", "--test-dir", "build", "--output-on-failure"], "may_fail": true},
+        ["ctest", "--test-dir", "build", "-N", "-L", "unit"]
+      ]
+    }
+  ],
+  "expect": [
+    "1/6 Test #1: wrong_exit.*Passed",
+    "2/6 Test #2: greeting.*Passed",
+    "3/6 Test #3: slow_probe.*Timeout",
+    "fixture_setup.*Passed",
+    "fixture_user.*Passed",
+    "fixture_cleanup.*Passed",
+    "83% tests passed, 1 tests failed out of 6",
+    "Test #4: fixture_setup",
+    "Total Tests: 4"
+  ],
+  "expect_not": ["CMake Error", "CMake Warning"],
+  "contents": ["build/CTestTestfile.cmake"]
+}

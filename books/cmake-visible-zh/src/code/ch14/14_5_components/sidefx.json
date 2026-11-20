@@ -1,0 +1,29 @@
+{
+  "title": "Boost 的组件和 Tiny 的版本检查",
+  "runs": [
+    {
+      "label": "Boost 组件",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "Tiny 9.0 配不上",
+      "build_targets": false,
+      "expect": "configure-error",
+      "replace": {
+        "CMakeLists.txt": "v2/CMakeLists.txt"
+      },
+      "fresh": true
+    }
+  ],
+  "expect": [
+    "Boost_VERSION=1.90.0",
+    "ch14.txt root_exists=1",
+    "Could not find a configuration file for package \"Tiny\" that is compatible",
+    "with requested version \"9.0\"",
+    "version: 1.2.3"
+  ]
+}

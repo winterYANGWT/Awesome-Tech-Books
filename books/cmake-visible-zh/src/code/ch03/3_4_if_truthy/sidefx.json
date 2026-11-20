@@ -1,0 +1,5 @@
+{
+  "title": "if() 把哪些值当真",
+  "runs": [{"label": "配置、构建、运行", "after": [["./build/app"]]}],
+  "expect": ["X=\\[0\\.0\\]  if\\(X\\)=TRUE  if\\(\\$\\{X\\}\\)=FALSE", "X=\\[abc\\]  if\\(X\\)=TRUE  if\\(\\$\\{X\\}\\)=FALSE", "HAVE_EXTRA", "GCC15", "TWO"]
+}

@@ -1,0 +1,24 @@
+{
+  "title": "导出头决定共享库露出哪些符号",
+  "runs": [
+    {
+      "label": "默认构建",
+      "after": [
+        ["./build/app"],
+        ["nm", "-D", "-C", "--defined-only", "build/libring.so"]
+      ]
+    },
+    {
+      "label": "调用隐藏的函数",
+      "args": ["-DBUILD_BAD=ON"],
+      "build_targets": ["app_bad"],
+      "expect": "build-error"
+    }
+  ],
+  "contents": ["build/generated/ring/ring_export.h"],
+  "expect": [
+    "^42$",
+    "ring::visible\\(int\\)",
+    "undefined reference to .ring::internal"
+  ]
+}

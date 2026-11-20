@@ -1,0 +1,27 @@
+{
+  "title": "GNUInstallDirs：目录从缓存来",
+  "runs": [
+    {
+      "label": "默认目录",
+      "after": [
+        ["cmake", "--install", "build", "--prefix", "prefix"],
+        ["./prefix/bin/dirs_app"]
+      ]
+    },
+    {
+      "label": "改 LIBDIR",
+      "args": ["-DCMAKE_INSTALL_LIBDIR=lib64"],
+      "after": [
+        ["cmake", "--install", "build", "--prefix", "prefix-lib64"],
+        ["./prefix-lib64/bin/dirs_app"]
+      ]
+    }
+  ],
+  "expect": [
+    "安装目录：bin=bin lib=lib include=include",
+    "安装目录：bin=bin lib=lib64 include=include",
+    "Installing: .*/prefix/lib/libdirs\\.a",
+    "Installing: .*/prefix-lib64/lib64/libdirs\\.a",
+    "^dirs built in the source tree$"
+  ]
+}

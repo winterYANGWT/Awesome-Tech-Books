@@ -1,0 +1,37 @@
+{
+  "title": "只写一个版本和写范围",
+  "runs": [
+    {
+      "label": "只写 3.25",
+      "args": [
+        "-DCMAKE_POLICY_WARNING_CMP0156=ON",
+        "-DCMAKE_POLICY_WARNING_CMP0181=ON"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "改成范围",
+      "replace": {
+        "CMakeLists.txt": "v2/CMakeLists.txt"
+      },
+      "args": [
+        "-Werror=dev"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "Policy CMP0156 is not set",
+    "Policy CMP0181 is not set",
+    "core = 7"
+  ],
+  "warnings": true
+}

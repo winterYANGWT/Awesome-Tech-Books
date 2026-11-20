@@ -1,0 +1,8 @@
+{
+  "title": "configure_file：模板变成头文件",
+  "runs": [
+    {"label": "配置并构建", "after": [["./build/app"]]},
+    {"label": "再配置一次", "after": [["./build/app"]]}
+  ],
+  "expect": ["app=config-demo version=1\\.2\\.3", "logging: on", "openssl: off", "ninja: no work to do"]
+}

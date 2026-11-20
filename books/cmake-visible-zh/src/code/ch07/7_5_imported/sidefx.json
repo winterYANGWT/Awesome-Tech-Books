@@ -1,0 +1,7 @@
+{
+  "title": "导入目标：ZLIB::ZLIB",
+  "runs": [
+    {"label": "配置并运行", "after": [["./build/app"]]}
+  ],
+  "expect": ["Found ZLIB", "libz.so", "zlib 1.3.1"]
+}

@@ -1,0 +1,17 @@
+{
+  "title": "配置时存字符串，生成时才求值",
+  "runs": [
+    {
+      "label": "Debug",
+      "args": ["-DCMAKE_BUILD_TYPE=Debug"],
+      "after": [["cat", "build/genex.txt"], ["./build/app"]]
+    },
+    {
+      "label": "Release",
+      "args": ["-DCMAKE_BUILD_TYPE=Release"],
+      "after": [["cat", "build/genex.txt"], ["./build/app"]]
+    }
+  ],
+  "expect": ["config=Debug", "config=Release", "options=-O0", "options=-O2", "^app ran$"],
+  "expect_not": ["CMake Error"]
+}

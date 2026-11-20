@@ -1,0 +1,16 @@
+{
+  "title": "静态库的 PRIVATE 依赖",
+  "runs": [
+    {
+      "label": "配置并运行",
+      "after": [
+        [
+          "./build/app/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "^a=42$"
+  ]
+}

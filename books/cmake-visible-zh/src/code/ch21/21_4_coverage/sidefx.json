@@ -1,0 +1,60 @@
+{
+  "title": "覆盖率参数和 .gcda",
+  "runs": [
+    {
+      "label": "Coverage",
+      "args": [
+        "-DCMAKE_BUILD_TYPE=Coverage"
+      ],
+      "after": [
+        [
+          "ctest",
+          "--test-dir",
+          "build",
+          "--output-on-failure"
+        ],
+        [
+          "sh",
+          "-c",
+          "find build -name '*.gcda' -print"
+        ],
+        [
+          "sh",
+          "-c",
+          "cd build && gcov -b -o CMakeFiles/check.dir CMakeFiles/check.dir/main.cpp.o"
+        ]
+      ]
+    },
+    {
+      "label": "Release",
+      "fresh": true,
+      "args": [
+        "-DCMAKE_BUILD_TYPE=Release"
+      ],
+      "after": [
+        [
+          "ctest",
+          "--test-dir",
+          "build",
+          "--output-on-failure"
+        ],
+        [
+          "sh",
+          "-c",
+          "if find build -name '*.gcda' | grep -q .; then echo has-gcda; else echo no-gcda; fi"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "--coverage -O0 -g",
+    "--coverage -O0 -g --coverage",
+    "build/CMakeFiles/check\\.dir/main\\.cpp\\.gcda",
+    "Lines executed:",
+    "Creating 'main.cpp.gcov'",
+    "^no-gcda$"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

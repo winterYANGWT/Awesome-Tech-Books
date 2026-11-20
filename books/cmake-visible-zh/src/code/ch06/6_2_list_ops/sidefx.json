@@ -1,0 +1,22 @@
+{
+  "title": "用 list() 生成源文件列表",
+  "runs": [
+    {
+      "label": "配置、构建、运行",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "源文件（net\\.cpp 的下标 3）：src/core\\.cpp, src/gui_linux\\.cpp, src/log\\.cpp, src/net\\.cpp",
+    "src/gui_linux\\.cpp\\.o",
+    "^23$"
+  ],
+  "expect_not": [
+    "gui_win\\.cpp\\.o",
+    "CMake Warning"
+  ]
+}

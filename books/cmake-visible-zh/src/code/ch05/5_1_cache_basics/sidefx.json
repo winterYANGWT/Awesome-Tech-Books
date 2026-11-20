@@ -1,0 +1,6 @@
+{
+  "title": "第一次配置写下的缓存项",
+  "runs": [{"label": "配置并运行", "after": [["./build/app"]]}],
+  "expect": ["USE_FAST=ON mode=demo data=/work/src/data", "log=OFF token=internal-42", "^fast path, mode=demo, data=/work/src/data, log=0$"],
+  "expect_not": ["CMake Error"]
+}

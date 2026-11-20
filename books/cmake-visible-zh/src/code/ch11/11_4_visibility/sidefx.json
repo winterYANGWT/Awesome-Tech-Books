@@ -1,0 +1,60 @@
+{
+  "title": "哪些符号真的导出了",
+  "runs": [
+    {
+      "label": "默认隐藏",
+      "after": [
+        [
+          "nm",
+          "-D",
+          "--defined-only",
+          "build/libx.so"
+        ],
+        [
+          "sh",
+          "-c",
+          "echo hidden=$(nm -D --defined-only build/libx.so | wc -l)"
+        ],
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "不隐藏",
+      "replace": {
+        "CMakeLists.txt": "v2/CMakeLists.txt"
+      },
+      "after": [
+        [
+          "nm",
+          "-D",
+          "--defined-only",
+          "build/libx.so"
+        ],
+        [
+          "sh",
+          "-c",
+          "echo plain=$(nm -D --defined-only build/libx.so | wc -l)"
+        ],
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "-fvisibility=hidden",
+    "-fvisibility-inlines-hidden",
+    "T x_value",
+    "T x_extra",
+    "detail_scale",
+    "^hidden=1$",
+    "^plain=3$",
+    "^x=42$"
+  ],
+  "expect_not": [
+    "CMake Warning",
+    "CMake Error"
+  ]
+}

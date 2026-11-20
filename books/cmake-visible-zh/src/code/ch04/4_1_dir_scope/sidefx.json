@@ -1,0 +1,19 @@
+{
+  "title": "子目录里的变量留在子目录",
+  "expect": [
+    "子目录读到 LEVEL=top",
+    "子目录修改后 LEVEL=sub",
+    "回到顶层 LEVEL=top",
+    "FROM_SUB=yes",
+    "^top yes$"
+  ],
+  "runs": [
+    {
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ]
+}

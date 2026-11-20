@@ -1,0 +1,18 @@
+{
+  "title": "trace 看每行的实际参数",
+  "runs": [
+    {"label": "正常配置", "after": [["./build/app"]]},
+    {"label": "trace", "after": [["cmake", "--trace", "--trace-source=CMakeLists.txt", "-S", "src", "-B", "build"]]},
+    {"label": "trace-expand", "after": [
+      ["cmake", "--trace-expand", "--trace-source=CMakeLists.txt", "-S", "src", "-B", "build"],
+      ["cmake", "--trace-expand", "--trace-format=json-v1", "--trace-source=CMakeLists.txt", "-S", "src", "-B", "build"]
+    ]}
+  ],
+  "expect": [
+    "target_compile_definitions\\(app PRIVATE \\$\\{APP_DEFS\\} \\)",
+    "target_compile_definitions\\(app PRIVATE FEATURE_FAST=1;FEATURE_LOG=1 \\)",
+    "target_compile_options\\(app PRIVATE\\s+\\)",
+    "\"args\":\\[\"app\",\"PRIVATE\",\"FEATURE_FAST=1;FEATURE_LOG=1\"\\]"
+  ],
+  "expect_not": ["CMake Warning"]
+}

@@ -1,0 +1,25 @@
+{
+  "title": "头文件没安装，下游生成失败",
+  "runs": [
+    {
+      "label": "安装 Greet",
+      "src": "greet",
+      "after": [
+        ["cmake", "--install", "build", "--prefix", "prefix"]
+      ]
+    },
+    {
+      "label": "下游失败",
+      "src": "app",
+      "build": "build-app",
+      "args": ["-DCMAKE_PREFIX_PATH=../../prefix"],
+      "expect": "configure-error"
+    }
+  ],
+  "step_into": ["prefix/lib/cmake"],
+  "expect": [
+    "Imported target \"Greet::greet\" includes non-existent path",
+    "INTERFACE_INCLUDE_DIRECTORIES"
+  ],
+  "expect_not": ["CMake Warning"]
+}

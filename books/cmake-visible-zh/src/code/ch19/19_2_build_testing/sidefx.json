@@ -1,0 +1,31 @@
+{
+  "title": "测试只在顶层工程里构建",
+  "runs": [
+    {
+      "label": "被父工程包含",
+      "src": "host",
+      "build": "build",
+      "after": [["ctest", "--test-dir", "build", "-N"]]
+    },
+    {
+      "label": "单独构建",
+      "src": "lib",
+      "build": "build-lib",
+      "after": [["ctest", "--test-dir", "build-lib", "--output-on-failure"]]
+    },
+    {
+      "label": "关掉测试",
+      "src": "lib",
+      "build": "build-off",
+      "args": ["-DBUILD_TESTING=OFF"],
+      "after": [["ctest", "--test-dir", "build-off", "-N"]]
+    }
+  ],
+  "step_into": ["src/lib"],
+  "expect": [
+    "Test project /work/build\\n\\nTotal Tests: 0",
+    "1/1 Test #1: calc_add.*Passed",
+    "100% tests passed, 0 tests failed out of 1"
+  ],
+  "expect_not": ["CMake Error", "CMake Warning"]
+}

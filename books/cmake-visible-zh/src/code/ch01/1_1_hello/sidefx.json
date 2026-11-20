@@ -1,0 +1,5 @@
+{
+  "title": "最小的工程：三行 CMakeLists.txt",
+  "runs": [{"label": "配置、构建、运行", "after": [["./build/hello"]]}],
+  "expect": ["^hello, built with C\\+\\+\\d+"]
+}

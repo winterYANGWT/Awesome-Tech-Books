@@ -1,0 +1,7 @@
+{
+  "title": "列表就是带分号的字符串",
+  "runs": [{"label": "配置、构建、运行",
+            "build_targets": ["app", "app_quoted", "show_unquoted", "show_quoted"],
+            "after": [["./build/app"]]}],
+  "expect": ["FLAGS len=2; SPACED len=1 value=\\[-Wall -Wextra\\]", "app=\\[-Wall;-Wextra\\] app_quoted=\\[-Wall;-Wextra\\]", "echo -Wall -Wextra", "echo \"-Wall;-Wextra\"", "list demo"]
+}

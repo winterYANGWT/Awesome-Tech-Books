@@ -1,0 +1,38 @@
+{
+  "title": "写进源码目录的 version.h",
+  "runs": [
+    {
+      "label": "build-a",
+      "build": "build-a",
+      "args": [
+        "-DVARIANT=team-a"
+      ],
+      "after": [
+        [
+          "./build-a/app"
+        ]
+      ]
+    },
+    {
+      "label": "build-b",
+      "build": "build-b",
+      "args": [
+        "-DVARIANT=team-b"
+      ]
+    },
+    {
+      "label": "回到 build-a",
+      "build": "build-a",
+      "configure": false,
+      "after": [
+        [
+          "./build-a/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "variant: team-a",
+    "variant: team-b"
+  ]
+}

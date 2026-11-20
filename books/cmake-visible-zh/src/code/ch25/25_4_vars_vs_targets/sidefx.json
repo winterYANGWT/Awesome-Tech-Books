@@ -1,0 +1,10 @@
+{
+  "title": "变量和导入目标带的东西",
+  "runs": [
+    {"label": "只用变量", "expect": "build-error"},
+    {"label": "导入目标", "replace": {"CMakeLists.txt": "v2/CMakeLists.txt"},
+     "after": [["./build/app"]]}
+  ],
+  "expect": ["libxml/parser.h: No such file or directory", "libxml2=2\\.15\\.2"],
+  "expect_not": ["CMake Warning"]
+}

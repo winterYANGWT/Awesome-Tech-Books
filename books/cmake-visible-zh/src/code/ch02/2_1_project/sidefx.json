@@ -1,0 +1,15 @@
+{
+  "title": "第一次 project()：检测编译器",
+  "runs": [
+    {"label": "配置并构建", "after": [["./build/app"]]}
+  ],
+  "contents": [
+    "build/CMakeFiles/4.2.3/CMakeCXXCompiler.cmake",
+    "build/CMakeFiles/4.2.3/CMakeSystem.cmake"
+  ],
+  "expect": [
+    "The CXX compiler identification is GNU 15\\.2\\.0",
+    "compiler=/usr/bin/g\\+\\+; ar=/usr/bin/ar; build_type=\\[\\]; prefix=/usr/local",
+    "^probe$"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "title": "三个关键字写进哪两个属性",
+  "runs": [
+    {
+      "label": "配置并运行",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "^calc=3 interface=2$"
+  ]
+}

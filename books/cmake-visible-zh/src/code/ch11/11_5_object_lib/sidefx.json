@@ -1,0 +1,8 @@
+{
+  "title": "对象库的源文件只编译一次",
+  "runs": [
+    {"label": "配置并运行", "after": [["./build/app"], ["./build/tool"]]}
+  ],
+  "expect": ["CMakeFiles/common.dir/common.cpp.o", "\\[5/5\\]", "^app common=42$", "^tool common=42$"],
+  "expect_not": ["CMake Warning", "CMake Error", "libcommon\\.a"]
+}

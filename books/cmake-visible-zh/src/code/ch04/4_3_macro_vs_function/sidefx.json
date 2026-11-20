@@ -1,0 +1,19 @@
+{
+  "title": "宏不新建作用域，参数是文本",
+  "expect": [
+    "宏里 if\\(DEFINED name\\) 为假",
+    "函数里 if\\(DEFINED name\\) 为真",
+    "MACRO_TEMP 留在了调用者里",
+    "FUNC_TEMP 不在调用者里",
+    "^yes yes 宏写在调用者里$"
+  ],
+  "runs": [
+    {
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ]
+}

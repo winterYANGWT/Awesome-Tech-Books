@@ -1,0 +1,32 @@
+{
+  "title": "三套预设和一个 dev 工作流",
+  "runs": [
+    {
+      "label": "debug 工作流",
+      "build": "build/debug",
+      "args": ["--preset", "debug"],
+      "build_targets": false,
+      "after": [
+        ["cmake", "-E", "chdir", "src", "cmake", "--workflow", "--preset", "dev"]
+      ]
+    },
+    {
+      "label": "asan 预设",
+      "build": "build/asan",
+      "args": ["--preset", "asan"],
+      "after": [
+        ["ctest", "--test-dir", "build/asan", "--output-on-failure"]
+      ]
+    }
+  ],
+  "expect": [
+    "Executing workflow step 1 of 3: configure preset \"debug\"",
+    "Executing workflow step 2 of 3: build preset \"debug\"",
+    "Executing workflow step 3 of 3: test preset \"debug\"",
+    "GAUGE_SANITIZE=ON",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "100% tests passed, 0 tests failed out of 1"
+  ],
+  "expect_not": ["CMake Error"]
+}

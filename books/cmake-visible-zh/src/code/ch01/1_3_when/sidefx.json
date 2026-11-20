@@ -1,0 +1,7 @@
+{
+  "title": "同一个文件，三个阶段",
+  "runs": [
+    {"label": "配置并构建", "after": [["cmake", "-E", "cat", "build/generated.txt"]]}
+  ],
+  "expect": ["C\\+\\+ 编译器：/usr/bin/g\\+\\+", "构建阶段：app 链接好了", "app 的文件名是 app"]
+}

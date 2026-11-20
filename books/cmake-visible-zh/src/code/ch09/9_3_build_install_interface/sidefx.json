@@ -1,0 +1,37 @@
+{
+  "title": "构建树和安装树的头文件路径",
+  "runs": [
+    {
+      "label": "构建并安装",
+      "after": [
+        [
+          "./build/app"
+        ],
+        [
+          "cmake",
+          "--install",
+          "build",
+          "--prefix",
+          "prefix"
+        ],
+        [
+          "grep",
+          "-n",
+          "INTERFACE_INCLUDE_DIRECTORIES",
+          "prefix/lib/cmake/Greet/GreetTargets.cmake"
+        ]
+      ]
+    }
+  ],
+  "contents": [
+    "prefix/lib/cmake/Greet/GreetTargets.cmake"
+  ],
+  "expect": [
+    "^hello from greet$",
+    "-I/work/src/include",
+    "INTERFACE_INCLUDE_DIRECTORIES.*_IMPORT_PREFIX./include"
+  ],
+  "expect_not": [
+    "CMake Error"
+  ]
+}

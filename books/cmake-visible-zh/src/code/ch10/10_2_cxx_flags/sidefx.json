@@ -1,0 +1,43 @@
+{
+  "title": "顶层 CXX_FLAGS 改到了谁",
+  "runs": [
+    {
+      "label": "写全局变量",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "改成目标选项",
+      "replace": {
+        "CMakeLists.txt": "v2/CMakeLists.txt"
+      },
+      "fresh": true,
+      "after": [
+        [
+          "./build/app"
+        ],
+        [
+          "sh",
+          "-c",
+          "ninja -C build -t commands | grep -q -- '-Wall.*tiny.cpp' && echo LEAK || echo CLEAN"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "app: macro=yes tiny=10",
+    "app: macro=yes tiny=0",
+    "-Wall -DFROM_TOP_FLAGS -Wextra[^\\n]*main\\.cpp",
+    "-Wall -Wextra -DFROM_TOP_FLAGS[^\\n]*main\\.cpp",
+    "-Wall -DFROM_TOP_FLAGS[^\\n]*tiny\\.cpp",
+    "CLEAN"
+  ],
+  "expect_not": [
+    "CMake Error",
+    "-Wextra[^\\n]*tiny\\.cpp",
+    "LEAK"
+  ]
+}

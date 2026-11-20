@@ -1,0 +1,10 @@
+{
+  "title": "preset 在第一条命令之前填好缓存",
+  "runs": [
+    {"label": "debug", "build": "build/debug", "args": ["--preset", "debug"], "after": [["./build/debug/app"]]},
+    {"label": "release", "build": "build/release", "args": ["--preset", "release"], "after": [["./build/release/app"]]},
+    {"label": "-D 覆盖", "build": "build/debug", "args": ["--preset", "debug", "-DPROJ_OPT_LEVEL=7"], "after": [["./build/debug/app"]]}
+  ],
+  "expect": ["preset 给的值：config=Debug level=0 warn=TRUE", "config=Debug opt=0", "config=Release opt=3", "config=Debug opt=7", "-Wall -Wextra", "-O3 -DNDEBUG"],
+  "expect_not": ["CMake Warning"]
+}

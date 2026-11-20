@@ -1,0 +1,15 @@
+{
+  "title": "五类常用生成器表达式",
+  "runs": [
+    {
+      "label": "Debug",
+      "args": ["-DCMAKE_BUILD_TYPE=Debug"],
+      "after": [["cat", "build/genex.txt"], ["./build/genex-app"]]
+    }
+  ],
+  "expect": ["config=Debug", "if_debug=yes", "branch=debug-only", "compiler_id=GNU",
+             "is_gnu_or_clang=1", "lang_and_id=1",
+             "target_file=/work/build/genex-app", "target_output=genex-app",
+             "list_join=alpha\\|beta\\|gamma", "list_length=3", "list_upper=ALPHA;BETA"],
+  "expect_not": ["CMake Error"]
+}

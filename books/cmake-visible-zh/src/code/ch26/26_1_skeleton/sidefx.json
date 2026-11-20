@@ -1,0 +1,74 @@
+{
+  "title": "库的骨架：顶层、安装、子目录、消费",
+  "runs": [
+    {
+      "label": "顶层构建和测试",
+      "after": [
+        [
+          "ctest",
+          "--test-dir",
+          "build",
+          "--output-on-failure"
+        ],
+        [
+          "./build/examples/ring_demo"
+        ]
+      ]
+    },
+    {
+      "label": "安装",
+      "build_targets": false,
+      "after": [
+        [
+          "cmake",
+          "--install",
+          "build",
+          "--prefix",
+          "prefix"
+        ]
+      ]
+    },
+    {
+      "label": "作为子目录",
+      "src": "subdir_app",
+      "build": "build-subdir",
+      "after": [
+        [
+          "./build-subdir/subdir_app"
+        ]
+      ]
+    },
+    {
+      "label": "下游消费",
+      "src": "consumer",
+      "build": "build-consumer",
+      "args": [
+        "-DCMAKE_PREFIX_PATH=/work/prefix"
+      ],
+      "after": [
+        [
+          "./build-consumer/consumer"
+        ]
+      ]
+    }
+  ],
+  "step_into": [
+    "prefix/lib/cmake"
+  ],
+  "contents": [
+    "prefix/lib/cmake/ring/ringTargets.cmake",
+    "build/generated/ring/ring_export.h"
+  ],
+  "expect": [
+    "ring 0\\.3\\.0: top-level=ON",
+    "ring 0\\.3\\.0: top-level=OFF tests=OFF examples=OFF warnings=OFF",
+    "100% tests passed, 0 tests failed out of 2",
+    "^ring 0\\.3\\.0: 5$",
+    "Installing: .*ringConfig\\.cmake",
+    "^subdir app sees ring 0\\.3\\.0: 9$",
+    "^consumer sees ring 0\\.3\\.0: 7$"
+  ],
+  "expect_not": [
+    "CMake Error"
+  ]
+}

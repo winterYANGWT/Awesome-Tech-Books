@@ -1,0 +1,21 @@
+{
+  "title": "编译器在 project() 之前定",
+  "runs": [
+    {"label": "默认 g++", "after": [["./build/app"]]},
+    {
+      "label": "命令行换 clang++",
+      "fresh": true,
+      "args": ["-DCMAKE_CXX_COMPILER=clang++"],
+      "after": [["./build/app"]]
+    }
+  ],
+  "expect": [
+    "The CXX compiler identification is GNU 15\\.2\\.0",
+    "The CXX compiler identification is Clang 21\\.1\\.8",
+    "compiler=/usr/bin/g\\+\\+; id=GNU",
+    "compiler=/usr/bin/clang\\+\\+; id=Clang",
+    "^gcc$",
+    "^clang$"
+  ],
+  "expect_not": ["You have changed variables"]
+}

@@ -1,0 +1,5 @@
+{
+  "title": "命令实际收到几个参数",
+  "runs": [{"label": "配置、构建、运行", "after": [["./build/app"]]}],
+  "expect": ["ARGC sequence: 3,1,3,1,0,1,2,4", "ARGC=0"]
+}

@@ -1,0 +1,33 @@
+cmake_minimum_required(VERSION 3.25...4.2)
+project(BlockDemo LANGUAGES CXX)
+
+set(result "unset")
+block(SCOPE_FOR VARIABLES PROPAGATE result)
+  set(tmp1 2)
+  set(tmp2 40)
+  math(EXPR result "${tmp1} + ${tmp2}")
+endblock()
+
+message(STATUS "block 外 result=${result}")
+if(DEFINED tmp1)
+  message(STATUS "tmp1 还在")
+else()
+  message(STATUS "tmp1 没了")
+endif()
+
+function(double_and_return x)
+  math(EXPR y "${x} * 2")
+  set(local_only "只在函数里")
+  return(PROPAGATE y)
+endfunction()
+
+double_and_return(21)
+message(STATUS "return(PROPAGATE) 之后 y=${y}")
+if(DEFINED local_only)
+  message(STATUS "local_only 还在")
+else()
+  message(STATUS "local_only 不在调用者里")
+endif()
+
+add_executable(app main.cpp)
+target_compile_definitions(app PRIVATE "RESULT=${result}" "DOUBLED=${y}")

@@ -1,0 +1,19 @@
+{
+  "title": "include() 在当前作用域执行",
+  "expect": [
+    "helpers: CMAKE_CURRENT_LIST_DIR=/work/src/cmake",
+    "helpers: CMAKE_CURRENT_SOURCE_DIR=/work/src",
+    "顶层: HELPER_GREETING=hello from helpers",
+    "顶层: CMAKE_CURRENT_LIST_DIR=/work/src",
+    "^hello from helpers$"
+  ],
+  "runs": [
+    {
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ]
+}

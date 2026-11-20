@@ -1,0 +1,28 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "PROJ_OPT_LEVEL": "0",
+        "PROJ_WARNINGS": true
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "base"
+    },
+    {
+      "name": "release",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "PROJ_OPT_LEVEL": "3"
+      }
+    }
+  ]
+}

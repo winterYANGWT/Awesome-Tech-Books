@@ -1,0 +1,31 @@
+{
+  "title": "反例：if() 里的生成器表达式",
+  "runs": [
+    {
+      "label": "Debug 下配置",
+      "args": [
+        "-DCMAKE_BUILD_TYPE=Debug"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ],
+        [
+          "cmake",
+          "--build",
+          "build",
+          "--target",
+          "genexdebug"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "if\\(\\) 没有选中；它看到的是字面量 \\[\\$<CONFIG>\\]",
+    "^branch=no$",
+    "^生成时 Debug$"
+  ],
+  "expect_not": [
+    "CMake Error"
+  ]
+}

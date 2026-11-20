@@ -1,0 +1,11 @@
+{
+  "title": "构建树里的程序从哪里找到 .so",
+  "runs": [
+    {"label": "配置并运行", "after": [
+      ["readelf", "-d", "build/app"],
+      ["./build/app"]
+    ]}
+  ],
+  "expect": ["-Wl,-rpath,/work/build", "RUNPATH", "Library runpath: \\[/work/build\\]", "^x=42$"],
+  "expect_not": ["CMake Warning", "CMake Error"]
+}

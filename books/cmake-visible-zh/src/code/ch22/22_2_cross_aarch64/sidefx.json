@@ -1,0 +1,28 @@
+{
+  "title": "交叉编译出 AArch64 库",
+  "runs": [
+    {
+      "label": "交叉配置并构建",
+      "args": [
+        "--toolchain",
+        "cmake/aarch64.cmake"
+      ],
+      "after": [
+        [
+          "file",
+          "build/CMakeFiles/blob.dir/blob.cpp.o"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "cross=TRUE system=Linux proc=aarch64",
+    "clang target=aarch64-linux-gnu sysroot=''",
+    "find 模式：program=NEVER library=ONLY include=ONLY",
+    "--target=aarch64-linux-gnu",
+    "ELF 64-bit LSB relocatable, ARM aarch64"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

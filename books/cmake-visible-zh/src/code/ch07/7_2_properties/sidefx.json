@@ -1,0 +1,7 @@
+{
+  "title": "改属性：OUTPUT_NAME 和编译宏",
+  "runs": [
+    {"label": "配置并运行", "after": [["./build/bin/demo"]]}
+  ],
+  "expect": ["OUTPUT_NAME=demo", "bin/demo", "-DEXTRA=2", "MODE=1 EXTRA=2"]
+}

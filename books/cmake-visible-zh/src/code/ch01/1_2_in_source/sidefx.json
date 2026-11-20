@@ -1,0 +1,8 @@
+{
+  "title": "源码内构建和源码外构建",
+  "runs": [
+    {"label": "在源码目录里构建", "build": "src"},
+    {"label": "单独的构建目录", "build": "build"}
+  ],
+  "expect": ["Build files have been written to: /work/src", "Build files have been written to: /work/build"]
+}

@@ -1,0 +1,49 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceParentDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "PROJ_WARNINGS": true
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "base"
+    },
+    {
+      "name": "strict",
+      "hidden": true,
+      "cacheVariables": {
+        "PROJ_WERROR": "ON"
+      }
+    },
+    {
+      "name": "asan",
+      "inherits": ["debug", "strict"],
+      "cacheVariables": {
+        "PROJ_SANITIZE": "address;undefined"
+      },
+      "environment": {
+        "PROJ_STAGE": "asan",
+        "PROJ_LABEL": "$env{PROJ_STAGE}-$penv{TEAM_TAG}"
+      }
+    },
+    {
+      "name": "msan",
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "PROJ_SANITIZE": "memory"
+      }
+    }
+  ]
+}

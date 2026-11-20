@@ -1,0 +1,32 @@
+{
+  "title": "改了 CMakeLists.txt，直接构建",
+  "runs": [
+    {
+      "label": "第一次",
+      "after": [
+        [
+          "./build/greet"
+        ]
+      ]
+    },
+    {
+      "label": "改完直接构建",
+      "configure": false,
+      "replace": {
+        "CMakeLists.txt": "v2/CMakeLists.txt"
+      },
+      "after": [
+        [
+          "./build/greet"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "regenerate-during-build",
+    "^hi$"
+  ],
+  "contents": [
+    "build/build.ninja"
+  ]
+}

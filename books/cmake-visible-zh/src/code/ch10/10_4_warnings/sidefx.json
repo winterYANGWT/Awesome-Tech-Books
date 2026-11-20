@@ -1,0 +1,29 @@
+{
+  "title": "警告参数只跟着链接走",
+  "runs": [
+    {
+      "label": "GCC",
+      "after": [["cat", "build/compiler.txt"], ["./build/app"], ["./build/tool"]]
+    },
+    {
+      "label": "Clang",
+      "build": "build-clang",
+      "fresh": true,
+      "args": ["-DCMAKE_CXX_COMPILER=clang++"],
+      "after": [["cat", "build-clang/compiler.txt"], ["./build-clang/app"], ["./build-clang/tool"]]
+    }
+  ],
+  "expect": [
+    "id=GNU",
+    "id=Clang",
+    "frontend=GNU",
+    "-Wall -Wextra -Wpedantic[^\\n]*app\\.dir/main\\.cpp",
+    "app built with warnings",
+    "tool built without them",
+    "The CXX compiler identification is Clang"
+  ],
+  "expect_not": [
+    "CMake Error",
+    "-Wall[^\\n]*tool\\.dir/tool\\.cpp"
+  ]
+}

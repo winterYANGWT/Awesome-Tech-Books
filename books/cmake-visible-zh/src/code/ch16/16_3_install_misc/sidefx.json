@@ -1,0 +1,22 @@
+{
+  "title": "install 文件和目录，安装时执行代码",
+  "runs": [
+    {
+      "label": "配置、构建、安装",
+      "after": [
+        ["cmake", "--install", "build", "--prefix", "prefix"],
+        ["cat", "prefix/share/misc/build-info.txt"],
+        ["./prefix/bin/misc_tool"]
+      ]
+    }
+  ],
+  "expect": [
+    "Installing: .*/prefix/share/doc/misc/README\\.md",
+    "Installing: .*/prefix/share/misc/assets/logo\\.txt",
+    "Installing: .*/prefix/share/misc/assets/notes\\.txt",
+    "install\\(CODE\\)：写 build-info\\.txt",
+    "post_install\\.cmake：前缀是 prefix",
+    "^misc 1\\.0\\npost_install\\.cmake 执行了$",
+    "^misc tool is installed$"
+  ]
+}

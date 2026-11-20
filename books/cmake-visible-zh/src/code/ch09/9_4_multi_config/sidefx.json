@@ -1,0 +1,61 @@
+{
+  "title": "一个构建目录，两种配置",
+  "runs": [
+    {
+      "label": "默认 Debug",
+      "args": [
+        "-G",
+        "Ninja Multi-Config"
+      ],
+      "after": [
+        [
+          "./build/Debug/app"
+        ],
+        [
+          "cmake",
+          "--build",
+          "build",
+          "--config",
+          "Release"
+        ],
+        [
+          "./build/Release/app"
+        ],
+        [
+          "cat",
+          "build/config-Debug.txt",
+          "build/config-Release.txt",
+          "build/config-RelWithDebInfo.txt"
+        ]
+      ]
+    },
+    {
+      "label": "再传 Build Type",
+      "args": [
+        "-DCMAKE_BUILD_TYPE=Release"
+      ],
+      "after": [
+        [
+          "cmake",
+          "--build",
+          "build",
+          "--config",
+          "Debug"
+        ],
+        [
+          "./build/Debug/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "可用的配置：Debug;Release;RelWithDebInfo；CMAKE_BUILD_TYPE=\\[\\]",
+    "CMAKE_BUILD_TYPE=\\[Release\\]",
+    "config=Debug",
+    "config=Release",
+    "config=RelWithDebInfo"
+  ],
+  "expect_not": [
+    "CMake Error"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "title": "版本号和三个文件名",
+  "runs": [
+    {
+      "label": "配置并构建",
+      "after": [
+        [
+          "ls",
+          "-l",
+          "build/libx.so",
+          "build/libx.so.1",
+          "build/libx.so.1.2.3"
+        ],
+        [
+          "readelf",
+          "-d",
+          "build/app"
+        ],
+        [
+          "readelf",
+          "-d",
+          "build/libx.so.1.2.3"
+        ],
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "-Wl,-soname,libx\\.so\\.1",
+    "libx\\.so\\.1 -> libx\\.so\\.1\\.2\\.3",
+    "libx\\.so -> libx\\.so\\.1",
+    "NEEDED\\)\\s+Shared library: \\[libx\\.so\\.1\\]",
+    "SONAME\\)\\s+Library soname: \\[libx\\.so\\.1\\]",
+    "^x=42$"
+  ],
+  "expect_not": [
+    "CMake Warning",
+    "CMake Error"
+  ]
+}

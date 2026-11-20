@@ -1,0 +1,41 @@
+{
+  "title": "--debug-find 只看要找的",
+  "runs": [
+    {
+      "label": "ZLIB 变量",
+      "args": [
+        "--debug-find-var=ZLIB_INCLUDE_DIR"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "GTest 包",
+      "args": [
+        "-DBUILD_TESTS=ON",
+        "--debug-find-pkg=GTest"
+      ],
+      "after": [
+        [
+          "ctest",
+          "--test-dir",
+          "build",
+          "--output-on-failure"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "find_path considered the following locations",
+    "VAR: ZLIB_INCLUDE_DIR",
+    "find_package considered the following locations for GTest",
+    "The file was found at",
+    "100% tests passed"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

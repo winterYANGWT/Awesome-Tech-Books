@@ -1,0 +1,34 @@
+{
+  "title": "两个数字各管什么",
+  "runs": [
+    {
+      "label": "写范围",
+      "args": [
+        "-Wno-dev"
+      ],
+      "after": [
+        [
+          "./build/policy_demo"
+        ]
+      ]
+    },
+    {
+      "label": "只写 3.25",
+      "replace": {
+        "CMakeLists.txt": "v2/CMakeLists.txt"
+      },
+      "args": [
+        "-Wno-dev"
+      ],
+      "after": [
+        [
+          "./build/policy_demo"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "CMP0156=NEW CMP0181=NEW CMP0077=NEW",
+    "CMP0156=unset CMP0181=unset CMP0077=NEW"
+  ]
+}

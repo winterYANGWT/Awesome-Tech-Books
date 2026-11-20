@@ -1,0 +1,12 @@
+{
+  "title": "两次 project()：变量跟着目录走",
+  "runs": [
+    {"label": "顶层、子目录、返回", "after": [["./build/app"]]}
+  ],
+  "expect": [
+    "top: name=Demo; version=1\\.4\\.2; tag=Demo-1\\.4\\.2; top=ON; cmake=Demo",
+    "sub: name=Sub; version=0\\.3; tag=Sub-0\\.3; top=OFF; sub_top=OFF; cmake=Demo",
+    "back: name=Demo; version=1\\.4\\.2; top=ON",
+    "^Demo-1\\.4\\.2 \\| Sub-0\\.3$"
+  ]
+}

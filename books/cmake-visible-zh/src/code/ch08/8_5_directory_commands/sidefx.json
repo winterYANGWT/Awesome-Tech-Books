@@ -1,0 +1,28 @@
+{
+  "title": "目录级命令影响谁",
+  "runs": [
+    {
+      "label": "配置并运行",
+      "after": [
+        [
+          "./build/early"
+        ],
+        [
+          "./build/late"
+        ],
+        [
+          "./build/sub/subapp"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "^early opt=none$",
+    "^early def=1 common=5$",
+    "^late opt=1 def=1 common=5 extra=9$",
+    "^sub opt=1 def=1 common=5 extra=9$"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

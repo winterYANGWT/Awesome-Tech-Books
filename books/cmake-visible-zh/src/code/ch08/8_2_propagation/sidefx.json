@@ -1,0 +1,27 @@
+{
+  "title": "用法要求沿链接关系传递",
+  "runs": [
+    {
+      "label": "PUBLIC 传下去",
+      "after": [
+        [
+          "./build/app/app"
+        ]
+      ]
+    },
+    {
+      "label": "net 改成 PRIVATE",
+      "replace": {
+        "net/CMakeLists.txt": "net/v2/CMakeLists.txt"
+      },
+      "expect": "build-error"
+    }
+  ],
+  "expect": [
+    "^core=7 net=8$",
+    "core/core.h: No such file or directory"
+  ],
+  "expect_not": [
+    "CMake Error"
+  ]
+}

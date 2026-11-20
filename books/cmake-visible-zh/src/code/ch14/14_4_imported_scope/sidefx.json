@@ -1,0 +1,26 @@
+{
+  "title": "导入目标默认只在 a/ 里可见",
+  "runs": [
+    {
+      "label": "默认的可见范围",
+      "build_targets": false,
+      "expect": "configure-error"
+    },
+    {
+      "label": "加 GLOBAL",
+      "replace": {
+        "a/CMakeLists.txt": "a/v2/CMakeLists.txt"
+      },
+      "after": [
+        [
+          "./build/b/b"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "b 看不到 Tiny::tiny",
+    "b 看到 Tiny::tiny，include=/work/src/deps/prefix/include",
+    "^b sees tiny=42$"
+  ]
+}

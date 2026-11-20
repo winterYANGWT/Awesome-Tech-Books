@@ -1,0 +1,14 @@
+{
+  "title": "execute_process 的值会冻住",
+  "runs": [
+    {"label": "配置并构建", "after": [["./build/app"]]},
+    {
+      "label": "只构建，不配置",
+      "configure": false,
+      "replace": {"tool-version.txt": "v2/tool-version.txt"},
+      "after": [["./build/app"]]
+    },
+    {"label": "重新配置", "after": [["./build/app"]]}
+  ],
+  "expect": ["tool: 1\\.0\\.0", "tool: 2\\.0\\.0", "compiler: g\\+\\+ ", "ninja: no work to do"]
+}

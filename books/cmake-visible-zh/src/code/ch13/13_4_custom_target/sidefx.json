@@ -1,0 +1,13 @@
+{
+  "title": "总是执行的 format 和 audit",
+  "runs": [
+    {"label": "默认构建"},
+    {"label": "再构建一次", "configure": false},
+    {"label": "构建 format", "configure": false, "build_targets": ["format"], "expect": "build-error"}
+  ],
+  "expect": [
+    "audit: 每次默认构建都执行",
+    "code should be clang-formatted",
+    "\\[4/4\\][^\\n]*audit: 每次默认构建都执行[\\s\\S]*\\[1/2\\][^\\n]*stamp\\.txt[\\s\\S]*\\[2/2\\][^\\n]*audit: 每次默认构建都执行[\\s\\S]*\\[1/1\\][^\\n]*clang-format[\\s\\S]*code should be clang-formatted"
+  ]
+}

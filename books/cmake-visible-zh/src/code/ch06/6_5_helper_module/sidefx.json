@@ -1,0 +1,23 @@
+{
+  "title": "辅助模块的模板和返回值",
+  "runs": [
+    {
+      "label": "配置、构建、运行",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "模板目录=/work/src/cmake",
+    "调用目录=/work/src",
+    "头文件=/work/build/generated/banner\\.h",
+    "标识=id_banner_0_9",
+    "^HelperModule 0\\.9 id_banner_0_9$"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

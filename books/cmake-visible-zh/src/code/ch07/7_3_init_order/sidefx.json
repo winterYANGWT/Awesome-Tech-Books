@@ -1,0 +1,11 @@
+{
+  "title": "属性的初值来自 CMAKE_* 变量",
+  "expect": [
+    "before_std-NOTFOUND",
+    "after=20",
+    "-std=gnu\\+\\+20",
+    "-fvisibility=hidden",
+    "-fPIE",
+    "bin/after"
+  ]
+}

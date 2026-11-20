@@ -1,0 +1,29 @@
+{
+  "title": "FetchContent 解压本地包",
+  "runs": [
+    {
+      "label": "首次配置",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "再次配置",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "配置前：没有 _deps[\\s\\S]*tiny 源码在 /work/build/_deps/tiny-src[\\s\\S]*配置前：_deps 已存在[\\s\\S]*tiny 源码在 /work/build/_deps/tiny-src",
+    "^tiny=42$"
+  ],
+  "expect_not": [
+    "tiny-subbuild",
+    "CMake Error"
+  ]
+}

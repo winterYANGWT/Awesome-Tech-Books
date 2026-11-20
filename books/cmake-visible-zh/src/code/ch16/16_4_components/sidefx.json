@@ -1,0 +1,31 @@
+{
+  "title": "COMPONENT：只装 runtime 一部分",
+  "runs": [
+    {
+      "label": "完整安装",
+      "after": [
+        ["cmake", "--install", "build", "--prefix", "prefix"],
+        ["./prefix/bin/parts_app"]
+      ]
+    },
+    {
+      "label": "只装 runtime",
+      "configure": false,
+      "build_targets": false,
+      "after": [
+        ["cmake", "--install", "build", "--component", "runtime", "--prefix", "prefix-runtime"],
+        ["./prefix-runtime/bin/parts_app"]
+      ]
+    }
+  ],
+  "expect": [
+    "Installing: .*/prefix/lib/libparts\\.a",
+    "Installing: .*/prefix/include/parts/parts\\.h",
+    "Installing: .*/prefix-runtime/bin/parts_app",
+    "^runtime component$"
+  ],
+  "expect_not": [
+    "prefix-runtime/lib",
+    "prefix-runtime/include"
+  ]
+}

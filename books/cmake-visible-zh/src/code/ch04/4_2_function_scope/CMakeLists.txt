@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.25...4.2)
+project(FuncScope LANGUAGES CXX)
+
+function(add_two out a b)
+  math(EXPR sum "${a} + ${b}")
+  message(STATUS "函数里 ARGC=${ARGC} ARGV0=${ARGV0} a=${a} b=${b}")
+  set(tmp "${sum} 只在函数里")
+  set(${out} ${sum} PARENT_SCOPE)
+endfunction()
+
+set(RESULT "unset")
+add_two(RESULT 2 40)
+message(STATUS "调用者里 RESULT=${RESULT}")
+if(DEFINED tmp)
+  message(STATUS "tmp 还在调用者里")
+else()
+  message(STATUS "tmp 不在调用者里")
+endif()
+
+add_executable(app main.cpp)
+target_compile_definitions(app PRIVATE "RESULT=${RESULT}")

@@ -1,0 +1,44 @@
+{
+  "title": "sanitizer 加在编译和链接两边",
+  "runs": [
+    {
+      "label": "asan+ubsan",
+      "args": [
+        "-DPROJ_SANITIZE=address;undefined"
+      ],
+      "after": [
+        {
+          "cmd": [
+            "./build/probe"
+          ],
+          "may_fail": true
+        }
+      ]
+    },
+    {
+      "label": "thread",
+      "args": [
+        "-DPROJ_SANITIZE=thread"
+      ]
+    },
+    {
+      "label": "混用",
+      "args": [
+        "-DPROJ_SANITIZE=address;thread"
+      ],
+      "expect": "configure-error",
+      "fresh": true
+    }
+  ],
+  "expect": [
+    "-fsanitize=address,undefined.*-c /work/src/main\\.cpp",
+    "-fsanitize=address,undefined.*-o probe",
+    "runtime error: index 3 out of bounds",
+    "-fsanitize=thread",
+    "ERROR: AddressSanitizer: stack-buffer-overflow",
+    "thread 不能和 address 同时使用"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "title": "目录级命令波及子目录",
+  "runs": [
+    {"label": "目录级命令", "after": [["./build/app"]]},
+    {"label": "目标命令", "replace": {"CMakeLists.txt": "v2/CMakeLists.txt"},
+     "after": [["./build/app"],
+               {"label": "检查 helper 的编译行", "cmd": ["sh", "-c", "line=$(ninja -C build -t commands helper); n=$(echo \"$line\" | grep -o -- ' -I' | wc -l); [ \"$n\" -eq 1 ] || { echo \"helper 的 -I 个数：$n\"; exit 1; }; case \"$line\" in *-DOWNER=1*) echo 'helper 仍带 -DOWNER=1'; exit 1;; esac; echo 'helper 只有自己的 -I，没有 -DOWNER=1'"]}]}
+  ],
+  "expect": ["app: 40 \\+ 2 = 42, OWNER=1", "-DOWNER=1.*helper.cpp", "helper 只有自己的 -I，没有 -DOWNER=1"],
+  "expect_not": ["CMake Warning"]
+}

@@ -1,0 +1,12 @@
+{
+  "title": "链接之后复制程序",
+  "runs": [
+    {"label": "第一次构建", "after": [["./build/dist/app-copy"]]},
+    {"label": "再构建一次", "configure": false, "after": [["./build/dist/app-copy"]]}
+  ],
+  "expect": [
+    "app is running",
+    "ninja: no work to do",
+    "\\[1/2\\][^\\n]*main\\.cpp\\.o[\\s\\S]*\\[2/2\\][^\\n]*app-copy[\\s\\S]*app is running[\\s\\S]*ninja: no work to do[\\s\\S]*app is running"
+  ]
+}

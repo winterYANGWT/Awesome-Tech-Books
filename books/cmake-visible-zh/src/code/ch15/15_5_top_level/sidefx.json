@@ -1,0 +1,14 @@
+{
+  "title": "同一个库：主工程和子工程",
+  "runs": [
+    {"label": "作为主工程", "src": "tiny", "build": "build-standalone",
+     "after": [["./build-standalone/tiny_test"]]},
+    {"label": "被引入", "src": "consumer", "build": "build-consumer",
+     "after": [["./build-consumer/app"]]}
+  ],
+  "expect": [
+    "TINY_BUILD_TESTS=ON top=ON[\\s\\S]*TINY_BUILD_TESTS=OFF top=OFF",
+    "^tiny=42$"
+  ],
+  "expect_not": ["CMake Error"]
+}

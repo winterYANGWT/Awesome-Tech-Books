@@ -1,0 +1,6 @@
+{
+  "title": "变量引用在哪一步展开",
+  "env": {"BOOK_FLAVOR": "from-env"},
+  "runs": [{"label": "配置、构建、运行", "after": [["./build/app"]]}],
+  "expect": ["嵌套引用 debug", "缓存变量 configure", "普通变量不在缓存里 \\[\\]", "环境变量 \\[from-env\\]", "stage=configure build=Expansion-debug"]
+}

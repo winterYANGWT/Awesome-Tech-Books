@@ -1,0 +1,6 @@
+{
+  "title": "父目录先 set，再进子目录",
+  "runs": [{"label": "配置并运行", "after": [["./build/app"]]}],
+  "expect": ["sub 里 SUB_BUILD_TESTS=OFF", "^sub=7$"],
+  "expect_not": ["SUB_BUILD_TESTS:BOOL", "CMake Error"]
+}

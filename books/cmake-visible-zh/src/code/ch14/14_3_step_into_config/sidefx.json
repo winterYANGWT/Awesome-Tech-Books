@@ -1,0 +1,13 @@
+{
+  "title": "逐行进入 TinyConfig.cmake",
+  "runs": [
+    {"label": "配置、构建、运行", "after": [["./build/app"]]}
+  ],
+  "step_into": ["src/deps"],
+  "expect": [
+    "Tiny_VERSION=1.2.3 Tiny_DIR=/work/src/deps/prefix/lib/cmake/Tiny",
+    "Tiny_INCLUDE=/work/src/deps/prefix/include",
+    "^tiny=42$"
+  ],
+  "expect_not": ["CMake Error"]
+}

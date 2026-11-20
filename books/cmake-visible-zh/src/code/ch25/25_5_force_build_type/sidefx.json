@@ -1,0 +1,13 @@
+{
+  "title": "Build type 被普通变量遮住",
+  "runs": [
+    {"label": "写死 Release", "args": ["-DCMAKE_BUILD_TYPE=Debug"],
+     "after": [["./build/app"]]},
+    {"label": "交给用户", "args": ["-DCMAKE_BUILD_TYPE=Debug"],
+     "replace": {"CMakeLists.txt": "v2/CMakeLists.txt"},
+     "after": [["./build/app"]]}
+  ],
+  "expect": ["build type: Release", "cache: Debug", "NDEBUG=1", "OPTIMIZE=1",
+             "build type: Debug", "NDEBUG=0", "OPTIMIZE=0"],
+  "expect_not": ["CMake Warning"]
+}

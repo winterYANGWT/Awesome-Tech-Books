@@ -1,0 +1,30 @@
+{
+  "title": "先找包，找不到再取源码",
+  "runs": [
+    {
+      "label": "先找系统包",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "禁用查找",
+      "args": [
+        "-DFETCHCONTENT_TRY_FIND_PACKAGE_MODE=NEVER"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "build/_deps 不存在[\\s\\S]*^system gtest$[\\s\\S]*build/_deps 存在[\\s\\S]*^fake gtest$"
+  ],
+  "expect_not": [
+    "CMake Error"
+  ]
+}

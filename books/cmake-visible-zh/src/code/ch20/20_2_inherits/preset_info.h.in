@@ -1,0 +1,4 @@
+#pragma once
+#define PROJ_LABEL "@PROJ_LABEL@"
+#define PROJ_SANITIZE_TEXT "@PROJ_SANITIZE_TEXT@"
+#define PROJ_BUILD_TYPE "@CMAKE_BUILD_TYPE@"

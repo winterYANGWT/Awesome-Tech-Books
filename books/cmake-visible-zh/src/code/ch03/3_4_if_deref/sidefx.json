@@ -1,0 +1,9 @@
+{
+  "title": "if() 的自动解引用",
+  "runs": [
+    {"label": "值恰好是变量名", "after": [["./build/app"]]},
+    {"label": "空值展开", "replace": {"CMakeLists.txt": "v2/CMakeLists.txt"}, "expect": "configure-error"}
+  ],
+  "expect": ["verdict=wrong-match", "Unknown arguments specified"],
+  "expect_not": []
+}

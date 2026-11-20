@@ -1,0 +1,16 @@
+{
+  "title": "检查结果进缓存，再配置不重测",
+  "runs": [
+    {"label": "第一次配置", "after": [["./build/app"]]},
+    {"label": "再配置", "build_targets": false}
+  ],
+  "expect": [
+    "Performing Test HAVE_CXX_STRING - Success",
+    "Looking for C\\+\\+ include unistd\\.h - found",
+    "Performing Test HAVE_BOGUS_FLAG - Failed",
+    "再配置：HAVE_CXX_STRING 已在缓存里",
+    "结果：string=1 unistd=1 no-exceptions=1 bogus=",
+    "^HAVE_UNISTD_H=1$"
+  ],
+  "expect_not": ["CMake Warning"]
+}

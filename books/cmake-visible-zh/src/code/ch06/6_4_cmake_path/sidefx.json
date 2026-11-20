@@ -1,0 +1,23 @@
+{
+  "title": "用 cmake_path 拆路径",
+  "runs": [
+    {
+      "label": "配置、构建、运行",
+      "after": [
+        [
+          "./build/bin/tools/widget"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "FILENAME=widget\\.cpp  EXTENSION=\\.cpp  STEM=widget",
+    "相对源码根=src  绝对路径=ON",
+    "旧写法：NAME=widget\\.cpp  EXT=\\.cpp  STEM=widget  DIRECTORY=/work/src/src",
+    "bin/tools/widget",
+    "^widget from src$"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

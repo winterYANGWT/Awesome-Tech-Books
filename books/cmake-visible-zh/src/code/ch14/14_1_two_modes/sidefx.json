@@ -1,0 +1,15 @@
+{
+  "title": "两种模式：FindZLIB 和 GTest 配置",
+  "runs": [
+    {"label": "配置、构建、运行", "after": [["./build/app"]]}
+  ],
+  "expect": [
+    "Found ZLIB: /usr/lib/x86_64-linux-gnu/libz.so",
+    "ZLIB_INCLUDE_DIR=/usr/include",
+    "GTest_VERSION=1.17.0 GTest_DIR=/usr/lib/x86_64-linux-gnu/cmake/GTest",
+    "ZLIB_VERSION=1\\.3\\.1 ZLIB_DIR=$",
+    "^zlib 1\\.3\\.1$",
+    "1 test from Zlib"
+  ],
+  "expect_not": ["CMake Error"]
+}

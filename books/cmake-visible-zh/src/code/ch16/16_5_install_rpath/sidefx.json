@@ -1,0 +1,28 @@
+{
+  "title": "安装后的 rpath：$ORIGIN 指到 lib",
+  "runs": [
+    {
+      "label": "没有 install rpath",
+      "after": [
+        ["cmake", "--install", "build", "--prefix", "prefix"],
+        {"cmd": ["./prefix/bin/greet_app"], "label": "运行安装后的程序", "may_fail": true},
+        {"cmd": ["readelf", "-d", "prefix/bin/greet_app"], "label": "查看安装后的 RUNPATH"}
+      ]
+    },
+    {
+      "label": "加上 install rpath",
+      "args": ["-DWITH_INSTALL_RPATH=ON"],
+      "after": [
+        ["cmake", "--install", "build", "--prefix", "prefix"],
+        ["./prefix/bin/greet_app"],
+        ["readelf", "-d", "prefix/bin/greet_app"]
+      ]
+    }
+  ],
+  "expect": [
+    "error while loading shared libraries: libgreet\\.so",
+    "RUNPATH.*\\$ORIGIN/\\.\\./lib",
+    "^hello from shared greet$",
+    "error while loading[\\s\\S]*hello from shared greet[\\s\\S]*RUNPATH.*\\$ORIGIN/\\.\\./lib"
+  ]
+}

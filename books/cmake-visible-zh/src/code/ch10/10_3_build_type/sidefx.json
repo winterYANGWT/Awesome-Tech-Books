@@ -1,0 +1,34 @@
+{
+  "title": "构建类型加上哪些参数",
+  "runs": [
+    {
+      "label": "不设",
+      "after": [["./build/app"]]
+    },
+    {
+      "label": "Debug",
+      "args": ["-DCMAKE_BUILD_TYPE=Debug"],
+      "after": [["./build/app"]]
+    },
+    {
+      "label": "Release",
+      "args": ["-DCMAKE_BUILD_TYPE=Release"],
+      "after": [["./build/app"]]
+    },
+    {
+      "label": "默认值",
+      "replace": {"CMakeLists.txt": "v2/CMakeLists.txt"},
+      "fresh": true,
+      "after": [["./build/app"]]
+    }
+  ],
+  "expect": [
+    "g\\+\\+\\s+-MD",
+    "g\\+\\+\\s+-g\\s+-MD",
+    "g\\+\\+\\s+-O3 -DNDEBUG\\s+-MD",
+    "g\\+\\+\\s+-O2 -g -DNDEBUG\\s+-MD",
+    "NDEBUG is not defined",
+    "NDEBUG is defined"
+  ],
+  "expect_not": ["CMake Error"]
+}

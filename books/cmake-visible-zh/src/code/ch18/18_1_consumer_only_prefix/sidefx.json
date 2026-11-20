@@ -1,0 +1,38 @@
+{
+  "title": "偷看源码树，构建假通过",
+  "runs": [
+    {
+      "label": "安装 Greet",
+      "src": "greet",
+      "after": [
+        ["cmake", "--install", "build", "--prefix", "prefix"]
+      ]
+    },
+    {
+      "label": "下游通过",
+      "src": "app",
+      "build": "build-app",
+      "args": ["-DCMAKE_PREFIX_PATH=../../prefix"],
+      "after": [
+        ["./build-app/app"]
+      ]
+    },
+    {
+      "label": "删掉后失败",
+      "src": "app",
+      "build": "build-app",
+      "fresh": true,
+      "replace": {
+        "app/CMakeLists.txt": "app/fixed/CMakeLists.txt"
+      },
+      "args": ["-DCMAKE_PREFIX_PATH=../../prefix"],
+      "expect": "build-error"
+    }
+  ],
+  "step_into": ["prefix/lib/cmake"],
+  "expect": [
+    "^hello, installed package!$",
+    "fatal error: greet/greet.h: No such file or directory"
+  ],
+  "expect_not": ["CMake Error"]
+}

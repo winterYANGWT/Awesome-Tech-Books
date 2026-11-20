@@ -1,0 +1,19 @@
+{
+  "title": "block() 只把结果带出来",
+  "expect": [
+    "block 外 result=42",
+    "tmp1 没了",
+    "return\\(PROPAGATE\\) 之后 y=42",
+    "local_only 不在调用者里",
+    "^42 42$"
+  ],
+  "runs": [
+    {
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "title": "third_party 当子目录带进来",
+  "runs": [
+    {
+      "label": "普通子目录",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "两个都加",
+      "fresh": true,
+      "replace": {
+        "CMakeLists.txt": "v2/CMakeLists.txt"
+      },
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "tiny: TINY_BUILD_TOOL=ON[\\s\\S]*\\[1/6\\][\\s\\S]*\\[6/6\\][\\s\\S]*tiny: TINY_BUILD_TOOL=ON[\\s\\S]*\\[1/4\\][\\s\\S]* -isystem [^\\n]*third_party/tiny/include",
+    "^tiny=42$"
+  ],
+  "expect_not": [
+    "CMake Error"
+  ]
+}

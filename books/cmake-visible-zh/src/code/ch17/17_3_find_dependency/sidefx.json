@@ -1,0 +1,72 @@
+{
+  "title": "漏写 find_dependency",
+  "runs": [
+    {
+      "label": "先安装一次",
+      "src": "greet",
+      "after": [
+        [
+          "cmake",
+          "--install",
+          "build",
+          "--prefix",
+          "prefix"
+        ]
+      ]
+    },
+    {
+      "label": "下游失败",
+      "src": "app",
+      "build": "build-app",
+      "args": [
+        "-DCMAKE_PREFIX_PATH=../../prefix"
+      ],
+      "expect": "configure-error"
+    },
+    {
+      "label": "补上依赖",
+      "src": "greet",
+      "replace": {
+        "greet/cmake/GreetConfig.cmake.in": "greet/fixed/GreetConfig.cmake.in"
+      },
+      "after": [
+        [
+          "cmake",
+          "-E",
+          "rm",
+          "-rf",
+          "prefix"
+        ],
+        [
+          "cmake",
+          "--install",
+          "build",
+          "--prefix",
+          "prefix"
+        ]
+      ]
+    },
+    {
+      "label": "下游通过",
+      "src": "app",
+      "build": "build-app",
+      "fresh": true,
+      "args": [
+        "-DCMAKE_PREFIX_PATH=../../prefix"
+      ],
+      "after": [
+        [
+          "./build-app/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "The link interface of target \"Greet::greet\" contains",
+    "but the target was not found",
+    "^compressed 45 bytes to 53 bytes$"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

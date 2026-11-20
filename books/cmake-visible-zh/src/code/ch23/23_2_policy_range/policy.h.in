@@ -1,0 +1,4 @@
+#pragma once
+#define POLICY_CMP0156 "@cmp0156@"
+#define POLICY_CMP0181 "@cmp0181@"
+#define POLICY_CMP0077 "@cmp0077@"

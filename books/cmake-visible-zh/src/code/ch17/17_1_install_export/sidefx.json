@@ -1,0 +1,22 @@
+{
+  "title": "安装导出 Targets 文件",
+  "runs": [
+    {
+      "label": "安装并查看",
+      "after": [
+        ["./build/app"],
+        ["cmake", "--install", "build", "--prefix", "prefix"],
+        ["grep", "-n", "add_library", "prefix/lib/cmake/Greet/GreetTargets.cmake"],
+        ["grep", "-n", "INTERFACE_INCLUDE_DIRECTORIES", "prefix/lib/cmake/Greet/GreetTargets.cmake"],
+        ["grep", "-n", "IMPORTED_LOCATION", "prefix/lib/cmake/Greet/GreetTargets-noconfig.cmake"]
+      ]
+    }
+  ],
+  "expect": [
+    "^hello, consumer!$",
+    "add_library\\(Greet::greet STATIC IMPORTED\\)",
+    "INTERFACE_INCLUDE_DIRECTORIES.*_IMPORT_PREFIX./include",
+    "IMPORTED_LOCATION_NOCONFIG.*libgreet.a"
+  ],
+  "expect_not": ["CMake Error"]
+}

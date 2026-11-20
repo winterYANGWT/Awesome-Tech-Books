@@ -1,0 +1,49 @@
+{
+  "title": "-D 写进缓存，FORCE 又能改回去",
+  "runs": [
+    {
+      "label": "带 -D 配置",
+      "args": [
+        "-DUSE_FAST=OFF",
+        "-DLOG_LEVEL=debug"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "不带 -D 再配置",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "CMakeLists 里 FORCE",
+      "replace": {
+        "CMakeLists.txt": "v2/CMakeLists.txt"
+      },
+      "args": [
+        "-DUSE_FAST=OFF"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "配置前缓存 USE_FAST=\\[OFF\\] 类型=UNINITIALIZED[\\s\\S]*USE_FAST=OFF LOG_LEVEL=debug",
+    "配置前缓存 USE_FAST=\\[OFF\\] 类型=BOOL[\\s\\S]*USE_FAST=OFF LOG_LEVEL=debug",
+    "配置前缓存 USE_FAST=\\[OFF\\] 类型=UNINITIALIZED[\\s\\S]*USE_FAST=ON LOG_LEVEL=debug",
+    "slow path, log=debug",
+    "fast path, log=debug"
+  ],
+  "expect_not": [
+    "CMake Error"
+  ]
+}

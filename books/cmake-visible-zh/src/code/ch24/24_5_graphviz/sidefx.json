@@ -1,0 +1,19 @@
+{
+  "title": "graphviz 看目标依赖图",
+  "runs": [
+    {"label": "构建并运行", "after": [["./build/app"]]},
+    {"label": "生成 dot", "after": [
+      ["cmake", "--graphviz=deps.dot", "-S", "src", "-B", "build"],
+      ["grep", "-n", "-E", "// (app -> core|core -> util|core -> ZLIB::ZLIB)$", "deps.dot"]
+    ]}
+  ],
+  "expect": [
+    "core=3",
+    "Generate graphviz: /work/deps.dot",
+    "\\[ style = dotted \\] // core -> ZLIB::ZLIB",
+    "\\[ style = dotted \\] // app -> core",
+    "// core -> util"
+  ],
+  "expect_not": ["style.*// core -> util", "CMake Warning"],
+  "contents": ["deps.dot"]
+}

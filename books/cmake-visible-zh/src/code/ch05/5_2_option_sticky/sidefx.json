@@ -1,0 +1,16 @@
+{
+  "title": "改了 option() 的默认值，值没变",
+  "runs": [
+    {"label": "默认配置", "after": [["./build/app"]]},
+    {"label": "改默认值再配置", "replace": {"CMakeLists.txt": "v2/CMakeLists.txt"}, "after": [["./build/app"]]},
+    {"label": "从头配置", "fresh": true, "after": [["./build/app"]]}
+  ],
+  "expect": [
+    "配置前缓存 USE_FAST=\\[\\][\\s\\S]*配置时 USE_FAST=ON",
+    "配置前缓存 USE_FAST=\\[ON\\][\\s\\S]*配置时 USE_FAST=ON",
+    "配置前缓存 USE_FAST=\\[\\][\\s\\S]*配置时 USE_FAST=OFF",
+    "^fast path$",
+    "^slow path$"
+  ],
+  "expect_not": ["CMake Error"]
+}

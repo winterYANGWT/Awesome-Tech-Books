@@ -1,0 +1,19 @@
+{
+  "title": "一个测试通过，一个失败",
+  "runs": [
+    {
+      "label": "配置、构建、测试",
+      "after": [
+        {"cmd": ["ctest", "--test-dir", "build", "--output-on-failure"], "may_fail": true}
+      ]
+    }
+  ],
+  "expect": [
+    "1/2 Test #1: returns_zero.*Passed",
+    "2/2 Test #2: returns_one.*Failed",
+    "probe: this test is meant to fail",
+    "50% tests passed, 1 tests failed out of 2"
+  ],
+  "expect_not": ["CMake Error", "CMake Warning"],
+  "contents": ["build/CTestTestfile.cmake"]
+}

@@ -1,0 +1,12 @@
+{
+  "title": "第二次配置为什么快",
+  "runs": [
+    {"label": "首次配置", "after": [["./build/app"]]},
+    {"label": "再次配置", "after": [["./build/app"]]},
+    {"label": "从头再来", "fresh": true, "after": [["./build/app"]]}
+  ],
+  "expect": [
+    "compiler=/usr/bin/g\\+\\+; id=GNU",
+    "^again$"
+  ]
+}

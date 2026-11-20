@@ -1,0 +1,41 @@
+{
+  "title": "不写库类型会变成什么",
+  "runs": [
+    {
+      "label": "静态库",
+      "args": [
+        "-DBUILD_SHARED_LIBS=OFF"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "动态库",
+      "fresh": true,
+      "args": [
+        "-DBUILD_SHARED_LIBS=ON"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "libx\\.a",
+    "ar qc",
+    "libx\\.so",
+    "ar qc[\\s\\S]*libx\\.so",
+    "-shared",
+    "-fPIC",
+    "^x=42$"
+  ],
+  "expect_not": [
+    "CMake Warning",
+    "CMake Error"
+  ]
+}

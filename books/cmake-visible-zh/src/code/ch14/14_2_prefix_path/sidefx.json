@@ -1,0 +1,42 @@
+{
+  "title": "配置模式：Tiny 从哪里找到",
+  "runs": [
+    {
+      "label": "不给路径",
+      "build_targets": false,
+      "expect": "configure-error"
+    },
+    {
+      "label": "给前缀",
+      "fresh": true,
+      "args": [
+        "-DCMAKE_PREFIX_PATH=deps/prefix",
+        "--debug-find-pkg=Tiny"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "Tiny_DIR",
+      "fresh": true,
+      "args": [
+        "-DTiny_DIR=deps/prefix/lib/cmake/Tiny"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "Could not find a package configuration file provided by \"Tiny\"",
+    "Tiny_DIR=/work/src/deps/prefix/lib/cmake/Tiny",
+    "^-- Tiny_DIR=deps/prefix/lib/cmake/Tiny$",
+    "find_package considered the following locations for Tiny's Config module",
+    "^tiny=42$"
+  ]
+}

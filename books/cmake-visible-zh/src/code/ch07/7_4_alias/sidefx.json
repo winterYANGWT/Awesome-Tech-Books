@@ -1,0 +1,9 @@
+{
+  "title": "ALIAS 和两种拼错的名字",
+  "runs": [
+    {"label": "用别名链接", "after": [["./build/app"]]},
+    {"label": "拼错带 ::", "replace": {"CMakeLists.txt": "v2/CMakeLists.txt"}, "build_targets": false, "expect": "configure-error"},
+    {"label": "拼错不带 ::", "replace": {"CMakeLists.txt": "v3/CMakeLists.txt"}, "expect": "build-error"}
+  ],
+  "expect": ["hello from greet", "main\\.cpp\\.o -o app.*libgreet\\.a", "but the target was not found", "cannot find -lgret"]
+}

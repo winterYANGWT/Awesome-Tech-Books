@@ -1,0 +1,10 @@
+{
+  "title": "全局 flags 漏进第三方目录",
+  "runs": [
+    {"label": "改全局变量", "expect": "build-error"},
+    {"label": "只给 app", "replace": {"CMakeLists.txt": "v2/CMakeLists.txt"},
+     "after": [["./build/app"]]}
+  ],
+  "expect": ["unused variable", "legacy=2"],
+  "expect_not": ["CMake Warning"]
+}

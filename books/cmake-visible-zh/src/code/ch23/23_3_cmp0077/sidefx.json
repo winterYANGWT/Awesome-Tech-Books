@@ -1,0 +1,34 @@
+{
+  "title": "option() 遇到普通变量",
+  "runs": [
+    {
+      "label": "NEW",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "OLD",
+      "replace": {
+        "CMakeLists.txt": "v2/CMakeLists.txt"
+      },
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "cache: 没有 WANT_FAST",
+    "WANT_FAST=OFF",
+    "运行：普通路径",
+    "cache: WANT_FAST=ON",
+    "WANT_FAST=ON",
+    "运行：快速路径",
+    "The OLD behavior for policy CMP0077 will be removed"
+  ],
+  "warnings": true
+}

@@ -1,0 +1,24 @@
+{
+  "title": "provider 指向本地 Tiny",
+  "runs": [
+    {
+      "label": "provider",
+      "args": [
+        "-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/provider.cmake"
+      ],
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "provider: 在 project\\(\\) 里被 include",
+    "Tiny_FOUND=TRUE",
+    "^tiny=42$"
+  ],
+  "expect_not": [
+    "CMake Error"
+  ]
+}

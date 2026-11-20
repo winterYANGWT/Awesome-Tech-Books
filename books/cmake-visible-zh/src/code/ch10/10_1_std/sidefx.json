@@ -1,0 +1,21 @@
+{
+  "title": "三种写法，三种 -std 结果",
+  "runs": [
+    {
+      "label": "配置并构建",
+      "after": [["cat", "build/features.txt"], ["./build/features/app"]]
+    }
+  ],
+  "expect": [
+    "-std=c\\+\\+17[^\\n]*std_vars\\.cpp",
+    "-std=c\\+\\+14[^\\n]*std_props\\.cpp",
+    "std_features=cxx_std_17",
+    "app=cxx_std_17",
+    "std_features=2 __cplusplus=201703"
+  ],
+  "expect_not": [
+    "CMake Error",
+    "-std=[^\\n]*std_features\\.cpp",
+    "-std=[^\\n]*features/main\\.cpp"
+  ]
+}

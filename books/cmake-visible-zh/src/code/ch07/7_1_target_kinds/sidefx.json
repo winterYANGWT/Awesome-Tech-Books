@@ -1,0 +1,7 @@
+{
+  "title": "六种目标：类型和产物",
+  "runs": [
+    {"label": "配置并构建", "after": [["cmake", "-E", "env", "LD_LIBRARY_PATH=./build", "./build/app"]]}
+  ],
+  "expect": ["libstat.a", "libshared.so", "CMakeFiles/obj.dir/obj.cpp.o", "-fPIC", "-shared", "ar qc", "notes: 自定义目标没有产物", "stat=1 shared=2 obj=3 iface=4"]
+}

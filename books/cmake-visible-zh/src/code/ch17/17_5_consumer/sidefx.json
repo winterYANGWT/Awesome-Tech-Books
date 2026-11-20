@@ -1,0 +1,42 @@
+{
+  "title": "下游 find_package",
+  "runs": [
+    {
+      "label": "安装 Greet",
+      "src": "greet",
+      "after": [
+        [
+          "cmake",
+          "--install",
+          "build",
+          "--prefix",
+          "prefix"
+        ]
+      ]
+    },
+    {
+      "label": "构建下游",
+      "src": "app",
+      "build": "build-app",
+      "args": [
+        "-DCMAKE_PREFIX_PATH=../../prefix"
+      ],
+      "after": [
+        [
+          "./build-app/app"
+        ]
+      ]
+    }
+  ],
+  "step_into": [
+    "prefix/lib/cmake"
+  ],
+  "expect": [
+    "^hello, installed package!$",
+    "Installing: .*GreetConfig.cmake",
+    "Installing: .*GreetTargets-noconfig.cmake"
+  ],
+  "expect_not": [
+    "CMake Error"
+  ]
+}

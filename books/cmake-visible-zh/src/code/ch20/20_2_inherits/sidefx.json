@@ -1,0 +1,17 @@
+{
+  "title": "继承来的缓存项、条件和环境变量",
+  "env": {"TEAM_TAG": "team42"},
+  "runs": [
+    {
+      "label": "asan",
+      "build": "build/asan",
+      "args": ["--preset", "asan"],
+      "after": [
+        ["cmake", "-S", "src", "--list-presets"],
+        ["./build/asan/app"]
+      ]
+    }
+  ],
+  "expect": ["werror=ON", "label=asan-team42", "build=Debug", "-Werror", "-fsanitize=address,undefined", "\"asan\""],
+  "expect_not": ["\"msan\"", "CMake Warning"]
+}

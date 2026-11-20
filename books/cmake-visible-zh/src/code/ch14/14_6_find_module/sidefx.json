@@ -1,0 +1,15 @@
+{
+  "title": "自己写 FindFoo.cmake",
+  "runs": [
+    {"label": "第一次配置", "after": [["./build/app"]]},
+    {"label": "再配置一次"}
+  ],
+  "expect": [
+    "Found Foo: /work/src/deps/foo/lib/libfoo.a",
+    "Foo_INCLUDE_DIR=/work/src/deps/foo/include",
+    "Foo_LIBRARY=/work/src/deps/foo/lib/libfoo.a",
+    "^foo=73$",
+    "ninja: no work to do\\."
+  ],
+  "expect_not": ["CMake Error"]
+}

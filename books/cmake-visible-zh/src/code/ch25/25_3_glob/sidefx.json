@@ -1,0 +1,59 @@
+{
+  "title": "GLOB 看不见新加的文件",
+  "runs": [
+    {
+      "label": "旧 GLOB",
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "新加文件",
+      "replace": {
+        "extra.cpp": "add/extra.cpp"
+      },
+      "configure": false,
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "加检查",
+      "replace": {
+        "CMakeLists.txt": "v2/CMakeLists.txt"
+      },
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    },
+    {
+      "label": "再加文件",
+      "replace": {
+        "third.cpp": "add/third.cpp"
+      },
+      "configure": false,
+      "after": [
+        [
+          "./build/app"
+        ]
+      ]
+    }
+  ],
+  "expect": [
+    "units=0",
+    "units=1",
+    "units=2",
+    "no work to do",
+    "VerifyGlobs.cmake",
+    "GLOB mismatch"
+  ],
+  "expect_not": [
+    "CMake Warning"
+  ]
+}

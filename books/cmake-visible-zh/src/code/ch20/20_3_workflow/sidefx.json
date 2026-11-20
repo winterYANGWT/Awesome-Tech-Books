@@ -1,0 +1,16 @@
+{
+  "title": "一个 workflow 预设跑完配置、构建、测试",
+  "runs": [
+    {
+      "label": "先配置",
+      "build": "build/ci",
+      "args": ["--preset", "ci"],
+      "build_targets": false,
+      "after": [
+        ["cmake", "-E", "chdir", "src", "cmake", "--workflow", "--preset", "ci"]
+      ]
+    }
+  ],
+  "expect": ["Configuring done", "Linking CXX executable", "100% tests passed"],
+  "expect_not": ["CMake Warning"]
+}

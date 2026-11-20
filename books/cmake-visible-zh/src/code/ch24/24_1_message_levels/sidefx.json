@@ -1,0 +1,14 @@
+{
+  "title": "message 的级别和上下文",
+  "runs": [
+    {"label": "默认级别", "after": [["./build/app"]]},
+    {"label": "VERBOSE", "args": ["--log-level=VERBOSE", "--log-context"], "after": [["./build/app"]]}
+  ],
+  "expect": [
+    "选用的实现：fast",
+    "编译定义：APP_IMPL_fast=1",
+    "\\[demo\\.scan\\] 查找 fast 实现",
+    "\\[demo\\] 编译定义"
+  ],
+  "expect_not": ["缓存里的 USE_FAST", "源文件列表：main\\.cpp;fast\\.cpp", "CMake Warning"]
+}
