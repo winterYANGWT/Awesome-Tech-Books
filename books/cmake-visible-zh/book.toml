@@ -1,0 +1,25 @@
+[book]
+title = "看得见的 CMake"
+description = "每个示例都真实运行一遍：cmake 在自己的调试器下逐条命令停下，录下变量、作用域、缓存、目标属性和磁盘上的文件。读者在弹出的界面里逐行回放，看清每一行在配置、生成、构建三个阶段留下的副作用。"
+authors = ["winterYANGWT"]
+language = "zh-CN"
+src = "src"
+
+[output.html]
+additional-css = ["theme/fig.css", "theme/sidefx.css"]
+additional-js = ["theme/fig.js", "theme/sidefx.js"]
+no-section-label = true
+
+[output.html.search]
+use-boolean-and = true
+
+[output.html.code.hidelines]
+cmake = "#~"
+
+[preprocessor.figs]
+command = "python3 theme/fig_preprocess.py"
+before = ["links"]
+
+[preprocessor.sidefx]
+command = "python3 theme/sidefx_preprocess.py"
+before = ["links"]
