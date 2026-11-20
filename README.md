@@ -17,6 +17,7 @@
 | [四足机器人控制：从关节电机到自主行走](https://winteryangwt.github.io/Awesome-Tech-Books/quadruped-control-zh/) | 原创中文教程，参考《四足机器人控制算法——建模、控制与实践》的章节结构、覆盖其全部 11 章内容，从关节电机讲到小跑和导航，70 个示例用 MuJoCo 仿真 Unitree A1 实测 | 文字 CC BY 4.0，代码 MIT | [`books/quadruped-control-zh/`](books/quadruped-control-zh/) |
 | [C++ 并发与并行编程：线程、内存模型、并行计算与服务器](https://winteryangwt.github.io/Awesome-Tech-Books/cpp-concurrency-zh/) | 原创中文教程，把三本并发与服务器编程书的内容按主题合编，C++20 标准库为主线，pthread、OpenMP、MPI 和 Linux 系统调用并排对照，10 部分 42 章，520 个示例均用 GCC 15 实测 | 文字 CC BY 4.0，代码 MIT | [`books/cpp-concurrency-zh/`](books/cpp-concurrency-zh/) |
 | [AI Agent 工程：从一次模型调用到多 agent 系统](https://winteryangwt.github.io/Awesome-Tech-Books/ai-agent-zh/) | 原创中文教程，把 Anthropic、OpenAI 的 agent 工程文章和 MCP、Agent Skills 规范、LangChain 资料按主题合编，从手写 agent 循环讲到多 agent 和生产，9 部分 27 章，205 个示例调用 DeepSeek 实际运行并录制 | 文字 CC BY 4.0，代码 MIT | [`books/ai-agent-zh/`](books/ai-agent-zh/) |
+| [看得见的 CMake](https://winteryangwt.github.io/Awesome-Tech-Books/cmake-visible-zh/) | 原创中文教程，以 CMake 4.2 为准，从三个阶段、作用域和缓存讲到目标与用法要求、依赖、安装导出、测试和工具链，8 部分 26 章；122 个示例都在 CMake 自带的调试器下实际运行并逐条命令录制，书中可以弹出查看器逐行回放变量、缓存、目标属性和文件的变化 | 文字 CC BY 4.0，代码 MIT | [`books/cmake-visible-zh/`](books/cmake-visible-zh/) |
 
 这些书都借助 AI 翻译或编写，难免有错，欢迎通过 issue 指正。
 
